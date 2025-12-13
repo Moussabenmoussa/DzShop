@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LandShop Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* نفس الستايل الأصلي تماماً */
+        body { font-family: 'Tajawal', sans-serif; background: #0f172a; height: 100vh; overflow: hidden; }
+        .app-container { display: flex; height: 100vh; width: 100vw; }
+        .editor-panel { width: 400px; background: #1e293b; border-left: 1px solid #334155; display: flex; flex-direction: column; overflow-y: auto; z-index: 20; flex-shrink: 0; }
+        .preview-panel { flex: 1; background: #0f172a; display: flex; align-items: center; justify-content: center; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; position: relative; overflow: hidden; }
+        .mobile-frame { width: 100%; max-width: 375px; height: 95%; max-height: 800px; background: #fff; border-radius: 30px; border: 8px solid #334155; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .input { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 10px; border-radius: 8px; color: white; font-size: 13px; margin-bottom: 12px; transition: 0.2s; }
+        .input:focus { border-color: #3b82f6; outline: none; background: #162032; }
+        .label { display: block; color: #94a3b8; font-size: 11px; margin-bottom: 5px; font-weight: bold; }
+        .section-title { font-weight: 800; color: white; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #334155; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .lp-scroll { flex: 1; overflow-y: auto; background: #f8fafc; padding-bottom: 80px; scroll-behavior: smooth; }
+        .lp-scroll::-webkit-scrollbar { width: 4px; }
+        
+        @media (max-width: 800px) {
+            .app-container { flex-direction: column; }
+            .editor-panel { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+            .preview-panel { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 10; padding: 0; }
+            .mobile-frame { width: 100%; height: 100%; max-width: 100%; border: none; border-radius: 0; }
+            .mobile-tabs { display: flex !important; }
+            .editor-panel.hidden-mobile, .preview-panel.hidden-mobile { display: none; }
+        }
+        .mobile-tabs { display: none; position: fixed; bottom: 0; width: 100%; background: #1e293b; z-index: 1000; height: 50px; border-top: 1px solid #334155; }
+        .tab-btn { flex: 1; background: none; border: none; color: #94a3b8; font-weight: bold; font-size: 14px; }
+        .tab-btn.active { color: #3b82f6; background: rgba(59, 130, 246, 0.1); border-top: 2px solid #3b82f6; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div id="editorPanel" class="editor-panel custom-scroll">
+        <div class="p-4 bg-slate-900 border-b border-gray-700 sticky top-0 z-20 flex justify-between items-center shadow-lg">
+            <h1 class="text-white font-black text-sm flex items-center gap-2"><i class="fas fa-layer-group text-blue-500"></i> LandShop <span class="text-gray-400">Cloud</span></h1>
+            <button onclick="publishPage()" id="pubBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition active:scale-95">
+                <span>نشر الرابط</span> <i class="fas fa-globe"></i> 
+            </button>
+        </div>
+
+        <div class="p-5 pb-20 space-y-6">
+            
+            <div class="bg-blue-900/20 p-3 rounded-xl border border-blue-900/50">
+                <div class="section-title"><i class="fas fa-link text-blue-400"></i> رابط الصفحة</div>
+                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: watch-vip (بدون مسافات)" required>
+                <p class="text-[10px] text-gray-400">سيكون الرابط: dzshop.onrender.com/p/<b>اسم-الرابط</b></p>
+            </div>
+
+            <div>
+                <div class="section-title"><i class="fas fa-box-open text-blue-400"></i> تفاصيل المنتج</div>
+                <input type="text" id="pName" value="اشتراك IPTV لمدة سنة" class="input" placeholder="اسم المنتج" oninput="updatePreview()">
+                <div class="flex gap-2">
+                    <input type="number" id="pPrice" value="4500" class="input" placeholder="السعر" oninput="updatePreview()">
+                    <input type="number" id="pOld" value="8000" class="input" placeholder="السعر القديم" oninput="updatePreview()">
+                </div>
+                <textarea id="pImages" rows="3" class="input text-left ltr" placeholder="رابط صورة في كل سطر" oninput="updatePreview()">https://i.imgur.com/G5qW0rF.png</textarea>
+                <textarea id="pDesc" rows="3" class="input" placeholder="وصف المنتج..." oninput="updatePreview()">وصف للمنتج يظهر هنا...</textarea>
+            </div>
+
+            <div class="bg-red-900/20 p-3 rounded-xl border border-red-900/50">
+                <div class="section-title"><i class="fas fa-wallet text-red-500"></i> الدفع (RedotPay)</div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs text-gray-300 font-bold">تفعيل RedotPay</span>
+                    <input type="checkbox" id="enableRedot" class="accent-red-500 h-4 w-4" onchange="updatePreview()">
+                </div>
+                <div id="redotFields" class="hidden">
+                    <input type="text" id="redotID" value="123456789" class="input text-left ltr" placeholder="RedotPay ID">
+                    <input type="text" id="redotQR" class="input text-left ltr" placeholder="رابط QR Code (اختياري)">
+                </div>
+            </div>
+
+            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+                <div class="section-title"><i class="fas fa-map-marked-alt text-green-400"></i> مناطق التوصيل</div>
+                <textarea id="pWilayas" rows="4" class="input h-24 text-xs" oninput="updatePreview()">01. أدرار
+16. الجزائر</textarea>
+                <textarea id="pCommunes" rows="4" class="input h-24 text-xs" oninput="updatePreview()">01. أدرار: أدرار وسط
+16. الجزائر: الجزائر الوسطى</textarea>
+            </div>
+
+            <div>
+                 <div class="section-title"><i class="fas fa-sliders-h text-yellow-400"></i> الإعدادات</div>
+                <select id="sendMethod" class="input" onchange="updatePreview()">
+                    <option value="both">إيميل + واتساب</option>
+                    <option value="whatsapp">واتساب فقط</option>
+                </select>
+                <input type="text" id="whatsapp" value="213555123456" class="input text-left ltr" placeholder="WhatsApp Number">
+                <input type="email" id="email" class="input text-left ltr" placeholder="Email">
+                <input type="text" id="sheet" class="input text-left ltr" placeholder="Google Sheet URL">
+                <input type="number" id="shipping" value="0" class="input" placeholder="سعر التوصيل">
+            </div>
+        </div>
+    </div>
+
+    <div id="previewPanel" class="preview-panel hidden-mobile">
+        <div class="mobile-frame">
+            <div class="bg-red-600 text-white text-[10px] text-center py-2 font-bold sticky top-0 z-10 shadow-md">
+                ⚡ عرض محدود <span class="bg-black/20 px-1 rounded font-mono mx-1">02:30:00</span>
+            </div>
+            <div class="lp-scroll">
+                <div id="prevSlider" class="h-64 bg-gray-200 relative"></div>
+                <div class="bg-white rounded-t-3xl relative -mt-6 p-5 min-h-[500px] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+                    <h2 class="text-xl font-black text-slate-800 leading-snug mb-2" id="prevName">...</h2>
+                    <div class="flex items-end gap-2 mb-5">
+                        <span class="text-3xl font-black text-red-600" id="prevPrice">00</span>
+                        <span class="text-sm font-bold text-slate-800 mb-1">د.ج</span>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="badgesArea"></div>
+
+                    <div class="mt-2 border-t border-gray-100 pt-4">
+                        <h3 class="font-bold text-sm mb-2 text-slate-800">الوصف:</h3>
+                        <div class="text-sm text-gray-600 whitespace-pre-line leading-relaxed" id="prevDesc"></div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-8 pb-6">
+                        <div class="text-center mb-4"><h3 class="font-bold text-slate-800 text-lg">بيانات الطلب</h3></div>
+                        <div id="paymentToggle" class="hidden mb-4 bg-white p-1 rounded-lg border border-gray-200 flex">
+                            <button class="flex-1 py-2 text-xs font-bold rounded-md bg-slate-800 text-white">الدفع عند الاستلام</button>
+                            <button class="flex-1 py-2 text-xs font-bold rounded-md text-gray-500">RedotPay</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white border rounded-lg h-11 px-3 flex items-center text-sm text-gray-400">الاسم واللقب</div>
+                            <div class="bg-white border rounded-lg h-11 px-3 flex items-center text-sm text-gray-400">رقم الهاتف</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-20">
+                <button id="prevBtn" class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 text-lg shadow-lg"><span>تأكيد الطلب</span> <i class="fas fa-arrow-left"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mobile-tabs">
+    <button class="tab-btn active" onclick="switchTab('editor', this)"><i class="fas fa-edit block mb-1"></i> المحرر</button>
+    <button class="tab-btn" onclick="switchTab('preview', this)"><i class="fas fa-mobile-alt block mb-1"></i> المعاينة</button>
+</div>
+
+<script>
+    // الدوال الأساسية (Parsing & Preview)
+    function parseCommunes(text) { const map = {}; text.split('\n').forEach(line => { if(line.includes(':')) { const [wilaya, comms] = line.split(':'); if(wilaya && comms) map[wilaya.trim()] = comms.split(/,|،/).map(c => c.trim()).filter(c => c); } }); return map; }
+    
+    function updatePreview() {
+        const isRedot = document.getElementById('enableRedot').checked;
+        document.getElementById('redotFields').classList.toggle('hidden', !isRedot);
+        document.getElementById('paymentToggle').classList.toggle('hidden', !isRedot);
+
+        document.getElementById('prevName').innerText = document.getElementById('pName').value;
+        document.getElementById('prevPrice').innerText = document.getElementById('pPrice').value;
+        document.getElementById('prevDesc').innerHTML = document.getElementById('pDesc').value.replace(/\n/g, '<br>');
+
+        const imgs = document.getElementById('pImages').value.split('\n').filter(x => x.trim());
+        document.getElementById('prevSlider').innerHTML = imgs.length ? `<img src="${imgs[0]}" class="w-full h-full object-cover">` : '';
+
+        // Badges
+        let badgesHtml = `<div class="bg-blue-50 px-3 py-2 rounded-lg text-center border border-blue-100 min-w-[80px]"><i class="fas fa-truck text-blue-500 mb-1"></i><div class="text-[9px] font-bold text-blue-800">توصيل سريع</div></div> <div class="bg-green-50 px-3 py-2 rounded-lg text-center border border-green-100 min-w-[80px]"><i class="fas fa-hand-holding-dollar text-green-500 mb-1"></i><div class="text-[9px] font-bold text-green-800">الدفع عند الاستلام</div></div>`;
+        if(isRedot) badgesHtml += `<div class="bg-red-50 px-3 py-2 rounded-lg text-center border border-red-100 min-w-[80px]"><i class="fas fa-wallet text-red-500 mb-1"></i><div class="text-[9px] font-bold text-red-800">RedotPay</div></div>`;
+        document.getElementById('badgesArea').innerHTML = badgesHtml;
+
+        const method = document.getElementById('sendMethod').value;
+        const btn = document.getElementById('prevBtn');
+        if(method === 'whatsapp') {
+            btn.className = "w-full bg-[#25D366] text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 text-lg shadow-lg shadow-green-100";
+            btn.innerHTML = '<span>اطلب عبر واتساب</span> <i class="fab fa-whatsapp text-2xl"></i>';
+        } else {
+            btn.className = "w-full bg-red-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 text-lg shadow-lg shadow-red-200";
+            btn.innerHTML = '<span>تأكيد الطلب الآن</span> <i class="fas fa-check-circle"></i>';
+        }
+    }
+
+    function switchTab(t, btn) {
+        document.getElementById('editorPanel').classList.toggle('hidden-mobile', t !== 'editor');
+        document.getElementById('previewPanel').classList.toggle('hidden-mobile', t !== 'preview');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // === دالة النشر الجديدة (بدل التحميل) ===
+    async function publishPage() {
+        const slug = document.getElementById('pSlug').value.trim();
+        if(!slug) return alert('يرجى كتابة "رابط الصفحة" أولاً في الأعلى');
+
+        const btn = document.getElementById('pubBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+        btn.disabled = true;
+
+        const d = {
+            slug: slug, // الرابط المميز
+            name: document.getElementById('pName').value,
+            price: document.getElementById('pPrice').value,
+            old: document.getElementById('pOld').value,
+            desc: document.getElementById('pDesc').value,
+            imgs: document.getElementById('pImages').value.split('\n').filter(x=>x.trim()),
+            wilayas: document.getElementById('pWilayas').value.split('\n').filter(x=>x.trim()),
+            communes: parseCommunes(document.getElementById('pCommunes').value),
+            redot: {
+                active: document.getElementById('enableRedot').checked,
+                id: document.getElementById('redotID').value,
+                qr: document.getElementById('redotQR').value
+            },
+            conf: {
+                method: document.getElementById('sendMethod').value,
+                wa: document.getElementById('whatsapp').value,
+                email: document.getElementById('email').value,
+                sheet: document.getElementById('sheet').value,
+                ship: document.getElementById('shipping').value
+            }
+        };
+
+        try {
+            const res = await fetch('/publish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(d)
+            });
+            const result = await res.json();
+            
+            if(result.success) {
+                const url = window.location.origin + '/p/' + slug;
+                prompt("✅ تم نشر المتجر بنجاح! انسخ الرابط:", url);
+                window.open(url, '_blank');
+            } else {
+                alert("❌ خطأ: " + result.message);
+            }
+        } catch(err) {
+            alert("حدث خطأ في الاتصال");
+        }
+        btn.innerHTML = '<span>نشر الرابط</span> <i class="fas fa-globe"></i>';
+        btn.disabled = false;
+    }
+
+    window.onload = updatePreview;
+</script>
+</body>
+      </html>
