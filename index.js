@@ -2,198 +2,290 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 
-// إعدادات أساسية
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- 1. الاتصال بقاعدة البيانات ---
-// يأخذ الرابط من إعدادات السيرفر (Render)
+// --- 1. الاتصال بقاعدة البيانات الحقيقية ---
 const mongoUri = process.env.MONGO_URI;
 
-// التحقق من وجود الرابط قبل الاتصال
 if (!mongoUri) {
-  console.error("❌ هام جداً: لم يتم العثور على رابط قاعدة البيانات (MONGO_URI)");
+    console.error("❌ خطأ: يجب إضافة MONGO_URI في إعدادات Render");
 } else {
-  mongoose.connect(mongoUri)
-    .then(() => console.log('✅ تم الاتصال بنجاح مع MongoDB Atlas'))
-    .catch(err => console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err));
+    mongoose.connect(mongoUri)
+        .then(() => console.log('✅ تم الاتصال بقاعدة البيانات الحقيقية'))
+        .catch(err => console.error('❌ فشل الاتصال:', err));
 }
 
-// --- 2. تصميم شكل البيانات (Schema) ---
-const OrderSchema = new mongoose.Schema({
-  customerName: String,
-  phone: String,
-  wilaya: String,
-  price: Number,
-  status: { type: String, default: 'قيد المراجعة' }, // قيد المراجعة، تم الشحن، ملغى
-  trackingCode: { type: String, default: '---' },
-  createdAt: { type: Date, default: Date.now }
+// --- 2. هيكل البيانات (للأرقام الحقيقية) ---
+const BlacklistSchema = new mongoose.Schema({
+    phone: { type: String, required: true, unique: true, trim: true },
+    reason: String,
+    reports: { type: Number, default: 1 },
+    addedAt: { type: Date, default: Date.now }
 });
-const Order = mongoose.model('Order', OrderSchema);
+const Blacklist = mongoose.model('Blacklist', BlacklistSchema);
 
-// --- 3. تصميم الواجهة (HTML) ---
-const htmlTemplate = (bodyContent) => `
+// --- 3. الواجهة الجديدة (تصميم فخم وموثوق) ---
+const htmlTemplate = (stats, content) => `
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة إدارة الطلبات - DzManager</title>
+    <title>DzShield - المنصة الجزائرية لكشف الاحتيال</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #f0f2f5; }
-        .header { background: #004d40; color: white; padding: 20px; text-align: center; margin-bottom: 30px; }
-        .card { border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 10px; }
-        .status-badge { padding: 5px 12px; border-radius: 15px; font-size: 0.85em; font-weight: bold; }
+        :root {
+            --primary-dark: #0a2342; /* أزرق داكن فخم */
+            --primary-light: #1c3a5e;
+            --accent-gold: #cba557; /* لمسة ذهبية */
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+            padding: 80px 0 100px;
+            text-align: center;
+            border-bottom-left-radius: 50% 20px;
+            border-bottom-right-radius: 50% 20px;
+            margin-bottom: -80px; /* تداخل مع الكارت */
+        }
+        .hero-title {
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .hero-subtitle {
+            font-weight: 400;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        .main-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 40px;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .stats-divider {
+            border-left: 1px solid #eee;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .form-control-lg {
+            border-radius: 12px;
+            padding: 15px 20px;
+            border: 2px solid #eee;
+            font-size: 1.1rem;
+        }
+        .form-control-lg:focus {
+            border-color: var(--primary-light);
+            box-shadow: none;
+        }
+        .btn-luxury {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-luxury:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(10, 35, 66, 0.2);
+            color: var(--accent-gold);
+        }
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent-gold);
+        }
+        .status-card {
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .status-danger {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            color: #c53030;
+        }
+        .status-safe {
+            background: #f0fff4;
+            border: 2px solid #68d391;
+            color: #2f855a;
+        }
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📦 DzManager - نظام إدارة الطلبات</h1>
-        <p>نسخة متصلة بقاعدة بيانات حقيقية</p>
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="hero-title display-5 mb-3"><i class="bi bi-shield-lock-fill text-gold"></i> DzShield</h1>
+            <p class="hero-subtitle lead">المنصة الجزائرية الموثوقة لحماية التجار من الاحتيال والروتور</p>
+        </div>
     </div>
 
-    <div class="container">
-        ${bodyContent}
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-10">
+                <div class="main-card">
+                    <div class="row mb-5 text-center justify-content-center">
+                        <div class="col-5">
+                            <div class="stat-number">${stats.totalCount}</div>
+                            <div class="stat-label">رقم محظور مسجل</div>
+                        </div>
+                        <div class="col-5 stats-divider">
+                            <div class="stat-number">${stats.todayCount}</div>
+                            <div class="stat-label">بلاغات اليوم</div>
+                        </div>
+                    </div>
+
+                    <h4 class="section-title"><i class="bi bi-search me-2"></i>فحص رقم زبون</h4>
+                    <form action="/check" method="POST" class="mb-4">
+                        <div class="input-group">
+                            <input type="tel" name="phone" class="form-control form-control-lg" placeholder="أدخل رقم الهاتف (مثال: 0550...)" required pattern="[0-9]{10}" title="يرجى إدخال 10 أرقام">
+                            <button class="btn btn-luxury" type="submit">تحقق الآن</button>
+                        </div>
+                    </form>
+
+                    ${content}
+
+                    <hr class="my-5" style="opacity: 0.1;">
+                    
+                    <h4 class="section-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>الإبلاغ عن رقم محتال</h4>
+                    <p class="text-muted mb-4 small">ساهم في حماية مجتمع التجار. يتم إضافة الأرقام لقاعدة البيانات فوراً.</p>
+                    
+                    <form action="/report" method="POST" class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small">رقم الهاتف</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="0660..." required pattern="[0-9]{10}">
+                        </div>
+                        <div class="col-md-4">
+                             <label class="form-label fw-bold small">سبب البلاغ</label>
+                            <select name="reason" class="form-select">
+                                <option>لا يرد / هاتف مغلق دائماً</option>
+                                <option>رفض الاستلام عند الوصول</option>
+                                <option>طلب وهمي / عنوان خاطئ</option>
+                                <option>سلوك غير لائق مع الموزع</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-danger w-100 fw-bold py-2">تسجيل البلاغ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <footer class="text-center mt-5 text-muted">
-        <small>تم التطوير بواسطة مساعدك الذكي Gemini</small>
+    <footer>
+        <div class="container">
+            <p>© 2023 DzShield - جميع الحقوق محفوظة. منصة مطورة لحماية التجارة الإلكترونية في الجزائر.</p>
+        </div>
     </footer>
 </body>
 </html>
 `;
 
-// --- 4. الروابط والتحكم (Routes) ---
+// --- 4. العمليات (Backend Logic) ---
 
-// الصفحة الرئيسية: عرض الطلبات
+// الصفحة الرئيسية
 app.get('/', async (req, res) => {
-    try {
-        // جلب الطلبات من قاعدة البيانات (الأحدث أولاً)
-        const orders = await Order.find().sort({ createdAt: -1 });
+    const totalCount = await Blacklist.countDocuments();
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayCount = await Blacklist.countDocuments({ addedAt: { $gte: today } });
 
-        // تحويل البيانات إلى جدول HTML
-        let rowsHtml = orders.map(order => `
-            <tr>
-                <td>${order.customerName}</td>
-                <td>${order.phone}</td>
-                <td>${order.wilaya}</td>
-                <td>${order.price} دج</td>
-                <td>
-                    <span class="status-badge" style="background:${order.status === 'تم الشحن' ? '#d4edda; color:#155724' : '#fff3cd; color:#856404'}">
-                        ${order.status}
-                    </span>
-                </td>
-                <td>${order.trackingCode}</td>
-                <td>${new Date(order.createdAt).toLocaleDateString('ar-DZ')}</td>
-            </tr>
-        `).join('');
+    res.send(htmlTemplate({ totalCount, todayCount }, ''));
+});
 
-        if (orders.length === 0) {
-            rowsHtml = '<tr><td colspan="7" class="text-center p-3 text-muted">لا توجد طلبات حتى الآن. أضف أول طلب!</td></tr>';
-        }
+// عملية الفحص
+app.post('/check', async (req, res) => {
+    const phone = req.body.phone.trim();
+    const result = await Blacklist.findOne({ phone: phone });
+    
+    const totalCount = await Blacklist.countDocuments();
+    const todayCount = await Blacklist.countDocuments({ addedAt: { $gte: new Date().setHours(0,0,0,0) } });
 
-        const content = `
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="card p-4">
-                        <h4 class="mb-3">➕ إضافة طلب جديد</h4>
-                        <form action="/add-order" method="POST">
-                            <div class="mb-3">
-                                <label>اسم الزبون</label>
-                                <input type="text" name="name" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>رقم الهاتف</label>
-                                <input type="number" name="phone" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>الولاية</label>
-                                <select name="wilaya" class="form-select">
-                                    <option value="الجزائر">الجزائر العاصمة</option>
-                                    <option value="وهران">وهران</option>
-                                    <option value="قسنطينة">قسنطينة</option>
-                                    <option value="سطيف">سطيف</option>
-                                    <option value="أخرى">ولاية أخرى...</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label>سعر المنتج (دج)</label>
-                                <input type="number" name="price" class="form-control" value="0">
-                            </div>
-                            <button type="submit" class="btn btn-success w-100 fw-bold">حفظ الطلب</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="col-md-8">
-                    <div class="card p-4">
-                        <h4 class="mb-3">📋 سجل الطلبات</h4>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>الاسم</th>
-                                        <th>الهاتف</th>
-                                        <th>الولاية</th>
-                                        <th>السعر</th>
-                                        <th>الحالة</th>
-                                        <th>كود التتبع</th>
-                                        <th>التاريخ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${rowsHtml}</tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+    let message = '';
+    if (result) {
+        message = `
+            <div class="status-card status-danger animate__animated animate__fadeIn">
+                <i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>
+                <h2 class="mt-3 fw-bold text-danger">تحذير: هذا الرقم مصنف كـ "روتور"</h2>
+                <p class="lead mb-1">تم الإبلاغ عنه <strong>${result.reports}</strong> مرات من قبل تجار آخرين.</p>
+                <div class="badge bg-danger bg-opacity-10 text-danger p-2 mt-3 fs-6">آخر سبب: ${result.reason}</div>
+                <div class="text-muted small mt-3">تاريخ أول تسجيل: ${new Date(result.addedAt).toLocaleDateString('ar-DZ')}</div>
             </div>
         `;
-        res.send(htmlTemplate(content));
-
-    } catch (error) {
-        // في حالة وجود مشكلة في الاتصال بقاعدة البيانات
-        res.send(htmlTemplate(`
-            <div class="alert alert-danger text-center">
-                <h3>⚠️ حدث خطأ في الاتصال بقاعدة البيانات</h3>
-                <p>${error.message}</p>
-                <hr>
-                <p>تأكد من أنك أضفت <code>MONGO_URI</code> في إعدادات Render بشكل صحيح.</p>
+    } else {
+        message = `
+            <div class="status-card status-safe animate__animated animate__fadeIn">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                <h2 class="mt-3 fw-bold text-success">الرقم نظيف حالياً</h2>
+                <p class="lead text-muted">لم يتم تسجيل أي بلاغ احتيال ضد هذا الرقم في قاعدة بياناتنا.</p>
+                <small class="text-muted">ننصح دائماً بتأكيد الطلب هاتفياً قبل الإرسال.</small>
             </div>
-        `));
+        `;
     }
+
+    res.send(htmlTemplate({ totalCount, todayCount }, message));
 });
 
-// معالجة إضافة الطلب
-app.post('/add-order', async (req, res) => {
+// عملية الإبلاغ
+app.post('/report', async (req, res) => {
     try {
-        const { name, phone, wilaya, price } = req.body;
-
-        // محاكاة الاتصال بشركة التوصيل (Yalidine Simulation)
-        // هنا يمكن لاحقاً وضع كود الـ API الحقيقي
-        const fakeTracking = "YAL-" + Math.floor(100000 + Math.random() * 900000);
-
-        const newOrder = new Order({
-            customerName: name,
-            phone,
-            wilaya,
-            price,
-            status: 'تم الشحن', // نفترض أنه تم إرساله مباشرة
-            trackingCode: fakeTracking
-        });
-
-        await newOrder.save();
+        const { phone, reason } = req.body;
+        const exists = await Blacklist.findOne({ phone });
         
-        // العودة للصفحة الرئيسية
+        if (exists) {
+            exists.reports += 1;
+            exists.reason = reason;
+            await exists.save();
+        } else {
+            await Blacklist.create({ phone, reason });
+        }
         res.redirect('/');
-    } catch (error) {
-        res.status(500).send("حدث خطأ أثناء الحفظ: " + error.message);
+    } catch (err) {
+        res.send(`Error: ${err.message}`);
     }
 });
 
-// تشغيل السيرفر
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+app.listen(3000, () => console.log('DzShield Premium Running'));
