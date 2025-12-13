@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -9,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* نفس الستايل الأصلي تماماً */
+        /* ستايلك الأصلي */
         body { font-family: 'Tajawal', sans-serif; background: #0f172a; height: 100vh; overflow: hidden; }
         .app-container { display: flex; height: 100vh; width: 100vw; }
         .editor-panel { width: 400px; background: #1e293b; border-left: 1px solid #334155; display: flex; flex-direction: column; overflow-y: auto; z-index: 20; flex-shrink: 0; }
@@ -51,7 +52,7 @@
             
             <div class="bg-blue-900/20 p-3 rounded-xl border border-blue-900/50">
                 <div class="section-title"><i class="fas fa-link text-blue-400"></i> رابط الصفحة</div>
-                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: watch-vip (بدون مسافات)" required>
+                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: watch-vip" required>
                 <p class="text-[10px] text-gray-400">سيكون الرابط: dzshop.onrender.com/p/<b>اسم-الرابط</b></p>
             </div>
 
@@ -93,7 +94,7 @@
                     <option value="whatsapp">واتساب فقط</option>
                 </select>
                 <input type="text" id="whatsapp" value="213555123456" class="input text-left ltr" placeholder="WhatsApp Number">
-                <input type="email" id="email" class="input text-left ltr" placeholder="Email">
+                <input type="email" id="email" class="input text-left ltr" placeholder="Email (لإرسال الطلبات)">
                 <input type="text" id="sheet" class="input text-left ltr" placeholder="Google Sheet URL">
                 <input type="number" id="shipping" value="0" class="input" placeholder="سعر التوصيل">
             </div>
@@ -147,7 +148,6 @@
 </div>
 
 <script>
-    // الدوال الأساسية (Parsing & Preview)
     function parseCommunes(text) { const map = {}; text.split('\n').forEach(line => { if(line.includes(':')) { const [wilaya, comms] = line.split(':'); if(wilaya && comms) map[wilaya.trim()] = comms.split(/,|،/).map(c => c.trim()).filter(c => c); } }); return map; }
     
     function updatePreview() {
@@ -162,7 +162,6 @@
         const imgs = document.getElementById('pImages').value.split('\n').filter(x => x.trim());
         document.getElementById('prevSlider').innerHTML = imgs.length ? `<img src="${imgs[0]}" class="w-full h-full object-cover">` : '';
 
-        // Badges
         let badgesHtml = `<div class="bg-blue-50 px-3 py-2 rounded-lg text-center border border-blue-100 min-w-[80px]"><i class="fas fa-truck text-blue-500 mb-1"></i><div class="text-[9px] font-bold text-blue-800">توصيل سريع</div></div> <div class="bg-green-50 px-3 py-2 rounded-lg text-center border border-green-100 min-w-[80px]"><i class="fas fa-hand-holding-dollar text-green-500 mb-1"></i><div class="text-[9px] font-bold text-green-800">الدفع عند الاستلام</div></div>`;
         if(isRedot) badgesHtml += `<div class="bg-red-50 px-3 py-2 rounded-lg text-center border border-red-100 min-w-[80px]"><i class="fas fa-wallet text-red-500 mb-1"></i><div class="text-[9px] font-bold text-red-800">RedotPay</div></div>`;
         document.getElementById('badgesArea').innerHTML = badgesHtml;
@@ -185,17 +184,17 @@
         btn.classList.add('active');
     }
 
-    // === دالة النشر الجديدة (بدل التحميل) ===
+    // === دالة النشر الجديدة ===
     async function publishPage() {
         const slug = document.getElementById('pSlug').value.trim();
-        if(!slug) return alert('يرجى كتابة "رابط الصفحة" أولاً في الأعلى');
-
+        if(!slug) return alert('يرجى كتابة "رابط الصفحة" أولاً');
+        
         const btn = document.getElementById('pubBtn');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+        btn.innerHTML = 'جاري النشر...';
         btn.disabled = true;
 
         const d = {
-            slug: slug, // الرابط المميز
+            slug: slug,
             name: document.getElementById('pName').value,
             price: document.getElementById('pPrice').value,
             old: document.getElementById('pOld').value,
@@ -224,22 +223,19 @@
                 body: JSON.stringify(d)
             });
             const result = await res.json();
-            
             if(result.success) {
                 const url = window.location.origin + '/p/' + slug;
-                prompt("✅ تم نشر المتجر بنجاح! انسخ الرابط:", url);
+                prompt("✅ تم النشر! انسخ الرابط:", url);
                 window.open(url, '_blank');
             } else {
-                alert("❌ خطأ: " + result.message);
+                alert("❌ خطأ: الرابط مستخدم من قبل");
             }
-        } catch(err) {
-            alert("حدث خطأ في الاتصال");
-        }
+        } catch(err) { alert("حدث خطأ"); }
         btn.innerHTML = '<span>نشر الرابط</span> <i class="fas fa-globe"></i>';
         btn.disabled = false;
     }
-
+    
     window.onload = updatePreview;
 </script>
 </body>
-      </html>
+</html>
