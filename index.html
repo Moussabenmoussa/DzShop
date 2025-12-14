@@ -436,15 +436,10 @@
 
         .player-top-controls {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            bottom: 100px;
+            right: 15px;
+            padding: 0;
             z-index: 70;
-            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
         }
 
         .player-btn {
@@ -460,12 +455,20 @@
             cursor: pointer;
         }
 
-        .player-actions { display: flex; gap: 10px; }
+        .player-actions {
+            position: absolute;
+            left: 15px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 75;
+        }
 
         .quality-dropdown {
             position: absolute;
-            top: 50px;
-            left: 0;
+            bottom: 50px;
+            right: 0;
             background: rgba(30, 30, 30, 0.98);
             border-radius: 10px;
             padding: 8px 0;
@@ -639,7 +642,7 @@
         let videosData = [];
         let players = {};
         let favorites = [];
-        let audioUnlocked = false;
+        let audioUnlocked = true;
         let selectedQuality = 'large';
         let apiReady = false;
         let visibleReels = new Set();
@@ -881,19 +884,20 @@
                     '<div class="interaction-layer" onclick="togglePlayPause(\'' + video.id + '\')"></div>' +
                     '<div class="player-top-controls">' +
                     '<div class="player-btn" onclick="closePlayer()"><i class="fas fa-arrow-right"></i></div>' +
+                    '</div>' +
                     '<div class="player-actions">' +
                     '<div class="player-btn fav-btn" data-id="' + video.id + '" onclick="toggleFavorite(\'' + video.id + '\')">' +
                     '<i class="' + (isFav ? 'fas' : 'far') + ' fa-bookmark"></i></div>' +
                     '<div class="player-btn" id="mute-' + video.id + '" onclick="toggleMute(\'' + video.id + '\')">' +
-                    '<i class="fas fa-volume-mute"></i></div>' +
+                    '<i class="fas fa-volume-up"></i></div>' +
                     '<div class="player-btn" onclick="toggleQuality(\'' + video.id + '\')" style="position:relative">' +
                     '<i class="fas fa-cog"></i>' +
                     '<div class="quality-dropdown" id="qmenu-' + video.id + '">' +
                     qualityOptions.map(function(q) {
                         return '<div class="quality-option ' + (q.value === selectedQuality ? 'selected' : '') + '" onclick="event.stopPropagation(); setQuality(\'' + q.value + '\', \'' + video.id + '\')">' + q.label + '</div>';
                     }).join('') +
-                    '</div></div></div></div>' +
-                    '<div class="play-overlay"><div class="big-play visible" id="bigplay-' + video.id + '"><i class="fas fa-play"></i></div></div>' +
+                    '</div></div></div>' +
+                    '<div class="play-overlay"><div class="big-play" id="bigplay-' + video.id + '"><i class="fas fa-play"></i></div></div>' +
                     '<div class="player-bottom-info"><div class="player-video-title">' + video.title + '</div></div>' +
                     '</div>';
             }
@@ -940,7 +944,7 @@
                     controls: 0,
                     autoplay: 1,
                     modestbranding: 1,
-                    mute: 1,
+                    mute: 0,
                     loop: 1,
                     playlist: videoId,
                     playsinline: 1,
@@ -949,6 +953,8 @@
                 events: {
                     onReady: function(e) {
                         e.target.setPlaybackQuality(selectedQuality);
+                        e.target.unMute();
+                        e.target.setVolume(100);
                         if (visibleReels.has(videoId)) {
                             e.target.playVideo();
                         }
