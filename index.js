@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -11,13 +10,13 @@ app.use(express.urlencoded({ extended: true }));
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) mongoose.connect(mongoUri).then(() => console.log('✅ DB Connected'));
 
-// مودل الصفحات
+// مودل الصفحات (LandShop)
 const Page = mongoose.model('Page', new mongoose.Schema({
     slug: { type: String, unique: true },
     data: Object
 }));
 
-// مودل VidShop
+// مودل الفيديو (VidShop)
 const VidStore = mongoose.model('VidStore', new mongoose.Schema({
     slug: { type: String, unique: true },
     data: Object
@@ -30,7 +29,7 @@ app.get('/stats', async (req, res) => {
     res.json({ total: landCount + vidCount });
 });
 
-// === المسارات ===
+// المسارات
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'builder.html')));
 app.get('/tool2', (req, res) => res.sendFile(path.join(__dirname, 'tool2.html')));
 
