@@ -6,7 +6,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// الاتصال بقاعدة البيانات
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) {
     mongoose.connect(mongoUri)
@@ -14,14 +13,12 @@ if (mongoUri) {
         .catch(err => console.error('❌ DB Error:', err));
 }
 
-// هيكل البيانات (الإعدادات + الفيديوهات)
 const AppConfig = mongoose.model('AppConfig', new mongoose.Schema({
     id: { type: String, default: 'main_app' },
     title: { type: String, default: 'سينما بلس' },
-    videos: [String] // قائمة معرفات يوتيوب
+    videos: [String]
 }));
 
-// تهيئة بيانات افتراضية عند التشغيل لأول مرة
 async function initDB() {
     if (!mongoUri) return;
     const exists = await AppConfig.findOne({ id: 'main_app' });
@@ -35,21 +32,14 @@ async function initDB() {
 }
 initDB();
 
-// --- المسارات ---
-
-// 1. لوحة التحكم (لك أنت)
 app.get('/admin', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'admin.html'));
 });
 
-// 2. التطبيق الرئيسي (للزبائن)
 app.get('/', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 
-// --- API (لجلب وحفظ البيانات) ---
-
-// جلب البيانات
 app.get('/api/data', async (req, res) => {
     try {
         const data = await AppConfig.findOne({ id: 'main_app' });
@@ -57,7 +47,6 @@ app.get('/api/data', async (req, res) => {
     } catch (e) { res.json({ title: "Error", videos: [] }); }
 });
 
-// تحديث البيانات
 app.post('/api/update', async (req, res) => {
     try {
         await AppConfig.findOneAndUpdate({ id: 'main_app' }, {
@@ -69,4 +58,4 @@ app.post('/api/update', async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 Running on port ${port}`));
+app.listen(port, () => console.log(`🚀 Running on ${port}`));
