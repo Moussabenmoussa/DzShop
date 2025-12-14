@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* === نفس الستايلات الأصلية تماماً === */
+        /* === ستايلاتك الأصلية بالكامل === */
         :root { --bg-primary: #1a1a2e; --bg-secondary: #16213e; --bg-card: #1f2544; --accent: #e94560; --text-primary: #ffffff; --text-secondary: #a0a0b8; --text-muted: #6b6b80; --nav-bg: #0f0f1a; --card-radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { font-family: 'Tajawal', sans-serif; background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); color: var(--text-primary); height: 100dvh; overflow: hidden; position: fixed; width: 100vw; }
@@ -36,9 +36,7 @@
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); z-index: 200; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 8px 12px; color: var(--text-muted); transition: color 0.2s; }
         .nav-item.active { color: var(--accent); } .nav-item i { font-size: 1.3rem; } .nav-item span { font-size: 0.65rem; font-weight: 600; }
-        #search-screen, #favorites-screen, #player-screen { position: fixed; inset: 0; background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); z-index: 300; display: none; flex-direction: column; }
-        #player-screen { background: #000; z-index: 500; }
-        #search-screen.active, #favorites-screen.active { display: flex; }
+        #player-screen { position: fixed; inset: 0; background: #000; z-index: 500; display: none; }
         .player-feed { height: 100%; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; } .player-feed::-webkit-scrollbar { display: none; }
         .reel-item { height: 100dvh; width: 100vw; scroll-snap-align: start; position: relative; background: #000; }
         .youtube-container { position: absolute; inset: 0; overflow: hidden; }
@@ -48,6 +46,9 @@
         .search-header, .screen-header { display: flex; align-items: center; gap: 12px; padding: 15px 16px; background: var(--bg-primary); }
         .search-input-box { flex: 1; display: flex; align-items: center; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 0 16px; }
         .search-input { flex: 1; background: transparent; border: none; padding: 12px 0; color: white; outline: none; }
+        /* شاشات إضافية */
+        #search-screen, #favorites-screen { position: fixed; inset: 0; background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); z-index: 300; display: none; flex-direction: column; }
+        #search-screen.active, #favorites-screen.active { display: flex; }
     </style>
 </head>
 <body>
@@ -79,12 +80,13 @@
 
     <div id="search-screen">
         <div class="search-header">
-            <i class="fas fa-arrow-right" onclick="document.getElementById('search-screen').classList.remove('active')"></i>
+            <i class="fas fa-arrow-right" onclick="document.getElementById('search-screen').classList.remove('active')" style="color:white; font-size:1.2rem;"></i>
             <div class="search-input-box">
                 <input type="text" class="search-input" placeholder="ابحث...">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-search" style="color:#aaa"></i>
             </div>
         </div>
+        <div style="padding:20px; text-align:center; color:#666;">نتائج البحث ستظهر هنا...</div>
     </div>
 
     <div class="bottom-nav">
@@ -104,32 +106,19 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        let VIDEO_IDS = []; // ستأتي من السيرفر
+        // المتغيرات العالمية
+        let VIDEO_IDS = []; 
         let players = {};
         let apiReady = false;
+        let videosData = [];
 
-        // دالة التهيئة (تعمل عند تحميل الصفحة)
+        // عند تحميل الصفحة
         window.addEventListener('load', async () => {
-            // 1. جلب البيانات من السيرفر (MongoDB)
-            try {
-                const response = await fetch('/api/data');
-                const data = await response.json();
-                
-                // تحديث القائمة والاسم
-                VIDEO_IDS = data.videos || [];
-                if(data.title) {
-                    document.title = data.title;
-                    document.getElementById('loadingTitle').innerText = data.title;
-                }
-            } catch(e) {
-                console.log('Error fetching data, using defaults');
-                VIDEO_IDS = ['TrgR4aYdSZA', 'L9vAQhDEEcs']; // احتياطي
-            }
-
-            // 2. عرض الفيديوهات
+            await loadDataFromServer();
+            await loadAllVideos(); // جلب تفاصيل الفيديوهات (الصور والعناوين)
             renderGrid();
             
-            // 3. إخفاء التحميل
+            // إخفاء التحميل
             setTimeout(() => {
                 document.getElementById('loading-screen').style.opacity = '0';
                 setTimeout(() => {
@@ -139,46 +128,77 @@
             }, 1000);
         });
 
-        function renderGrid() {
-            const grid = document.getElementById('videos-grid');
-            grid.innerHTML = VIDEO_IDS.map((id, index) => {
-                const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
-                return `
-                    <div class="video-card" onclick="openPlayer(${index})">
-                        <div class="card-poster">
-                            <img class="card-thumbnail loaded" src="${thumb}">
-                            <div class="card-info"><div class="card-title">فيديو ${index + 1}</div></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        async function loadDataFromServer() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                VIDEO_IDS = data.videos || [];
+                if(data.title) {
+                    document.title = data.title;
+                    document.getElementById('loadingTitle').innerText = data.title;
+                }
+            } catch(e) {
+                console.log('Error fetching data');
+                VIDEO_IDS = ['TrgR4aYdSZA']; // فيديو احتياطي
+            }
         }
 
+        // جلب تفاصيل كل فيديو (صورة وعنوان)
+        async function loadAllVideos() {
+            const promises = VIDEO_IDS.map(async (id) => {
+                try {
+                    // نستخدم oembed للحصول على العنوان الحقيقي
+                    const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+                    const json = await res.json();
+                    return { id: id, title: json.title, thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg` };
+                } catch {
+                    return { id: id, title: 'فيديو حصري', thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg` };
+                }
+            });
+            videosData = await Promise.all(promises);
+        }
+
+        // عرض شبكة الفيديوهات (Grid)
+        function renderGrid() {
+            const grid = document.getElementById('videos-grid');
+            grid.innerHTML = videosData.map((vid, index) => `
+                <div class="video-card" onclick="openPlayer(${index})">
+                    <div class="card-poster">
+                        <img class="card-thumbnail loaded" src="${vid.thumb}">
+                        <div class="card-info"><div class="card-title">${vid.title}</div></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // فتح المشغل
         function openPlayer(index) {
             document.getElementById('player-screen').style.display = 'block';
             const feed = document.getElementById('player-feed');
             feed.innerHTML = ''; 
 
-            VIDEO_IDS.forEach((vidId) => {
+            // إضافة كل الفيديوهات للقائمة (Reels style)
+            videosData.forEach((vid) => {
                 const item = document.createElement('div');
                 item.className = 'reel-item';
-                item.innerHTML = `<div class="youtube-container" id="yt-${vidId}"></div>`;
+                item.innerHTML = `<div class="youtube-container" id="yt-${vid.id}"></div>`;
                 feed.appendChild(item);
 
-                // إنشاء المشغل
+                // Lazy load player
                 setTimeout(() => {
-                    if(!players[vidId]) {
-                        players[vidId] = new YT.Player(`yt-${vidId}`, {
-                            videoId: vidId,
+                    if(!players[vid.id]) {
+                        players[vid.id] = new YT.Player(`yt-${vid.id}`, {
+                            videoId: vid.id,
                             playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0, 'playsinline': 1, 'modestbranding': 1 }
                         });
                     }
                 }, 100);
             });
 
+            // الانتقال للفيديو المحدد
             setTimeout(() => {
                 feed.scrollTop = feed.children[index].offsetTop;
-                const vidId = VIDEO_IDS[index];
+                const vidId = videosData[index].id;
                 if(players[vidId] && players[vidId].playVideo) players[vidId].playVideo();
             }, 300);
         }
@@ -186,7 +206,7 @@
         function closePlayer() {
             document.getElementById('player-screen').style.display = 'none';
             Object.values(players).forEach(p => {
-                if(p && p.pauseVideo) p.pauseVideo();
+                if(p.pauseVideo) p.pauseVideo();
             });
         }
 
