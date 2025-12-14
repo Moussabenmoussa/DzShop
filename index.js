@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// الاتصال بقاعدة البيانات
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) {
     mongoose.connect(mongoUri)
@@ -60,56 +61,62 @@ app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.ht
 
 // --- API ---
 
-// دخول
+// 1. الدخول
 app.post('/api/auth/login', async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email, password: req.body.password });
         if (user) res.json({ success: true, user });
-        else res.json({ success: false, msg: 'خطأ في البيانات' });
-    } catch(e) { res.status(500).json({ success: false }); }
+        else res.json({ success: false, msg: 'خطأ في البريد أو كلمة المرور' });
+    } catch(e) { res.status(500).json({ success: false, msg: e.message }); }
 });
 
-// تسجيل
+// 2. التسجيل
 app.post('/api/auth/register', async (req, res) => {
     try {
         const exists = await User.findOne({ email: req.body.email });
-        if (exists) return res.json({ success: false, msg: 'المستخدم موجود' });
+        if (exists) return res.json({ success: false, msg: 'البريد مستخدم بالفعل' });
+        
         const user = await User.create(req.body);
         res.json({ success: true, user });
-    } catch(e) { res.status(500).json({ success: false }); }
+    } catch(e) { res.status(500).json({ success: false, msg: e.message }); }
 });
 
-// تحديث الجلسة (مهم جداً للاستقرار)
+// 3. تحديث الجلسة
 app.post('/api/user/refresh', async (req, res) => {
     try {
         if(!req.body.id) return res.json({ success: false });
         const user = await User.findById(req.body.id);
         if(user) res.json({ success: true, user });
-        else res.json({ success: false }); // المستخدم محذوف
+        else res.json({ success: false }); 
     } catch(e) { res.json({ success: false }); }
 });
 
-// إضافة منتج
+// 4. إضافة منتج
 app.post('/api/merchant/product', async (req, res) => {
     try {
         await Product.create(req.body);
         res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) { 
+        console.error(e);
+        res.status(500).json({ success: false, msg: e.message }); 
+    }
 });
 
-// جلب المنتجات (للتاجر)
+// 5. جلب المنتجات (للتاجر)
 app.post('/api/merchant/my-products', async (req, res) => {
-    const products = await Product.find({ merchantId: req.body.merchantId }).sort({ createdAt: -1 });
-    res.json(products);
+    try {
+        const products = await Product.find({ merchantId: req.body.merchantId }).sort({ createdAt: -1 });
+        res.json(products);
+    } catch(e) { res.json([]); }
 });
 
-// جلب المنتجات (للمسوق)
+// 6. جلب المنتجات (للمسوق)
 app.get('/api/market/products', async (req, res) => {
     const products = await Product.find({ active: true }).sort({ createdAt: -1 });
     res.json(products);
 });
 
-// تسجيل طلب
+// 7. الطلبات
 app.post('/api/order', async (req, res) => {
     try {
         const { productId, affiliateId, name, phone, wilaya } = req.body;
@@ -133,13 +140,11 @@ app.post('/api/order', async (req, res) => {
     } catch(e) { res.status(500).json({ success: false }); }
 });
 
-// طلبات التاجر
 app.post('/api/merchant/orders', async (req, res) => {
     const orders = await Order.find({ merchantId: req.body.merchantId }).sort({ date: -1 });
     res.json(orders);
 });
 
-// تغيير الحالة
 app.post('/api/order/status', async (req, res) => {
     const { orderId, status } = req.body;
     const order = await Order.findById(orderId);
@@ -156,7 +161,7 @@ app.post('/api/order/status', async (req, res) => {
     res.json({ success: true });
 });
 
-// منتج واحد
+// 8. جلب منتج واحد
 app.get('/api/product/:id', async (req, res) => {
     try {
         const p = await Product.findById(req.params.id);
