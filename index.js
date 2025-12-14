@@ -15,8 +15,10 @@ const Page = mongoose.model('Page', new mongoose.Schema({
     data: Object
 }));
 
+// عرض صفحة المحرر
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'builder.html')));
 
+// حفظ البيانات (نشر)
 app.post('/publish', async (req, res) => {
     try {
         await Page.findOneAndUpdate({ slug: req.body.slug }, { data: req.body }, { upsert: true, new: true });
@@ -24,13 +26,15 @@ app.post('/publish', async (req, res) => {
     } catch { res.json({ success: false }); }
 });
 
+// عرض صفحة الرابط (للزائر)
 app.get('/p/:slug', async (req, res) => {
     const page = await Page.findOne({ slug: req.params.slug });
     if (!page) return res.status(404).send('404 Not Found');
 
     const d = page.data;
-    // هنا نقوم "بحقن" القالب بنفس الطريقة التي يفعلها ملف builder.html
-    // هذا يضمن تطابقاً تاماً بنسبة 100%
+    
+    // === هنا وضعت نفس الكود الموجود في builder.html لضمان التطابق ===
+    // هذا الكود هو نفسه generateHTMLTemplate الموجود في builder.html
     const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -67,20 +71,17 @@ ${d.redot.active?`<div class="bg-red-50 px-3 py-2 rounded-lg text-center border 
 
 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mt-8 pb-6">
 <h2 class="text-center font-bold text-xl text-slate-800 mb-4">أدخل معلوماتك للطلب</h2>
-
 <form onsubmit="sub(event)" class="space-y-3">
 ${d.redot.active?`<div class="flex gap-2 mb-4">
 <div class="pm-btn active" onclick="setPM('cod',this)">الدفع عند الاستلام</div>
 <div class="pm-btn" onclick="setPM('redot',this)">RedotPay <i class="fas fa-wallet text-red-500"></i></div>
 </div>`:''}
-
 <div id="rdBox" class="redot-box">
 <p class="text-xs font-bold text-red-600 mb-2">قم بالتحويل إلى المعرف التالي:</p>
 <div class="bg-white p-2 rounded border border-red-200 font-mono text-sm select-all cursor-pointer" onclick="navigator.clipboard.writeText('${d.redot.id}');alert('تم النسخ')">${d.redot.id} <i class="far fa-copy"></i></div>
 ${d.redot.qr?`<img src="${d.redot.qr}" class="w-32 h-32 mx-auto mt-2 border border-gray-200 rounded">`:''}
 <input id="txid" placeholder="أدخل رقم العملية (Transaction ID)" class="w-full h-10 mt-3 px-3 border border-red-300 rounded text-sm text-center">
 </div>
-
 <div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="far fa-user"></i></div><input id="n" required placeholder="الاسم واللقب" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500"></div>
 <div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="fas fa-phone-alt"></i></div><input id="p" required type="tel" placeholder="رقم الهاتف" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500 text-right" dir="ltr"></div>
 <select id="w" required class="w-full h-12 px-3 border border-gray-300 rounded-lg focus:border-red-500 text-gray-700" onchange="upC()"><option value="">اختر الولاية...</option>${d.wilayas.map(w=>`<option value="${w}">${w}</option>`).join('')}</select>
