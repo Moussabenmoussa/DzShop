@@ -1,16 +1,8 @@
 {
   "name": "cinema-plus",
   "version": "1.0.0",
-  "description": "Cinema Plus App",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^8.0.0"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  }
+  "scripts": { "start": "node index.js" },
+  "dependencies": { "express": "^4.18.2", "mongoose": "^8.0.0" },
+  "engines": { "node": ">=16.0.0" }
 }
