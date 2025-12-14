@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -11,40 +10,36 @@ app.use(express.urlencoded({ extended: true }));
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) mongoose.connect(mongoUri).then(() => console.log('✅ DB Connected'));
 
-// مودل الصفحات (LandShop)
+// مودل الصفحات
 const Page = mongoose.model('Page', new mongoose.Schema({
     slug: { type: String, unique: true },
     data: Object,
     createdAt: { type: Date, default: Date.now }
 }));
 
-// مودل متاجر الفيديو (VidShop)
+// مودل الفيديو
 const VidStore = mongoose.model('VidStore', new mongoose.Schema({
     slug: { type: String, unique: true },
     data: Object,
     createdAt: { type: Date, default: Date.now }
 }));
 
-// --- API الإحصائيات (عداد المتاجر) ---
+// API العداد
 app.get('/stats', async (req, res) => {
     const landCount = await Page.countDocuments();
     const vidCount = await VidStore.countDocuments();
     res.json({ total: landCount + vidCount });
 });
 
-// --- المسارات الرئيسية (إنشاء جديد) ---
+// المسارات
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'builder.html')));
 app.get('/tool2', (req, res) => res.sendFile(path.join(__dirname, 'tool2.html')));
 
-// --- مسارات التعديل (Edit Routes) ---
 // تعديل LandShop
 app.get('/edit/p/:slug', async (req, res) => {
     const page = await Page.findOne({ slug: req.params.slug });
-    if (!page) return res.status(404).send('Store not found');
-    
+    if (!page) return res.status(404).send('Not Found');
     fs.readFile(path.join(__dirname, 'builder.html'), 'utf8', (err, html) => {
-        if (err) return res.send('Error');
-        // نحقن البيانات القديمة في المحرر
         const injected = html.replace('</head>', `<script>window.EDIT_MODE = true; window.OLD_DATA = ${JSON.stringify(page.data)};</script></head>`);
         res.send(injected);
     });
@@ -53,16 +48,14 @@ app.get('/edit/p/:slug', async (req, res) => {
 // تعديل VidShop
 app.get('/edit/v/:slug', async (req, res) => {
     const store = await VidStore.findOne({ slug: req.params.slug });
-    if (!store) return res.status(404).send('Store not found');
-
+    if (!store) return res.status(404).send('Not Found');
     fs.readFile(path.join(__dirname, 'tool2.html'), 'utf8', (err, html) => {
-        if (err) return res.send('Error');
         const injected = html.replace('</head>', `<script>window.EDIT_MODE = true; window.OLD_DATA = ${JSON.stringify(store.data)};</script></head>`);
         res.send(injected);
     });
 });
 
-// --- عمليات النشر والحفظ ---
+// النشر
 app.post('/publish', async (req, res) => {
     try {
         await Page.findOneAndUpdate({ slug: req.body.slug }, { data: req.body }, { upsert: true, new: true });
@@ -77,21 +70,25 @@ app.post('/publish-vid', async (req, res) => {
     } catch { res.json({ success: false }); }
 });
 
-// --- عرض المتاجر للزوار ---
+// العرض المباشر (حقن البيانات في القالب الأصلي)
 app.get('/p/:slug', async (req, res) => {
     const page = await Page.findOne({ slug: req.params.slug });
     if (!page) return res.status(404).send('Not Found');
     
-    const d = page.data;
-    // (نفس كود القالب السابق لـ LandShop - مختصر هنا لعدم التكرار، استخدم الكود السابق داخل generateFinalHTML)
-    // لتوفير المساحة سأضع علامة مكان القالب، لكن في الواقع يجب أن تضع القالب الكامل هنا كما في الرد السابق
-    fs.readFile(path.join(__dirname, 'builder.html'), 'utf8', (err, builderHtml) => {
-         // نستخدم دالة توليد HTML من ملف builder.html لو أمكن، أو ننسخ القالب هنا
-         // للسهولة، سنقوم بحقن البيانات في builder.html ونستخدمه كقالب عرض (طريقة ذكية)
-         const html = builderHtml
-            .replace('// وضع المحرر', `/* وضع العرض */`) // تعطيل وضع المحرر
-            .replace('</head>', `<script>window.VIEW_MODE = true; window.PAGE_DATA = ${JSON.stringify(d)};</script></head>`);
-         res.send(html);
+    // نستخدم نفس القالب الموجود في builder.html
+    // الطريقة الأذكى: قراءة builder.html واستخدام الدالة generateFinalHTML الموجودة فيه (لكن هذا صعب من السيرفر)
+    // لذا، سنقوم بحقن البيانات في متغير عالمي ونترك الكود الموجود في builder.html يقوم ببناء الصفحة
+    fs.readFile(path.join(__dirname, 'builder.html'), 'utf8', (err, html) => {
+        // نستبدل كود window.onload ليبدأ بوضع العرض مباشرة
+        const injected = html.replace('window.onload = updatePreview;', `
+            window.onload = function() {
+                const d = ${JSON.stringify(page.data)};
+                document.open();
+                document.write(generateFinalHTML(d));
+                document.close();
+            };
+        `);
+        res.send(injected);
     });
 });
 
@@ -106,4 +103,4 @@ app.get('/v/:slug', async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('System Running 🚀'));
+app.listen(port, () => console.log('Running 🚀'));
