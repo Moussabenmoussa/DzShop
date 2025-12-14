@@ -1,81 +1,16 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// الاتصال بقاعدة البيانات
-const mongoUri = process.env.MONGO_URI;
-if (mongoUri) {
-    mongoose.connect(mongoUri)
-        .then(() => console.log('✅ DB Connected Successfully'))
-        .catch(err => console.error('❌ DB Connection Error:', err));
-} else {
-    console.log('⚠️ Warning: MONGO_URI is missing');
+{
+  "name": "cinema-plus",
+  "version": "1.0.0",
+  "description": "Cinema Plus App",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
 }
-
-// هيكل البيانات
-const AppConfig = mongoose.model('AppConfig', new mongoose.Schema({
-    id: { type: String, default: 'main_app' },
-    title: { type: String, default: 'سينما بلس' },
-    videos: [String]
-}));
-
-// تهيئة البيانات
-async function initDB() {
-    if (!mongoUri) return;
-    const exists = await AppConfig.findOne({ id: 'main_app' });
-    if (!exists) {
-        await AppConfig.create({
-            id: 'main_app',
-            title: 'سينما بلس',
-            videos: ['TrgR4aYdSZA', 'L9vAQhDEEcs', 'vZtZwVtOFRQ']
-        });
-    }
-}
-initDB();
-
-// --- المسارات (Routes) ---
-
-// 1. رابط الأدمن (لوحة التحكم)
-app.get('/admin', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'admin.html'));
-});
-
-// 2. رابط الزبون (الرئيسية) - هذا هو الذي كان لا يعمل
-app.get('/', (req, res) => {
-    const filePath = path.resolve(__dirname, 'index.html');
-    res.sendFile(filePath, (err) => {
-        if (err) {
-            console.error("Error serving index.html:", err);
-            res.status(500).send("<h1>خطأ في السيرفر: لا يمكن تحميل التطبيق</h1><p>تأكد من وجود ملف index.html في GitHub</p>");
-        }
-    });
-});
-
-// --- API ---
-app.get('/api/data', async (req, res) => {
-    try {
-        const data = await AppConfig.findOne({ id: 'main_app' });
-        res.json(data || { title: "Cinema Plus", videos: [] });
-    } catch (e) {
-        res.json({ title: "Error", videos: [] });
-    }
-});
-
-app.post('/api/update', async (req, res) => {
-    try {
-        await AppConfig.findOneAndUpdate({ id: 'main_app' }, {
-            title: req.body.title,
-            videos: req.body.videos
-        }, { upsert: true });
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ success: false });
-    }
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 App Running on port ${port}`));
