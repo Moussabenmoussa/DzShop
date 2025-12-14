@@ -1,13 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const cors = require('cors'); // إضافة مهمة
+const cors = require('cors');
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 
+// الاتصال بقاعدة البيانات
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) {
     mongoose.connect(mongoUri)
@@ -15,25 +16,23 @@ if (mongoUri) {
         .catch(err => console.error('❌ DB Error:', err));
 }
 
-// 1. المستخدمين
+// --- الموديلات ---
 const UserSchema = new mongoose.Schema({
     name: String,
     email: { type: String, unique: true },
     password: String,
-    role: String, // merchant, affiliate
+    role: String, 
     balance: { type: Number, default: 0 },
     ccp: String
 });
 const User = mongoose.model('User', UserSchema);
 
-// 2. المنتجات
 const ProductSchema = new mongoose.Schema({
     merchantId: String,
     title: String,
     price: Number,
     commission: Number,
     image: String,
-    category: { type: String, default: 'عام' },
     stock: { type: Number, default: 100 },
     sales: { type: Number, default: 0 },
     active: { type: Boolean, default: true },
@@ -41,7 +40,6 @@ const ProductSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', ProductSchema);
 
-// 3. الطلبات
 const OrderSchema = new mongoose.Schema({
     productId: String,
     productName: String,
@@ -62,63 +60,66 @@ app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.ht
 
 // --- API ---
 
-// دخول
+// 1. الدخول
 app.post('/api/auth/login', async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email, password: req.body.password });
         if (user) res.json({ success: true, user });
-        else res.json({ success: false, msg: 'بيانات خاطئة' });
-    } catch(e) { res.status(500).json({ success: false }); }
+        else res.json({ success: false, msg: 'خطأ في البريد أو كلمة المرور' });
+    } catch(e) { res.status(500).json({ success: false, msg: e.message }); }
 });
 
-// تسجيل
+// 2. التسجيل
 app.post('/api/auth/register', async (req, res) => {
     try {
         const exists = await User.findOne({ email: req.body.email });
-        if (exists) return res.json({ success: false, msg: 'المستخدم مسجل مسبقاً' });
+        if (exists) return res.json({ success: false, msg: 'البريد مستخدم بالفعل' });
+        
         const user = await User.create(req.body);
         res.json({ success: true, user });
-    } catch(e) { res.status(500).json({ success: false }); }
+    } catch(e) { res.status(500).json({ success: false, msg: e.message }); }
 });
 
-// تحديث بيانات المستخدم (للحفاظ على الجلسة)
+// 3. تحديث الجلسة (أهم دالة للإصلاح)
 app.post('/api/user/refresh', async (req, res) => {
     try {
+        if(!req.body.id) return res.json({ success: false });
         const user = await User.findById(req.body.id);
-        res.json(user);
-    } catch(e) { res.status(404).json(null); }
+        if(user) res.json({ success: true, user });
+        else res.json({ success: false });
+    } catch(e) { res.json({ success: false }); }
 });
 
-// إضافة منتج (للتاجر)
+// 4. إضافة منتج
 app.post('/api/merchant/product', async (req, res) => {
     try {
-        console.log("Adding Product:", req.body); // للتأكد في السجلات
         await Product.create(req.body);
         res.json({ success: true });
-    } catch (e) {
-        console.error("Product Error:", e);
-        res.status(500).json({ success: false, msg: e.message });
+    } catch (e) { 
+        console.error(e);
+        res.status(500).json({ success: false, msg: e.message }); 
     }
 });
 
-// جلب منتجات التاجر
+// 5. جلب المنتجات (للتاجر)
 app.post('/api/merchant/my-products', async (req, res) => {
-    const products = await Product.find({ merchantId: req.body.merchantId }).sort({ createdAt: -1 });
-    res.json(products);
+    try {
+        const products = await Product.find({ merchantId: req.body.merchantId }).sort({ createdAt: -1 });
+        res.json(products);
+    } catch(e) { res.json([]); }
 });
 
-// جلب المنتجات للمسوقين (السوق)
+// 6. جلب المنتجات (للمسوق)
 app.get('/api/market/products', async (req, res) => {
     const products = await Product.find({ active: true }).sort({ createdAt: -1 });
     res.json(products);
 });
 
-// تسجيل طلب
+// 7. الطلبات
 app.post('/api/order', async (req, res) => {
     try {
         const { productId, affiliateId, name, phone, wilaya } = req.body;
         const product = await Product.findById(productId);
-        
         if(!product) return res.status(404).json({success: false});
 
         await Order.create({
@@ -132,26 +133,21 @@ app.post('/api/order', async (req, res) => {
             customerWilaya: wilaya
         });
 
-        // زيادة عداد المبيعات
         product.sales += 1;
         await product.save();
-
         res.json({ success: true });
     } catch(e) { res.status(500).json({ success: false }); }
 });
 
-// جلب طلبات التاجر
 app.post('/api/merchant/orders', async (req, res) => {
     const orders = await Order.find({ merchantId: req.body.merchantId }).sort({ date: -1 });
     res.json(orders);
 });
 
-// تغيير حالة الطلب
 app.post('/api/order/status', async (req, res) => {
     const { orderId, status } = req.body;
     const order = await Order.findById(orderId);
     
-    // إذا تم التوصيل، ندفع للمسوق
     if (status === 'delivered' && order.status !== 'delivered' && order.affiliateId !== 'direct') {
         const affiliate = await User.findById(order.affiliateId);
         if (affiliate) {
@@ -159,13 +155,12 @@ app.post('/api/order/status', async (req, res) => {
             await affiliate.save();
         }
     }
-    
     order.status = status;
     await order.save();
     res.json({ success: true });
 });
 
-// جلب منتج واحد (للصفحة العامة)
+// 8. جلب منتج واحد
 app.get('/api/product/:id', async (req, res) => {
     try {
         const p = await Product.findById(req.params.id);
@@ -174,4 +169,4 @@ app.get('/api/product/:id', async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 DzAffiliate Pro Running on ${port}`));
+app.listen(port, () => console.log(`🚀 Server OK on ${port}`));
