@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LandShop Pro</title>
+    <title>LandShop Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* نفس الستايل الخاص بك تماماً */
         body { font-family: 'Tajawal', sans-serif; background: #0f172a; height: 100vh; overflow: hidden; }
         .app-container { display: flex; height: 100vh; width: 100vw; }
         .editor-panel { width: 400px; background: #1e293b; border-left: 1px solid #334155; display: flex; flex-direction: column; overflow-y: auto; z-index: 20; flex-shrink: 0; }
@@ -21,6 +22,7 @@
         .section-title { font-weight: 800; color: white; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #334155; font-size: 14px; display: flex; align-items: center; gap: 8px; }
         .lp-scroll { flex: 1; overflow-y: auto; background: #f8fafc; padding-bottom: 80px; scroll-behavior: smooth; }
         .lp-scroll::-webkit-scrollbar { width: 4px; }
+        .lp-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
         @media (max-width: 800px) {
             .app-container { flex-direction: column; }
@@ -45,7 +47,7 @@
             
             <div class="flex gap-2 mr-auto">
                 <button onclick="publishPage()" id="pubBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition active:scale-95">
-                    <span>نشر</span> <i class="fas fa-globe"></i> 
+                    <span>نشر رابط</span> <i class="fas fa-globe"></i> 
                 </button>
                 <button onclick="downloadPage()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition active:scale-95">
                     <span>تحميل</span> <i class="fas fa-download"></i> 
@@ -56,8 +58,9 @@
         <div class="p-5 pb-20 space-y-6">
             
             <div class="bg-blue-900/20 p-3 rounded-xl border border-blue-900/50">
-                <div class="section-title"><i class="fas fa-link text-blue-400"></i> رابط الصفحة (للنسخة الأونلاين)</div>
-                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: offer-2025" required>
+                <div class="section-title"><i class="fas fa-link text-blue-400"></i> رابط المتجر (للنشر)</div>
+                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: offer-1 (بدون مسافات)" required>
+                <p class="text-[10px] text-gray-400">الرابط سيكون: dzshop.onrender.com/p/<b>offer-1</b></p>
             </div>
 
             <div>
@@ -78,16 +81,16 @@
                     <input type="checkbox" id="enableRedot" class="accent-red-500 h-4 w-4" onchange="updatePreview()">
                 </div>
                 <div id="redotFields" class="hidden">
-                    <input type="text" id="redotID" value="123456789" class="input text-left ltr" placeholder="RedotPay ID">
-                    <input type="text" id="redotQR" class="input text-left ltr" placeholder="رابط QR Code (اختياري)">
+                    <input type="text" id="redotID" value="123456789" class="input text-left ltr" placeholder="RedotPay ID / Wallet Address">
+                    <input type="text" id="redotQR" class="input text-left ltr" placeholder="https://example.com/qr.png">
                 </div>
             </div>
 
             <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                 <div class="section-title"><i class="fas fa-map-marked-alt text-green-400"></i> مناطق التوصيل</div>
-                <textarea id="pWilayas" rows="4" class="input h-24 text-xs" oninput="updatePreview()">01. أدرار
+                <textarea id="pWilayas" rows="4" class="input h-24 text-xs" oninput="updatePreview()" placeholder="قائمة الولايات...">01. أدرار
 16. الجزائر</textarea>
-                <textarea id="pCommunes" rows="4" class="input h-24 text-xs" oninput="updatePreview()">01. أدرار: أدرار وسط
+                <textarea id="pCommunes" rows="4" class="input h-24 text-xs" oninput="updatePreview()" placeholder="البلديات...">01. أدرار: أدرار وسط
 16. الجزائر: الجزائر الوسطى</textarea>
             </div>
 
@@ -98,7 +101,7 @@
                     <option value="whatsapp">واتساب فقط</option>
                 </select>
                 <input type="text" id="whatsapp" value="213555123456" class="input text-left ltr" placeholder="WhatsApp Number">
-                <input type="email" id="email" class="input text-left ltr" placeholder="Email (FormSubmit)">
+                <input type="email" id="email" class="input text-left ltr" placeholder="Email">
                 <input type="text" id="sheet" class="input text-left ltr" placeholder="Google Sheet URL">
                 <input type="number" id="shipping" value="0" class="input" placeholder="سعر التوصيل">
             </div>
@@ -188,7 +191,7 @@
         btn.classList.add('active');
     }
 
-    // === دالة 1: جمع البيانات ===
+    // === دالة تجميع البيانات (مشتركة بين التحميل والنشر) ===
     function getDataObject() {
         return {
             slug: document.getElementById('pSlug').value.trim(),
@@ -214,13 +217,12 @@
         };
     }
 
-    // === دالة 2: تحميل المتجر (القديمة) ===
+    // === 1. دالة التحميل (Download) ===
     function downloadPage() {
         const d = getDataObject();
-        // HTML Code Generator ... (تم اختصاره هنا ليعمل في السيرفر)
-        // سيتم تنفيذه في السيرفر لضمان التطابق
-        // لكن بما أنك تريد زر التحميل يعمل الآن، سأضع الكود:
-        const html = generateFinalHTML(d);
+        // HTML Code Generator: (يولد ملف HTML محلياً)
+        // ملاحظة: نستخدم هنا قالب HTML البسيط للتحميل
+        const html = generateHTMLTemplate(d);
         const b = new Blob([html],{type:'text/html'});
         const a = document.createElement('a');
         a.href=URL.createObjectURL(b);
@@ -228,13 +230,14 @@
         document.body.appendChild(a);a.click();document.body.removeChild(a);
     }
 
-    // === دالة 3: نشر الرابط (الجديدة) ===
+    // === 2. دالة النشر (Publish Link) ===
     async function publishPage() {
         const d = getDataObject();
-        if(!d.slug) return alert('يرجى كتابة "رابط الصفحة" أولاً');
-        
+        if(!d.slug) return alert('⚠️ يرجى كتابة "رابط المتجر" أولاً في الحقل المخصص!');
+
         const btn = document.getElementById('pubBtn');
-        btn.innerHTML = 'جاري...'; btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+        btn.disabled = true;
 
         try {
             const res = await fetch('/publish', {
@@ -245,17 +248,21 @@
             const result = await res.json();
             if(result.success) {
                 const url = window.location.origin + '/p/' + d.slug;
-                prompt("✅ تم النشر! انسخ الرابط:", url);
+                prompt("✅ تم نشر المتجر بنجاح! انسخ الرابط:", url);
                 window.open(url, '_blank');
             } else {
-                alert("❌ خطأ");
+                alert("❌ خطأ: ربما الاسم مستخدم من قبل");
             }
-        } catch(err) { alert("حدث خطأ"); }
-        btn.innerHTML = '<span>نشر</span> <i class="fas fa-globe"></i>'; btn.disabled = false;
+        } catch(err) { alert("خطأ في الاتصال"); }
+        
+        btn.innerHTML = '<span>نشر رابط</span> <i class="fas fa-globe"></i>';
+        btn.disabled = false;
     }
 
-    // دالة توليد HTML (مشتركة)
-    function generateFinalHTML(d) {
+    // === دالة توليد HTML (المستخدمة في التحميل + السيرفر يستخدم نسخة منها) ===
+    function generateHTMLTemplate(d) {
+        // هذا هو الكود الذي ينزل كملف HTML عند الضغط على تحميل
+        // (نفس كودك الأصلي تماماً مع إضافة السلايدر والإيميل)
         return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -292,20 +299,17 @@ ${d.redot.active?`<div class="bg-red-50 px-3 py-2 rounded-lg text-center border 
 
 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mt-8 pb-6">
 <h2 class="text-center font-bold text-xl text-slate-800 mb-4">أدخل معلوماتك للطلب</h2>
-
 <form onsubmit="sub(event)" class="space-y-3">
 ${d.redot.active?`<div class="flex gap-2 mb-4">
 <div class="pm-btn active" onclick="setPM('cod',this)">الدفع عند الاستلام</div>
 <div class="pm-btn" onclick="setPM('redot',this)">RedotPay <i class="fas fa-wallet text-red-500"></i></div>
 </div>`:''}
-
 <div id="rdBox" class="redot-box">
 <p class="text-xs font-bold text-red-600 mb-2">قم بالتحويل إلى المعرف التالي:</p>
 <div class="bg-white p-2 rounded border border-red-200 font-mono text-sm select-all cursor-pointer" onclick="navigator.clipboard.writeText('${d.redot.id}');alert('تم النسخ')">${d.redot.id} <i class="far fa-copy"></i></div>
 ${d.redot.qr?`<img src="${d.redot.qr}" class="w-32 h-32 mx-auto mt-2 border border-gray-200 rounded">`:''}
 <input id="txid" placeholder="أدخل رقم العملية (Transaction ID)" class="w-full h-10 mt-3 px-3 border border-red-300 rounded text-sm text-center">
 </div>
-
 <div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="far fa-user"></i></div><input id="n" required placeholder="الاسم واللقب" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500"></div>
 <div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="fas fa-phone-alt"></i></div><input id="p" required type="tel" placeholder="رقم الهاتف" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500 text-right" dir="ltr"></div>
 <select id="w" required class="w-full h-12 px-3 border border-gray-300 rounded-lg focus:border-red-500 text-gray-700" onchange="upC()"><option value="">اختر الولاية...</option>${d.wilayas.map(w=>`<option value="${w}">${w}</option>`).join('')}</select>
@@ -319,7 +323,6 @@ ${d.redot.qr?`<img src="${d.redot.qr}" class="w-32 h-32 mx-auto mt-2 border bord
 
 <script>
 let pm = 'cod'; const CM=${JSON.stringify(d.communes)};
-// سلايدر تلقائي
 let slideIndex = 0;
 function showSlides() {
     let slides = document.getElementsByClassName("slide");
