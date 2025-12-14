@@ -409,22 +409,35 @@
         }
 
         .youtube-container iframe {
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 56.25vw; /* 16:9 aspect ratio */
+            min-height: 100vh;
+            min-width: 177.78vh; /* 16:9 aspect ratio */
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             border: none;
+            pointer-events: none;
         }
 
         .branding-cover {
             position: absolute;
             top: 0;
+            left: 0;
             right: 0;
-            width: 120px;
-            height: 35px;
-            background: #000;
+            height: 60px;
+            background: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+            z-index: 61;
+        }
+
+        .branding-cover-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(0deg, #000 0%, #000 40%, transparent 100%);
             z-index: 61;
         }
 
@@ -881,6 +894,7 @@
                     '<div id="player-' + video.id + '"></div>' +
                     '</div>' +
                     '<div class="branding-cover"></div>' +
+                    '<div class="branding-cover-bottom"></div>' +
                     '<div class="interaction-layer" onclick="togglePlayPause(\'' + video.id + '\')"></div>' +
                     '<div class="player-top-controls">' +
                     '<div class="player-btn" onclick="closePlayer()"><i class="fas fa-arrow-right"></i></div>' +
