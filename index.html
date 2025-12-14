@@ -178,6 +178,7 @@
             object-position: center;
             background: var(--bg-card);
             transition: opacity 0.3s, transform 0.3s;
+            z-index: 2;
         }
 
         .card-thumbnail.lazy {
@@ -188,10 +189,6 @@
             opacity: 1;
         }
 
-        .card-thumbnail:not([src]),
-        .card-thumbnail[src=""] {
-            visibility: hidden;
-        }
         .video-card:active .card-thumbnail { transform: scale(1.05); }
 
         .trending-badge {
@@ -215,6 +212,7 @@
             height: 50%;
             background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
             pointer-events: none;
+            z-index: 3;
         }
 
         .card-info {
@@ -236,12 +234,6 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, var(--bg-card) 25%, #2a2f5a 50%, var(--bg-card) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
         }
 
         @keyframes shimmer {
@@ -659,47 +651,9 @@
             { value: 'medium', label: '360p' },
         ];
 
-        // === التهيئة والاتصال بالسيرفر ===
-        async function init() {
-            try {
-                // جلب البيانات من السيرفر (MongoDB)
-                const response = await fetch('/api/data');
-                const data = await response.json();
-                
-                // تحديث القائمة
-                VIDEO_IDS = data.videos || [];
-                
-                // تحديث اسم التطبيق
-                if(data.title) {
-                    document.title = data.title;
-                    document.getElementById('loadingTitle').innerText = data.title;
-                }
-            } catch (e) {
-                console.error("Failed to load data", e);
-                // بيانات افتراضية في حال الفشل
-                VIDEO_IDS = ['TrgR4aYdSZA', 'L9vAQhDEEcs']; 
-            }
-
-            await loadAllVideos();
-            renderVideos();
-            renderPlayer();
-            setupTabs();
-            setupReelObserver();
-
-            var loader = document.getElementById('loading-screen');
-            loader.style.opacity = '0';
-            setTimeout(function() {
-                loader.style.display = 'none';
-                document.getElementById('home-screen').style.display = 'block';
-            }, 400);
-        }
-
-        window.addEventListener('load', init);
-
-        // === باقي الكود الأصلي كما هو تماماً ===
-
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+        // === Lazy Loading للصور ===
+        const imageObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     const poster = img.closest('.card-poster');
@@ -730,6 +684,7 @@
             });
         }
 
+        // === جلب بيانات الفيديو ===
         async function fetchVideoInfo(videoId) {
             try {
                 const res = await fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + videoId + '&format=json');
@@ -756,6 +711,7 @@
             videosData = await Promise.all(promises);
         }
 
+        // === إنشاء البطاقات ===
         function createCard(video, index, showBadge) {
             if (showBadge === undefined) showBadge = true;
             return '<div class="video-card" onclick="openPlayer(' + index + ')">' +
@@ -780,6 +736,7 @@
             observeImages();
         }
 
+        // === التبويبات ===
         function setupTabs() {
             document.querySelectorAll('.tab').forEach(function(tab) {
                 tab.onclick = function() {
@@ -799,6 +756,7 @@
             });
         }
 
+        // === التنقل ===
         function navigateTo(page) {
             document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
             document.querySelector('.nav-item[data-nav="' + page + '"]').classList.add('active');
@@ -814,6 +772,7 @@
             }
         }
 
+        // === البحث ===
         function openSearch() {
             document.getElementById('search-screen').classList.add('active');
             setTimeout(function() { document.getElementById('search-input').focus(); }, 100);
@@ -853,6 +812,7 @@
             observeImages();
         }
 
+        // === المفضلة ===
         function openFavorites() {
             var screen = document.getElementById('favorites-screen');
             var grid = document.getElementById('favorites-grid');
@@ -906,11 +866,13 @@
             });
         }
 
+        // === مشغل الفيديو ===
         function renderPlayer() {
             var feed = document.getElementById('player-feed');
             var html = '';
             for (var i = 0; i < videosData.length; i++) {
                 var video = videosData[i];
+                var isFav = favorites.indexOf(video.id) !== -1;
                 html += '<div class="reel-item" data-index="' + i + '" data-id="' + video.id + '">' +
                     '<div class="youtube-container" id="yt-' + video.id + '">' +
                     '<div id="player-' + video.id + '"></div>' +
@@ -921,7 +883,7 @@
                     '<div class="player-btn" onclick="closePlayer()"><i class="fas fa-arrow-right"></i></div>' +
                     '<div class="player-actions">' +
                     '<div class="player-btn fav-btn" data-id="' + video.id + '" onclick="toggleFavorite(\'' + video.id + '\')">' +
-                    '<i class="' + (favorites.indexOf(video.id) !== -1 ? 'fas' : 'far') + ' fa-bookmark"></i></div>' +
+                    '<i class="' + (isFav ? 'fas' : 'far') + ' fa-bookmark"></i></div>' +
                     '<div class="player-btn" id="mute-' + video.id + '" onclick="toggleMute(\'' + video.id + '\')">' +
                     '<i class="fas fa-volume-mute"></i></div>' +
                     '<div class="player-btn" onclick="toggleQuality(\'' + video.id + '\')" style="position:relative">' +
@@ -941,6 +903,7 @@
         var reelObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
                 var videoId = entry.target.dataset.id;
+
                 if (entry.isIntersecting) {
                     visibleReels.add(videoId);
                     if (!players[videoId] && apiReady) {
@@ -973,28 +936,51 @@
             if (players[videoId]) return;
             players[videoId] = new YT.Player('player-' + videoId, {
                 videoId: videoId,
-                playerVars: { controls: 0, autoplay: 1, modestbranding: 1, mute: 1, loop: 1, playlist: videoId, playsinline: 1, rel: 0 },
+                playerVars: {
+                    controls: 0,
+                    autoplay: 1,
+                    modestbranding: 1,
+                    mute: 1,
+                    loop: 1,
+                    playlist: videoId,
+                    playsinline: 1,
+                    rel: 0
+                },
                 events: {
                     onReady: function(e) {
                         e.target.setPlaybackQuality(selectedQuality);
-                        if (visibleReels.has(videoId)) { e.target.playVideo(); }
+                        if (visibleReels.has(videoId)) {
+                            e.target.playVideo();
+                        }
                     },
-                    onStateChange: function(e) { handlePlayerState(e, videoId); }
+                    onStateChange: function(e) {
+                        handlePlayerState(e, videoId);
+                    }
                 }
             });
         }
 
-        window.onYouTubeIframeAPIReady = function() { apiReady = true; };
+        window.onYouTubeIframeAPIReady = function() {
+            apiReady = true;
+        };
 
         function handlePlayerState(event, videoId) {
-            if (event.data === YT.PlayerState.PLAYING) { hidePlayButton(videoId); }
-            else if (event.data === YT.PlayerState.PAUSED) { showPlayButton(videoId); }
-            else if (event.data === YT.PlayerState.ENDED) { event.target.seekTo(0); event.target.playVideo(); }
+            if (event.data === YT.PlayerState.PLAYING) {
+                hidePlayButton(videoId);
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                showPlayButton(videoId);
+            } else if (event.data === YT.PlayerState.ENDED) {
+                event.target.seekTo(0);
+                event.target.playVideo();
+            }
         }
 
         function showPlayButton(videoId) {
             var btn = document.getElementById('bigplay-' + videoId);
-            if (btn) { btn.innerHTML = '<i class="fas fa-play"></i>'; btn.classList.add('visible'); }
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+                btn.classList.add('visible');
+            }
         }
 
         function hidePlayButton(videoId) {
@@ -1008,13 +994,18 @@
             document.getElementById('favorites-screen').classList.remove('active');
             document.getElementById('search-screen').classList.remove('active');
             document.getElementById('player-screen').style.display = 'block';
+
             var feed = document.getElementById('player-feed');
-            setTimeout(function() { feed.scrollTop = feed.children[index].offsetTop; }, 50);
+            setTimeout(function() {
+                feed.scrollTop = feed.children[index].offsetTop;
+            }, 50);
         }
 
         function closePlayer() {
             Object.keys(players).forEach(function(id) {
-                if (players[id] && players[id].pauseVideo) players[id].pauseVideo();
+                if (players[id] && players[id].pauseVideo) {
+                    players[id].pauseVideo();
+                }
             });
             document.getElementById('player-screen').style.display = 'none';
             document.getElementById('home-screen').style.display = 'block';
@@ -1024,6 +1015,7 @@
         function togglePlayPause(videoId) {
             var player = players[videoId];
             if (!player || !player.getPlayerState) return;
+
             var btn = document.getElementById('bigplay-' + videoId);
             if (player.getPlayerState() === YT.PlayerState.PLAYING) {
                 player.pauseVideo();
@@ -1041,8 +1033,12 @@
         function toggleMute(videoId) {
             var player = players[videoId];
             if (!player) return;
-            if (player.isMuted()) { unlockAudio(); }
-            else { player.mute(); updateMuteIcon(videoId, true); }
+            if (player.isMuted()) {
+                unlockAudio();
+            } else {
+                player.mute();
+                updateMuteIcon(videoId, true);
+            }
         }
 
         function updateMuteIcon(videoId, muted) {
@@ -1053,7 +1049,9 @@
         function unlockAudio() {
             audioUnlocked = true;
             Object.keys(players).forEach(function(id) {
-                if (players[id] && players[id].unMute) players[id].unMute();
+                if (players[id] && players[id].unMute) {
+                    players[id].unMute();
+                }
                 updateMuteIcon(id, false);
             });
         }
@@ -1070,8 +1068,11 @@
             selectedQuality = quality;
             document.querySelectorAll('.quality-option').forEach(function(opt) {
                 var label = qualityOptions.find(function(q) { return q.value === quality; });
-                if (label && opt.textContent.trim() === label.label) opt.classList.add('selected');
-                else opt.classList.remove('selected');
+                if (label && opt.textContent.trim() === label.label) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
             });
             Object.keys(players).forEach(function(id) {
                 if (players[id] && players[id].setPlaybackQuality) {
@@ -1089,6 +1090,43 @@
             setTimeout(function() { toast.remove(); }, 2000);
         }
 
+        // === التهيئة والاتصال بالسيرفر ===
+        async function init() {
+            try {
+                // جلب البيانات من السيرفر (MongoDB)
+                const response = await fetch('/api/data');
+                const data = await response.json();
+
+                // تحديث القائمة
+                VIDEO_IDS = data.videos || [];
+
+                // تحديث اسم التطبيق
+                if(data.title) {
+                    document.title = data.title;
+                    document.getElementById('loadingTitle').innerText = data.title;
+                }
+            } catch (e) {
+                console.error("Failed to load data", e);
+                // بيانات افتراضية في حال الفشل
+                VIDEO_IDS = ['TrgR4aYdSZA', 'L9vAQhDEEcs'];
+            }
+
+            await loadAllVideos();
+            renderVideos();
+            renderPlayer();
+            setupTabs();
+            setupReelObserver();
+
+            var loader = document.getElementById('loading-screen');
+            loader.style.opacity = '0';
+            setTimeout(function() {
+                loader.style.display = 'none';
+                document.getElementById('home-screen').style.display = 'block';
+            }, 400);
+        }
+
+        window.addEventListener('load', init);
+
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.player-btn')) {
                 document.querySelectorAll('.quality-dropdown').forEach(function(m) {
@@ -1099,3 +1137,5 @@
     </script>
 </body>
 </html>
+
+
