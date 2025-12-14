@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DzAffiliate - منصة الشركاء</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>body { font-family: 'Tajawal', sans-serif; background: #f8fafc; }</style>
+</head>
+<body>
+
+    <div id="authScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
+            <h1 class="text-3xl font-black text-center text-blue-600 mb-2">DzAffiliate</h1>
+            <p class="text-center text-slate-400 text-sm mb-6">سجل الدخول وابدأ في جني الأرباح</p>
+            
+            <div class="space-y-4">
+                <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">دخول</button>
+                <p class="text-center text-xs text-slate-400 mt-4 cursor-pointer hover:text-blue-500" onclick="toggleAuth('register')">ليس لديك حساب؟ سجل الآن</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="regScreen" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
+            <h1 class="text-2xl font-black text-center text-slate-800 mb-6">حساب جديد</h1>
+            <div class="space-y-3">
+                <input id="rName" type="text" placeholder="الاسم الكامل" class="w-full p-3 bg-slate-50 border rounded-xl">
+                <input id="rEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 bg-slate-50 border rounded-xl">
+                <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl">
+                <input id="rCcp" type="text" placeholder="رقم CCP / BaridiMob (للدفع)" class="w-full p-3 bg-slate-50 border rounded-xl">
+                
+                <div class="flex gap-2">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="role" value="affiliate" checked class="peer sr-only">
+                        <div class="p-3 border-2 rounded-xl text-center peer-checked:border-blue-500 peer-checked:text-blue-600">مسوق 📢</div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="role" value="merchant" class="peer sr-only">
+                        <div class="p-3 border-2 rounded-xl text-center peer-checked:border-blue-500 peer-checked:text-blue-600">تاجر 📦</div>
+                    </label>
+                </div>
+
+                <button onclick="register()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">إنشاء حساب</button>
+                <p class="text-center text-xs text-slate-400 mt-4 cursor-pointer hover:text-blue-500" onclick="toggleAuth('login')">لديك حساب؟ سجل الدخول</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainDashboard" class="hidden min-h-screen flex flex-col md:flex-row">
+        
+        <aside class="bg-white w-full md:w-64 border-l p-6 flex flex-col justify-between">
+            <div>
+                <div class="font-black text-xl text-blue-600 mb-8">DzAffiliate <span id="dashRole" class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500"></span></div>
+                <div class="space-y-2">
+                    <div class="text-sm text-slate-400">الرصيد الحالي</div>
+                    <div class="text-3xl font-black text-green-600"><span id="dashBalance">0</span> د.ج</div>
+                    <button onclick="withdraw()" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded mt-2 hover:bg-green-200">طلب سحب 💸</button>
+                </div>
+            </div>
+            <button onclick="logout()" class="text-red-500 text-sm font-bold flex items-center gap-2 mt-10"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+            
+            <div id="affiliateView" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-slate-800">سوق العروض المتاحة 🔥</h2>
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div id="merchantView" class="hidden space-y-8">
+                
+                <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                    <h3 class="font-bold mb-4">إضافة منتج جديد</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input id="pTitle" placeholder="اسم المنتج" class="input">
+                        <input id="pImg" placeholder="رابط الصورة" class="input ltr text-left">
+                        <input id="pPrice" type="number" placeholder="السعر (دج)" class="input">
+                        <input id="pComm" type="number" placeholder="العمولة للمسوق (دج)" class="input border-green-300">
+                    </div>
+                    <button onclick="addMerchantProduct()" class="bg-slate-900 text-white px-6 py-2 rounded-lg mt-4 text-sm font-bold">نشر المنتج</button>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-xl mb-4">الطلبات الواردة 📦</h3>
+                    <div class="overflow-x-auto bg-white rounded-xl border shadow-sm">
+                        <table class="w-full text-sm text-right">
+                            <thead class="bg-slate-50 text-slate-500">
+                                <tr>
+                                    <th class="p-4">المنتج</th>
+                                    <th class="p-4">الزبون</th>
+                                    <th class="p-4">الهاتف</th>
+                                    <th class="p-4">المسوق</th>
+                                    <th class="p-4">العمولة</th>
+                                    <th class="p-4">الحالة</th>
+                                    <th class="p-4 text-center">إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+<style>.input { width:100%; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; outline:none; }</style>
+
+<script>
+    let USER = null;
+
+    // التحقق من الجلسة
+    window.onload = function() {
+        const storedUser = localStorage.getItem('dz_user');
+        if(storedUser) {
+            USER = JSON.parse(storedUser);
+            refreshUser(); // تحديث الرصيد من السيرفر
+        }
+    }
+
+    async function refreshUser() {
+        const res = await fetch('/api/user/refresh', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: USER._id })
+        });
+        USER = await res.json();
+        localStorage.setItem('dz_user', JSON.stringify(USER));
+        showDashboard();
+    }
+
+    function toggleAuth(screen) {
+        document.getElementById('authScreen').style.display = screen === 'login' ? 'flex' : 'none';
+        document.getElementById('regScreen').style.display = screen === 'register' ? 'flex' : 'none';
+    }
+
+    // تسجيل الدخول
+    async function login() {
+        const email = document.getElementById('lEmail').value;
+        const password = document.getElementById('lPass').value;
+        
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email, password })
+        });
+        const d = await res.json();
+        if(d.success) {
+            USER = d.user;
+            localStorage.setItem('dz_user', JSON.stringify(USER));
+            showDashboard();
+        } else {
+            alert(d.msg);
+        }
+    }
+
+    // التسجيل
+    async function register() {
+        const data = {
+            name: document.getElementById('rName').value,
+            email: document.getElementById('rEmail').value,
+            password: document.getElementById('rPass').value,
+            ccp: document.getElementById('rCcp').value,
+            role: document.querySelector('input[name="role"]:checked').value
+        };
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const d = await res.json();
+        if(d.success) {
+            USER = d.user;
+            localStorage.setItem('dz_user', JSON.stringify(USER));
+            showDashboard();
+        } else {
+            alert(d.msg);
+        }
+    }
+
+    // عرض لوحة التحكم
+    function showDashboard() {
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('regScreen').style.display = 'none';
+        document.getElementById('mainDashboard').classList.remove('hidden');
+        
+        document.getElementById('dashRole').innerText = USER.role === 'merchant' ? 'تاجر' : 'مسوق';
+        document.getElementById('dashBalance').innerText = USER.balance;
+
+        if(USER.role === 'affiliate') {
+            document.getElementById('affiliateView').classList.remove('hidden');
+            loadMarketplace();
+        } else {
+            document.getElementById('merchantView').classList.remove('hidden');
+            loadOrders();
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('dz_user');
+        location.reload();
+    }
+
+    // === وظائف المسوق ===
+    async function loadMarketplace() {
+        const res = await fetch('/api/market/products');
+        const products = await res.json();
+        const grid = document.getElementById('productsGrid');
+        
+        grid.innerHTML = products.map(p => `
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                <div class="h-48 bg-gray-100 relative">
+                    <img src="${p.image}" class="w-full h-full object-cover">
+                    <div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">عمولة ${p.commission} دج</div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-lg mb-1">${p.title}</h3>
+                    <p class="text-slate-500 text-sm mb-4">سعر البيع: ${p.price} دج</p>
+                    <button onclick="copyLink('${p._id}')" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-blue-700">نسخ رابطي 🔗</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function copyLink(id) {
+        const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
+        navigator.clipboard.writeText(link);
+        alert('تم نسخ الرابط! انشره الآن وابدأ الربح: \n' + link);
+    }
+
+    async function withdraw() {
+        if(USER.balance < 2000) return alert('الحد الأدنى للسحب 2000 دج');
+        if(confirm('سحب ' + USER.balance + ' دج إلى ' + USER.ccp + '؟')) {
+            await fetch('/api/wallet/withdraw', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: USER._id, amount: USER.balance })
+            });
+            alert('تم تقديم طلب السحب! سيصلك خلال 24 ساعة.');
+            refreshUser();
+        }
+    }
+
+    // === وظائف التاجر ===
+    async function addMerchantProduct() {
+        const data = {
+            merchantId: USER._id,
+            title: document.getElementById('pTitle').value,
+            image: document.getElementById('pImg').value,
+            price: document.getElementById('pPrice').value,
+            commission: document.getElementById('pComm').value,
+            category: 'عام'
+        };
+        await fetch('/api/merchant/product', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        alert('تم نشر المنتج في السوق!');
+        location.reload();
+    }
+
+    async function loadOrders() {
+        const res = await fetch('/api/merchant/orders', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ merchantId: USER._id })
+        });
+        const orders = await res.json();
+        const tbody = document.getElementById('ordersTable');
+        
+        tbody.innerHTML = orders.map(o => `
+            <tr class="border-b">
+                <td class="p-4 font-bold">${o.productName}</td>
+                <td class="p-4">${o.customer.name}</td>
+                <td class="p-4 font-mono text-blue-500">${o.customer.phone}</td>
+                <td class="p-4 text-xs text-slate-400">${o.affiliateId === 'direct' ? 'مباشر' : 'عبر مسوق'}</td>
+                <td class="p-4 text-red-500 font-bold">-${o.commission}</td>
+                <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${o.status}</span></td>
+                <td class="p-4 text-center">
+                    ${o.status !== 'delivered' ? 
+                    `<button onclick="updateOrder('${o._id}', 'delivered')" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">تأكيد التوصيل ✅</button>` 
+                    : '<i class="fas fa-check text-green-500"></i>'}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function updateOrder(id, status) {
+        if(!confirm('هل تم توصيل الطلب واستلام المال؟ سيتم خصم العمولة للمسوق.')) return;
+        await fetch('/api/order/status', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ orderId: id, status: status })
+        });
+        loadOrders();
+    }
+</script>
+</body>
+</html>
