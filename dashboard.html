@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DzAffiliate - لوحة التحكم</title>
+    <title>DzAffiliate - المنصة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Tajawal', sans-serif; background: #f8fafc; }
         .hidden { display: none !important; }
+        .flex-view { display: flex !important; }
+        
+        /* شاشة التحميل (تمنع الوميض) */
+        #globalLoader {
+            position: fixed; inset: 0; background: white; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
     </style>
 </head>
 <body>
 
-    <div id="authView" class="min-h-screen flex items-center justify-center p-4">
+    <div id="globalLoader">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <div id="authView" class="hidden min-h-screen items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
             <h1 class="text-3xl font-black text-center text-blue-600 mb-2">DzAffiliate</h1>
             
@@ -22,13 +33,14 @@
                 <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 bg-slate-50 border rounded-xl">
                 <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl">
                 <button onclick="login()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700">دخول</button>
-                <p class="text-center text-xs text-gray-500 cursor-pointer" onclick="toggleForms('register')">سجل حساب جديد</p>
+                <p class="text-center text-xs text-gray-500 cursor-pointer" onclick="toggleForms('register')">تسجيل حساب جديد</p>
             </div>
 
             <div id="registerForm" class="space-y-4 hidden">
                 <input id="rName" type="text" placeholder="الاسم" class="w-full p-3 bg-slate-50 border rounded-xl">
                 <input id="rEmail" type="email" placeholder="البريد" class="w-full p-3 bg-slate-50 border rounded-xl">
                 <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl">
+                <input id="rCcp" type="text" placeholder="رقم CCP" class="w-full p-3 bg-slate-50 border rounded-xl">
                 <div class="flex gap-2">
                     <label class="flex-1 cursor-pointer bg-slate-50 p-2 rounded border text-center"><input type="radio" name="role" value="affiliate" checked> مسوق</label>
                     <label class="flex-1 cursor-pointer bg-slate-50 p-2 rounded border text-center"><input type="radio" name="role" value="merchant"> تاجر</label>
@@ -51,7 +63,6 @@
         </aside>
 
         <main class="flex-1 p-6 overflow-y-auto">
-            
             <div id="affiliateContent" class="hidden space-y-6">
                 <h2 class="text-2xl font-bold text-slate-800">سوق العروض 🛒</h2>
                 <div id="marketGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -62,7 +73,7 @@
                     <h3 class="font-bold mb-4">إضافة منتج جديد</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input id="mProdTitle" placeholder="اسم المنتج" class="w-full p-3 bg-slate-50 border rounded-lg">
-                        <input id="mProdImg" placeholder="رابط الصورة" class="w-full p-3 bg-slate-50 border rounded-lg text-left ltr">
+                        <input id="mProdImg" placeholder="رابط الصورة (URL)" class="w-full p-3 bg-slate-50 border rounded-lg text-left ltr">
                         <input id="mProdPrice" type="number" placeholder="السعر" class="w-full p-3 bg-slate-50 border rounded-lg">
                         <input id="mProdComm" type="number" placeholder="العمولة" class="w-full p-3 bg-slate-50 border border-green-200 rounded-lg">
                     </div>
@@ -89,53 +100,59 @@
 <script>
     let USER = null;
 
-    // === تشغيل عند البداية ===
+    // === المنطق الاحترافي للجلسة ===
     window.onload = async function() {
-        // نحاول استعادة المستخدم من التخزين المحلي
         const storedUser = localStorage.getItem('dz_user');
+        
         if (storedUser) {
+            // 1. عرض اللوحة فوراً بناءً على البيانات المخزنة (لسرعة الاستجابة)
+            USER = JSON.parse(storedUser);
+            renderDashboard(USER);
+            
+            // 2. التحقق من السيرفر في الخلفية
             try {
-                // نتحقق من صحة المستخدم من السيرفر
-                const tempUser = JSON.parse(storedUser);
                 const res = await fetch('/api/user/refresh', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ id: tempUser._id })
+                    body: JSON.stringify({ id: USER._id })
                 });
                 const d = await res.json();
                 
-                if(d.success) {
+                if(d.success && d.user) {
                     USER = d.user;
-                    // تحديث التخزين المحلي لضمان أنه أحدث نسخة
                     localStorage.setItem('dz_user', JSON.stringify(USER));
-                    showDashboard();
+                    // تحديث الرصيد فقط دون إعادة رسم كل شيء
+                    document.getElementById('userBalance').innerText = USER.balance;
                 } else {
-                    // إذا فشل التحديث (مثلاً المستخدم حُذف من القاعدة)، نطلب الدخول مجدداً
-                    showAuth();
+                    // السيرفر رفض المستخدم (محذوف أو محظور)
+                    logout();
                 }
             } catch(e) {
-                // في حالة خطأ الاتصال، نبقي المستخدم في شاشة الدخول
-                showAuth();
+                console.log('وضع عدم الاتصال: استخدام البيانات المحلية');
             }
         } else {
             showAuth();
         }
+        
+        // إخفاء شاشة التحميل بعد انتهاء المنطق
+        document.getElementById('globalLoader').style.display = 'none';
     };
 
     function showAuth() {
         document.getElementById('authView').classList.remove('hidden');
+        document.getElementById('authView').classList.add('flex-view');
         document.getElementById('dashView').classList.add('hidden');
     }
 
-    function showDashboard() {
+    function renderDashboard(user) {
         document.getElementById('authView').classList.add('hidden');
         document.getElementById('dashView').classList.remove('hidden');
-        document.getElementById('dashView').style.display = 'flex'; // Fix flex display
+        document.getElementById('dashView').classList.add('flex-view');
         
-        document.getElementById('userRoleBadge').innerText = USER.role === 'merchant' ? 'تاجر' : 'مسوق';
-        document.getElementById('userBalance').innerText = USER.balance;
+        document.getElementById('userRoleBadge').innerText = user.role === 'merchant' ? 'تاجر' : 'مسوق';
+        document.getElementById('userBalance').innerText = user.balance;
 
-        if (USER.role === 'merchant') {
+        if (user.role === 'merchant') {
             document.getElementById('merchantContent').classList.remove('hidden');
             loadMerchantData();
         } else {
@@ -154,8 +171,6 @@
         const email = document.getElementById('lEmail').value;
         const password = document.getElementById('lPass').value;
         
-        if(!email || !password) return alert('أدخل البيانات');
-
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -167,7 +182,7 @@
             if (d.success) {
                 USER = d.user;
                 localStorage.setItem('dz_user', JSON.stringify(USER));
-                location.reload(); // إعادة تحميل نظيفة
+                location.reload(); // إعادة تحميل مرة واحدة لتفعيل الجلسة
             } else {
                 alert(d.msg);
             }
@@ -175,14 +190,14 @@
     }
 
     async function register() {
+        const role = document.querySelector('input[name="role"]:checked').value;
         const data = {
             name: document.getElementById('rName').value,
             email: document.getElementById('rEmail').value,
             password: document.getElementById('rPass').value,
             ccp: document.getElementById('rCcp').value,
-            role: document.querySelector('input[name="role"]:checked').value
+            role: role
         };
-        
         try {
             const res = await fetch('/api/auth/register', {
                 method: 'POST',
@@ -190,14 +205,11 @@
                 body: JSON.stringify(data)
             });
             const d = await res.json();
-            
             if (d.success) {
                 USER = d.user;
                 localStorage.setItem('dz_user', JSON.stringify(USER));
                 location.reload();
-            } else {
-                alert(d.msg);
-            }
+            } else { alert(d.msg); }
         } catch(e) { alert('خطأ اتصال'); }
     }
 
@@ -208,15 +220,13 @@
 
     // === التاجر ===
     async function publishProduct() {
-        if (!USER || USER.role !== 'merchant') return alert('يجب أن تكون تاجراً');
-
         const btn = document.getElementById('pubBtn');
         const title = document.getElementById('mProdTitle').value;
         const image = document.getElementById('mProdImg').value;
         const price = document.getElementById('mProdPrice').value;
         const commission = document.getElementById('mProdComm').value;
 
-        if(!title || !price) return alert('أكمل البيانات');
+        if(!title || !price) return alert('املأ البيانات');
 
         btn.innerText = 'جاري النشر...';
         btn.disabled = true;
@@ -226,22 +236,23 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    merchantId: USER._id, // إرسال هوية التاجر بوضوح
+                    merchantId: USER._id,
                     title, image, price, commission
                 })
             });
-            
             const d = await res.json();
+            
             if(d.success) {
                 alert('✅ تم النشر!');
-                loadMerchantData();
-                // تنظيف الحقول
+                // تنظيف الحقول فقط دون Reload
                 document.getElementById('mProdTitle').value = '';
                 document.getElementById('mProdPrice').value = '';
+                document.getElementById('mProdComm').value = '';
+                loadMerchantData(); // تحديث القوائم فوراً
             } else {
-                alert('فشل النشر: ' + d.msg);
+                alert('فشل النشر');
             }
-        } catch(e) { console.error(e); alert('خطأ'); }
+        } catch(e) { alert('خطأ'); }
         
         btn.innerText = 'نشر المنتج 🚀';
         btn.disabled = false;
@@ -256,11 +267,14 @@
         });
         const products = await pRes.json();
         document.getElementById('myProductsList').innerHTML = products.map(p => `
-            <div class="bg-white p-3 rounded border flex justify-between items-center shadow-sm">
-                <span class="font-bold">${p.title}</span>
+            <div class="bg-slate-50 p-3 rounded border flex justify-between items-center shadow-sm">
+                <div class="flex items-center gap-3">
+                    <img src="${p.image || 'https://via.placeholder.com/50'}" class="w-10 h-10 rounded object-cover">
+                    <span class="font-bold">${p.title}</span>
+                </div>
                 <span class="text-green-600 font-bold">${p.price} دج</span>
             </div>
-        `).join('') || '<p class="text-gray-400 text-sm">لا توجد منتجات</p>';
+        `).join('') || '<p class="text-gray-400">لا توجد منتجات</p>';
 
         // الطلبات
         const oRes = await fetch('/api/merchant/orders', {
@@ -270,24 +284,23 @@
         });
         const orders = await oRes.json();
         document.getElementById('ordersTable').innerHTML = orders.map(o => `
-            <tr class="border-b">
+            <tr class="border-b hover:bg-slate-50">
                 <td class="p-3 font-bold">${o.productName}</td>
                 <td class="p-3">${o.customerName}</td>
                 <td class="p-3"><span class="px-2 py-1 rounded text-xs ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${o.status}</span></td>
-                <td class="p-3">
-                    ${o.status !== 'delivered' ? 
-                    `<button onclick="updateOrder('${o._id}', 'delivered')" class="text-green-600 font-bold hover:underline">تسليم ✅</button>` : '-'}
+                <td class="p-3 text-center">
+                    ${o.status !== 'delivered' ? `<button onclick="confirmDelivery('${o._id}')" class="text-green-600 font-bold hover:underline">تسليم</button>` : '✅'}
                 </td>
             </tr>
-        `).join('') || '<tr><td colspan="4" class="p-4 text-center text-gray-400">لا توجد طلبات</td></tr>';
+        `).join('');
     }
 
-    async function updateOrder(id, status) {
-        if(!confirm('تأكيد التسليم؟')) return;
+    async function confirmDelivery(id) {
+        if(!confirm('تأكيد؟')) return;
         await fetch('/api/order/status', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ orderId: id, status })
+            body: JSON.stringify({ orderId: id, status: 'delivered' })
         });
         loadMerchantData();
     }
@@ -297,24 +310,22 @@
         const res = await fetch('/api/market/products');
         const products = await res.json();
         document.getElementById('marketGrid').innerHTML = products.map(p => `
-            <div class="bg-white rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition">
-                <img src="${p.image || 'https://via.placeholder.com/400'}" class="w-full h-40 object-cover">
-                <div class="p-4">
-                    <h3 class="font-bold text-lg">${p.title}</h3>
-                    <div class="flex justify-between text-sm mt-2 mb-4">
-                        <span class="text-gray-500">السعر: ${p.price}</span>
-                        <span class="text-green-600 font-bold">العمولة: ${p.commission}</span>
-                    </div>
-                    <button onclick="copyLink('${p._id}')" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700">نسخ الرابط 🔗</button>
+            <div class="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition">
+                <img src="${p.image || 'https://via.placeholder.com/200'}" class="w-full h-32 object-cover rounded mb-3">
+                <h3 class="font-bold text-lg">${p.title}</h3>
+                <div class="flex justify-between text-sm text-gray-500 mb-3">
+                    <span>السعر: ${p.price}</span>
+                    <span class="text-green-600 font-bold">عمولة: ${p.commission}</span>
                 </div>
+                <button onclick="copyLink('${p._id}')" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold hover:bg-blue-700">نسخ الرابط 🔗</button>
             </div>
-        `).join('') || '<p class="col-span-3 text-center text-gray-400">لا توجد عروض حالياً</p>';
+        `).join('') || '<p class="col-span-3 text-center text-gray-400">السوق فارغ حالياً</p>';
     }
 
     function copyLink(id) {
         const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
         navigator.clipboard.writeText(link);
-        alert('تم نسخ الرابط! ✅\n' + link);
+        alert('تم النسخ! \n' + link);
     }
 </script>
 </body>
