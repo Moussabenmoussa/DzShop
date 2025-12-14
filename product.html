@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب منتج</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Tajawal', sans-serif; background: #f8fafc;">
+
+    <div id="loader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg pb-10">
+        <img id="pImg" class="w-full h-72 object-cover bg-gray-200">
+        
+        <div class="p-6">
+            <h1 id="pTitle" class="text-2xl font-black text-slate-800 mb-2">...</h1>
+            <div class="text-3xl font-bold text-blue-600 mb-6" id="pPrice">...</div>
+            
+            <div class="bg-green-50 border border-green-200 p-4 rounded-xl mb-6 flex items-center gap-3">
+                <div class="text-2xl">🚚</div>
+                <div>
+                    <div class="font-bold text-green-800">توصيل سريع 58 ولاية</div>
+                    <div class="text-xs text-green-600">الدفع عند الاستلام (Main a Main)</div>
+                </div>
+            </div>
+
+            <form onsubmit="order(event)" class="space-y-4">
+                <div>
+                    <label class="font-bold text-sm text-slate-500 block mb-1">الاسم الكامل</label>
+                    <input id="name" required class="w-full bg-slate-50 border p-3 rounded-lg outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="font-bold text-sm text-slate-500 block mb-1">رقم الهاتف</label>
+                    <input id="phone" type="tel" required class="w-full bg-slate-50 border p-3 rounded-lg outline-none focus:border-blue-500 text-left ltr">
+                </div>
+                <div>
+                    <label class="font-bold text-sm text-slate-500 block mb-1">الولاية / العنوان</label>
+                    <input id="wilaya" required class="w-full bg-slate-50 border p-3 rounded-lg outline-none focus:border-blue-500">
+                </div>
+                
+                <button type="submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 transition text-lg">
+                    تأكيد الطلب الآن ✅
+                </button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const pid = window.location.pathname.split('/').pop();
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+
+    fetch('/api/product/' + pid).then(r=>r.json()).then(p => {
+        if(p.error) return document.body.innerHTML = '<h1>المنتج غير موجود</h1>';
+        document.title = p.title;
+        document.getElementById('pImg').src = p.image;
+        document.getElementById('pTitle').innerText = p.title;
+        document.getElementById('pPrice').innerText = p.price + ' د.ج';
+        document.getElementById('loader').style.display = 'none';
+    });
+
+    async function order(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.innerText = 'جاري المعالجة...';
+        btn.disabled = true;
+
+        const data = {
+            productId: pid,
+            affiliateId: ref,
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            wilaya: document.getElementById('wilaya').value
+        };
+
+        const res = await fetch('/api/order', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        if(res.ok) {
+            document.body.innerHTML = `
+                <div class="h-screen flex flex-col items-center justify-center text-center p-6">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mb-4">🎉</div>
+                    <h1 class="text-2xl font-bold text-slate-800">تم استلام طلبك بنجاح!</h1>
+                    <p class="text-slate-500 mt-2">سيتصل بك فريق التوصيل قريباً لتأكيد الطلب.</p>
+                </div>
+            `;
+        }
+    }
+</script>
+</body>
+</html>
