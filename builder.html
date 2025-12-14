@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -244,6 +243,7 @@ https://i.imgur.com/M6X2L8D.png</textarea>
         btn.classList.add('active');
     }
 
+    // === دالة تجميع البيانات ===
     function getDataObject() {
         return {
             slug: document.getElementById('pSlug').value.trim(),
@@ -271,6 +271,7 @@ https://i.imgur.com/M6X2L8D.png</textarea>
         };
     }
 
+    // === دالة التحميل (Download HTML) ===
     function downloadPage() {
         const d = getDataObject();
         const html = generateFinalHTML(d);
@@ -281,9 +282,11 @@ https://i.imgur.com/M6X2L8D.png</textarea>
         document.body.appendChild(a);a.click();document.body.removeChild(a);
     }
 
+    // === دالة النشر (Publish Link) - هذا هو الجزء المهم ===
     async function publishPage() {
         const d = getDataObject();
-        if(!d.slug) return alert('⚠️ يرجى كتابة "رابط الصفحة" (Slug) أولاً!');
+        // التحقق من اسم الرابط
+        if(!d.slug) return alert('⚠️ يرجى كتابة "رابط الصفحة" (Slug) في الخانة العلوية أولاً!');
 
         const btn = document.getElementById('pubBtn');
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
@@ -296,19 +299,23 @@ https://i.imgur.com/M6X2L8D.png</textarea>
                 body: JSON.stringify(d)
             });
             const result = await res.json();
+            
             if(result.success) {
                 const url = window.location.origin + '/p/' + d.slug;
                 prompt("✅ تم نشر المتجر بنجاح! انسخ الرابط:", url);
                 window.open(url, '_blank');
             } else {
-                alert("❌ خطأ: اسم الرابط مستخدم من قبل");
+                alert("❌ خطأ: اسم الرابط مستخدم من قبل، اختر اسماً آخر.");
             }
-        } catch(err) { alert("حدث خطأ في الاتصال"); }
+        } catch(err) { 
+            alert("حدث خطأ في الاتصال بالسيرفر!"); 
+        }
         
         btn.innerHTML = '<span>نشر</span> <i class="fas fa-globe"></i>';
         btn.disabled = false;
     }
 
+    // === دالة توليد القالب (مشتركة) ===
     function generateFinalHTML(d) {
         const jsonLd = { "@context": "https://schema.org/", "@type": "Product", "name": d.name, "image": d.imgs, "description": d.seo.desc, "offers": { "@type": "Offer", "priceCurrency": "DZD", "price": d.price, "availability": "https://schema.org/InStock" } };
         
