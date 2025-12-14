@@ -29,10 +29,9 @@ app.get('/p/:slug', async (req, res) => {
     if (!page) return res.status(404).send('404 Not Found');
 
     const d = page.data;
-
-    // === هذا هو نفس القالب الموجود في كودك الأصلي، مع إصلاح السلايدر والإيميل ===
-    const html = `
-<!DOCTYPE html>
+    // هنا نقوم "بحقن" القالب بنفس الطريقة التي يفعلها ملف builder.html
+    // هذا يضمن تطابقاً تاماً بنسبة 100%
+    const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -52,7 +51,7 @@ select,input{background:#fff;outline:none}
 </head>
 <body class="bg-gray-50 min-h-screen pb-24 md:pb-0">
 <div class="main-card relative">
-<div class="bg-red-600 text-white text-center py-2 text-xs font-bold sticky top-0 z-40">⚡ عرض محدود <span id="timer" class="bg-white/20 px-1 rounded mx-1">02:30:00</span></div>
+<div class="bg-red-600 text-white text-center py-2 text-xs font-bold sticky top-0 z-40">⚡ عرض محدود <span class="bg-white/20 px-1 rounded mx-1">02:30:00</span></div>
 <div class="relative h-[350px] bg-gray-100">
 ${d.imgs.map((m,i)=>`<img src="${m}" class="slide ${i==0?'active':''}">`).join('')}
 </div>
@@ -95,7 +94,6 @@ ${d.redot.qr?`<img src="${d.redot.qr}" class="w-32 h-32 mx-auto mt-2 border bord
 
 <script>
 let pm = 'cod'; const CM=${JSON.stringify(d.communes)};
-// السلايدر (تم الإصلاح ليعمل تلقائياً)
 let slideIndex = 0;
 function showSlides() {
     let slides = document.getElementsByClassName("slide");
@@ -115,32 +113,20 @@ function upC(){let w=document.getElementById('w').value,c=document.getElementByI
 async function sub(e){
     e.preventDefault();
     let n=document.getElementById('n').value,p=document.getElementById('p').value,w=document.getElementById('w').value,c=document.getElementById('c').value,tx=document.getElementById('txid').value;
-    
     if(pm=='redot' && !tx){alert('يرجى إدخال رقم العملية (TXID)');return}
-
+    
     let payTxt = pm=='redot' ? '✅ مدفوع (RedotPay)\\n🆔 TXID: '+tx : '💵 الدفع عند الاستلام';
     let msg = '*طلب جديد*🔥\\n🛍️ ${d.name}\\n💰 السعر: ${d.price}\\n'+payTxt+'\\n👤 '+n+'\\n📱 '+p+'\\n📍 '+w+' - '+c;
-
-    // إصلاح الإيميل: استخدام FormSubmit
-    if('${d.conf.method}' === 'both' && '${d.conf.email}') {
-        fetch('https://formsubmit.co/ajax/${d.conf.email}', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-            body: JSON.stringify({ المنتج: '${d.name}', السعر: '${d.price}', الاسم: n, الهاتف: p, العنوان: w+' - '+c, الدفع: pm, TXID: tx })
-        });
-    }
-
-    if('${d.conf.sheet}'){let f=new FormData();f.append('Date',new Date().toLocaleString());f.append('Name',n);f.append('Phone',p);f.append('Wilaya',w);f.append('Address',c);f.append('Payment',pm=='redot'?tx:'COD');fetch('${d.conf.sheet}',{method:'POST',body:f}).catch(()=>{})}
     
-    if('${d.conf.method}' !== 'email'){
-        window.location.href='https://wa.me/${d.conf.wa}?text='+encodeURIComponent(msg);
-    } else {
-        alert('تم تسجيل الطلب ✅');
-        document.querySelector('form').reset();
+    if('${d.conf.method}' === 'both' && '${d.conf.email}') {
+        fetch('https://formsubmit.co/ajax/${d.conf.email}', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ المنتج: '${d.name}', السعر: '${d.price}', الاسم: n, الهاتف: p, العنوان: w+' - '+c, الدفع: pm, TXID: tx }) });
     }
+    if('${d.conf.sheet}'){let f=new FormData();f.append('Date',new Date().toLocaleString());f.append('Name',n);f.append('Phone',p);f.append('Wilaya',w);f.append('Address',c);f.append('Payment',pm=='redot'?tx:'COD');fetch('${d.conf.sheet}',{method:'POST',body:f}).catch(()=>{})}
+    if('${d.conf.method}' !== 'email'){ window.location.href='https://wa.me/${d.conf.wa}?text='+encodeURIComponent(msg); }
+    else{ alert('تم تسجيل الطلب ✅'); document.querySelector('form').reset(); }
 }
-</script></body></html>
-    `;
+<\/script></body></html>`;
+
     res.send(html);
 });
 
