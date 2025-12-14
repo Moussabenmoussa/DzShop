@@ -6,157 +6,147 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// الاتصال بقاعدة البيانات مع إظهار الأخطاء
 const mongoUri = process.env.MONGO_URI;
-if (mongoUri) mongoose.connect(mongoUri).then(() => console.log('✅ DB Connected'));
+if (mongoUri) {
+    mongoose.connect(mongoUri)
+        .then(() => console.log('✅ DB Connected Successfully'))
+        .catch(err => console.error('❌ DB Connection Error:', err));
+} else {
+    console.error('⚠️ تحذير: لم يتم وضع رابط قاعدة البيانات (MONGO_URI) في إعدادات Render');
+}
 
-// --- الموديلات (قواعد البيانات) ---
-
-// 1. المستخدمين (تجار ومسوقين)
-const UserSchema = new mongoose.Schema({
-    name: String,
-    email: { type: String, unique: true },
-    password: String, // (في الواقع يجب تشفيرها، هنا مبسطة)
-    role: String, // 'merchant' أو 'affiliate'
-    balance: { type: Number, default: 0 }, // المحفظة
-    ccp: String, // معلومات الدفع
-    createdAt: { type: Date, default: Date.now }
-});
-const User = mongoose.model('User', UserSchema);
-
-// 2. المنتجات
+// 1. مودل المنتجات
 const ProductSchema = new mongoose.Schema({
-    merchantId: String, // صاحب المنتج
     title: String,
     price: Number,
-    commission: Number, // عمولة المسوق
+    commission: Number,
     image: String,
     category: String,
-    stock: { type: Number, default: 100 },
-    active: { type: Boolean, default: true }
+    stock: { type: Number, default: 50 },
+    sales: { type: Number, default: 0 },
+    views: { type: Number, default: 0 }
 });
 const Product = mongoose.model('Product', ProductSchema);
 
-// 3. الطلبات
+// 2. مودل الطلبات
 const OrderSchema = new mongoose.Schema({
     productId: String,
     productName: String,
-    merchantId: String,
-    affiliateId: String, // من جلب المبيعة؟
+    customerName: String,
+    customerPhone: String,
+    customerWilaya: String,
+    affiliateId: String,
     commission: Number,
-    customer: { name: String, phone: String, address: String },
-    status: { type: String, default: 'pending' }, // pending, delivered, returned
+    status: { type: String, default: 'pending' },
     date: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', OrderSchema);
 
-// 4. السحوبات (Withdrawals)
-const WithdrawalSchema = new mongoose.Schema({
-    userId: String,
-    amount: Number,
-    ccp: String,
-    status: { type: String, default: 'pending' },
-    date: { type: Date, default: Date.now }
+// 3. مودل المستخدمين (للدخول)
+const UserSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    password: String,
+    role: String, // merchant, affiliate
+    balance: { type: Number, default: 0 },
+    ccp: String
 });
-const Withdrawal = mongoose.model('Withdrawal', WithdrawalSchema);
+const User = mongoose.model('User', UserSchema);
+
+// تهيئة البيانات
+async function initDB() {
+    if (!mongoUri) return;
+    const count = await Product.countDocuments();
+    if (count === 0) {
+        await Product.create({
+            title: 'ساعة ذكية Ultra',
+            price: 3500,
+            commission: 600,
+            image: 'https://via.placeholder.com/500',
+            category: 'إلكترونيات'
+        });
+        console.log('📦 تم إنشاء منتج تجريبي');
+    }
+}
+initDB();
 
 // --- المسارات ---
-app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html'))); // لوحة التحكم الموحدة
-app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html'))); // صفحة المنتج
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html')));
 
-// --- API (المصادقة) ---
-app.post('/api/auth/register', async (req, res) => {
+// صفحة المنتج (تأكدنا من المسار هنا)
+app.get('/p/:id', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'product.html'));
+});
+
+// --- API ---
+
+// تسجيل الطلب (هنا كان يحدث المشكل غالباً)
+app.post('/api/order', async (req, res) => {
     try {
-        const { name, email, password, role, ccp } = req.body;
-        const exists = await User.findOne({ email });
-        if(exists) return res.json({ success: false, msg: 'البريد مسجل مسبقاً' });
+        console.log("📥 طلب جديد وصل:", req.body); // طباعة البيانات في السجل لفحصها
+
+        const { productId, name, phone, wilaya, affiliateId } = req.body;
         
-        const user = await User.create({ name, email, password, role, ccp });
-        res.json({ success: true, user });
-    } catch(e) { res.json({ success: false, msg: 'حدث خطأ' }); }
+        // التحقق من أن المنتج موجود
+        const product = await Product.findById(productId);
+        if (!product) {
+            console.error("❌ المنتج غير موجود:", productId);
+            return res.status(404).json({ success: false, msg: "المنتج غير موجود" });
+        }
+
+        // إنشاء الطلب
+        await Order.create({
+            productId: product._id,
+            productName: product.title,
+            customerName: name,
+            customerPhone: phone,
+            customerWilaya: wilaya,
+            affiliateId: affiliateId || 'direct',
+            commission: product.commission
+        });
+
+        // زيادة عداد المبيعات
+        product.sales = (product.sales || 0) + 1;
+        await product.save();
+
+        console.log("✅ تم حفظ الطلب بنجاح!");
+        res.json({ success: true });
+
+    } catch (e) {
+        console.error("❌ خطأ أثناء حفظ الطلب:", e); // طباعة الخطأ في السيرفر
+        res.status(500).json({ success: false, error: e.message });
+    }
 });
 
-app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email, password });
-    if(user) res.json({ success: true, user });
-    else res.json({ success: false, msg: 'بيانات خاطئة' });
-});
-
-app.post('/api/user/refresh', async (req, res) => {
-    const user = await User.findById(req.body.id);
-    res.json(user);
-});
-
-// --- API (للمسوق) ---
-app.get('/api/market/products', async (req, res) => {
-    const products = await Product.find({ active: true });
+// باقي الـ APIs (كما هي)
+app.get('/api/products', async (req, res) => {
+    const products = await Product.find();
     res.json(products);
 });
 
-// طلب سحب الأرباح
-app.post('/api/wallet/withdraw', async (req, res) => {
-    const { userId, amount } = req.body;
-    const user = await User.findById(userId);
-    if(user.balance >= amount) {
-        user.balance -= amount;
-        await user.save();
-        await Withdrawal.create({ userId, amount, ccp: user.ccp });
-        res.json({ success: true });
-    } else {
-        res.json({ success: false, msg: 'الرصيد غير كافٍ' });
-    }
+app.get('/api/product/:id', async (req, res) => {
+    try {
+        const p = await Product.findById(req.params.id);
+        res.json(p || { error: true });
+    } catch(e) { res.json({ error: true }); }
 });
 
-// --- API (للتاجر) ---
-app.post('/api/merchant/product', async (req, res) => {
-    await Product.create(req.body);
-    res.json({ success: true });
+// المصادقة (مبسطة)
+app.post('/api/auth/login', async (req, res) => {
+    const user = await User.findOne({ email: req.body.email, password: req.body.password });
+    res.json(user ? { success: true, user } : { success: false, msg: 'خطأ في البيانات' });
+});
+
+app.post('/api/auth/register', async (req, res) => {
+    const user = await User.create(req.body);
+    res.json({ success: true, user });
 });
 
 app.post('/api/merchant/orders', async (req, res) => {
-    const orders = await Order.find({ merchantId: req.body.merchantId }).sort({date: -1});
+    const orders = await Order.find().sort({date: -1}); // جلب كل الطلبات للتجربة
     res.json(orders);
 });
 
-// *** أهم دالة: تغيير حالة الطلب ودفع العمولة ***
-app.post('/api/order/status', async (req, res) => {
-    const { orderId, status } = req.body;
-    const order = await Order.findById(orderId);
-    
-    // إذا تغيرت الحالة إلى "تم التوصيل"، ندفع للمسوق
-    if (status === 'delivered' && order.status !== 'delivered' && order.affiliateId) {
-        const affiliate = await User.findById(order.affiliateId);
-        if(affiliate) {
-            affiliate.balance += order.commission;
-            await affiliate.save();
-        }
-    }
-    
-    order.status = status;
-    await order.save();
-    res.json({ success: true });
-});
-
-// --- API (للزبون) ---
-app.get('/api/product/:id', async (req, res) => {
-    const p = await Product.findById(req.params.id);
-    res.json(p);
-});
-
-app.post('/api/order/create', async (req, res) => {
-    const { productId, affiliateId, customer } = req.body;
-    const product = await Product.findById(productId);
-    
-    await Order.create({
-        productId,
-        productName: product.title,
-        merchantId: product.merchantId,
-        affiliateId,
-        commission: product.commission,
-        customer
-    });
-    res.json({ success: true });
-});
-
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 DzAffiliate Pro Running`));
+app.listen(port, () => console.log(`🚀 Server Running on port ${port}`));
