@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LandShop Builder</title>
+    <title>LandShop Builder - Manual SEO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* نفس الستايل الخاص بك تماماً */
         body { font-family: 'Tajawal', sans-serif; background: #0f172a; height: 100vh; overflow: hidden; }
         .app-container { display: flex; height: 100vh; width: 100vw; }
         .editor-panel { width: 400px; background: #1e293b; border-left: 1px solid #334155; display: flex; flex-direction: column; overflow-y: auto; z-index: 20; flex-shrink: 0; }
@@ -47,7 +46,7 @@
             
             <div class="flex gap-2 mr-auto">
                 <button onclick="publishPage()" id="pubBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition active:scale-95">
-                    <span>نشر رابط</span> <i class="fas fa-globe"></i> 
+                    <span>نشر</span> <i class="fas fa-globe"></i> 
                 </button>
                 <button onclick="downloadPage()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition active:scale-95">
                     <span>تحميل</span> <i class="fas fa-download"></i> 
@@ -58,52 +57,81 @@
         <div class="p-5 pb-20 space-y-6">
             
             <div class="bg-blue-900/20 p-3 rounded-xl border border-blue-900/50">
-                <div class="section-title"><i class="fas fa-link text-blue-400"></i> رابط المتجر (للنشر)</div>
-                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: offer-1 (بدون مسافات)" required>
-                <p class="text-[10px] text-gray-400">الرابط سيكون: dzshop.onrender.com/p/<b>offer-1</b></p>
+                <div class="section-title"><i class="fas fa-link text-blue-400"></i> رابط الصفحة (Slug)</div>
+                <input type="text" id="pSlug" class="input text-left ltr" placeholder="مثال: headphones-pro" required>
+                <p class="text-[10px] text-gray-400">الرابط: dzshop.onrender.com/p/<b>اسم-الرابط</b></p>
+            </div>
+
+            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+                <div class="section-title"><i class="fas fa-search text-green-400"></i> إعدادات السيو (SEO)</div>
+                <div class="space-y-2">
+                    <div>
+                        <label class="label">عنوان الصفحة (يظهر في جوجل)</label>
+                        <input type="text" id="seoTitle" class="input" placeholder="عنوان جذاب للمنتج...">
+                    </div>
+                    <div>
+                        <label class="label">وصف البحث (Meta Description)</label>
+                        <textarea id="seoDesc" rows="2" class="input text-xs" placeholder="وصف مختصر يظهر تحت العنوان في نتائج البحث..."></textarea>
+                    </div>
+                    <div>
+                        <label class="label">الكلمات المفتاحية (Keywords)</label>
+                        <input type="text" id="seoKeys" class="input text-xs" placeholder="كلمة1، كلمة2، كلمة3...">
+                    </div>
+                </div>
             </div>
 
             <div>
                 <div class="section-title"><i class="fas fa-box-open text-blue-400"></i> تفاصيل المنتج</div>
-                <input type="text" id="pName" value="اشتراك IPTV لمدة سنة" class="input" placeholder="اسم المنتج" oninput="updatePreview()">
+                <input type="text" id="pName" value="سماعات بلوتوث عازلة للضوضاء" class="input" placeholder="اسم المنتج" oninput="updatePreview()">
                 <div class="flex gap-2">
-                    <input type="number" id="pPrice" value="4500" class="input" placeholder="السعر" oninput="updatePreview()">
-                    <input type="number" id="pOld" value="8000" class="input" placeholder="السعر القديم" oninput="updatePreview()">
+                    <input type="number" id="pPrice" value="2900" class="input" placeholder="السعر" oninput="updatePreview()">
+                    <input type="number" id="pOld" value="4500" class="input" placeholder="السعر القديم" oninput="updatePreview()">
                 </div>
-                <textarea id="pImages" rows="3" class="input text-left ltr" placeholder="رابط صورة في كل سطر" oninput="updatePreview()">https://i.imgur.com/G5qW0rF.png</textarea>
-                <textarea id="pDesc" rows="3" class="input" placeholder="وصف المنتج..." oninput="updatePreview()">وصف للمنتج يظهر هنا...</textarea>
-            </div>
-
-            <div class="bg-red-900/20 p-3 rounded-xl border border-red-900/50">
-                <div class="section-title"><i class="fas fa-wallet text-red-500"></i> الدفع (RedotPay)</div>
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs text-gray-300 font-bold">تفعيل RedotPay</span>
-                    <input type="checkbox" id="enableRedot" class="accent-red-500 h-4 w-4" onchange="updatePreview()">
-                </div>
-                <div id="redotFields" class="hidden">
-                    <input type="text" id="redotID" value="123456789" class="input text-left ltr" placeholder="RedotPay ID / Wallet Address">
-                    <input type="text" id="redotQR" class="input text-left ltr" placeholder="https://example.com/qr.png">
-                </div>
+                <textarea id="pImages" rows="3" class="input text-left ltr" placeholder="رابط صورة في كل سطر" oninput="updatePreview()">https://i.imgur.com/G5qW0rF.png
+https://i.imgur.com/M6X2L8D.png</textarea>
+                <textarea id="pDesc" rows="3" class="input" placeholder="وصف المنتج..." oninput="updatePreview()">صوت نقي وبطارية تدوم 24 ساعة. تصميم مريح للأذن ومقاوم للتعرق.</textarea>
             </div>
 
             <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                 <div class="section-title"><i class="fas fa-map-marked-alt text-green-400"></i> مناطق التوصيل</div>
-                <textarea id="pWilayas" rows="4" class="input h-24 text-xs" oninput="updatePreview()" placeholder="قائمة الولايات...">01. أدرار
-16. الجزائر</textarea>
-                <textarea id="pCommunes" rows="4" class="input h-24 text-xs" oninput="updatePreview()" placeholder="البلديات...">01. أدرار: أدرار وسط
-16. الجزائر: الجزائر الوسطى</textarea>
+                <label class="label text-gray-300">الولايات</label>
+                <textarea id="pWilayas" rows="4" class="input h-24 text-xs" oninput="updatePreview()">
+01. أدرار
+09. البليدة
+16. الجزائر
+31. وهران
+</textarea>
+                <label class="label text-gray-300 mt-2">البلديات</label>
+                <textarea id="pCommunes" rows="6" class="input h-32 text-xs" oninput="updatePreview()">
+01. أدرار: أدرار وسط، تيميمون
+09. البليدة: البليدة، أولاد يعيش، بوفاريك
+16. الجزائر: الجزائر الوسطى، القبة، حيدرة
+31. وهران: وهران، السانية، بئر الجير
+</textarea>
             </div>
 
             <div>
-                 <div class="section-title"><i class="fas fa-sliders-h text-yellow-400"></i> الإعدادات</div>
+                 <div class="section-title"><i class="fas fa-sliders-h text-yellow-400"></i> الخيارات والإرسال</div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-gray-300 font-bold">تفعيل المقاسات</span>
+                    <input type="checkbox" id="enableSizes" class="accent-blue-500 h-4 w-4" onchange="updatePreview()">
+                </div>
+                <input type="text" id="pSizes" value="Standard" class="input mb-3" oninput="updatePreview()">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-gray-300 font-bold">تفعيل الألوان</span>
+                    <input type="checkbox" id="enableColors" checked class="accent-blue-500 h-4 w-4" onchange="updatePreview()">
+                </div>
+                <input type="text" id="pColors" value="#000000, #EF4444, #3B82F6" class="input text-left ltr mb-4" oninput="updatePreview()">
+                
                 <select id="sendMethod" class="input" onchange="updatePreview()">
                     <option value="both">إيميل + واتساب</option>
                     <option value="whatsapp">واتساب فقط</option>
+                    <option value="email">إيميل فقط</option>
                 </select>
                 <input type="text" id="whatsapp" value="213555123456" class="input text-left ltr" placeholder="WhatsApp Number">
-                <input type="email" id="email" class="input text-left ltr" placeholder="Email">
+                <input type="email" id="email" class="input text-left ltr" placeholder="Email (FormSubmit)">
                 <input type="text" id="sheet" class="input text-left ltr" placeholder="Google Sheet URL">
-                <input type="number" id="shipping" value="0" class="input" placeholder="سعر التوصيل">
+                <input type="number" id="shipping" value="400" class="input" placeholder="سعر التوصيل">
             </div>
         </div>
     </div>
@@ -111,33 +139,35 @@
     <div id="previewPanel" class="preview-panel hidden-mobile">
         <div class="mobile-frame">
             <div class="bg-red-600 text-white text-[10px] text-center py-2 font-bold sticky top-0 z-10 shadow-md">
-                ⚡ عرض محدود <span class="bg-black/20 px-1 rounded font-mono mx-1">02:30:00</span>
+                ⚡ عرض محدود: ينتهي خلال <span class="bg-black/20 px-1 rounded font-mono mx-1">02:30:00</span>
             </div>
             <div class="lp-scroll">
-                <div id="prevSlider" class="h-64 bg-gray-200 relative"></div>
+                <div id="prevSlider" class="h-72 bg-gray-200 relative group"></div>
                 <div class="bg-white rounded-t-3xl relative -mt-6 p-5 min-h-[500px] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+                    <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div>
                     <h2 class="text-xl font-black text-slate-800 leading-snug mb-2" id="prevName">...</h2>
                     <div class="flex items-end gap-2 mb-5">
                         <span class="text-3xl font-black text-red-600" id="prevPrice">00</span>
+                        <span class="text-sm text-gray-400 line-through mb-1" id="prevOld">00</span>
                         <span class="text-sm font-bold text-slate-800 mb-1">د.ج</span>
                     </div>
-                    
-                    <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="badgesArea"></div>
-
-                    <div class="mt-2 border-t border-gray-100 pt-4">
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <div class="bg-blue-50 p-2 rounded-lg text-center border border-blue-100"><i class="fas fa-truck text-blue-500 mb-1"></i><div class="text-[9px] font-bold text-blue-800">توصيل سريع</div></div>
+                        <div class="bg-green-50 p-2 rounded-lg text-center border border-green-100"><i class="fas fa-hand-holding-dollar text-green-500 mb-1"></i><div class="text-[9px] font-bold text-green-800">الدفع عند الاستلام</div></div>
+                        <div class="bg-purple-50 p-2 rounded-lg text-center border border-purple-100"><i class="fas fa-medal text-purple-500 mb-1"></i><div class="text-[9px] font-bold text-purple-800">ضمان الجودة</div></div>
+                    </div>
+                    <div id="prevVariants"></div>
+                    <div class="mt-6 pt-4 border-t border-gray-100">
                         <h3 class="font-bold text-sm mb-2 text-slate-800">الوصف:</h3>
                         <div class="text-sm text-gray-600 whitespace-pre-line leading-relaxed" id="prevDesc"></div>
                     </div>
-
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-8 pb-6">
-                        <div class="text-center mb-4"><h3 class="font-bold text-slate-800 text-lg">بيانات الطلب</h3></div>
-                        <div id="paymentToggle" class="hidden mb-4 bg-white p-1 rounded-lg border border-gray-200 flex">
-                            <button class="flex-1 py-2 text-xs font-bold rounded-md bg-slate-800 text-white">الدفع عند الاستلام</button>
-                            <button class="flex-1 py-2 text-xs font-bold rounded-md text-gray-500">RedotPay</button>
-                        </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mt-8 pb-8">
+                        <div class="text-center mb-4"><h3 class="font-bold text-slate-800 text-lg">أطلب الآن</h3></div>
                         <div class="space-y-3">
                             <div class="bg-white border rounded-lg h-11 px-3 flex items-center text-sm text-gray-400">الاسم واللقب</div>
                             <div class="bg-white border rounded-lg h-11 px-3 flex items-center text-sm text-gray-400">رقم الهاتف</div>
+                            <select id="prevWilayaSelect" class="bg-white border rounded-lg h-11 w-full px-3 text-sm appearance-none font-bold text-slate-700 outline-none" onchange="refreshPrevCommunes()"><option>اختر الولاية...</option></select>
+                            <select id="prevCommuneSelect" class="bg-white border rounded-lg h-11 w-full px-3 text-sm appearance-none text-slate-700 outline-none"><option value="">البلدية...</option></select>
                         </div>
                     </div>
                 </div>
@@ -155,23 +185,38 @@
 </div>
 
 <script>
-    function parseCommunes(text) { const map = {}; text.split('\n').forEach(line => { if(line.includes(':')) { const [wilaya, comms] = line.split(':'); if(wilaya && comms) map[wilaya.trim()] = comms.split(/,|،/).map(c => c.trim()).filter(c => c); } }); return map; }
-    
-    function updatePreview() {
-        const isRedot = document.getElementById('enableRedot').checked;
-        document.getElementById('redotFields').classList.toggle('hidden', !isRedot);
-        document.getElementById('paymentToggle').classList.toggle('hidden', !isRedot);
+    function parseCommunes(text) {
+        const map = {};
+        text.split('\n').forEach(line => {
+            if(line.includes(':')) {
+                const [wilaya, comms] = line.split(':');
+                if(wilaya && comms) map[wilaya.trim()] = comms.split(/,|،/).map(c => c.trim()).filter(c => c);
+            }
+        });
+        return map;
+    }
 
-        document.getElementById('prevName').innerText = document.getElementById('pName').value;
+    function updatePreview() {
+        const name = document.getElementById('pName').value;
+        const imgs = document.getElementById('pImages').value.split('\n').filter(x => x.trim());
+        const wilayas = document.getElementById('pWilayas').value.split('\n').filter(x => x.trim());
+
+        document.getElementById('prevName').innerText = name;
         document.getElementById('prevPrice').innerText = document.getElementById('pPrice').value;
+        document.getElementById('prevOld').innerText = document.getElementById('pOld').value;
         document.getElementById('prevDesc').innerHTML = document.getElementById('pDesc').value.replace(/\n/g, '<br>');
 
-        const imgs = document.getElementById('pImages').value.split('\n').filter(x => x.trim());
-        document.getElementById('prevSlider').innerHTML = imgs.length ? `<img src="${imgs[0]}" class="w-full h-full object-cover">` : '';
+        const slider = document.getElementById('prevSlider');
+        slider.innerHTML = imgs.length ? `<img src="${imgs[0]}" class="w-full h-full object-cover">` : '<div class="flex items-center justify-center h-full text-gray-400">لا توجد صور</div>';
 
-        let badgesHtml = `<div class="bg-blue-50 px-3 py-2 rounded-lg text-center border border-blue-100 min-w-[80px]"><i class="fas fa-truck text-blue-500 mb-1"></i><div class="text-[9px] font-bold text-blue-800">توصيل سريع</div></div> <div class="bg-green-50 px-3 py-2 rounded-lg text-center border border-green-100 min-w-[80px]"><i class="fas fa-hand-holding-dollar text-green-500 mb-1"></i><div class="text-[9px] font-bold text-green-800">الدفع عند الاستلام</div></div>`;
-        if(isRedot) badgesHtml += `<div class="bg-red-50 px-3 py-2 rounded-lg text-center border border-red-100 min-w-[80px]"><i class="fas fa-wallet text-red-500 mb-1"></i><div class="text-[9px] font-bold text-red-800">RedotPay</div></div>`;
-        document.getElementById('badgesArea').innerHTML = badgesHtml;
+        let vHtml = '';
+        if(document.getElementById('enableSizes').checked) vHtml += `<div class="mt-4"><div class="text-xs font-bold mb-2 text-slate-700">المقاس:</div><div class="flex gap-2 flex-wrap">${document.getElementById('pSizes').value.split(',').map(s=>`<span class="border border-gray-300 px-3 py-1.5 rounded-lg bg-white text-xs font-bold text-gray-600 shadow-sm">${s.trim()}</span>`).join('')}</div></div>`;
+        if(document.getElementById('enableColors').checked) vHtml += `<div class="mt-4"><div class="text-xs font-bold mb-2 text-slate-700">اللون:</div><div class="flex gap-2">${document.getElementById('pColors').value.split(',').map(c=>`<span class="w-8 h-8 rounded-full border-2 border-white ring-1 ring-gray-200 shadow-sm" style="background:${c.trim()}"></span>`).join('')}</div></div>`;
+        document.getElementById('prevVariants').innerHTML = vHtml;
+
+        const wSelect = document.getElementById('prevWilayaSelect');
+        wSelect.innerHTML = '<option value="">اختر الولاية...</option>' + wilayas.map(w => `<option value="${w}">${w}</option>`).join('');
+        refreshPrevCommunes();
 
         const method = document.getElementById('sendMethod').value;
         const btn = document.getElementById('prevBtn');
@@ -184,6 +229,14 @@
         }
     }
 
+    function refreshPrevCommunes() {
+        const wVal = document.getElementById('prevWilayaSelect').value;
+        const cSelect = document.getElementById('prevCommuneSelect');
+        const commMap = parseCommunes(document.getElementById('pCommunes').value);
+        cSelect.innerHTML = '<option value="">البلدية...</option>';
+        if(wVal && commMap[wVal]) commMap[wVal].forEach(c => cSelect.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
     function switchTab(t, btn) {
         document.getElementById('editorPanel').classList.toggle('hidden-mobile', t !== 'editor');
         document.getElementById('previewPanel').classList.toggle('hidden-mobile', t !== 'preview');
@@ -191,7 +244,6 @@
         btn.classList.add('active');
     }
 
-    // === دالة تجميع البيانات (مشتركة بين التحميل والنشر) ===
     function getDataObject() {
         return {
             slug: document.getElementById('pSlug').value.trim(),
@@ -202,10 +254,12 @@
             imgs: document.getElementById('pImages').value.split('\n').filter(x=>x.trim()),
             wilayas: document.getElementById('pWilayas').value.split('\n').filter(x=>x.trim()),
             communes: parseCommunes(document.getElementById('pCommunes').value),
-            redot: {
-                active: document.getElementById('enableRedot').checked,
-                id: document.getElementById('redotID').value,
-                qr: document.getElementById('redotQR').value
+            sizes: document.getElementById('enableSizes').checked ? document.getElementById('pSizes').value.split(',') : [],
+            colors: document.getElementById('enableColors').checked ? document.getElementById('pColors').value.split(',') : [],
+            seo: {
+                title: document.getElementById('seoTitle').value || document.getElementById('pName').value,
+                desc: document.getElementById('seoDesc').value || document.getElementById('pDesc').value.substring(0, 150),
+                keys: document.getElementById('seoKeys').value
             },
             conf: {
                 method: document.getElementById('sendMethod').value,
@@ -217,12 +271,9 @@
         };
     }
 
-    // === 1. دالة التحميل (Download) ===
     function downloadPage() {
         const d = getDataObject();
-        // HTML Code Generator: (يولد ملف HTML محلياً)
-        // ملاحظة: نستخدم هنا قالب HTML البسيط للتحميل
-        const html = generateHTMLTemplate(d);
+        const html = generateFinalHTML(d);
         const b = new Blob([html],{type:'text/html'});
         const a = document.createElement('a');
         a.href=URL.createObjectURL(b);
@@ -230,10 +281,9 @@
         document.body.appendChild(a);a.click();document.body.removeChild(a);
     }
 
-    // === 2. دالة النشر (Publish Link) ===
     async function publishPage() {
         const d = getDataObject();
-        if(!d.slug) return alert('⚠️ يرجى كتابة "رابط المتجر" أولاً في الحقل المخصص!');
+        if(!d.slug) return alert('⚠️ يرجى كتابة "رابط الصفحة" (Slug) أولاً!');
 
         const btn = document.getElementById('pubBtn');
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
@@ -251,109 +301,86 @@
                 prompt("✅ تم نشر المتجر بنجاح! انسخ الرابط:", url);
                 window.open(url, '_blank');
             } else {
-                alert("❌ خطأ: ربما الاسم مستخدم من قبل");
+                alert("❌ خطأ: اسم الرابط مستخدم من قبل");
             }
-        } catch(err) { alert("خطأ في الاتصال"); }
+        } catch(err) { alert("حدث خطأ في الاتصال"); }
         
-        btn.innerHTML = '<span>نشر رابط</span> <i class="fas fa-globe"></i>';
+        btn.innerHTML = '<span>نشر</span> <i class="fas fa-globe"></i>';
         btn.disabled = false;
     }
 
-    // === دالة توليد HTML (المستخدمة في التحميل + السيرفر يستخدم نسخة منها) ===
-    function generateHTMLTemplate(d) {
-        // هذا هو الكود الذي ينزل كملف HTML عند الضغط على تحميل
-        // (نفس كودك الأصلي تماماً مع إضافة السلايدر والإيميل)
+    function generateFinalHTML(d) {
+        const jsonLd = { "@context": "https://schema.org/", "@type": "Product", "name": d.name, "image": d.imgs, "description": d.seo.desc, "offers": { "@type": "Offer", "priceCurrency": "DZD", "price": d.price, "availability": "https://schema.org/InStock" } };
+        
         return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>${d.name}</title>
+<title>${d.seo.title}</title>
+<meta name="description" content="${d.seo.desc}">
+<meta name="keywords" content="${d.seo.keys}">
+<meta property="og:title" content="${d.seo.title}">
+<meta property="og:description" content="${d.seo.desc}">
+<meta property="og:image" content="${d.imgs[0]}">
 <script src="https://cdn.tailwindcss.com"><\/script>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script type="application/ld+json">${JSON.stringify(jsonLd)}<\/script>
 <style>
 body{font-family:'Tajawal',sans-serif;background:#fff}
-.slide{display:none;width:100%;height:100%;object-fit:cover}.slide.active{display:block}
-select,input{background:#fff;outline:none}
-.pm-btn{flex:1;padding:10px;font-size:12px;font-weight:bold;border-radius:8px;cursor:pointer;border:1px solid #e2e8f0;transition:0.2s;text-align:center}.pm-btn.active{background:#1e293b;color:#fff;border-color:#1e293b}
-.redot-box{display:none;background:#fef2f2;border:1px dashed #ef4444;padding:15px;border-radius:10px;margin-bottom:15px;text-align:center}
+.slide{display:none;width:100%;height:100%;object-fit:cover}.slide.active{display:block;animation:f 0.5s}@keyframes f{from{opacity:0.7}to{opacity:1}}
+.opt{border:1px solid #e2e8f0;padding:6px 14px;border-radius:8px;cursor:pointer;background:#fff;font-size:13px;font-weight:700;color:#475569}.opt.active{background:#1e293b;color:#fff;border-color:#1e293b}
+.col{width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0;cursor:pointer}.col.active{box-shadow:0 0 0 2px #1e293b;transform:scale(1.1)}
+select{-webkit-appearance:none;appearance:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><polyline points='6 9 12 15 18 9'></polyline></svg>") no-repeat left 0.75rem center;background-size:1em;background-color:#fff}
+.toast{position:fixed;top:20px;left:50%;transform:translate(-50%,-100px);background:#10b981;color:#fff;padding:12px 24px;border-radius:30px;transition:0.4s;z-index:9999;font-weight:700;box-shadow:0 10px 30px rgba(16,185,129,0.3);width:max-content}.toast.show{transform:translate(-50%,20px)}
 @media(min-width:768px){body{background:#f1f5f9;padding-bottom:50px}.main-card{max-width:450px;margin:30px auto;border-radius:20px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.1);overflow:hidden;background:#fff;min-height:90vh}.sticky-nav{max-width:450px;margin:0 auto;border-radius:0 0 20px 20px}}
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-24 md:pb-0">
 <div class="main-card relative">
-<div class="bg-red-600 text-white text-center py-2 text-xs font-bold sticky top-0 z-40">⚡ عرض محدود <span class="bg-white/20 px-1 rounded mx-1">02:30:00</span></div>
-<div class="relative h-[350px] bg-gray-100">
-${d.imgs.map((m,i)=>`<img src="${m}" class="slide ${i==0?'active':''}">`).join('')}
+<div class="bg-red-600 text-white text-center py-2 text-xs font-bold sticky top-0 z-40 shadow-sm">⚡ عرض محدود: <span id="tm" class="bg-white/20 px-1 rounded mx-1">00:00:00</span></div>
+<div class="relative h-[350px] bg-gray-100 group">
+${d.imgs.map((m,i)=>`<img src="${m}" class="slide ${i==0?'active':''}" alt="${d.name}" ${i>0?'loading="lazy"':''}>`).join('')}
+${d.imgs.length>1?`<button onclick="mv(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-sm">❮</button><button onclick="mv(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-sm">❯</button>`:''}
 </div>
-<div class="p-6 -mt-8 bg-white relative z-20 rounded-t-[30px] shadow-sm">
-<h1 class="text-2xl font-black text-slate-900 mb-2">${d.name}</h1>
+<div class="p-6 -mt-8 bg-white relative z-20 rounded-t-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+<div class="w-12 h-1.5 bg-gray-100 rounded-full mx-auto mb-4"></div>
+<h1 class="text-2xl font-black text-slate-900 leading-snug mb-2">${d.name}</h1>
 <div class="flex items-end gap-3 mb-6"><span class="text-4xl font-black text-red-600">${d.price}</span><span class="text-gray-400 line-through pb-1">${d.old||''}</span><span class="font-bold text-slate-800 pb-1">د.ج</span></div>
-<div class="flex gap-2 mb-6 overflow-x-auto">
-<div class="bg-blue-50 px-3 py-2 rounded-lg text-center border border-blue-100 min-w-[80px]"><i class="fas fa-truck text-blue-500 mb-1 block"></i><span class="text-[10px] font-bold text-blue-800">توصيل سريع</span></div>
-<div class="bg-green-50 px-3 py-2 rounded-lg text-center border border-green-100 min-w-[80px]"><i class="fas fa-hand-holding-dollar text-green-500 mb-1 block"></i><span class="text-[10px] font-bold text-green-800">الدفع عند الاستلام</span></div>
-${d.redot.active?`<div class="bg-red-50 px-3 py-2 rounded-lg text-center border border-red-100 min-w-[80px]"><i class="fas fa-wallet text-red-500 mb-1 block"></i><span class="text-[10px] font-bold text-red-800">RedotPay</span></div>`:''}
+<div class="grid grid-cols-3 gap-2 mb-6">
+<div class="bg-blue-50 p-2 rounded-lg text-center border border-blue-100"><i class="fas fa-truck text-blue-500 mb-1 block"></i><span class="text-[10px] font-bold text-blue-800">توصيل سريع</span></div>
+<div class="bg-green-50 p-2 rounded-lg text-center border border-green-100"><i class="fas fa-money-bill-wave text-green-500 mb-1 block"></i><span class="text-[10px] font-bold text-green-800">عند الاستلام</span></div>
+<div class="bg-purple-50 p-2 rounded-lg text-center border border-purple-100"><i class="fas fa-award text-purple-500 mb-1 block"></i><span class="text-[10px] font-bold text-purple-800">ضمان الجودة</span></div>
 </div>
-<div class="border-t border-gray-100 pt-5 mt-5"><p class="text-sm text-gray-600 whitespace-pre-line leading-7">${d.desc}</p></div>
-
-<div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mt-8 pb-6">
-<h2 class="text-center font-bold text-xl text-slate-800 mb-4">أدخل معلوماتك للطلب</h2>
+${d.sizes.length&&d.sizes[0]?`<div class="mb-4"><div class="text-xs font-bold mb-2 text-slate-700">المقاس:</div><div class="flex flex-wrap gap-2">${d.sizes.map((s,i)=>`<div class="opt ${i==0?'active':''}" onclick="sS(this,'${s.trim()}')">${s.trim()}</div>`).join('')}</div></div>`:''}
+${d.colors.length&&d.colors[0]?`<div class="mb-4"><div class="text-xs font-bold mb-2 text-slate-700">اللون:</div><div class="flex gap-2">${d.colors.map((c,i)=>`<div class="col ${i==0?'active':''}" style="background:${c.trim()}" onclick="sC(this,'${c.trim()}')"></div>`).join('')}</div></div>`:''}
+<div class="border-t border-gray-100 pt-5 mt-5"><h3 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="far fa-file-alt text-gray-400"></i> الوصف:</h3><p class="text-sm text-gray-600 whitespace-pre-line leading-7">${d.desc}</p></div>
+<div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mt-8 pb-6" id="form">
+<h2 class="text-center font-bold text-xl text-slate-800 mb-1">أطلب الآن!</h2><p class="text-center text-xs text-slate-500 mb-5">الدفع عند الاستلام</p>
 <form onsubmit="sub(event)" class="space-y-3">
-${d.redot.active?`<div class="flex gap-2 mb-4">
-<div class="pm-btn active" onclick="setPM('cod',this)">الدفع عند الاستلام</div>
-<div class="pm-btn" onclick="setPM('redot',this)">RedotPay <i class="fas fa-wallet text-red-500"></i></div>
-</div>`:''}
-<div id="rdBox" class="redot-box">
-<p class="text-xs font-bold text-red-600 mb-2">قم بالتحويل إلى المعرف التالي:</p>
-<div class="bg-white p-2 rounded border border-red-200 font-mono text-sm select-all cursor-pointer" onclick="navigator.clipboard.writeText('${d.redot.id}');alert('تم النسخ')">${d.redot.id} <i class="far fa-copy"></i></div>
-${d.redot.qr?`<img src="${d.redot.qr}" class="w-32 h-32 mx-auto mt-2 border border-gray-200 rounded">`:''}
-<input id="txid" placeholder="أدخل رقم العملية (Transaction ID)" class="w-full h-10 mt-3 px-3 border border-red-300 rounded text-sm text-center">
-</div>
-<div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="far fa-user"></i></div><input id="n" required placeholder="الاسم واللقب" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500"></div>
-<div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="fas fa-phone-alt"></i></div><input id="p" required type="tel" placeholder="رقم الهاتف" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500 text-right" dir="ltr"></div>
-<select id="w" required class="w-full h-12 px-3 border border-gray-300 rounded-lg focus:border-red-500 text-gray-700" onchange="upC()"><option value="">اختر الولاية...</option>${d.wilayas.map(w=>`<option value="${w}">${w}</option>`).join('')}</select>
-<select id="c" required class="w-full h-12 px-3 border border-gray-300 rounded-lg focus:border-red-500 text-gray-700" disabled><option value="">البلدية...</option></select>
-</form></div></div>
-
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 z-50 sticky-nav shadow-lg">
-<button onclick="document.querySelector('form').requestSubmit()" id="btn" class="w-full ${d.conf.method=='whatsapp'?'bg-[#25D366] active:bg-[#128C7E]':'bg-red-600 active:bg-red-700'} text-white font-bold h-14 rounded-xl shadow-lg flex justify-center items-center gap-3 text-lg">
+<div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="far fa-user"></i></div><input id="n" required placeholder="الاسم واللقب" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500 outline-none transition bg-white"></div>
+<div class="relative"><div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400"><i class="fas fa-phone-alt"></i></div><input id="p" required type="tel" placeholder="رقم الهاتف" class="w-full h-12 pr-10 pl-3 border border-gray-300 rounded-lg focus:border-red-500 outline-none transition bg-white text-right" dir="ltr"></div>
+<select id="w" required class="w-full h-12 px-3 border border-gray-300 rounded-lg focus:border-red-500 outline-none transition bg-white text-gray-700" onchange="upC()"><option value="">اختر الولاية...</option>${d.wilayas.map(w=>`<option value="${w}">${w}</option>`).join('')}</select>
+<select id="c" required class="w-full h-12 px-3 border border-gray-300 rounded-lg focus:border-red-500 outline-none transition bg-white text-gray-700" disabled><option value="">البلدية...</option></select>
+</form></div><div class="h-10"></div></div>
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 z-50 sticky-nav shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+<button onclick="document.querySelector('form').requestSubmit()" id="btn" class="w-full ${d.conf.method=='whatsapp'?'bg-[#25D366] active:bg-[#128C7E]':'bg-red-600 active:bg-red-700'} text-white font-bold h-14 rounded-xl shadow-lg flex justify-center items-center gap-3 text-lg transition-transform active:scale-[0.98]">
 <span>${d.conf.method=='whatsapp'?'اطلب عبر واتساب':'تأكيد الطلب الآن'}</span><i class="${d.conf.method=='whatsapp'?'fab fa-whatsapp text-2xl':'fas fa-arrow-left'}"></i></button>
-</div></div>
-
+</div></div><div id="tst" class="toast"><i class="fas fa-check-circle"></i> تم تسجيل طلبك بنجاح!</div>
 <script>
-let pm = 'cod'; const CM=${JSON.stringify(d.communes)};
-let slideIndex = 0;
-function showSlides() {
-    let slides = document.getElementsByClassName("slide");
-    if(slides.length > 0) {
-        for(let i=0; i<slides.length; i++) slides[i].style.display = "none";
-        slideIndex++;
-        if(slideIndex > slides.length) slideIndex = 1;
-        slides[slideIndex-1].style.display = "block";
-        setTimeout(showSlides, 3000);
-    }
-}
-showSlides();
-
-function setPM(m,e){pm=m;document.querySelectorAll('.pm-btn').forEach(b=>b.classList.remove('active'));e.classList.add('active');document.getElementById('rdBox').style.display=m=='redot'?'block':'none'}
+let sz='${d.sizes[0]?d.sizes[0].trim():''}',cl='${d.colors[0]?d.colors[0].trim():''}';const CM=${JSON.stringify(d.communes)};
+function sS(e,v){document.querySelectorAll('.opt').forEach(x=>x.classList.remove('active'));e.classList.add('active');sz=v}
+function sC(e,v){document.querySelectorAll('.col').forEach(x=>x.classList.remove('active'));e.classList.add('active');cl=v}
+function mv(d){let s=document.querySelectorAll('.slide'),c=0;s.forEach((e,i)=>{if(e.classList.contains('active'))c=i;e.classList.remove('active')});s[(c+d+s.length)%s.length].classList.add('active')}
 function upC(){let w=document.getElementById('w').value,c=document.getElementById('c');c.innerHTML='<option value="">البلدية...</option>';if(CM[w]){CM[w].forEach(x=>c.innerHTML+='<option value="'+x+'">'+x+'</option>');c.disabled=0}else{c.innerHTML='<option value="المركز / غير محدد">المركز / غير محدد</option>';c.disabled=0}}
-
-async function sub(e){
-    e.preventDefault();
-    let n=document.getElementById('n').value,p=document.getElementById('p').value,w=document.getElementById('w').value,c=document.getElementById('c').value,tx=document.getElementById('txid').value;
-    if(pm=='redot' && !tx){alert('يرجى إدخال رقم العملية (TXID)');return}
-    
-    let payTxt = pm=='redot' ? '✅ مدفوع (RedotPay)\\n🆔 TXID: '+tx : '💵 الدفع عند الاستلام';
-    let msg = '*طلب جديد*🔥\\n🛍️ ${d.name}\\n💰 السعر: ${d.price}\\n'+payTxt+'\\n👤 '+n+'\\n📱 '+p+'\\n📍 '+w+' - '+c;
-    
-    if('${d.conf.method}' === 'both' && '${d.conf.email}') {
-        fetch('https://formsubmit.co/ajax/${d.conf.email}', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ المنتج: '${d.name}', السعر: '${d.price}', الاسم: n, الهاتف: p, العنوان: w+' - '+c, الدفع: pm, TXID: tx }) });
-    }
-    if('${d.conf.sheet}'){let f=new FormData();f.append('Date',new Date().toLocaleString());f.append('Name',n);f.append('Phone',p);f.append('Wilaya',w);f.append('Address',c);f.append('Payment',pm=='redot'?tx:'COD');fetch('${d.conf.sheet}',{method:'POST',body:f}).catch(()=>{})}
-    if('${d.conf.method}' !== 'email'){ window.location.href='https://wa.me/${d.conf.wa}?text='+encodeURIComponent(msg); }
-    else{ alert('تم تسجيل الطلب ✅'); document.querySelector('form').reset(); }
-}
+async function sub(e){e.preventDefault();let btn=document.getElementById('btn'),old=btn.innerHTML;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';btn.disabled=1;
+let n=document.getElementById('n').value,p=document.getElementById('p').value,w=document.getElementById('w').value,c=document.getElementById('c').value,dt=[sz,cl].filter(Boolean).join('-'),tot=${d.price}+${d.conf.ship||0};
+try{if('${d.conf.sheet}'){let f=new FormData();f.append('Date',new Date().toLocaleString());f.append('Name',n);f.append('Phone',p);f.append('Wilaya',w);f.append('Address',c);f.append('Product','${d.name}');f.append('Details',dt);fetch('${d.conf.sheet}',{method:'POST',body:f}).catch(()=>{})}
+if('${d.conf.email}'&&'${d.conf.method}'!=='whatsapp'){await fetch('https://formsubmit.co/ajax/${d.conf.email}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({_subject:'طلب: ${d.name}',Name:n,Phone:p,Wilaya:w,Commune:c,Details:dt})})}
+if('${d.conf.method}'!=='email'){window.location.href='https://wa.me/${d.conf.wa}?text='+encodeURIComponent('*طلب جديد*🔥\\n🛍️ ${d.name}\\n🎨 '+dt+'\\n💰 السعر: '+tot+'\\n👤 '+n+'\\n📱 '+p+'\\n📍 '+w+' - '+c)}
+else{document.getElementById('tst').classList.add('show');btn.innerHTML=old;btn.disabled=0;document.querySelector('form').reset();setTimeout(()=>document.getElementById('tst').classList.remove('show'),3000)}}catch(e){alert('Error');btn.innerHTML=old;btn.disabled=0}}
+setInterval(()=>{let d=new Date(),h=23-d.getHours(),m=59-d.getMinutes(),s=59-d.getSeconds();document.getElementById('tm').innerText=h+':'+m+':'+s},1000);
 <\/script></body></html>`;
     }
     
