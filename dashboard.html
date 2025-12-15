@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -93,6 +92,10 @@
         .notif-item { transition: all 0.2s; }
         .notif-item:hover { background: var(--bg-secondary); }
         .notif-item.unread { background: rgba(230, 57, 70, 0.05); }
+
+        /* Pending Chat Request */
+        .pending-chat { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+        .dark .pending-chat { background: linear-gradient(135deg, #78350f, #92400e); }
     </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
@@ -208,7 +211,7 @@
                     <!-- Wallet -->
                     <button onclick="nav('wallet')" class="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 px-4 py-2 rounded-xl border border-amber-200 dark:border-amber-800">
                         <i class="fas fa-wallet text-amber-600"></i>
-                        <span class="font-bold text-amber-700 dark:text-amber-400"><span id="userBalance">0</span> دج</span>
+                        <span class="font-bold text-amber-700 dark:text-amber-400"><span id="userBalance">0</span> <span class="currency-symbol">دج</span></span>
                     </button>
                 </div>
             </div>
@@ -232,7 +235,7 @@
                 </div>
                 <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
                     <i class="fas fa-wallet text-yellow-300"></i>
-                    <span class="font-bold"><span id="sidebarBalance">0</span> دج</span>
+                    <span class="font-bold"><span id="sidebarBalance">0</span> <span class="currency-symbol">دج</span></span>
                 </div>
             </div>
 
@@ -245,6 +248,11 @@
                     <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
                     الرسائل
                     <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
+                    طلبات المحادثة
+                    <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
                 <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
@@ -313,6 +321,32 @@
                 </div>
             </div>
 
+            <!-- View: Chat Requests (للبائع) -->
+            <div id="view-chat-requests" class="hidden animate-fadeIn">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black">طلبات المحادثة</h2>
+                    <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-bold" id="chatRequestsCount">0 طلب</span>
+                </div>
+
+                <div id="freeModeNotice" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-6">
+                    <p class="text-green-800 dark:text-green-400 text-sm">
+                        <i class="fas fa-check-circle ml-2"></i>
+                        الوضع المجاني مفعّل - فتح المحادثات مجاني!
+                    </p>
+                </div>
+
+                <div id="chatPriceNotice" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+                    <p class="text-amber-800 dark:text-amber-400 text-sm">
+                        <i class="fas fa-info-circle ml-2"></i>
+                        لقبول طلب المحادثة وفتح الدردشة مع المشتري، سيتم خصم <strong id="chatPriceDisplay">50</strong> <span class="currency-symbol">دج</span> من رصيدك
+                    </p>
+                </div>
+
+                <div id="chatRequestsList" class="space-y-4 max-w-3xl mx-auto">
+                    <p class="text-center text-gray-500 py-16">لا توجد طلبات محادثة</p>
+                </div>
+            </div>
+
             <!-- View: Chat (Single Conversation) -->
             <div id="view-chat" class="hidden animate-fadeIn">
                 <div class="max-w-2xl mx-auto">
@@ -351,10 +385,17 @@
                     <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold" id="ordersCount">0 طلب</span>
                 </div>
 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+                <div id="orderFreeModeNotice" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-6">
+                    <p class="text-green-800 dark:text-green-400 text-sm">
+                        <i class="fas fa-check-circle ml-2"></i>
+                        الوضع المجاني مفعّل - كشف معلومات الطلبات مجاني!
+                    </p>
+                </div>
+
+                <div id="orderPriceNotice" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
                     <p class="text-amber-800 dark:text-amber-400 text-sm">
                         <i class="fas fa-info-circle ml-2"></i>
-                        لعرض معلومات الطلب الكاملة (الهاتف، العنوان) يتم خصم <strong id="orderRevealPrice">50</strong> دج من رصيدك
+                        لعرض معلومات الطلب الكاملة (الهاتف، العنوان) يتم خصم <strong id="orderRevealPriceDisplay">50</strong> <span class="currency-symbol">دج</span> من رصيدك
                     </p>
                 </div>
 
@@ -384,7 +425,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">السعر (دج)</label>
+                                    <label class="block text-sm font-semibold mb-2">السعر (<span class="currency-symbol">دج</span>)</label>
                                     <input id="pPrice" type="number" placeholder="0" class="input-field w-full px-4 py-3 rounded-xl">
                                 </div>
                             </div>
@@ -399,10 +440,16 @@
                                 <textarea id="pDesc" rows="4" placeholder="وصف تفصيلي..." class="input-field w-full px-4 py-3 rounded-xl resize-none"></textarea>
                             </div>
 
+                            <!-- صورة الخدمة -->
+                            <div id="serviceImageSection">
+                                <label class="block text-sm font-semibold mb-2">رابط صورة الخدمة/المنتج</label>
+                                <input id="pServiceImage" type="url" placeholder="https://example.com/image.jpg" class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
+                            </div>
+
                             <!-- Product-specific options -->
                             <div id="productOptions">
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">روابط الصور (كل رابط في سطر)</label>
+                                    <label class="block text-sm font-semibold mb-2">روابط الصور الإضافية (كل رابط في سطر)</label>
                                     <textarea id="pImages" rows="3" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" class="input-field w-full px-4 py-3 rounded-xl resize-none text-left" dir="ltr"></textarea>
                                 </div>
 
@@ -449,7 +496,7 @@
                         <div class="absolute top-0 left-0 w-40 h-40 bg-red-500/20 rounded-full blur-3xl"></div>
                         <div class="relative">
                             <div class="text-sm text-white/60 mb-1">رصيدك الحالي</div>
-                            <div class="text-5xl font-black mb-6"><span id="wBalance">0</span> <span class="text-2xl text-white/60">دج</span></div>
+                            <div class="text-5xl font-black mb-6"><span id="wBalance">0</span> <span class="text-2xl text-white/60 currency-symbol">دج</span></div>
                             <button onclick="openDepositModal()" class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-xl font-bold flex items-center gap-2">
                                 <i class="fas fa-plus-circle"></i> شحن الرصيد
                             </button>
@@ -510,7 +557,7 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold mb-2">المبلغ (دج)</label>
+                    <label class="block text-sm font-semibold mb-2">المبلغ (<span class="currency-symbol">دج</span>)</label>
                     <input id="depAmount" type="number" placeholder="مثال: 500" class="input-field w-full px-4 py-3 rounded-xl">
                 </div>
                 <div>
@@ -538,6 +585,21 @@
         </div>
     </div>
 
+    <!-- Accept Chat Modal -->
+    <div id="acceptChatModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content w-full max-w-sm rounded-2xl p-6 text-center">
+            <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-comments text-blue-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">قبول طلب المحادثة</h3>
+            <p id="acceptChatMessage" class="text-gray-500 mb-4">سيتم خصم <strong class="text-red-600"><span id="acceptChatPrice">50</span> <span class="currency-symbol">دج</span></strong> من رصيدك لفتح المحادثة</p>
+            <div class="flex gap-3">
+                <button onclick="closeAcceptChatModal()" class="flex-1 py-3 rounded-xl border border-gray-200 font-semibold">إلغاء</button>
+                <button onclick="confirmAcceptChat()" class="flex-1 btn-primary py-3 rounded-xl text-white font-semibold">قبول</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
 
@@ -556,16 +618,79 @@
     let NOTIFICATIONS = [];
     let CHATS = [];
     let ORDERS = [];
+    let PENDING_CHAT_REQUESTS = [];
     let currentChatId = null;
     let pendingRevealOrderId = null;
+    let pendingAcceptChatId = null;
     let notifInterval = null;
+    
+    // الإعدادات العامة
+    let APP_SETTINGS = {
+        orderRevealPrice: 50,
+        chatPrice: 50,
+        freeMode: false,
+        currency: 'دج'
+    };
 
     function getFingerprint() { 
         return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16); 
     }
 
+    // ========== LOAD SETTINGS ==========
+    async function loadAppSettings() {
+        try {
+            const res = await fetch('/api/public/settings');
+            const settings = await res.json();
+            APP_SETTINGS = { ...APP_SETTINGS, ...settings };
+            updateCurrencyDisplay();
+            updatePriceDisplays();
+        } catch(e) {
+            console.error('Error loading settings:', e);
+        }
+    }
+
+    function updateCurrencyDisplay() {
+        document.querySelectorAll('.currency-symbol').forEach(el => {
+            el.textContent = APP_SETTINGS.currency;
+        });
+    }
+
+    function updatePriceDisplays() {
+        // تحديث أسعار كشف الطلب
+        const orderRevealEl = document.getElementById('orderRevealPriceDisplay');
+        if (orderRevealEl) orderRevealEl.textContent = APP_SETTINGS.orderRevealPrice;
+        
+        const revealPriceEl = document.getElementById('revealPrice');
+        if (revealPriceEl) revealPriceEl.textContent = APP_SETTINGS.orderRevealPrice + ' ' + APP_SETTINGS.currency;
+        
+        // تحديث أسعار المحادثة
+        const chatPriceEl = document.getElementById('chatPriceDisplay');
+        if (chatPriceEl) chatPriceEl.textContent = APP_SETTINGS.chatPrice;
+        
+        const acceptChatPriceEl = document.getElementById('acceptChatPrice');
+        if (acceptChatPriceEl) acceptChatPriceEl.textContent = APP_SETTINGS.chatPrice;
+        
+        // إظهار/إخفاء إشعارات الوضع المجاني
+        if (APP_SETTINGS.freeMode) {
+            document.getElementById('freeModeNotice')?.classList.remove('hidden');
+            document.getElementById('chatPriceNotice')?.classList.add('hidden');
+            document.getElementById('orderFreeModeNotice')?.classList.remove('hidden');
+            document.getElementById('orderPriceNotice')?.classList.add('hidden');
+            
+            const acceptMsg = document.getElementById('acceptChatMessage');
+            if (acceptMsg) acceptMsg.innerHTML = '<span class="text-green-600 font-bold">الوضع المجاني مفعّل - فتح المحادثة مجاني!</span>';
+        } else {
+            document.getElementById('freeModeNotice')?.classList.add('hidden');
+            document.getElementById('chatPriceNotice')?.classList.remove('hidden');
+            document.getElementById('orderFreeModeNotice')?.classList.add('hidden');
+            document.getElementById('orderPriceNotice')?.classList.remove('hidden');
+        }
+    }
+
     // ========== INIT ==========
     window.onload = async () => {
+        await loadAppSettings();
+        
         const stored = localStorage.getItem('dz_user');
         if (stored) {
             try {
@@ -597,6 +722,7 @@
         document.getElementById('userName').innerText = USER.name;
         document.getElementById('userEmail').innerText = USER.email;
         document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'م';
+        updateCurrencyDisplay();
     }
 
     function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
@@ -655,7 +781,7 @@
 
     // ========== NAVIGATION ==========
     function nav(view) {
-        ['market', 'messages', 'chat', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
+        ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
             const el = document.getElementById('view-' + v);
             if (el) el.classList.add('hidden');
         });
@@ -665,9 +791,13 @@
         toggleSidebar(false);
         document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === view));
         
+        // تحديث عرض الأسعار عند التنقل
+        updatePriceDisplays();
+        
         switch(view) {
             case 'market': loadMarket(); break;
             case 'messages': loadChats(); break;
+            case 'chat-requests': loadChatRequests(); break;
             case 'orders': loadOrders(); break;
             case 'mylist': loadMyList(); break;
             case 'wallet': loadWallet(); break;
@@ -681,7 +811,7 @@
         notifInterval = setInterval(() => {
             loadNotifications();
             loadUnreadCounts();
-        }, 10000); // Poll every 10 seconds
+        }, 10000);
     }
 
     async function loadNotifications() {
@@ -726,12 +856,12 @@
     }
 
     function getNotifIcon(type) {
-        const icons = { order: 'fa-shopping-bag', message: 'fa-comment', deposit: 'fa-wallet', system: 'fa-bell' };
+        const icons = { order: 'fa-shopping-bag', message: 'fa-comment', deposit: 'fa-wallet', system: 'fa-bell', chat_request: 'fa-user-clock' };
         return icons[type] || 'fa-bell';
     }
 
     function getNotifIconClass(type) {
-        const classes = { order: 'bg-green-100 text-green-600', message: 'bg-blue-100 text-blue-600', deposit: 'bg-amber-100 text-amber-600', system: 'bg-gray-100 text-gray-600' };
+        const classes = { order: 'bg-green-100 text-green-600', message: 'bg-blue-100 text-blue-600', deposit: 'bg-amber-100 text-amber-600', system: 'bg-gray-100 text-gray-600', chat_request: 'bg-amber-100 text-amber-600' };
         return classes[type] || 'bg-gray-100 text-gray-600';
     }
 
@@ -740,14 +870,13 @@
     }
 
     async function handleNotification(id, type, targetId) {
-        // Mark as read
         await fetch('/api/notification/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
         
         document.getElementById('notifDropdown').classList.add('hidden');
         
-        // Navigate based on type
         if (type === 'order') nav('orders');
         else if (type === 'message' && targetId) openChat(targetId);
+        else if (type === 'chat_request') nav('chat-requests');
         else if (type === 'deposit') nav('wallet');
         
         loadNotifications();
@@ -784,6 +913,15 @@
             } else {
                 ordersBadge.classList.add('hidden');
             }
+            
+            // Chat requests badge
+            const chatRequestsBadge = document.getElementById('chatRequestsBadge');
+            if (counts.pendingChats > 0) {
+                chatRequestsBadge.classList.remove('hidden');
+                chatRequestsBadge.innerText = counts.pendingChats;
+            } else {
+                chatRequestsBadge.classList.add('hidden');
+            }
         } catch(e) {}
     }
 
@@ -815,7 +953,7 @@
                     <h3 class="text-sm font-semibold line-clamp-2 mb-2 h-10">${p.title}</h3>
                     <div class="flex items-baseline gap-1">
                         <span class="text-red-600 font-black text-lg">${Number(p.price).toLocaleString()}</span>
-                        <span class="text-gray-400 text-xs">دج</span>
+                        <span class="text-gray-400 text-xs">${APP_SETTINGS.currency}</span>
                     </div>
                 </div>
             </div>
@@ -830,6 +968,93 @@
     function filterCategory(cat) {
         document.querySelectorAll('.category-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
         renderProducts(cat === 'all' ? ALL_LISTINGS : ALL_LISTINGS.filter(p => p.type === cat));
+    }
+
+    // ========== CHAT REQUESTS (للبائع) ==========
+    async function loadChatRequests() {
+        try {
+            const res = await fetch('/api/chat/pending/' + USER._id);
+            PENDING_CHAT_REQUESTS = await res.json();
+            renderChatRequests();
+        } catch(e) {}
+    }
+
+    function renderChatRequests() {
+        const list = document.getElementById('chatRequestsList');
+        document.getElementById('chatRequestsCount').innerText = PENDING_CHAT_REQUESTS.length + ' طلب';
+        
+        if (!PENDING_CHAT_REQUESTS.length) {
+            list.innerHTML = '<div class="text-center py-16"><i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i><p class="text-gray-500">لا توجد طلبات محادثة معلقة</p></div>';
+            return;
+        }
+        
+        list.innerHTML = PENDING_CHAT_REQUESTS.map(c => `
+            <div class="pending-chat rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">${(c.buyerName || 'م').charAt(0)}</div>
+                        <div>
+                            <h3 class="font-bold">${c.buyerName || 'مشتري'}</h3>
+                            <p class="text-sm text-gray-600">يريد التواصل معك</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
+                </div>
+                
+                <div class="bg-white/50 dark:bg-slate-700/50 rounded-xl p-3 mb-4">
+                    <p class="text-sm font-semibold">حول: ${c.listingTitle}</p>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button onclick="acceptChatRequest('${c._id}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition">
+                        <i class="fas fa-check ml-2"></i>
+                        ${APP_SETTINGS.freeMode ? 'قبول (مجاني)' : `قبول (-${APP_SETTINGS.chatPrice} ${APP_SETTINGS.currency})`}
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function acceptChatRequest(chatId) {
+        pendingAcceptChatId = chatId;
+        updatePriceDisplays();
+        document.getElementById('acceptChatModal').classList.remove('hidden');
+    }
+
+    function closeAcceptChatModal() {
+        document.getElementById('acceptChatModal').classList.add('hidden');
+        pendingAcceptChatId = null;
+    }
+
+    async function confirmAcceptChat() {
+        if (!pendingAcceptChatId) return;
+        
+        try {
+            const res = await fetch('/api/chat/accept', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ chatId: pendingAcceptChatId, sellerId: USER._id })
+            });
+            const d = await res.json();
+            
+            if (d.success) {
+                showToast('تم فتح المحادثة بنجاح! ✅', 'success');
+                // تحديث رصيد المستخدم
+                const userRes = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: USER._id}) });
+                const userData = await userRes.json();
+                if (userData.success) {
+                    USER = userData.user;
+                    localStorage.setItem('dz_user', JSON.stringify(USER));
+                    updateUserUI();
+                }
+                loadChatRequests();
+                loadUnreadCounts();
+            } else {
+                showToast(d.msg || 'خطأ', 'error');
+            }
+        } catch(e) { showToast('خطأ', 'error'); }
+        
+        closeAcceptChatModal();
     }
 
     // ========== CHATS ==========
@@ -879,7 +1104,6 @@
             
             loadChatMessages();
             
-            // Mark as read
             await fetch('/api/chat/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId, userId: USER._id}) });
             loadUnreadCounts();
         } catch(e) {}
@@ -892,12 +1116,12 @@
             const messages = await res.json();
             
             const container = document.getElementById('chatMessagesContainer');
-            container.innerHTML = messages.map(m => `
+            container.innerHTML = messages.length ? messages.map(m => `
                 <div class="chat-bubble ${m.senderId === USER._id ? 'sent' : 'received'}">
                     ${m.content}
                     <div class="text-xs opacity-50 mt-1">${formatTime(m.date)}</div>
                 </div>
-            `).join('');
+            `).join('') : '<p class="text-center text-gray-500 py-8">ابدأ المحادثة الآن...</p>';
             container.scrollTop = container.scrollHeight;
         } catch(e) {}
     }
@@ -910,16 +1134,20 @@
         input.value = '';
         
         try {
-            await fetch('/api/chat/send', {
+            const res = await fetch('/api/chat/send', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ chatId: currentChatId, senderId: USER._id, content })
             });
-            loadChatMessages();
+            const data = await res.json();
+            if (data.success) {
+                loadChatMessages();
+            } else {
+                showToast(data.msg || 'خطأ في الإرسال', 'error');
+            }
         } catch(e) { showToast('خطأ في الإرسال', 'error'); }
     }
 
-    // Poll for new messages
     setInterval(() => { if (currentChatId) loadChatMessages(); }, 3000);
 
     // ========== ORDERS ==========
@@ -948,7 +1176,7 @@
                         <h3 class="font-bold text-lg mt-2">${o.listingTitle || 'طلب'}</h3>
                     </div>
                     <div class="text-left">
-                        <div class="text-xl font-black text-green-600">${Number(o.totalPrice).toLocaleString()} دج</div>
+                        <div class="text-xl font-black text-green-600">${Number(o.totalPrice).toLocaleString()} ${APP_SETTINGS.currency}</div>
                         <div class="text-xs text-gray-500">الكمية: ${o.quantity || 1}</div>
                     </div>
                 </div>
@@ -972,7 +1200,8 @@
                 
                 ${!o.isRevealed ? `
                     <button onclick="revealOrder('${o._id}')" class="btn-primary w-full mt-4 text-white font-bold py-3 rounded-xl">
-                        <i class="fas fa-eye ml-2"></i> كشف المعلومات (-50 دج)
+                        <i class="fas fa-eye ml-2"></i> 
+                        ${APP_SETTINGS.freeMode ? 'كشف المعلومات (مجاني)' : `كشف المعلومات (-${APP_SETTINGS.orderRevealPrice} ${APP_SETTINGS.currency})`}
                     </button>
                 ` : `
                     <a href="tel:${o.buyerPhone}" class="block w-full mt-4 bg-green-600 text-white font-bold py-3 rounded-xl text-center">
@@ -986,7 +1215,12 @@
     }
 
     function revealOrder(orderId) {
+        if (APP_SETTINGS.freeMode) {
+            confirmRevealOrderDirect(orderId);
+            return;
+        }
         pendingRevealOrderId = orderId;
+        updatePriceDisplays();
         document.getElementById('revealOrderModal').classList.remove('hidden');
     }
 
@@ -994,6 +1228,21 @@
         document.getElementById('revealOrderModal').classList.add('hidden');
         pendingRevealOrderId = null;
     }
+
+    async function confirmRevealOrderDirect(orderId) {
+        try {
+            const res = await fetch('/api/order/reveal', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userId: USER._id, orderId: orderId })
+            });
+            const d = await res.json();
+            
+            if (d.success) {
+                USER.balance = d.newBalance;
+                updateUserUI();
+                showToast('تم كشف المعلومات!', 'success');
+                loadOrders
 
     async function confirmRevealOrder() {
         if (!pendingRevealOrderId) return;
@@ -1030,6 +1279,7 @@
         const title = document.getElementById('pTitle').value;
         const price = document.getElementById('pPrice').value;
         const desc = document.getElementById('pDesc').value;
+        const serviceImage = document.getElementById('pServiceImage').value.trim();
         
         if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
         
@@ -1039,13 +1289,16 @@
             type,
             title,
             price: Number(price),
-            desc
+            desc,
+            image: serviceImage || ''
         };
         
         if (type === 'product') {
             const imagesText = document.getElementById('pImages').value;
-            data.images = imagesText.split('\n').map(u => u.trim()).filter(u => u);
-            data.image = data.images[0] || '';
+            const additionalImages = imagesText.split('\n').map(u => u.trim()).filter(u => u);
+            // دمج صورة الخدمة مع الصور الإضافية
+            data.images = serviceImage ? [serviceImage, ...additionalImages] : additionalImages;
+            data.image = data.images[0] || serviceImage || '';
             
             const colorsText = document.getElementById('pColors').value;
             if (colorsText) data.colors = colorsText.split(',').map(c => c.trim()).filter(c => c);
@@ -1055,6 +1308,9 @@
             
             const offerTime = document.getElementById('pOfferTime').value;
             if (offerTime) data.offerEndTime = Number(offerTime);
+        } else {
+            // للخدمات - استخدام صورة واحدة
+            data.images = serviceImage ? [serviceImage] : [];
         }
         
         try {
@@ -1065,6 +1321,7 @@
             document.getElementById('pTitle').value = '';
             document.getElementById('pPrice').value = '';
             document.getElementById('pDesc').value = '';
+            document.getElementById('pServiceImage').value = '';
             document.getElementById('pImages').value = '';
             document.getElementById('pColors').value = '';
             document.getElementById('pSizes').value = '';
@@ -1092,7 +1349,7 @@
                         <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/100'}" class="w-20 h-20 rounded-xl object-cover">
                         <div class="flex-1 min-w-0">
                             <h3 class="font-bold truncate">${p.title}</h3>
-                            <p class="text-red-600 font-bold">${Number(p.price).toLocaleString()} دج</p>
+                            <p class="text-red-600 font-bold">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</p>
                             <span class="text-xs ${p.active ? 'text-green-600' : 'text-gray-500'}">${p.active ? 'نشط' : 'معطل'}</span>
                         </div>
                     </div>
@@ -1125,7 +1382,7 @@
                         <div class="font-semibold">${t.description || (t.type === 'deposit' ? 'شحن رصيد' : 'خصم')}</div>
                         <div class="text-xs text-gray-500">${formatTime(t.date)}</div>
                     </div>
-                    <span class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount} دج</span>
+                    <span class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount} ${APP_SETTINGS.currency}</span>
                 </div>
             `).join('');
         } catch(e) {}
@@ -1187,7 +1444,6 @@
         setTimeout(() => toast.remove(), 4000);
     }
 
-    // Close dropdowns on outside click
     document.addEventListener('click', e => {
         if (!e.target.closest('#notifDropdown') && !e.target.closest('[onclick*="toggleNotifications"]')) {
             document.getElementById('notifDropdown').classList.add('hidden');
@@ -1196,3 +1452,4 @@
 </script>
 </body>
 </html>
+
