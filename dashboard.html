@@ -2,158 +2,193 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>السوق المفتوح | Marketplace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>السوق المفتوح</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; }
+        body { font-family: 'Tajawal', sans-serif; background: #f5f5f5; -webkit-tap-highlight-color: transparent; }
         .hidden { display: none !important; }
-        .active-nav { background: #e0f2fe; color: #0284c7; border-right: 3px solid #0284c7; }
-        .blur-text { filter: blur(4px); user-select: none; }
+        
+        /* Sidebar Animation */
+        #sidebar { transition: transform 0.3s ease-in-out; transform: translateX(100%); }
+        #sidebar.open { transform: translateX(0); }
+        .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
+        .overlay.open { opacity: 1; pointer-events: auto; }
+
+        /* AliExpress Card Style */
+        .ali-card { background: white; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .ali-img-box { width: 100%; padding-top: 100%; position: relative; background: #f9f9f9; } /* Square Aspect Ratio */
+        .ali-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.5em; line-height: 1.25em; }
+        
+        /* Bottom Nav for Mobile (Optional look) */
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #666; }
+        .mobile-nav-item.active { color: #eb001b; font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="pb-16 md:pb-0">
 
     <div id="loader" class="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600"></div>
     </div>
 
-    <div id="authScreen" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-            <h1 class="text-3xl font-black text-center text-blue-600 mb-6">سوق الجزائر 🇩🇿</h1>
+    <div id="authScreen" class="hidden min-h-screen flex items-center justify-center p-4 bg-white">
+        <div class="w-full max-w-sm text-center">
+            <h1 class="text-4xl font-black text-red-600 mb-2 tracking-tighter">DzMarket</h1>
+            <p class="text-gray-400 text-sm mb-8">بيع واشتري بذكاء 🇩🇿</p>
             
             <div id="loginForm" class="space-y-4">
-                <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 bg-gray-50 border rounded-xl">
-                <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-gray-50 border rounded-xl">
-                <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700">دخول</button>
-                <p class="text-center text-sm text-gray-500 cursor-pointer" onclick="toggleAuth()">إنشاء حساب جديد</p>
+                <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:border-red-500">
+                <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:border-red-500">
+                <button onclick="login()" class="w-full bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-red-200">تسجيل الدخول</button>
+                <p class="text-sm text-gray-500 mt-4">جديد معنا؟ <span class="text-red-600 font-bold cursor-pointer" onclick="toggleAuth()">إنشاء حساب</span></p>
             </div>
 
             <div id="regForm" class="hidden space-y-4">
-                <input id="rName" type="text" placeholder="الاسم الكامل" class="w-full p-3 bg-gray-50 border rounded-xl">
-                <input id="rEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 bg-gray-50 border rounded-xl">
-                <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-gray-50 border rounded-xl">
-                <input id="rPhone" type="text" placeholder="رقم الهاتف" class="w-full p-3 bg-gray-50 border rounded-xl">
-                <button onclick="register()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700">تسجيل</button>
-                <p class="text-center text-sm text-gray-500 cursor-pointer" onclick="toggleAuth()">لديك حساب؟ دخول</p>
+                <input id="rName" type="text" placeholder="الاسم الكامل" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+                <input id="rEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+                <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+                <input id="rPhone" type="tel" placeholder="رقم الهاتف" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+                <button onclick="register()" class="w-full bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg">إنشاء حساب</button>
+                <p class="text-sm text-gray-500 mt-4">لديك حساب؟ <span class="text-red-600 font-bold cursor-pointer" onclick="toggleAuth()">دخول</span></p>
             </div>
         </div>
     </div>
 
-    <div id="mainApp" class="hidden min-h-screen flex flex-col md:flex-row">
+    <div id="mainApp" class="hidden">
         
-        <aside class="bg-white w-full md:w-64 border-l p-4 flex flex-col shadow-sm z-20">
-            <div class="font-black text-xl text-blue-600 mb-6 px-2">Marketplace 🛒</div>
+        <header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-40 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar(true)" class="text-slate-800 text-xl"><i class="fas fa-bars"></i></button>
+                <span class="font-black text-xl text-red-600 tracking-tight">DzMarket</span>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+                <i class="fas fa-wallet text-yellow-500 text-xs"></i>
+                <span class="text-xs font-bold text-slate-700"><span id="userBalance">0</span> دج</span>
+            </div>
+        </header>
+
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-50 overlay" onclick="toggleSidebar(false)"></div>
+        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-72 bg-white z-[60] shadow-2xl flex flex-col">
+            <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                <div>
+                    <h2 class="font-bold text-lg" id="userName">...</h2>
+                    <p class="text-xs text-gray-500" id="userEmail">...</p>
+                </div>
+                <button onclick="toggleSidebar(false)" class="text-gray-400"><i class="fas fa-times"></i></button>
+            </div>
             
-            <nav class="space-y-1 flex-1">
-                <button onclick="nav('market')" id="nav-market" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 font-bold active-nav">
-                    <i class="fas fa-store"></i> السوق
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
+                    <i class="fas fa-home w-5"></i> الرئيسية
                 </button>
-                <button onclick="nav('add')" id="nav-add" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 font-bold">
-                    <i class="fas fa-plus-circle"></i> انشر عرضك
+                <button onclick="nav('leads')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
+                    <i class="fas fa-bell w-5"></i> الطلبات الواردة <span class="bg-red-500 text-white text-[10px] px-2 rounded-full hidden" id="leadsBadge">New</span>
                 </button>
-                <button onclick="nav('leads')" id="nav-leads" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 font-bold">
-                    <i class="fas fa-bell"></i> الطلبات الواردة
-                    <span id="leadsBadge" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full hidden">New</span>
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
+                    <i class="fas fa-plus-circle w-5"></i> بيع منتج
                 </button>
-                <button onclick="nav('wallet')" id="nav-wallet" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 font-bold">
-                    <i class="fas fa-wallet"></i> المحفظة
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
+                    <i class="fas fa-box w-5"></i> عروضي
                 </button>
-                <button onclick="nav('mylist')" id="nav-mylist" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 font-bold">
-                    <i class="fas fa-box"></i> عروضي
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
+                    <i class="fas fa-wallet w-5"></i> المحفظة والشحن
                 </button>
             </nav>
 
-            <div class="mt-auto pt-4 border-t">
-                <div class="text-xs text-gray-400 mb-1">رصيدك الحالي</div>
-                <div class="text-xl font-black text-green-600 mb-3"><span id="userBalance">0</span> د.ج</div>
-                <button onclick="logout()" class="text-red-500 text-xs font-bold flex items-center gap-1"><i class="fas fa-sign-out-alt"></i> خروج</button>
+            <div class="p-4 border-t">
+                <button onclick="logout()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold text-sm">تسجيل الخروج</button>
             </div>
         </aside>
 
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main class="pt-16 p-2 md:p-6 max-w-7xl mx-auto">
             
-            <div id="view-market" class="space-y-6">
-                <h2 class="text-2xl font-bold text-slate-800">أحدث العروض 🔥</h2>
-                <div id="marketGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="view-market">
+                <div class="mb-4 relative">
+                    <input type="text" placeholder="ابحث عن منتجات..." class="w-full bg-white p-3 pr-10 rounded-xl shadow-sm border border-gray-100 outline-none text-sm">
+                    <i class="fas fa-search absolute top-3.5 right-3.5 text-gray-400"></i>
+                </div>
+
+                <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
+                    </div>
             </div>
 
-            <div id="view-add" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-sm">
-                <h2 class="text-xl font-bold mb-4">نشر عرض جديد</h2>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <select id="pType" class="p-3 bg-gray-50 border rounded-lg">
-                            <option value="product">📦 منتج للبيع</option>
-                            <option value="service">💻 خدمة رقمية</option>
-                        </select>
-                        <input id="pTitle" placeholder="العنوان (مثال: هاتف آيفون)" class="p-3 bg-gray-50 border rounded-lg">
+            <div id="view-add" class="hidden">
+                <div class="bg-white p-5 rounded-2xl shadow-sm max-w-lg mx-auto">
+                    <h2 class="text-lg font-bold mb-4">ماذا تريد أن تبيع؟</h2>
+                    <div class="space-y-4">
+                        <div class="flex gap-2">
+                            <select id="pType" class="bg-gray-50 p-3 rounded-xl border text-sm outline-none">
+                                <option value="product">منتج مادي</option>
+                                <option value="service">خدمة رقمية</option>
+                            </select>
+                            <input id="pTitle" placeholder="عنوان الإعلان" class="flex-1 bg-gray-50 p-3 rounded-xl border text-sm outline-none">
+                        </div>
+                        <input id="pImg" placeholder="رابط الصورة (URL)" class="w-full bg-gray-50 p-3 rounded-xl border text-sm outline-none ltr text-left">
+                        <input id="pPrice" type="number" placeholder="السعر (دج)" class="w-full bg-gray-50 p-3 rounded-xl border text-sm outline-none">
+                        <textarea id="pDesc" rows="4" placeholder="اكتب وصفاً مفصلاً..." class="w-full bg-gray-50 p-3 rounded-xl border text-sm outline-none"></textarea>
+                        <button onclick="publish()" class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-lg">نشر الإعلان مجاناً</button>
                     </div>
-                    <input id="pImg" placeholder="رابط الصورة" class="w-full p-3 bg-gray-50 border rounded-lg ltr text-left">
-                    <input id="pPrice" type="number" placeholder="السعر (دج)" class="w-full p-3 bg-gray-50 border rounded-lg">
-                    <textarea id="pDesc" rows="4" placeholder="وصف التفاصيل..." class="w-full p-3 bg-gray-50 border rounded-lg"></textarea>
-                    <button onclick="publish()" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl">نشر الآن</button>
                 </div>
             </div>
 
-            <div id="view-leads" class="hidden space-y-6">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-lg font-bold text-blue-800">الطلبات الواردة</h2>
-                        <p class="text-xs text-blue-600">اكشف أرقام الزبائن للتواصل معهم.</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xs text-gray-500">سعر الكشف</div>
-                        <div class="font-bold text-slate-800">50 دج</div>
-                    </div>
-                </div>
-                <div id="leadsList" class="grid gap-4"></div>
+            <div id="view-leads" class="hidden">
+                <h2 class="font-bold text-lg mb-4 px-2">الطلبات الواردة (Leads)</h2>
+                <div id="leadsList" class="space-y-3 max-w-lg mx-auto"></div>
             </div>
 
-            <div id="view-wallet" class="hidden max-w-lg mx-auto text-center">
-                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl mb-6 relative overflow-hidden">
+            <div id="view-wallet" class="hidden">
+                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl max-w-md mx-auto text-center relative overflow-hidden mb-6">
                     <div class="relative z-10">
-                        <div class="text-sm text-gray-400 mb-2">الرصيد المتاح لكشف الأرقام</div>
-                        <div class="text-4xl font-bold mb-4"><span id="wBalance">0</span> د.ج</div>
-                        <button onclick="document.getElementById('depositModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-full font-bold text-sm transition">شحن الرصيد ➕</button>
+                        <div class="text-xs text-gray-400 mb-1">رصيد كشف الأرقام</div>
+                        <div class="text-4xl font-black mb-4"><span id="wBalance">0</span> دج</div>
+                        <button onclick="document.getElementById('depositModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-full font-bold text-sm">شحن الرصيد</button>
                     </div>
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
                 </div>
-                
-                <h3 class="text-right font-bold mb-3">سجل العمليات</h3>
-                <div class="bg-white rounded-xl border p-4 text-gray-400 text-sm">لا توجد عمليات سابقة</div>
             </div>
 
             <div id="view-mylist" class="hidden">
-                <h2 class="text-xl font-bold mb-4">عروضي المنشورة</h2>
-                <div id="myListGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <h2 class="font-bold text-lg mb-4 px-2">إعلاناتي</h2>
+                <div id="myListGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
             </div>
 
         </main>
+
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 z-40 pb-safe">
+            <button onclick="nav('market')" class="mobile-nav-item active"><i class="fas fa-home text-lg mb-1"></i>الرئيسية</button>
+            <button onclick="nav('add')" class="mobile-nav-item"><i class="fas fa-plus-circle text-lg mb-1"></i>بيع</button>
+            <button onclick="nav('leads')" class="mobile-nav-item"><i class="fas fa-comment-dots text-lg mb-1"></i>الطلبات</button>
+            <button onclick="nav('wallet')" class="mobile-nav-item"><i class="fas fa-user text-lg mb-1"></i>حسابي</button>
+        </nav>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm text-center">
-            <h3 class="font-bold text-lg mb-4">شحن المحفظة (RedotPay)</h3>
-            <p class="text-sm text-gray-500 mb-2">أرسل المبلغ إلى المحفظة التالية:</p>
-            <div class="bg-gray-100 p-3 rounded-lg font-mono text-sm select-all mb-4">12345678 (TRC20)</div>
-            <p class="text-xs text-gray-400 mb-4">سعر الصرف: 1$ = 245 دج</p>
-            
-            <input id="depAmount" type="number" placeholder="المبلغ المشحون (دج)" class="w-full p-3 border rounded-lg mb-2">
-            <input id="depProof" type="text" placeholder="رابط صورة التحويل (Proof URL)" class="w-full p-3 border rounded-lg mb-4">
-            
-            <button onclick="submitDeposit()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl mb-2">تأكيد الإرسال</button>
-            <button onclick="document.getElementById('depositModal').classList.add('hidden')" class="text-gray-400 text-sm">إغلاق</button>
+    <div id="depositModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-xs text-center">
+            <h3 class="font-bold mb-4">شحن عبر RedotPay</h3>
+            <div class="bg-gray-100 p-2 rounded text-xs font-mono select-all mb-4">TRC20: 12345678</div>
+            <input id="depAmount" type="number" placeholder="المبلغ (دج)" class="w-full p-3 border rounded-xl mb-2 text-sm">
+            <input id="depProof" type="text" placeholder="رابط الوصل" class="w-full p-3 border rounded-xl mb-4 text-sm">
+            <button onclick="submitDeposit()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm">تأكيد</button>
+            <button onclick="document.getElementById('depositModal').classList.add('hidden')" class="mt-3 text-xs text-gray-400">إلغاء</button>
         </div>
     </div>
 
 <script>
     let USER = null;
 
-    // --- Init ---
+    // --- Sidebar Logic ---
+    function toggleSidebar(open) {
+        const el = document.getElementById('sidebar');
+        const ov = document.getElementById('sidebarOverlay');
+        if(open) { el.classList.add('open'); ov.classList.add('open'); }
+        else { el.classList.remove('open'); ov.classList.remove('open'); }
+    }
+
     function getFingerprint() { return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16); }
 
+    // --- Init ---
     window.onload = async () => {
         const stored = localStorage.getItem('dz_user');
         if(stored) {
@@ -176,6 +211,8 @@
         document.getElementById('mainApp').classList.remove('hidden');
         document.getElementById('userBalance').innerText = USER.balance;
         document.getElementById('wBalance').innerText = USER.balance;
+        document.getElementById('userName').innerText = USER.name;
+        document.getElementById('userEmail').innerText = USER.email;
         nav('market');
     }
 
@@ -186,17 +223,42 @@
     function nav(view) {
         ['market','add','leads','wallet','mylist'].forEach(v => document.getElementById('view-'+v).classList.add('hidden'));
         document.getElementById('view-'+view).classList.remove('hidden');
+        toggleSidebar(false); // Close sidebar on nav
         
-        // Update Sidebar
-        document.querySelectorAll('aside button').forEach(b => b.classList.remove('active-nav'));
-        document.getElementById('nav-'+view).classList.add('active-nav');
-
+        // Update Bottom Nav Active State
+        document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+        // Simple logic for demo, can be improved based on ID
+        
         if(view === 'market') loadMarket();
         if(view === 'leads') loadLeads();
         if(view === 'mylist') loadMyList();
     }
 
-    // --- Auth Actions ---
+    // --- Market (AliExpress Cards) ---
+    async function loadMarket() {
+        const res = await fetch('/api/market');
+        const list = await res.json();
+        document.getElementById('marketGrid').innerHTML = list.map(i => `
+            <div class="ali-card cursor-pointer" onclick="window.open('/p/${i._id}', '_blank')">
+                <div class="ali-img-box">
+                    <img src="${i.image || 'https://via.placeholder.com/300'}" class="ali-img" loading="lazy">
+                </div>
+                <div class="p-2">
+                    <h3 class="text-xs text-gray-700 line-clamp-2 mb-1 h-8 leading-tight">${i.title}</h3>
+                    <div class="flex items-end gap-1">
+                        <span class="text-red-600 font-bold text-sm">${i.price}</span>
+                        <span class="text-[10px] text-gray-400 mb-0.5">د.ج</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-1 flex justify-between">
+                        <span>${i.type === 'service' ? 'خدمة' : 'شحن 58'}</span>
+                        <span>4.8 ⭐</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // --- Auth & Actions ---
     async function login() {
         const email = document.getElementById('lEmail').value;
         const password = document.getElementById('lPass').value;
@@ -218,111 +280,64 @@
         else alert(d.msg);
     }
 
-    function logout() { localStorage.removeItem('dz_user'); location.reload(); }
-
-    // --- Market ---
-    async function loadMarket() {
-        const res = await fetch('/api/market');
-        const list = await res.json();
-        document.getElementById('marketGrid').innerHTML = list.map(i => `
-            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer" onclick="window.open('/p/${i._id}', '_blank')">
-                <img src="${i.image || 'https://via.placeholder.com/300'}" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500 mb-2 inline-block">${i.type === 'service' ? 'خدمة' : 'منتج'}</span>
-                    <h3 class="font-bold text-lg mb-1 truncate">${i.title}</h3>
-                    <p class="text-green-600 font-bold">${i.price} د.ج</p>
-                    <button class="w-full mt-3 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold">مشاهدة التفاصيل</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // --- Publish ---
     async function publish() {
         const data = {
-            userId: USER._id, userName: USER.name,
-            type: document.getElementById('pType').value,
-            title: document.getElementById('pTitle').value,
-            image: document.getElementById('pImg').value,
-            price: document.getElementById('pPrice').value,
-            desc: document.getElementById('pDesc').value
+            userId: USER._id, userName: USER.name, type: document.getElementById('pType').value,
+            title: document.getElementById('pTitle').value, image: document.getElementById('pImg').value,
+            price: document.getElementById('pPrice').value, desc: document.getElementById('pDesc').value
         };
         await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-        alert('تم النشر بنجاح! 🎉');
-        nav('market');
+        alert('تم النشر! 🎉'); nav('market');
     }
 
-    // --- Leads (Core Feature) ---
     async function loadLeads() {
         const res = await fetch('/api/seller/leads', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
         const leads = await res.json();
-        
         document.getElementById('leadsList').innerHTML = leads.length ? leads.map(l => `
-            <div class="bg-white p-4 rounded-xl border shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4 w-full">
-                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold">👤</div>
-                    <div>
-                        <div class="font-bold text-slate-800">${l.buyerName}</div>
-                        <div class="text-sm text-gray-500">${l.buyerWilaya}</div>
-                    </div>
+            <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between">
+                <div>
+                    <div class="font-bold text-sm text-slate-800">${l.buyerName}</div>
+                    <div class="text-xs text-gray-500">${l.buyerWilaya}</div>
                 </div>
-                
-                <div class="w-full md:w-auto text-center md:text-left">
-                    ${l.isRevealed 
-                        ? `<a href="tel:${l.buyerPhone}" class="block bg-green-100 text-green-700 px-6 py-2 rounded-lg font-bold font-mono text-lg hover:bg-green-200">${l.buyerPhone} 📞</a>`
-                        : `<button onclick="revealLead('${l._id}')" class="w-full md:w-auto bg-slate-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800">
-                            كشف الرقم <span class="text-yellow-400 text-xs">(-50 دج)</span>
-                           </button>`
-                    }
-                </div>
+                ${l.isRevealed 
+                    ? `<a href="tel:${l.buyerPhone}" class="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-xs font-bold font-mono dir-ltr">${l.buyerPhone}</a>`
+                    : `<button onclick="revealLead('${l._id}')" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold">كشف (-50دج)</button>`
+                }
             </div>
-        `).join('') : '<p class="text-center text-gray-400 py-10">لا توجد طلبات واردة بعد</p>';
+        `).join('') : '<p class="text-center text-gray-400 py-10 text-sm">لا توجد طلبات</p>';
     }
 
     async function revealLead(leadId) {
-        if(!confirm('هل تريد كشف الرقم؟ سيتم خصم 50 دج من رصيدك.')) return;
-        
+        if(!confirm('خصم 50 دج؟')) return;
         const res = await fetch('/api/lead/reveal', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id, leadId}) });
         const d = await res.json();
-        
-        if(d.success) {
-            USER.balance = d.newBalance; // تحديث الرصيد محلياً
-            document.getElementById('userBalance').innerText = USER.balance;
-            loadLeads(); // تحديث القائمة لإظهار الرقم
-        } else {
-            alert('🚫 ' + d.msg);
-            nav('wallet'); // توجيه للشحن
-        }
+        if(d.success) { USER.balance = d.newBalance; document.getElementById('userBalance').innerText = USER.balance; loadLeads(); }
+        else { alert(d.msg); nav('wallet'); }
     }
 
-    // --- My Listings ---
     async function loadMyList() {
         const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
         const list = await res.json();
         document.getElementById('myListGrid').innerHTML = list.map(i => `
-            <div class="bg-white p-3 rounded-lg border flex gap-3">
+            <div class="bg-white p-2 rounded-lg border flex gap-3">
                 <img src="${i.image}" class="w-16 h-16 rounded object-cover">
                 <div>
-                    <div class="font-bold">${i.title}</div>
-                    <div class="text-sm text-green-600">${i.price} دج</div>
+                    <div class="font-bold text-sm line-clamp-1">${i.title}</div>
+                    <div class="text-xs text-green-600 font-bold">${i.price} دج</div>
                 </div>
             </div>
         `).join('');
     }
 
-    // --- Wallet ---
     async function submitDeposit() {
         await fetch('/api/wallet/deposit', {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                userId: USER._id,
-                amount: document.getElementById('depAmount').value,
-                proof: document.getElementById('depProof').value
-            })
+            body:JSON.stringify({ userId: USER._id, amount: document.getElementById('depAmount').value, proof: document.getElementById('depProof').value })
         });
-        alert('تم إرسال الطلب! سيتم شحن رصيدك بعد المراجعة.');
-        document.getElementById('depositModal').classList.add('hidden');
+        alert('جاري المراجعة'); document.getElementById('depositModal').classList.add('hidden');
     }
+
+    function logout() { localStorage.removeItem('dz_user'); location.reload(); }
 </script>
 </body>
 </html>
