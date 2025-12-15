@@ -2,173 +2,92 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Super Admin</title>
+    <title>إدارة المنصة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <style>body{font-family:'Tajawal',sans-serif;background:#0f172a;color:white} .tab-btn.active{background:#2563eb;color:white}</style>
+    <style>body{font-family:'Tajawal',sans-serif;background:#0f172a;color:white}</style>
 </head>
 <body class="p-6">
-    <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-        <h1 class="text-2xl font-bold text-yellow-400">👑 لوحة القيادة</h1>
-        <div class="flex gap-2">
-            <button onclick="switchTab('merchants')" class="tab-btn active bg-slate-800 px-4 py-2 rounded text-sm text-gray-300">التجار والديون</button>
-            <button onclick="switchTab('withdrawals')" class="tab-btn bg-slate-800 px-4 py-2 rounded text-sm text-gray-300">سحوبات المسوقين</button>
-            <button onclick="switchTab('settings')" class="tab-btn bg-slate-800 px-4 py-2 rounded text-sm text-gray-300">الإعدادات</button>
+
+    <div class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+        <h1 class="text-3xl font-bold text-blue-400">💎 الإدارة المالية</h1>
+        <div class="flex gap-4 text-sm text-slate-400">
+            <div>المستخدمين: <span id="sUsers" class="text-white font-bold">...</span></div>
+            <div>العروض: <span id="sListings" class="text-white font-bold">...</span></div>
+            <div>الطلبات: <span id="sLeads" class="text-white font-bold">...</span></div>
         </div>
     </div>
 
-    <div id="merchantsTab">
-        <div class="overflow-x-auto bg-slate-800 rounded-xl border border-slate-700">
-            <table class="w-full text-right text-sm">
-                <thead class="bg-slate-900 text-slate-400"><tr><th class="p-4">التاجر</th><th class="p-4">الدين</th><th class="p-4">الحالة</th><th class="p-4 text-center">إجراءات</th></tr></thead>
-                <tbody id="usersTable" class="divide-y divide-slate-700"></tbody>
-            </table>
-        </div>
+    <h2 class="text-xl font-bold mb-4 text-yellow-400">💸 طلبات شحن الرصيد (المعلقة)</h2>
+    <div id="depositList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <p class="text-slate-500 col-span-full">جاري التحميل...</p>
     </div>
 
-    <div id="withdrawalsTab" class="hidden">
-        <div class="overflow-x-auto bg-slate-800 rounded-xl border border-slate-700">
-            <table class="w-full text-right text-sm">
-                <thead class="bg-slate-900 text-slate-400"><tr><th class="p-4">المسوق</th><th class="p-4">المبلغ</th><th class="p-4">معلومات الدفع (CCP/Baridi)</th><th class="p-4">الحالة</th><th class="p-4 text-center">إجراء</th></tr></thead>
-                <tbody id="withdrawTable" class="divide-y divide-slate-700"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="settingsTab" class="hidden max-w-lg mx-auto bg-slate-800 p-6 rounded-xl border border-slate-700">
-        <h3 class="font-bold mb-4 text-lg">⚙️ إعدادات الدفع (تظهر للتجار والمسوقين)</h3>
-        <div class="space-y-4">
-            <div>
-                <label class="text-xs text-gray-400">رقم RedotPay (للتجار)</label>
-                <input id="sRedot" class="w-full bg-slate-900 border border-slate-600 p-2 rounded text-white ltr text-left">
-            </div>
-            <div>
-                <label class="text-xs text-gray-400">سعر الصرف (1$ = ? دج)</label>
-                <input id="sRate" type="number" class="w-full bg-slate-900 border border-slate-600 p-2 rounded text-white">
-            </div>
-            <div>
-                <label class="text-xs text-gray-400">الحد الأدنى للسحب للمسوقين</label>
-                <input id="sMin" type="number" class="w-full bg-slate-900 border border-slate-600 p-2 rounded text-white">
-            </div>
-            <button onclick="saveSettings()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded font-bold">حفظ الإعدادات</button>
-        </div>
-    </div>
-
-    <div id="msgModal" class="fixed inset-0 bg-black/80 hidden justify-center items-center z-50">
-        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-md border border-slate-600">
-            <div class="flex justify-between mb-4"><h3 class="font-bold">الرسائل</h3><button onclick="closeMsg()">✕</button></div>
-            <div id="msgList" class="space-y-3 max-h-96 overflow-y-auto mb-4"></div>
-            <button id="markReadBtn" class="w-full bg-blue-600 py-2 rounded text-sm">تعليم كمقروء ✅</button>
-        </div>
+    <div id="imgModal" class="fixed inset-0 bg-black/90 hidden justify-center items-center z-50 p-4" onclick="this.style.display='none'">
+        <img id="zoomImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl border border-slate-600">
     </div>
 
 <script>
-    function switchTab(t) {
-        ['merchants','withdrawals','settings'].forEach(x => {
-            document.getElementById(x+'Tab').classList.add('hidden');
-        });
-        document.getElementById(t+'Tab').classList.remove('hidden');
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        if(t === 'merchants') loadUsers();
-        if(t === 'withdrawals') loadWithdrawals();
-        if(t === 'settings') loadSettings();
-    }
+    // 1. جلب الإحصائيات
+    fetch('/api/admin/stats').then(r=>r.json()).then(d => {
+        document.getElementById('sUsers').innerText = d.users;
+        document.getElementById('sListings').innerText = d.listings;
+        document.getElementById('sLeads').innerText = d.leads;
+    });
 
-    // --- التجار ---
-    async function loadUsers() {
-        const res = await fetch('/api/admin/users');
-        const users = await res.json();
-        document.getElementById('usersTable').innerHTML = users.map(u => {
-            const unread = u.messages.some(m => !m.read);
-            return `
-            <tr>
-                <td class="p-4 font-bold">${u.name}<br><span class="text-xs text-gray-500">${u.email}</span></td>
-                <td class="p-4 ${u.debt > 0 ? 'text-red-400' : 'text-green-400'}">${u.debt} دج</td>
-                <td class="p-4">${u.isBanned ? '⛔ محظور' : '✅ نشط'}</td>
-                <td class="p-4 text-center flex justify-center gap-2">
-                    <button onclick="openMsg('${u._id}')" class="px-3 py-1 rounded text-xs ${unread ? 'bg-red-600 animate-pulse' : 'bg-slate-600'}">
-                        رسائل ${unread ? '🔴' : ''}
-                    </button>
-                    ${u.debt > 0 ? `<button onclick="clearDebt('${u._id}')" class="bg-green-600 px-3 py-1 rounded text-xs">تم الدفع 💰</button>` : ''}
-                </td>
-            </tr>`;
-        }).join('');
-    }
-
-    async function clearDebt(id) {
-        if(!confirm('تأكيد الدفع وفك الحظر؟')) return;
-        await fetch('/api/admin/clear-debt', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: id}) });
-        loadUsers();
-    }
-
-    // --- الرسائل ---
-    let currentMsgUser = null;
-    async function openMsg(uid) {
-        currentMsgUser = uid;
-        const res = await fetch('/api/admin/users');
-        const users = await res.json();
-        const u = users.find(x => x._id === uid);
+    // 2. جلب طلبات الشحن
+    async function loadDeposits() {
+        const res = await fetch('/api/admin/deposits');
+        const list = await res.json();
         
-        document.getElementById('msgList').innerHTML = u.messages.length ? u.messages.reverse().map(m => `
-            <div class="bg-slate-900 p-3 rounded border border-slate-700 ${!m.read ? 'border-l-4 border-l-red-500' : ''}">
-                <p class="text-sm">${m.text}</p>
-                ${m.image ? `<a href="${m.image}" target="_blank" class="text-blue-400 text-xs underline">عرض الصورة المرفقة 📎</a>` : ''}
-                <div class="text-[10px] text-gray-500 mt-1">${new Date(m.date).toLocaleString()}</div>
+        const container = document.getElementById('depositList');
+        if(list.length === 0) {
+            container.innerHTML = '<p class="text-slate-500 col-span-full text-center py-10 bg-slate-800 rounded-xl">لا توجد طلبات شحن جديدة ✅</p>';
+            return;
+        }
+
+        container.innerHTML = list.map(t => `
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <div class="font-bold text-lg">${t.userName}</div>
+                        <div class="text-xs text-slate-400">ID: ${t.userId.substr(-4)}</div>
+                    </div>
+                    <div class="text-green-400 font-bold text-xl">+${t.amount} دج</div>
+                </div>
+                
+                <div class="mb-4 h-32 bg-slate-900 rounded-lg overflow-hidden cursor-pointer relative group" onclick="showImg('${t.proof}')">
+                    <img src="${t.proof}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                    <div class="absolute inset-0 flex items-center justify-center text-xs text-white opacity-0 group-hover:opacity-100 bg-black/50 transition">اضغط للتكبير 🔍</div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="process('${t._id}', 'approve')" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded-lg font-bold text-sm">موافقة ✅</button>
+                    <button onclick="process('${t._id}', 'reject')" class="flex-1 bg-red-600 hover:bg-red-500 py-2 rounded-lg font-bold text-sm">رفض ❌</button>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-2 text-center">${new Date(t.date).toLocaleString()}</div>
             </div>
-        `).join('') : 'لا توجد رسائل';
-        
-        document.getElementById('markReadBtn').onclick = async () => {
-            await fetch('/api/admin/read-msg', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: uid}) });
-            closeMsg(); loadUsers();
-        };
-        document.getElementById('msgModal').style.display = 'flex';
-    }
-    function closeMsg() { document.getElementById('msgModal').style.display = 'none'; }
-
-    // --- السحوبات ---
-    async function loadWithdrawals() {
-        const res = await fetch('/api/admin/withdrawals');
-        const w = await res.json();
-        document.getElementById('withdrawTable').innerHTML = w.map(i => `
-            <tr>
-                <td class="p-4">${i.userName}</td>
-                <td class="p-4 font-bold text-green-400">${i.amount} دج</td>
-                <td class="p-4 font-mono bg-slate-900 select-all">${i.ccp}</td>
-                <td class="p-4 text-xs">${i.status === 'pending' ? '⏳ قيد الانتظار' : '✅ مدفوع'}</td>
-                <td class="p-4 text-center">
-                    ${i.status === 'pending' ? `<button onclick="confirmPay('${i._id}')" class="bg-blue-600 px-3 py-1 rounded text-xs">تم الإرسال</button>` : '-'}
-                </td>
-            </tr>
         `).join('');
     }
 
-    async function confirmPay(id) {
-        if(!confirm('هل أرسلت المال للمسوق؟')) return;
-        await fetch('/api/admin/confirm-withdraw', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-        loadWithdrawals();
+    // 3. معالجة الطلب (موافقة/رفض)
+    async function process(id, action) {
+        if(!confirm(action === 'approve' ? 'هل وصلك المال فعلاً؟ سيتم إضافة الرصيد للمستخدم.' : 'رفض الطلب؟')) return;
+        
+        await fetch('/api/admin/approve-deposit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ transId: id, action })
+        });
+        loadDeposits(); // تحديث القائمة
     }
 
-    // --- الإعدادات ---
-    async function loadSettings() {
-        const res = await fetch('/api/settings');
-        const s = await res.json();
-        document.getElementById('sRedot').value = s.redotpayId;
-        document.getElementById('sRate').value = s.usdtRate;
-        document.getElementById('sMin').value = s.minWithdraw;
+    function showImg(url) {
+        document.getElementById('zoomImg').src = url;
+        document.getElementById('imgModal').style.display = 'flex';
     }
 
-    async function saveSettings() {
-        const data = {
-            redotpayId: document.getElementById('sRedot').value,
-            usdtRate: document.getElementById('sRate').value,
-            minWithdraw: document.getElementById('sMin').value
-        };
-        await fetch('/api/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-        alert('تم الحفظ');
-    }
-
-    loadUsers();
+    loadDeposits();
 </script>
 </body>
 </html>
