@@ -10,256 +10,446 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { cairo: ['Cairo', 'sans-serif'] }
-                }
-            }
+            theme: { extend: { fontFamily: { cairo: ['Cairo', 'sans-serif'] } } }
         }
     </script>
     <style>
-        * { font-family: 'Cairo', sans-serif; }
-        
-        :root {
-            --bg-primary: #f8fafc;
-            --bg-card: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-        }
-        .dark {
-            --bg-primary: #0f172a;
-            --bg-card: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-        }
-        
-        body { background: var(--bg-primary); color: var(--text-primary); }
+        * { font-family: 'Cairo', sans-serif; box-sizing: border-box; }
+        :root { --primary: #e63946; --secondary: #1d3557; }
+        body { background: #f8f9fa; }
+        .hidden { display: none !important; }
 
+        /* Animations */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes countdown { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 283; } }
         
-        .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
-        .animate-slideUp { animation: slideUp 0.5s ease-out; }
-        .animate-scaleIn { animation: scaleIn 0.4s ease-out; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+        .animate-slideUp { animation: slideUp 0.6s ease-out; }
+        .animate-pulse-slow { animation: pulse 2s infinite; }
+        .animate-shake { animation: shake 0.5s ease-in-out; }
 
-        .input-field {
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            color: var(--text-primary);
-            transition: all 0.2s;
-        }
-        .input-field:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .input-field::placeholder { color: var(--text-secondary); }
+        /* Image Slider */
+        .slider-container { position: relative; overflow: hidden; }
+        .slider-track { display: flex; transition: transform 0.4s ease-out; }
+        .slider-slide { min-width: 100%; }
+        .slider-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+        .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; cursor: pointer; transition: all 0.3s; }
+        .slider-dot.active { background: var(--primary); transform: scale(1.2); }
+        .slider-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10; transition: all 0.3s; }
+        .slider-arrow:hover { background: var(--primary); color: white; }
+        .slider-arrow.prev { right: 10px; }
+        .slider-arrow.next { left: 10px; }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-            transition: all 0.2s;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        /* Timer */
+        .countdown-box { background: linear-gradient(135deg, #e63946, #c1121f); color: white; padding: 16px; border-radius: 12px; text-align: center; }
+        .countdown-item { display: inline-flex; flex-direction: column; align-items: center; margin: 0 8px; }
+        .countdown-value { font-size: 28px; font-weight: 900; line-height: 1; }
+        .countdown-label { font-size: 10px; opacity: 0.8; }
 
-        .product-image {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-        }
-        .dark .product-image {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        }
+        /* Options */
+        .option-btn { padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+        .option-btn:hover { border-color: var(--primary); }
+        .option-btn.selected { border-color: var(--primary); background: rgba(230, 57, 70, 0.1); color: var(--primary); }
+        .color-btn { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.selected { border-color: var(--primary); box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary); }
 
-        .price-tag {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
-        }
-        .dark .price-tag {
-            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
-            color: #fef3c7;
-        }
+        /* Quantity */
+        .qty-btn { width: 40px; height: 40px; border: none; background: #f0f0f0; cursor: pointer; font-size: 18px; font-weight: bold; transition: all 0.2s; }
+        .qty-btn:hover { background: var(--primary); color: white; }
+        .qty-input { width: 60px; text-align: center; border: none; font-size: 18px; font-weight: bold; }
 
-        .toast { animation: slideUp 0.3s ease-out; }
+        /* CTA Button */
+        .cta-btn { background: linear-gradient(135deg, #e63946, #c1121f); color: white; padding: 18px 40px; border-radius: 12px; font-size: 18px; font-weight: 800; border: none; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 4px 20px rgba(230, 57, 70, 0.4); }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(230, 57, 70, 0.5); }
+        .cta-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .seller-badge {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        }
+        /* Trust Badges */
+        .trust-badge { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f8f9fa; border-radius: 8px; font-size: 13px; }
+        .trust-badge i { color: #22c55e; }
+
+        /* Form Input */
+        .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: all 0.2s; }
+        .form-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1); }
+        .form-select { appearance: none; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat left 16px center; padding-left: 40px; }
+
+        /* Progress Steps */
+        .step { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f8f9fa; border-radius: 10px; margin-bottom: 8px; }
+        .step-number { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .step.completed .step-number { background: #22c55e; }
+
+        /* Toast */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 14px 24px; border-radius: 10px; z-index: 9999; animation: slideUp 0.3s ease-out; }
+        .toast.success { background: #22c55e; }
+        .toast.error { background: #e63946; }
+
+        /* Floating WhatsApp-style button */
+        .floating-btn { position: fixed; bottom: 100px; left: 20px; width: 60px; height: 60px; background: #25d366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); cursor: pointer; z-index: 100; animation: pulse 2s infinite; }
+
+        /* Service Page Styles */
+        .chat-container { max-height: 400px; overflow-y: auto; }
+        .chat-message { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 8px; }
+        .chat-message.sent { background: var(--primary); color: white; margin-left: auto; border-bottom-left-radius: 4px; }
+        .chat-message.received { background: #f0f0f0; margin-right: auto; border-bottom-right-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- Loading State -->
-    <div id="loader" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+    <!-- Loading -->
+    <div id="loader" class="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
         <div class="text-center">
-            <div class="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div class="w-16 h-16 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin mx-auto mb-4"></div>
             <p class="text-gray-500">جاري التحميل...</p>
         </div>
     </div>
 
     <!-- Error State -->
-    <div id="errorState" class="hidden fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center p-4">
+    <div id="errorState" class="hidden fixed inset-0 bg-white z-[9999] flex items-center justify-center p-4">
         <div class="text-center">
-            <div class="w-24 h-24 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
-                <i class="fas fa-exclamation-triangle text-red-600 text-4xl"></i>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">العرض غير موجود</h1>
-            <p class="text-gray-500 mb-6">ربما تم حذف هذا الإعلان أو أن الرابط غير صحيح</p>
-            <a href="/" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition">
-                <i class="fas fa-home"></i>
-                العودة للرئيسية
-            </a>
+            <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+            <h1 class="text-2xl font-bold mb-2">المنتج غير موجود</h1>
+            <a href="/" class="text-red-600 font-semibold">العودة للرئيسية</a>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div id="mainContent" class="hidden">
+    <!-- PRODUCT PAGE -->
+    <div id="productPage" class="hidden">
         <!-- Header -->
-        <header class="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
-            <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="/" class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 transition">
+        <header class="sticky top-0 bg-white shadow-sm z-50 px-4 py-3">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <a href="/" class="flex items-center gap-2 text-gray-600">
                     <i class="fas fa-arrow-right"></i>
-                    <span class="font-semibold">العودة</span>
+                    <span class="font-semibold">رجوع</span>
                 </a>
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-store text-white text-sm"></i>
-                    </div>
+                    <i class="fas fa-store text-red-600"></i>
                     <span class="font-bold text-red-600">DzMarket</span>
                 </div>
-                <button onclick="shareProduct()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-share-alt text-gray-600 dark:text-gray-300"></i>
+                <button onclick="shareProduct()" class="w-10 h-10 flex items-center justify-center">
+                    <i class="fas fa-share-alt text-gray-600"></i>
                 </button>
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto">
-            <div class="md:flex">
-                <!-- Product Image -->
-                <div class="md:w-1/2">
-                    <div class="sticky top-16">
-                        <div class="product-image aspect-square">
-                            <img id="pImg" src="" alt="" class="w-full h-full object-cover animate-fadeIn">
+        <main class="max-w-6xl mx-auto p-4 pb-32">
+            <div class="lg:flex lg:gap-8">
+                
+                <!-- Left: Images -->
+                <div class="lg:w-1/2 mb-6 lg:mb-0">
+                    <!-- Countdown Timer -->
+                    <div id="timerSection" class="countdown-box mb-4 animate-pulse-slow">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <i class="fas fa-fire text-yellow-300"></i>
+                            <span class="font-bold">عرض حصري - ينتهي خلال</span>
+                            <i class="fas fa-fire text-yellow-300"></i>
+                        </div>
+                        <div id="countdown">
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="hours">00</span>
+                                <span class="countdown-label">ساعة</span>
+                            </div>
+                            <span class="text-2xl font-bold">:</span>
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="minutes">00</span>
+                                <span class="countdown-label">دقيقة</span>
+                            </div>
+                            <span class="text-2xl font-bold">:</span>
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="seconds">00</span>
+                                <span class="countdown-label">ثانية</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Image Slider -->
+                    <div class="slider-container bg-white rounded-2xl overflow-hidden shadow-lg">
+                        <div class="slider-arrow prev" onclick="prevSlide()"><i class="fas fa-chevron-right"></i></div>
+                        <div class="slider-arrow next" onclick="nextSlide()"><i class="fas fa-chevron-left"></i></div>
+                        <div class="slider-track" id="sliderTrack">
+                            <!-- Images will be loaded here -->
+                        </div>
+                        <div class="slider-dots p-4" id="sliderDots"></div>
+                    </div>
+
+                    <!-- Thumbnails -->
+                    <div class="flex gap-2 mt-4 overflow-x-auto" id="thumbnails"></div>
                 </div>
 
-                <!-- Product Info -->
-                <div class="md:w-1/2 p-6 md:p-8 animate-slideUp">
-                    <!-- Type Badge -->
-                    <div class="flex items-center gap-2 mb-4">
-                        <span id="pTypeBadge" class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-semibold">
-                            منتج
+                <!-- Right: Details -->
+                <div class="lg:w-1/2 animate-slideUp">
+                    <!-- Badge -->
+                    <div class="flex items-center gap-2 mb-3">
+                        <span id="typeBadge" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                            <i class="fas fa-bolt ml-1"></i> الأكثر مبيعاً
                         </span>
-                        <span class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold">
-                            <i class="fas fa-check-circle ml-1"></i>
-                            متاح
+                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
+                            <i class="fas fa-truck ml-1"></i> توصيل مجاني
                         </span>
                     </div>
 
                     <!-- Title -->
-                    <h1 id="pTitle" class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-4 leading-tight">
-                        جاري التحميل...
-                    </h1>
+                    <h1 id="productTitle" class="text-2xl lg:text-3xl font-black text-gray-900 mb-3 leading-tight"></h1>
+
+                    <!-- Rating -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <span class="text-gray-500 text-sm">(4.8) - <span id="soldCount">127</span> مبيعة</span>
+                    </div>
 
                     <!-- Price -->
-                    <div class="price-tag inline-block px-5 py-3 rounded-2xl mb-6">
-                        <span id="pPrice" class="text-3xl font-black">0</span>
-                        <span class="text-lg font-bold mr-1">د.ج</span>
+                    <div class="flex items-center gap-4 mb-6">
+                        <span id="currentPrice" class="text-4xl font-black text-red-600"></span>
+                        <span id="oldPrice" class="text-xl text-gray-400 line-through"></span>
+                        <span id="discount" class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">-30%</span>
                     </div>
 
                     <!-- Description -->
-                    <div class="mb-8">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <i class="fas fa-info-circle text-blue-500"></i>
-                            الوصف
-                        </h3>
-                        <p id="pDesc" class="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">
-                            جاري التحميل...
-                        </p>
+                    <p id="productDesc" class="text-gray-600 mb-6 leading-relaxed"></p>
+
+                    <!-- Options: Colors -->
+                    <div id="colorsSection" class="mb-6 hidden">
+                        <h3 class="font-bold mb-3">اختر اللون:</h3>
+                        <div class="flex gap-3" id="colorsContainer"></div>
                     </div>
 
-                    <!-- Seller Info -->
-                    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 mb-8 border border-gray-100 dark:border-gray-700">
-                        <div class="flex items-center gap-4">
-                            <div id="sellerAvatar" class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                                ب
-                            </div>
-                            <div class="flex-1">
-                                <div class="font-bold text-gray-900 dark:text-white" id="sellerName">البائع</div>
-                                <div class="flex items-center gap-2 text-sm text-gray-500">
-                                    <span class="seller-badge text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                                        <i class="fas fa-check text-[10px]"></i>
-                                        بائع موثق
-                                    </span>
-                                </div>
-                            </div>
+                    <!-- Options: Sizes -->
+                    <div id="sizesSection" class="mb-6 hidden">
+                        <h3 class="font-bold mb-3">اختر المقاس:</h3>
+                        <div class="flex flex-wrap gap-2" id="sizesContainer"></div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-6">
+                        <h3 class="font-bold mb-3">الكمية:</h3>
+                        <div class="flex items-center bg-gray-100 rounded-xl w-fit overflow-hidden">
+                            <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                            <input type="text" class="qty-input bg-transparent" value="1" id="qtyInput" readonly>
+                            <button class="qty-btn" onclick="changeQty(1)">+</button>
                         </div>
                     </div>
 
-                    <!-- Contact Form -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-lg">
-                        <div class="text-center mb-6">
-                            <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                                <i class="fas fa-phone text-white text-xl"></i>
-                            </div>
-                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">مهتم بهذا العرض؟ 😍</h3>
-                            <p class="text-sm text-gray-500">اترك معلوماتك وسيتصل بك البائع مباشرة</p>
+                    <!-- Trust Badges -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="trust-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>دفع عند الاستلام</span>
                         </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-truck"></i>
+                            <span>توصيل سريع 24-48h</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-undo"></i>
+                            <span>استرجاع مجاني</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-headset"></i>
+                            <span>دعم 24/7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        <form id="orderForm" class="space-y-4">
-                            <div class="relative">
-                                <i class="fas fa-user absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input id="name" type="text" required placeholder="اسمك الكامل" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
-                            </div>
-                            <div class="relative">
-                                <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input id="phone" type="tel" required placeholder="رقم الهاتف" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base text-left" dir="ltr">
-                            </div>
-                            <div class="relative">
-                                <i class="fas fa-map-marker-alt absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input id="wilaya" type="text" required placeholder="الولاية" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
-                            </div>
-                            <button type="submit" id="submitBtn" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2">
-                                <i class="fas fa-paper-plane"></i>
-                                إرسال طلب اتصال
-                            </button>
-                        </form>
+            <!-- Order Form -->
+            <div class="bg-white rounded-2xl p-6 mt-8 shadow-lg animate-slideUp" id="orderFormSection">
+                <h2 class="text-xl font-black text-center mb-6">
+                    <i class="fas fa-shopping-cart text-red-600 ml-2"></i>
+                    أكمل طلبك الآن
+                </h2>
 
-                        <p class="text-center text-xs text-gray-400 mt-4">
-                            <i class="fas fa-shield-alt ml-1"></i>
-                            معلوماتك آمنة ولن يتم مشاركتها
-                        </p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">الاسم الكامل *</label>
+                        <input type="text" id="orderName" class="form-input" placeholder="أدخل اسمك الكامل">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">رقم الهاتف *</label>
+                        <input type="tel" id="orderPhone" class="form-input" placeholder="0555123456" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">الولاية *</label>
+                        <select id="orderWilaya" class="form-input form-select" onchange="loadCities()">
+                            <option value="">اختر الولاية</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">البلدية *</label>
+                        <select id="orderCity" class="form-input form-select">
+                            <option value="">اختر البلدية</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold mb-2">العنوان بالتفصيل *</label>
+                        <input type="text" id="orderAddress" class="form-input" placeholder="الحي، الشارع، رقم المنزل...">
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                    <div class="flex justify-between mb-2">
+                        <span>سعر المنتج:</span>
+                        <span id="summaryPrice" class="font-bold">0 دج</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span>الكمية:</span>
+                        <span id="summaryQty" class="font-bold">1</span>
+                    </div>
+                    <div class="flex justify-between mb-2 text-green-600">
+                        <span>التوصيل:</span>
+                        <span class="font-bold">مجاني</span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="flex justify-between text-xl font-black">
+                        <span>الإجمالي:</span>
+                        <span id="summaryTotal" class="text-red-600">0 دج</span>
+                    </div>
+                </div>
+
+                <button onclick="submitOrder()" class="cta-btn mt-6" id="submitBtn">
+                    <i class="fas fa-check-circle ml-2"></i>
+                    تأكيد الطلب - الدفع عند الاستلام
+                </button>
+
+                <p class="text-center text-sm text-gray-500 mt-4">
+                    <i class="fas fa-lock ml-1"></i>
+                    معلوماتك آمنة ومشفرة 100%
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <!-- SERVICE PAGE (للخدمات - مراسلة) -->
+    <div id="servicePage" class="hidden">
+        <header class="sticky top-0 bg-white shadow-sm z-50 px-4 py-3">
+            <div class="max-w-2xl mx-auto flex items-center justify-between">
+                <a href="/" class="flex items-center gap-2 text-gray-600">
+                    <i class="fas fa-arrow-right"></i>
+                    <span class="font-semibold">رجوع</span>
+                </a>
+                <span class="font-bold text-red-600">DzMarket</span>
+                <div></div>
+            </div>
+        </header>
+
+        <main class="max-w-2xl mx-auto p-4">
+            <!-- Service Info -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6 animate-slideUp">
+                <div class="flex gap-4">
+                    <img id="serviceImg" class="w-24 h-24 rounded-xl object-cover" src="">
+                    <div>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold mb-2 inline-block">خدمة رقمية</span>
+                        <h1 id="serviceTitle" class="text-xl font-bold mb-1"></h1>
+                        <p id="servicePrice" class="text-2xl font-black text-red-600"></p>
+                    </div>
+                </div>
+                <p id="serviceDesc" class="mt-4 text-gray-600"></p>
+            </div>
+
+            <!-- Seller Info -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                <div class="flex items-center gap-4">
+                    <div id="sellerAvatar" class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl font-bold">ب</div>
+                    <div class="flex-1">
+                        <h3 id="sellerName" class="font-bold text-lg">البائع</h3>
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="flex items-center gap-1 text-green-600"><i class="fas fa-check-circle"></i> موثق</span>
+                            <span>•</span>
+                            <span id="sellerResponseTime">يرد خلال ساعة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Chat Button -->
+            <div id="startChatSection" class="bg-white rounded-2xl p-6 shadow-lg text-center">
+                <i class="fas fa-comments text-5xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">تواصل مع البائع</h3>
+                <p class="text-gray-500 mb-4">ابدأ محادثة مع البائع للاستفسار أو الطلب</p>
+                <p class="text-amber-600 font-semibold mb-4">
+                    <i class="fas fa-coins ml-1"></i>
+                    تكلفة فتح المحادثة: <span id="chatPrice">50</span> دج
+                </p>
+                <button onclick="startChat()" class="cta-btn">
+                    <i class="fas fa-comments ml-2"></i>
+                    بدء المحادثة
+                </button>
+            </div>
+
+            <!-- Chat Section (Hidden until paid) -->
+            <div id="chatSection" class="hidden">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4">
+                        <div class="flex items-center gap-3">
+                            <div id="chatAvatar" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">ب</div>
+                            <div>
+                                <h3 id="chatName" class="font-bold">البائع</h3>
+                                <span class="text-xs text-white/70">متصل الآن</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-container p-4" id="chatMessages">
+                        <!-- Messages will be loaded here -->
+                    </div>
+
+                    <div class="p-4 border-t flex gap-2">
+                        <input type="text" id="chatInput" class="form-input flex-1" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter')sendMessage()">
+                        <button onclick="sendMessage()" class="bg-blue-500 text-white px-6 rounded-xl font-bold hover:bg-blue-600 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </main>
-
-        <!-- Footer -->
-        <footer class="mt-12 py-6 border-t border-gray-100 dark:border-gray-800">
-            <div class="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
-                <p>© 2024 DzMarket - جميع الحقوق محفوظة</p>
-            </div>
-        </footer>
     </div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-20 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[100] space-y-2"></div>
+    <div id="toastContainer"></div>
 
 <script>
-    // ========== DARK MODE ==========
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-    }
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        document.documentElement.classList.toggle('dark', event.matches);
-    });
+    // ========== ALGERIA CITIES DATA ==========
+    const WILAYAS = [
+        { code: '01', name: 'أدرار', cities: ['أدرار', 'رقان', 'تيميمون', 'أولف'] },
+        { code: '02', name: 'الشلف', cities: ['الشلف', 'تنس', 'الشطية', 'بوقادير'] },
+        { code: '03', name: 'الأغواط', cities: ['الأغواط', 'أفلو', 'حاسي الرمل', 'قصر الحيران'] },
+        { code: '04', name: 'أم البواقي', cities: ['أم البواقي', 'عين البيضاء', 'عين مليلة', 'سيقوس'] },
+        { code: '05', name: 'باتنة', cities: ['باتنة', 'بريكة', 'عين التوتة', 'مروانة', 'نقاوس'] },
+        { code: '06', name: 'بجاية', cities: ['بجاية', 'أقبو', 'سيدي عيش', 'الخراطة', 'تيشي'] },
+        { code: '07', name: 'بسكرة', cities: ['بسكرة', 'طولقة', 'أولاد جلال', 'سيدي عقبة'] },
+        { code: '08', name: 'بشار', cities: ['بشار', 'بني ونيف', 'تاغيت', 'العبادلة'] },
+        { code: '09', name: 'البليدة', cities: ['البليدة', 'بوفاريك', 'موزاية', 'الأربعاء'] },
+        { code: '10', name: 'البويرة', cities: ['البويرة', 'سور الغزلان', 'الأخضرية', 'عين بسام'] },
+        { code: '15', name: 'تيزي وزو', cities: ['تيزي وزو', 'عزازقة', 'ذراع الميزان', 'لاربعا ناث إيراثن'] },
+        { code: '16', name: 'الجزائر', cities: ['الجزائر الوسطى', 'باب الوادي', 'بئر مراد رايس', 'بئر خادم', 'الحراش', 'براقي', 'القبة', 'دالي إبراهيم', 'الدرارية'] },
+        { code: '17', name: 'الجلفة', cities: ['الجلفة', 'عين وسارة', 'مسعد', 'حاسي بحبح'] },
+        { code: '18', name: 'جيجل', cities: ['جيجل', 'الطاهير', 'الميلية', 'الجيجلي'] },
+        { code: '19', name: 'سطيف', cities: ['سطيف', 'العلمة', 'عين ولمان', 'عين أزال', 'بوسلام'] },
+        { code: '22', name: 'سيدي بلعباس', cities: ['سيدي بلعباس', 'تلمسان', 'عين تيموشنت'] },
+        { code: '25', name: 'قسنطينة', cities: ['قسنطينة', 'الخروب', 'عين اسمارة', 'زيغود يوسف', 'حامة بوزيان'] },
+        { code: '31', name: 'وهران', cities: ['وهران', 'وهران الوسطى', 'السانية', 'بئر الجير', 'الكرمة', 'عين الترك', 'أرزيو'] },
+        { code: '34', name: 'برج بوعريريج', cities: ['برج بوعريريج', 'رأس الوادي', 'الجعافرة', 'برج الغدير'] },
+        { code: '35', name: 'بومرداس', cities: ['بومرداس', 'الثنية', 'برج منايل', 'دلس', 'الروبة'] },
+        { code: '42', name: 'تيبازة', cities: ['تيبازة', 'شرشال', 'القليعة', 'حجوط', 'الداموس'] },
+    ];
 
     // ========== STATE ==========
+    let productData = null;
+    let currentSlide = 0;
+    let selectedColor = null;
+    let selectedSize = null;
+    let quantity = 1;
+    let chatId = null;
+
     const pid = window.location.pathname.split('/').pop();
     const fp = Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
-    let productData = null;
 
     // ========== INIT ==========
     window.onload = loadProduct;
@@ -269,39 +459,20 @@
             const res = await fetch('/api/public/product/' + pid);
             const p = await res.json();
             
-            if(!p || !p.title) {
+            if (!p || !p.title) {
                 showError();
                 return;
             }
 
             productData = p;
-            
-            // Update page
-            document.title = p.title + ' - DzMarket';
-            document.getElementById('pImg').src = p.image || 'https://via.placeholder.com/600';
-            document.getElementById('pImg').alt = p.title;
-            document.getElementById('pTitle').innerText = p.title;
-            document.getElementById('pPrice').innerText = Number(p.price).toLocaleString();
-            document.getElementById('pDesc').innerText = p.desc || 'لا يوجد وصف متاح';
-            
-            // Type badge
-            const typeBadge = document.getElementById('pTypeBadge');
-            if(p.type === 'service') {
-                typeBadge.innerHTML = '<i class="fas fa-tools ml-1"></i> خدمة رقمية';
-                typeBadge.className = 'px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-full text-xs font-semibold';
-            }
-            
-            // Seller info
-            if(p.userName) {
-                document.getElementById('sellerName').innerText = p.userName;
-                document.getElementById('sellerAvatar').innerText = p.userName.charAt(0);
-            }
-            
-            // Show content
             document.getElementById('loader').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            
-        } catch(e) {
+
+            if (p.type === 'service') {
+                renderServicePage(p);
+            } else {
+                renderProductPage(p);
+            }
+        } catch (e) {
             showError();
         }
     }
@@ -311,92 +482,339 @@
         document.getElementById('errorState').classList.remove('hidden');
     }
 
-    // ========== FORM SUBMIT ==========
-    document.getElementById('orderForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const btn = document.getElementById('submitBtn');
-        const originalContent = btn.innerHTML;
-        
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> جاري الإرسال...';
+    // ========== PRODUCT PAGE ==========
+    function renderProductPage(p) {
+        document.getElementById('productPage').classList.remove('hidden');
+        document.title = p.title + ' - DzMarket';
 
-        const data = {
-            listingId: pid,
-            buyerName: document.getElementById('name').value,
-            buyerPhone: document.getElementById('phone').value,
-            buyerWilaya: document.getElementById('wilaya').value,
-            fingerprint: fp
-        };
+        // Title & Description
+        document.getElementById('productTitle').innerText = p.title;
+        document.getElementById('productDesc').innerText = p.desc || '';
 
-        try {
-            const res = await fetch('/api/lead/create', { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify(data) 
-            });
-            const r = await res.json();
+        // Price
+        const price = Number(p.price);
+        const oldPrice = Math.round(price * 1.3);
+        document.getElementById('currentPrice').innerText = price.toLocaleString() + ' دج';
+        document.getElementById('oldPrice').innerText = oldPrice.toLocaleString() + ' دج';
+        document.getElementById('summaryPrice').innerText = price.toLocaleString() + ' دج';
+        document.getElementById('summaryTotal').innerText = price.toLocaleString() + ' دج';
 
-            if(r.success) {
-                showToast('تم إرسال طلبك بنجاح! سيتصل بك البائع قريباً 📞', 'success');
-                document.getElementById('orderForm').reset();
-                
-                // Show success state
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> تم الإرسال بنجاح!';
-                btn.className = 'w-full bg-green-600 text-white font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2';
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalContent;
-                    btn.className = 'btn-primary w-full text-white font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2';
-                    btn.disabled = false;
-                }, 3000);
-            } else {
-                showToast(r.msg || 'حدث خطأ، حاول مرة أخرى', 'error');
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }
-        } catch(e) {
-            showToast('خطأ في الاتصال بالخادم', 'error');
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
+        // Random sold count
+        document.getElementById('soldCount').innerText = Math.floor(Math.random() * 200) + 50;
+
+        // Images (use provided images or placeholder)
+        const images = p.images && p.images.length ? p.images : [p.image || 'https://via.placeholder.com/600'];
+        renderSlider(images);
+
+        // Colors
+        if (p.colors && p.colors.length) {
+            document.getElementById('colorsSection').classList.remove('hidden');
+            document.getElementById('colorsContainer').innerHTML = p.colors.map((c, i) => `
+                <button class="color-btn ${i === 0 ? 'selected' : ''}" style="background: ${c.code || c}" onclick="selectColor(this, '${c.name || c}')" title="${c.name || c}"></button>
+            `).join('');
+            selectedColor = p.colors[0].name || p.colors[0];
         }
-    });
 
-    // ========== SHARE ==========
-    function shareProduct() {
-        if(navigator.share && productData) {
-            navigator.share({
-                title: productData.title,
-                text: `${productData.title} - ${Number(productData.price).toLocaleString()} دج`,
-                url: window.location.href
-            }).catch(() => {});
+        // Sizes
+        if (p.sizes && p.sizes.length) {
+            document.getElementById('sizesSection').classList.remove('hidden');
+            document.getElementById('sizesContainer').innerHTML = p.sizes.map((s, i) => `
+                <button class="option-btn ${i === 0 ? 'selected' : ''}" onclick="selectSize(this, '${s}')">${s}</button>
+            `).join('');
+            selectedSize = p.sizes[0];
+        }
+
+        // Countdown Timer
+        startCountdown(p.offerEndTime || 24);
+
+        // Load Wilayas
+        loadWilayas();
+    }
+
+    // ========== SLIDER ==========
+    function renderSlider(images) {
+        const track = document.getElementById('sliderTrack');
+        const dots = document.getElementById('sliderDots');
+        const thumbs = document.getElementById('thumbnails');
+
+        track.innerHTML = images.map(img => `
+            <div class="slider-slide">
+                <img src="${img}" class="w-full aspect-square object-cover" onerror="this.src='https://via.placeholder.com/600'">
+            </div>
+        `).join('');
+
+        dots.innerHTML = images.map((_, i) => `
+            <button class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></button>
+        `).join('');
+
+        thumbs.innerHTML = images.map((img, i) => `
+            <img src="${img}" class="w-16 h-16 rounded-lg object-cover cursor-pointer border-2 ${i === 0 ? 'border-red-500' : 'border-transparent'}" onclick="goToSlide(${i})" onerror="this.src='https://via.placeholder.com/100'">
+        `).join('');
+    }
+
+    function goToSlide(index) {
+        const track = document.getElementById('sliderTrack');
+        const slides = track.children.length;
+        currentSlide = (index + slides) % slides;
+        track.style.transform = `translateX(${currentSlide * 100}%)`;
+        
+        document.querySelectorAll('.slider-dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+        document.querySelectorAll('#thumbnails img').forEach((t, i) => {
+            t.classList.toggle('border-red-500', i === currentSlide);
+            t.classList.toggle('border-transparent', i !== currentSlide);
+        });
+    }
+
+    function nextSlide() { goToSlide(currentSlide + 1); }
+    function prevSlide() { goToSlide(currentSlide - 1); }
+
+    // ========== COUNTDOWN ==========
+    function startCountdown(hours) {
+        let totalSeconds = hours * 3600;
+        
+        const timer = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(timer);
+                document.getElementById('timerSection').innerHTML = '<span class="font-bold">انتهى العرض!</span>';
+                return;
+            }
+
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+
+            document.getElementById('hours').innerText = String(h).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(s).padStart(2, '0');
+
+            totalSeconds--;
+        }, 1000);
+    }
+
+    // ========== OPTIONS ==========
+    function selectColor(btn, color) {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedColor = color;
+    }
+
+    function selectSize(btn, size) {
+        document.querySelectorAll('#sizesContainer .option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedSize = size;
+    }
+
+    function changeQty(delta) {
+        quantity = Math.max(1, Math.min(10, quantity + delta));
+        document.getElementById('qtyInput').value = quantity;
+        document.getElementById('summaryQty').innerText = quantity;
+        document.getElementById('summaryTotal').innerText = (productData.price * quantity).toLocaleString() + ' دج';
+    }
+
+    // ========== WILAYAS ==========
+    function loadWilayas() {
+        const select = document.getElementById('orderWilaya');
+        select.innerHTML = '<option value="">اختر الولاية</option>' + 
+            WILAYAS.map(w => `<option value="${w.code}">${w.code} - ${w.name}</option>`).join('');
+    }
+
+    function loadCities() {
+        const wilayaCode = document.getElementById('orderWilaya').value;
+        const wilaya = WILAYAS.find(w => w.code === wilayaCode);
+        const citySelect = document.getElementById('orderCity');
+        
+        if (wilaya) {
+            citySelect.innerHTML = '<option value="">اختر البلدية</option>' + 
+                wilaya.cities.map(c => `<option value="${c}">${c}</option>`).join('');
         } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                showToast('تم نسخ الرابط!', 'success');
-            });
+            citySelect.innerHTML = '<option value="">اختر البلدية</option>';
         }
     }
 
-    // ========== TOAST ==========
+    // ========== SUBMIT ORDER ==========
+    async function submitOrder() {
+        const name = document.getElementById('orderName').value.trim();
+        const phone = document.getElementById('orderPhone').value.trim();
+        const wilaya = document.getElementById('orderWilaya');
+        const city = document.getElementById('orderCity').value;
+        const address = document.getElementById('orderAddress').value.trim();
+
+        if (!name || !phone || !wilaya.value || !city || !address) {
+            showToast('يرجى ملء جميع الحقول', 'error');
+            return;
+        }
+
+        if (!/^0[567]\d{8}$/.test(phone)) {
+            showToast('رقم الهاتف غير صحيح', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner animate-spin ml-2"></i> جاري الإرسال...';
+
+        try {
+            const res = await fetch('/api/order/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listingId: pid,
+                    buyerName: name,
+                    buyerPhone: phone,
+                    buyerWilaya: wilaya.options[wilaya.selectedIndex].text,
+                    buyerCity: city,
+                    buyerAddress: address,
+                    color: selectedColor,
+                    size: selectedSize,
+                    quantity: quantity,
+                    totalPrice: productData.price * quantity,
+                    fingerprint: fp
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                btn.innerHTML = '<i class="fas fa-check-circle ml-2"></i> تم تأكيد الطلب!';
+                btn.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-600');
+                btn.style.background = '#22c55e';
+                showToast('تم تأكيد طلبك بنجاح! سيتم التواصل معك قريباً 📞', 'success');
+                
+                // Clear form
+                document.getElementById('orderName').value = '';
+                document.getElementById('orderPhone').value = '';
+                document.getElementById('orderWilaya').value = '';
+                document.getElementById('orderCity').innerHTML = '<option value="">اختر البلدية</option>';
+                document.getElementById('orderAddress').value = '';
+            } else {
+                throw new Error(data.msg);
+            }
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle ml-2"></i> تأكيد الطلب - الدفع عند الاستلام';
+            showToast(e.message || 'حدث خطأ، حاول مرة أخرى', 'error');
+        }
+    }
+
+    // ========== SERVICE PAGE ==========
+    function renderServicePage(p) {
+        document.getElementById('servicePage').classList.remove('hidden');
+        document.title = p.title + ' - DzMarket';
+
+        document.getElementById('serviceImg').src = p.image || 'https://via.placeholder.com/200';
+        document.getElementById('serviceTitle').innerText = p.title;
+        document.getElementById('servicePrice').innerText = Number(p.price).toLocaleString() + ' دج';
+        document.getElementById('serviceDesc').innerText = p.desc || '';
+
+        document.getElementById('sellerName').innerText = p.userName || 'البائع';
+        document.getElementById('sellerAvatar').innerText = (p.userName || 'ب').charAt(0);
+        document.getElementById('chatAvatar').innerText = (p.userName || 'ب').charAt(0);
+        document.getElementById('chatName').innerText = p.userName || 'البائع';
+    }
+
+    async function startChat() {
+        // Check if already in chat
+        try {
+            const res = await fetch('/api/chat/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listingId: pid,
+                    fingerprint: fp
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                chatId = data.chatId;
+                document.getElementById('startChatSection').classList.add('hidden');
+                document.getElementById('chatSection').classList.remove('hidden');
+                loadChatMessages();
+                showToast('تم فتح المحادثة! يمكنك الآن التواصل مع البائع', 'success');
+            } else {
+                showToast(data.msg || 'رصيدك غير كافٍ', 'error');
+            }
+        } catch (e) {
+            showToast('خطأ في الاتصال', 'error');
+        }
+    }
+
+    async function loadChatMessages() {
+        if (!chatId) return;
+
+        try {
+            const res = await fetch(`/api/chat/messages/${chatId}`);
+            const messages = await res.json();
+
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = messages.length ? messages.map(m => `
+                <div class="chat-message ${m.fromBuyer ? 'sent' : 'received'}">
+                    ${m.content}
+                    <div class="text-xs opacity-50 mt-1">${formatTime(m.date)}</div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-500 py-8">ابدأ المحادثة الآن...</p>';
+
+            container.scrollTop = container.scrollHeight;
+        } catch (e) {
+            console.error('Error loading messages:', e);
+        }
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const content = input.value.trim();
+        if (!content || !chatId) return;
+
+        input.value = '';
+
+        try {
+            await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chatId,
+                    content,
+                    fromBuyer: true
+                })
+            });
+
+            loadChatMessages();
+        } catch (e) {
+            showToast('خطأ في إرسال الرسالة', 'error');
+        }
+    }
+
+    // Poll for new messages
+    setInterval(() => {
+        if (chatId) loadChatMessages();
+    }, 5000);
+
+    // ========== HELPERS ==========
+    function formatTime(date) {
+        const d = new Date(date);
+        return d.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' });
+    }
+
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        
-        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
-        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
-        
-        toast.className = `toast ${colors[type]} text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-3`;
-        toast.innerHTML = `
-            <i class="fas ${icons[type]} text-xl"></i>
-            <span class="flex-1 font-semibold">${message}</span>
-            <button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} ml-2"></i>${message}`;
         container.appendChild(toast);
-        setTimeout(() => toast.remove(), 5000);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    function shareProduct() {
+        if (navigator.share) {
+            navigator.share({
+                title: productData?.title,
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            showToast('تم نسخ الرابط!', 'success');
+        }
     }
 </script>
 </body>
