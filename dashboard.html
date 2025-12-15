@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DzAffiliate - لوحة التحكم</title>
+    <title>DzAffiliate Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,26 +11,22 @@
         body { font-family: 'Tajawal', sans-serif; background: #f8fafc; }
         .hidden { display: none !important; }
         .flex-view { display: flex !important; }
-        #globalLoader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        /* Modal Style */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; animation: slideUp 0.3s; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 95%; max-width: 400px; animation: slideUp 0.3s; }
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     </style>
 </head>
 <body>
 
-    <div id="globalLoader"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>
-
-    <div id="authView" class="hidden min-h-screen items-center justify-center p-4">
+    <div id="authView" class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
-            <h1 class="text-3xl font-black text-center text-blue-600 mb-2">DzAffiliate</h1>
+            <h1 class="text-3xl font-black text-center text-blue-600 mb-6">DzAffiliate Pro</h1>
             
             <div id="loginForm" class="space-y-4">
                 <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-3 bg-slate-50 border rounded-xl">
                 <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-3 bg-slate-50 border rounded-xl">
-                <button onclick="login()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700">دخول</button>
-                <p class="text-center text-xs text-gray-500 cursor-pointer" onclick="toggleForms('register')">تسجيل حساب جديد</p>
+                <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700">دخول</button>
+                <p class="text-center text-xs text-gray-500 cursor-pointer" onclick="toggleForms()">حساب جديد</p>
             </div>
 
             <div id="registerForm" class="space-y-4 hidden">
@@ -41,173 +37,184 @@
                     <label class="flex-1 cursor-pointer bg-slate-50 p-2 rounded border text-center"><input type="radio" name="role" value="affiliate" checked> مسوق</label>
                     <label class="flex-1 cursor-pointer bg-slate-50 p-2 rounded border text-center"><input type="radio" name="role" value="merchant"> تاجر</label>
                 </div>
-                <button onclick="register()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">إنشاء حساب</button>
-                <p class="text-center text-xs text-gray-500 cursor-pointer" onclick="toggleForms('login')">لديك حساب؟ دخول</p>
+                <button onclick="register()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">تسجيل</button>
+                <p class="text-center text-xs text-gray-500 cursor-pointer" onclick="toggleForms()">دخول</p>
             </div>
         </div>
     </div>
 
     <div id="dashView" class="hidden min-h-screen flex-col md:flex-row">
-        <aside class="bg-white w-full md:w-64 border-l p-6 flex flex-col shadow-sm z-10">
-            <div class="font-black text-xl text-blue-600 mb-2">DzAffiliate</div>
-            <div class="text-xs bg-slate-100 inline-block px-2 py-1 rounded text-slate-500 mb-6">حساب: <span id="userRoleBadge"></span></div>
-            
-            <div class="bg-slate-50 p-4 rounded-xl border mb-6">
-                <div class="text-xs text-slate-400" id="balanceLabel">الرصيد</div>
-                <div class="text-2xl font-black text-green-600"><span id="userBalance">0</span> د.ج</div>
-                <button id="withdrawBtn" onclick="openWithdrawModal()" class="hidden w-full bg-green-100 text-green-700 text-xs py-1 rounded mt-2 font-bold">سحب الأرباح</button>
+        
+        <aside class="bg-white w-full md:w-72 border-l p-6 flex flex-col shadow-sm z-10">
+            <div class="mb-8">
+                <div class="font-black text-xl text-blue-600">DzAffiliate</div>
+                <div class="text-xs text-slate-400" id="userName">...</div>
             </div>
 
-            <div id="debtAlert" class="hidden bg-red-50 p-4 rounded-xl border border-red-200 mb-6">
-                <div class="text-xs text-red-500 font-bold">⚠️ مستحقات المنصة</div>
-                <div class="text-xl font-black text-red-600"><span id="userDebt">0</span> د.ج</div>
-                <div class="text-[10px] text-red-400 mt-1">يجب الدفع قبل <span id="debtDate">...</span> لتجنب الحظر</div>
-                <button onclick="showPayInfo()" class="w-full bg-red-600 text-white text-xs py-1 rounded mt-2">كيف أدفع؟</button>
+            <div id="merchantWallet" class="hidden mb-6">
+                <div class="bg-slate-900 text-white p-5 rounded-2xl mb-4 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="text-xs text-slate-400 mb-1">إجمالي المبيعات</div>
+                        <div class="text-3xl font-bold"><span id="mBalance">0</span> دج</div>
+                    </div>
+                    <div class="absolute top-0 left-0 w-20 h-20 bg-blue-500 rounded-full blur-2xl opacity-20"></div>
+                </div>
+
+                <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-red-500">مستحقات المنصة</span>
+                        <span class="text-lg font-bold text-red-700"><span id="mDebt">0</span> دج</span>
+                    </div>
+                    <button onclick="openPayModal()" class="w-full bg-red-600 text-white text-xs py-2 rounded-lg font-bold">دفع الآن (RedotPay)</button>
+                </div>
             </div>
 
-            <button onclick="logout()" class="text-red-500 text-sm font-bold mt-auto"><i class="fas fa-sign-out-alt"></i> خروج</button>
+            <div id="affiliateWallet" class="hidden mb-6">
+                <div class="bg-green-50 p-5 rounded-2xl border border-green-100">
+                    <div class="text-xs text-green-600 mb-1">الأرباح القابلة للسحب</div>
+                    <div class="text-3xl font-bold text-green-700"><span id="aBalance">0</span> دج</div>
+                </div>
+            </div>
+
+            <button onclick="openSupport()" class="mt-auto flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold text-sm">
+                <i class="fas fa-headset"></i> الدعم وإثبات الدفع
+            </button>
+            <button onclick="logout()" class="mt-4 text-red-500 text-xs font-bold">تسجيل خروج</button>
         </aside>
 
-        <main class="flex-1 p-6 overflow-y-auto relative">
-            <div id="affiliateContent" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold text-slate-800">سوق العروض 🛒</h2>
-                <div id="marketGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-
+        <main class="flex-1 p-6 overflow-y-auto bg-slate-50">
+            
             <div id="merchantContent" class="hidden space-y-8">
-                <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold mb-4">إضافة منتج جديد</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input id="mProdTitle" placeholder="اسم المنتج" class="w-full p-3 bg-slate-50 border rounded-lg">
-                        <input id="mProdImg" placeholder="رابط الصورة (URL)" class="w-full p-3 bg-slate-50 border rounded-lg text-left ltr">
-                        <input id="mProdPrice" type="number" placeholder="السعر" class="w-full p-3 bg-slate-50 border rounded-lg">
-                        <input id="mProdComm" type="number" placeholder="العمولة" class="w-full p-3 bg-slate-50 border border-green-200 rounded-lg">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-lg mb-4">📦 إضافة منتج</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input id="pTitle" placeholder="اسم المنتج" class="input">
+                        <input id="pImg" placeholder="رابط الصورة" class="input ltr text-left">
+                        <input id="pPrice" type="number" placeholder="سعر البيع" class="input">
+                        <input id="pComm" type="number" placeholder="العمولة" class="input border-green-200">
                     </div>
-                    <button onclick="publishProduct()" class="bg-slate-900 text-white px-8 py-3 rounded-xl mt-4 text-sm font-bold">نشر المنتج 🚀</button>
+                    <button onclick="addProd()" class="bg-slate-900 text-white px-6 py-2 rounded-lg mt-4 text-sm font-bold">نشر</button>
                 </div>
 
                 <div>
-                    <h3 class="font-bold mb-4">الطلبات الواردة</h3>
-                    <div class="bg-white rounded-xl border overflow-x-auto">
-                        <table class="w-full text-sm text-right">
-                            <thead class="bg-slate-50 text-slate-500"><tr><th class="p-3">المنتج</th><th class="p-3">الزبون</th><th class="p-3">معلومات</th><th class="p-3">الحالة</th><th class="p-3">إجراء</th></tr></thead>
-                            <tbody id="ordersTable"></tbody>
-                        </table>
-                    </div>
+                    <h3 class="font-bold text-lg mb-4">الطلبات الواردة</h3>
+                    <div id="ordersList" class="space-y-3">Loading...</div>
                 </div>
             </div>
+
+            <div id="affiliateContent" class="hidden">
+                <h2 class="font-bold text-xl mb-6">سوق العروض 🛒</h2>
+                <div id="marketList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </div>
+
         </main>
     </div>
 
     <div id="customerModal" class="modal">
         <div class="modal-content text-center">
-            <h3 class="text-lg font-bold mb-4">تفاصيل المشتري 👤</h3>
-            <div class="bg-slate-50 p-4 rounded-lg text-right space-y-2 mb-4">
-                <p class="text-sm"><span class="text-gray-400">الاسم:</span> <b id="cName">...</b></p>
-                <p class="text-sm"><span class="text-gray-400">الهاتف:</span> <b id="cPhone" class="text-blue-600 font-mono">...</b></p>
-                <p class="text-sm"><span class="text-gray-400">العنوان:</span> <b id="cWilaya">...</b></p>
-            </div>
-            <a id="cCallBtn" href="#" class="block w-full bg-green-500 text-white py-2 rounded-lg font-bold mb-2">اتصال 📞</a>
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">👤</div>
+            <h3 class="text-xl font-bold mb-1" id="cName">...</h3>
+            <p class="text-gray-500 text-sm mb-4" id="cWilaya">...</p>
+            
+            <a id="cPhoneBtn" href="#" class="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 rounded-xl font-bold mb-3 shadow-lg shadow-blue-200">
+                <i class="fas fa-phone"></i> اتصال بالزبون
+            </a>
+            <p class="text-[10px] text-green-600 mb-4">✅ تم تأكيد الطلب واحتسابه في رصيدك</p>
             <button onclick="closeModal('customerModal')" class="text-gray-400 text-sm">إغلاق</button>
         </div>
     </div>
 
-    <div id="withdrawModal" class="modal">
-        <div class="modal-content">
-            <h3 class="text-lg font-bold mb-4 text-center">سحب الأرباح 💸</h3>
-            <input id="wAmount" type="number" placeholder="المبلغ (دج)" class="w-full p-3 border rounded-lg mb-3">
-            <input id="wCcp" type="text" placeholder="رقم CCP / BaridiMob" class="w-full p-3 border rounded-lg mb-4">
-            <button onclick="submitWithdraw()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold">تأكيد السحب</button>
-            <button onclick="closeModal('withdrawModal')" class="w-full mt-2 text-gray-400">إلغاء</button>
+    <div id="payModal" class="modal">
+        <div class="modal-content text-center">
+            <img src="https://play-lh.googleusercontent.com/9odqFBKnyKaoK-YkXzVvF9v-qg8XQo-T9Qd7x1g3X1X8X8X8X8X8X8X8" class="w-12 mx-auto mb-3 rounded-lg">
+            <h3 class="font-bold text-lg">دفع المستحقات</h3>
+            <p class="text-sm text-gray-500 mb-4">سعر الصرف: 1$ = 245 دج</p>
+            
+            <div class="bg-slate-100 p-4 rounded-xl mb-4">
+                <div class="text-xs text-slate-400">المبلغ المطلوب</div>
+                <div class="text-2xl font-black text-slate-800"><span id="usdAmount">0</span> USD</div>
+            </div>
+
+            <div class="text-xs text-left mb-1 text-gray-400">RedotPay ID / USDT (TRC20)</div>
+            <div class="flex items-center gap-2 bg-slate-50 border p-2 rounded-lg mb-4">
+                <span class="text-xs font-mono select-all">123456789 (Your ID Here)</span>
+                <i class="fas fa-copy text-blue-500 cursor-pointer"></i>
+            </div>
+
+            <p class="text-[10px] text-red-500 mb-4">يرجى إرسال صورة التحويل في قسم "الدعم" لفك الحظر.</p>
+            <button onclick="closeModal('payModal')" class="text-gray-400 text-sm">إغلاق</button>
         </div>
     </div>
+
+    <div id="supportModal" class="modal">
+        <div class="modal-content">
+            <h3 class="font-bold mb-3">مراسلة الإدارة 🛡️</h3>
+            <textarea id="msgText" class="w-full p-3 border rounded-lg text-sm mb-3" rows="3" placeholder="أدخل رسالتك..."></textarea>
+            <input id="msgImg" type="text" class="w-full p-2 border rounded-lg text-xs mb-3" placeholder="رابط صورة الوصل (اختياري)">
+            <button onclick="sendMsg()" class="w-full bg-slate-900 text-white py-2 rounded-lg font-bold text-sm">إرسال</button>
+            <button onclick="closeModal('supportModal')" class="w-full mt-2 text-xs text-gray-400">إغلاق</button>
+        </div>
+    </div>
+
+<style>.input{width:100%;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;outline:none}</style>
 
 <script>
     let USER = null;
 
     // بصمة الجهاز
     function getFingerprint() {
-        return Math.abs(((navigator.userAgent+screen.width+new Date().getTimezoneOffset()).split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
+        return Math.abs(((navigator.userAgent+screen.width).split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
     }
 
-    window.onload = async function() {
-        const storedUser = localStorage.getItem('dz_user');
-        if (storedUser) {
-            try {
-                const tempUser = JSON.parse(storedUser);
-                const res = await fetch('/api/user/refresh', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ id: tempUser._id })
-                });
-                const d = await res.json();
-                if(d.success && d.user) {
-                    USER = d.user;
-                    localStorage.setItem('dz_user', JSON.stringify(USER));
-                    showDashboard();
-                } else {
-                    if(d.success === false) alert('تم حظر حسابك أو انتهاء الجلسة!');
-                    logout();
-                }
-            } catch(e) { logout(); }
+    window.onload = async () => {
+        const stored = localStorage.getItem('dz_user');
+        if(stored) {
+            const u = JSON.parse(stored);
+            const res = await fetch('/api/user/refresh', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({id: u._id})
+            });
+            const d = await res.json();
+            if(d.success) {
+                USER = d.user;
+                localStorage.setItem('dz_user', JSON.stringify(USER));
+                initDash();
+            } else { showAuth(); }
         } else { showAuth(); }
-        document.getElementById('globalLoader').style.display = 'none';
     };
 
-    function showAuth() {
-        document.getElementById('authView').classList.remove('hidden');
-        document.getElementById('authView').classList.add('flex-view');
-        document.getElementById('dashView').classList.add('hidden');
-    }
-
-    function showDashboard() {
+    function initDash() {
         document.getElementById('authView').classList.add('hidden');
         document.getElementById('dashView').classList.remove('hidden');
         document.getElementById('dashView').classList.add('flex-view');
-        
-        document.getElementById('userRoleBadge').innerText = USER.role === 'merchant' ? 'تاجر' : 'مسوق';
-        document.getElementById('userBalance').innerText = USER.balance;
+        document.getElementById('userName').innerText = USER.name;
 
-        // منطق التاجر
-        if (USER.role === 'merchant') {
+        if(USER.role === 'merchant') {
             document.getElementById('merchantContent').classList.remove('hidden');
-            document.getElementById('withdrawBtn').classList.add('hidden');
-            
-            // التحقق من الديون
-            if (USER.debt > 0) {
-                document.getElementById('debtAlert').classList.remove('hidden');
-                document.getElementById('userDebt').innerText = USER.debt;
-                document.getElementById('debtDate').innerText = USER.debtDeadline ? new Date(USER.debtDeadline).toLocaleDateString() : 'قريباً';
-            }
-            loadMerchantData();
-        } 
-        // منطق المسوق
-        else {
+            document.getElementById('merchantWallet').classList.remove('hidden');
+            document.getElementById('mBalance').innerText = USER.balance;
+            document.getElementById('mDebt').innerText = USER.debt;
+            loadMerchant();
+        } else {
             document.getElementById('affiliateContent').classList.remove('hidden');
-            document.getElementById('withdrawBtn').classList.remove('hidden');
-            document.getElementById('debtAlert').classList.add('hidden');
-            loadMarketplace();
+            document.getElementById('affiliateWallet').classList.remove('hidden');
+            document.getElementById('aBalance').innerText = USER.balance;
+            loadMarket();
         }
     }
 
-    // المصادقة
-    function toggleForms(form) {
-        document.getElementById('loginForm').classList.toggle('hidden', form !== 'login');
-        document.getElementById('registerForm').classList.toggle('hidden', form !== 'register');
-    }
+    function showAuth() { document.getElementById('authView').classList.remove('hidden'); document.getElementById('authView').classList.add('flex-view'); }
+    function toggleForms() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
 
     async function login() {
         const email = document.getElementById('lEmail').value;
         const password = document.getElementById('lPass').value;
         const res = await fetch('/api/auth/login', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email, password })
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password})
         });
         const d = await res.json();
-        if (d.success) {
-            USER = d.user;
-            localStorage.setItem('dz_user', JSON.stringify(USER));
-            location.reload();
-        } else { alert(d.msg); }
+        if(d.success) { localStorage.setItem('dz_user', JSON.stringify(d.user)); location.reload(); }
+        else alert(d.msg);
     }
 
     async function register() {
@@ -216,118 +223,108 @@
             email: document.getElementById('rEmail').value,
             password: document.getElementById('rPass').value,
             role: document.querySelector('input[name="role"]:checked').value,
-            fingerprint: getFingerprint() // إرسال البصمة للحماية
+            fingerprint: getFingerprint()
         };
         const res = await fetch('/api/auth/register', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
         });
         const d = await res.json();
-        if (d.success) {
-            USER = d.user;
-            localStorage.setItem('dz_user', JSON.stringify(USER));
-            location.reload();
-        } else { alert(d.msg); }
+        if(d.success) { localStorage.setItem('dz_user', JSON.stringify(d.user)); location.reload(); }
+        else alert(d.msg);
     }
 
-    function logout() { localStorage.removeItem('dz_user'); location.reload(); }
-
-    // التاجر
-    async function publishProduct() {
-        const title = document.getElementById('mProdTitle').value;
-        const price = document.getElementById('mProdPrice').value;
-        const commission = document.getElementById('mProdComm').value;
-        if(!title || !price) return alert('أكمل البيانات');
-
+    // --- التاجر ---
+    async function addProd() {
         await fetch('/api/merchant/product', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ merchantId: USER._id, title, image: document.getElementById('mProdImg').value, price, commission })
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+                merchantId: USER._id,
+                title: document.getElementById('pTitle').value,
+                image: document.getElementById('pImg').value,
+                price: document.getElementById('pPrice').value,
+                commission: document.getElementById('pComm').value
+            })
         });
-        alert('تم النشر!');
-        loadMerchantData();
+        alert('تم النشر'); loadMerchant();
     }
 
-    async function loadMerchantData() {
-        const oRes = await fetch('/api/merchant/orders', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ merchantId: USER._id })
+    async function loadMerchant() {
+        const res = await fetch('/api/merchant/data', {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({merchantId: USER._id})
         });
-        const orders = await oRes.json();
-        document.getElementById('ordersTable').innerHTML = orders.map(o => `
-            <tr class="border-b">
-                <td class="p-3 font-bold">${o.productName}</td>
-                <td class="p-3">${o.customerName}</td>
-                <td class="p-3"><button onclick="showCustomer('${o.customerName}', '${o.customerPhone}', '${o.customerWilaya}')" class="text-blue-500 underline text-xs">عرض التفاصيل</button></td>
-                <td class="p-3"><span class="px-2 py-1 rounded text-xs ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${o.status === 'pending' ? 'انتظار' : 'مكتمل'}</span></td>
-                <td class="p-3 text-center">
-                    ${o.status !== 'delivered' ? `<button onclick="updateOrder('${o._id}', 'delivered')" class="text-green-600 font-bold hover:underline">تأكيد الاستلام ✅</button>` : '-'}
-                </td>
-            </tr>
+        const d = await res.json();
+        
+        document.getElementById('ordersList').innerHTML = d.orders.map(o => `
+            <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                <div>
+                    <div class="font-bold text-slate-800">${o.productName}</div>
+                    <div class="text-xs text-slate-400">العمولة: ${o.commission} دج</div>
+                </div>
+                ${o.status === 'delivered' ? 
+                '<span class="text-green-500 font-bold text-xs bg-green-50 px-2 py-1 rounded">تم التأكيد ✅</span>' : 
+                `<button onclick="viewCustomer('${o._id}', '${o.customer.name}', '${o.customer.phone}', '${o.customer.wilaya}')" class="bg-blue-600 text-white text-xs px-3 py-2 rounded-lg font-bold hover:bg-blue-700">عرض وتأكيد</button>`}
+            </div>
         `).join('');
     }
 
-    function showCustomer(name, phone, wilaya) {
-        document.getElementById('cName').innerText = name;
-        document.getElementById('cPhone').innerText = phone;
-        document.getElementById('cWilaya').innerText = wilaya;
-        document.getElementById('cCallBtn').href = 'tel:' + phone;
-        document.getElementById('customerModal').style.display = 'flex';
-    }
-
-    async function updateOrder(id, status) {
-        if(!confirm('هل استلمت المبلغ؟ سيتم احتساب العمولة عليك.')) return;
-        await fetch('/api/order/status', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ orderId: id, status })
+    async function viewCustomer(oid, name, phone, wilaya) {
+        // تأكيد الطلب فوراً عند العرض
+        await fetch('/api/order/confirm', {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({orderId: oid})
         });
-        alert('تم تحديث الحالة');
-        location.reload(); // لتحديث الديون
+        
+        document.getElementById('cName').innerText = name;
+        document.getElementById('cWilaya').innerText = wilaya;
+        document.getElementById('cPhoneBtn').href = 'tel:' + phone;
+        document.getElementById('customerModal').style.display = 'flex';
+        
+        // تحديث البيانات في الخلفية
+        loadMerchant();
     }
 
-    function showPayInfo() {
-        alert('لإلغاء الحظر أو دفع الديون، يرجى إرسال المبلغ عبر BaridiMob إلى:\n\nرقم: 00799999999999\nالاسم: Admin Platform\n\nثم أرسل الوصل في واتساب الإدارة.');
+    function openPayModal() {
+        const usd = (USER.debt / 245).toFixed(2);
+        document.getElementById('usdAmount').innerText = usd;
+        document.getElementById('payModal').style.display = 'flex';
     }
 
-    // المسوق
-    async function loadMarketplace() {
+    // --- المسوق ---
+    async function loadMarket() {
         const res = await fetch('/api/market/products');
-        const products = await res.json();
-        document.getElementById('marketGrid').innerHTML = products.map(p => `
-            <div class="bg-white rounded-xl border p-4 shadow-sm">
-                <img src="${p.image || 'https://via.placeholder.com/200'}" class="w-full h-32 object-cover rounded mb-3">
-                <h3 class="font-bold">${p.title}</h3>
-                <div class="flex justify-between text-sm text-gray-500 mb-3">
-                    <span>السعر: ${p.price}</span>
-                    <span class="text-green-600 font-bold">عمولة: ${p.commission} دج</span>
-                </div>
-                <button onclick="copyLink('${p._id}')" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold">نسخ الرابط 🔗</button>
+        const p = await res.json();
+        document.getElementById('marketList').innerHTML = p.map(i => `
+            <div class="bg-white p-4 rounded-xl border shadow-sm">
+                <img src="${i.image}" class="w-full h-32 object-cover rounded mb-2">
+                <div class="font-bold">${i.title}</div>
+                <div class="text-sm text-green-600 font-bold mb-3">عمولة: ${i.commission} دج</div>
+                <button onclick="copyLink('${i._id}')" class="w-full bg-slate-900 text-white text-xs py-2 rounded font-bold">نسخ الرابط</button>
             </div>
         `).join('');
     }
 
     function copyLink(id) {
-        const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
-        navigator.clipboard.writeText(link);
-        alert('تم النسخ: ' + link);
+        navigator.clipboard.writeText(`${window.location.origin}/p/${id}?ref=${USER._id}`);
+        alert('تم النسخ!');
     }
 
-    // السحب
-    function openWithdrawModal() { document.getElementById('withdrawModal').style.display = 'flex'; }
+    // --- الدعم ---
+    function openSupport() { document.getElementById('supportModal').style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    async function submitWithdraw() {
-        const amount = document.getElementById('wAmount').value;
-        const ccp = document.getElementById('wCcp').value;
-        if(amount < 2000) return alert('الحد الأدنى 2000 دج');
-        if(amount > USER.balance) return alert('رصيدك غير كاف');
-
-        await fetch('/api/wallet/withdraw', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId: USER._id, amount, ccp })
+    
+    async function sendMsg() {
+        await fetch('/api/merchant/message', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                userId: USER._id,
+                text: document.getElementById('msgText').value,
+                image: document.getElementById('msgImg').value
+            })
         });
-        alert('تم إرسال الطلب!');
-        location.reload();
+        alert('تم الإرسال للإدارة');
+        closeModal('supportModal');
     }
+
+    function logout() { localStorage.removeItem('dz_user'); location.reload(); }
 </script>
 </body>
 </html>
