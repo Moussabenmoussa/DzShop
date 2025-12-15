@@ -45,29 +45,12 @@
         .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
         .sidebar-item.active { border-right: 3px solid #3b82f6; }
 
-        /* Sidebar Responsive */
         @media (max-width: 1023px) {
-            #sidebar {
-                transform: translateX(100%);
-                transition: transform 0.3s ease;
-            }
-            #sidebar.open {
-                transform: translateX(0);
-            }
+            #sidebar { transform: translateX(100%); transition: transform 0.3s ease; }
+            #sidebar.open { transform: translateX(0); }
         }
-        .sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 40;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .sidebar-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
         .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); transition: all 0.3s; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
@@ -114,6 +97,14 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+        /* Toggle Switch */
+        .toggle-switch { position: relative; display: inline-block; width: 56px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 22px; width: 22px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: #22c55e; }
+        input:checked + .toggle-slider:before { transform: translateX(-26px); }
     </style>
 </head>
 <body class="min-h-screen">
@@ -268,7 +259,7 @@
                         </div>
                     </div>
                     <div class="text-2xl lg:text-3xl font-black" id="statRevenue">0</div>
-                    <div class="text-xs lg:text-sm text-gray-500">الأرباح (دج)</div>
+                    <div class="text-xs lg:text-sm text-gray-500">الأرباح</div>
                 </div>
             </div>
 
@@ -499,21 +490,56 @@
                 <div class="data-card rounded-2xl p-6">
                     <h3 class="font-bold mb-4 flex items-center gap-2">
                         <i class="fas fa-coins text-amber-500"></i>
-                        إعدادات الأسعار
+                        إعدادات الأسعار والعملة
                     </h3>
                     <div class="space-y-4">
+                        <!-- الوضع المجاني -->
+                        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="font-bold text-green-800 dark:text-green-400">🎁 الوضع المجاني</label>
+                                    <p class="text-sm text-green-600 dark:text-green-500">عند التفعيل، جميع الخدمات مجانية بدون رسوم</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingFreeMode">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="block text-sm font-semibold mb-2">سعر كشف معلومات الطلب (دج)</label>
+                            <label class="block text-sm font-semibold mb-2">💰 سعر كشف معلومات الطلب</label>
                             <input type="number" id="settingOrderRevealPrice" class="input-field" value="50">
+                            <p class="text-xs text-gray-500 mt-1">يتم خصمه من البائع عند كشف معلومات العميل</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-2">سعر فتح المحادثة للخدمات (دج)</label>
+                            <label class="block text-sm font-semibold mb-2">💬 سعر فتح المحادثة للخدمات</label>
                             <input type="number" id="settingChatPrice" class="input-field" value="50">
+                            <p class="text-xs text-gray-500 mt-1">يتم خصمه من البائع عند قبول طلب المحادثة</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-2">الحد الأدنى للشحن (دج)</label>
+                            <label class="block text-sm font-semibold mb-2">📥 الحد الأدنى للشحن</label>
                             <input type="number" id="settingMinDeposit" class="input-field" value="100">
                         </div>
+                        
+                        <!-- العملة -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">🌍 العملة المستخدمة</label>
+                            <select id="settingCurrency" class="input-field">
+                                <option value="دج">دج - دينار جزائري</option>
+                                <option value="$">$ - دولار أمريكي</option>
+                                <option value="€">€ - يورو</option>
+                                <option value="ر.س">ر.س - ريال سعودي</option>
+                                <option value="د.م">د.م - درهم مغربي</option>
+                                <option value="د.ت">د.ت - دينار تونسي</option>
+                                <option value="ج.م">ج.م - جنيه مصري</option>
+                                <option value="د.إ">د.إ - درهم إماراتي</option>
+                                <option value="د.ك">د.ك - دينار كويتي</option>
+                                <option value="ر.ع">ر.ع - ريال عماني</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">سيتم تطبيق العملة على كامل الموقع</p>
+                        </div>
+
                         <button onclick="saveSettings()" class="btn btn-primary w-full">
                             <i class="fas fa-save"></i>
                             حفظ الإعدادات
@@ -593,7 +619,7 @@
                     <input type="tel" id="editUserPhone" class="input-field">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-2">الرصيد (دج)</label>
+                    <label class="block text-sm font-semibold mb-2">الرصيد</label>
                     <input type="number" id="editUserBalance" class="input-field">
                 </div>
                 <div class="flex items-center gap-3">
@@ -629,7 +655,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-2">السعر (دج)</label>
+                        <label class="block text-sm font-semibold mb-2">السعر</label>
                         <input type="number" id="editListingPrice" class="input-field">
                     </div>
                     <div>
@@ -665,18 +691,18 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold mb-2">اسم الطريقة *</label>
-                    <input type="text" id="paymentName" class="input-field" placeholder="مثال: BaridiMob, PayPal, CCP, RedotPay">
+                    <input type="text" id="paymentName" class="input-field" placeholder="مثال: BaridiMob, CCP">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-2">النوع</label>
                     <select id="paymentType" class="input-field">
-                        <option value="local">محلي (جزائري)</option>
+                        <option value="local">محلي</option>
                         <option value="international">دولي</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-2">رقم الحساب / البريد *</label>
-                    <input type="text" id="paymentAccount" class="input-field" placeholder="رقم CCP أو RIP أو بريد PayPal">
+                    <label class="block text-sm font-semibold mb-2">رقم الحساب *</label>
+                    <input type="text" id="paymentAccount" class="input-field" placeholder="رقم CCP أو RIP">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-2">اسم صاحب الحساب</label>
@@ -685,17 +711,11 @@
                 <div>
                     <label class="block text-sm font-semibold mb-2">الأيقونة</label>
                     <select id="paymentIcon" class="input-field">
-                        <option value="credit-card">💳 بطاقة ائتمان</option>
+                        <option value="credit-card">💳 بطاقة</option>
                         <option value="mobile-alt">📱 موبايل</option>
                         <option value="university">🏦 بنك</option>
-                        <option value="paypal">PayPal</option>
-                        <option value="bitcoin">₿ عملة رقمية</option>
                         <option value="money-bill">💵 نقد</option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-2">تعليمات إضافية</label>
-                    <textarea id="paymentInstructions" class="input-field h-20 resize-none" placeholder="تعليمات للعميل..."></textarea>
                 </div>
                 <div class="flex items-center gap-3">
                     <input type="checkbox" id="paymentActive" class="w-5 h-5 rounded" checked>
@@ -715,7 +735,7 @@
             <div id="confirmIcon" class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-trash text-red-600 text-2xl"></i>
             </div>
-            <h3 id="confirmTitle" class="text-xl font-bold mb-2">تأكيد الحذف</h3>
+            <h3 id="confirmTitle" class="text-xl font-bold mb-2">تأكيد</h3>
             <p id="confirmMessage" class="text-gray-500 mb-6">هل أنت متأكد؟</p>
             <div class="flex gap-3">
                 <button onclick="closeModal('confirmModal')" class="btn btn-secondary flex-1">إلغاء</button>
@@ -750,8 +770,9 @@
     let allPaymentMethods = [];
     let currentDepositFilter = 'pending';
     let confirmCallback = null;
+    let APP_CURRENCY = 'دج';
 
-    // ========== SIDEBAR TOGGLE ==========
+    // ========== SIDEBAR ==========
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebarOverlay').classList.toggle('open');
@@ -761,6 +782,7 @@
     window.onload = () => {
         loadDashboard();
         loadDeposits();
+        loadSettings();
     };
 
     // ========== NAVIGATION ==========
@@ -772,10 +794,7 @@
             btn.classList.toggle('active', btn.dataset.section === section);
         });
 
-        // Close sidebar on mobile after navigation
-        if (window.innerWidth < 1024) {
-            toggleSidebar();
-        }
+        if (window.innerWidth < 1024) toggleSidebar();
 
         switch(section) {
             case 'dashboard': loadDashboard(); break;
@@ -819,9 +838,9 @@
                         <div class="font-semibold truncate">${u.name}</div>
                         <div class="text-xs text-gray-500">${u.email}</div>
                     </div>
-                    <div class="text-sm font-bold text-green-600">${u.balance} دج</div>
+                    <div class="text-sm font-bold text-green-600">${u.balance} ${APP_CURRENCY}</div>
                 </div>
-            `).join('') : '<p class="text-gray-500 text-sm text-center py-4">لا يوجد مستخدمين</p>';
+            `).join('') : '<p class="text-gray-500 text-sm text-center py-4">لا يوجد</p>';
 
             const depsRes = await fetch('/api/admin/deposits?status=pending&limit=5');
             const deps = await depsRes.json();
@@ -834,19 +853,13 @@
                         <div class="font-semibold truncate">${d.userName}</div>
                         <div class="text-xs text-gray-500">${formatDate(d.date)}</div>
                     </div>
-                    <div class="text-sm font-bold text-green-600">+${d.amount} دج</div>
+                    <div class="text-sm font-bold text-green-600">+${d.amount} ${APP_CURRENCY}</div>
                 </div>
-            `).join('') : '<p class="text-gray-500 text-sm text-center py-4">لا توجد طلبات معلقة ✅</p>';
-
-        } catch (e) {
-            console.error('Dashboard Error:', e);
-        }
+            `).join('') : '<p class="text-gray-500 text-sm text-center py-4">لا توجد طلبات ✅</p>';
+        } catch (e) { console.error(e); }
     }
 
-    function refreshAll() {
-        loadDashboard();
-        showToast('تم التحديث', 'success');
-    }
+    function refreshAll() { loadDashboard(); showToast('تم التحديث', 'success'); }
 
     // ========== USERS ==========
     async function loadUsers() {
@@ -854,57 +867,31 @@
             const res = await fetch('/api/admin/users');
             allUsers = await res.json();
             renderUsers(allUsers);
-        } catch (e) {
-            document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">خطأ في التحميل</td></tr>';
-        }
+        } catch (e) { document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
     }
 
     function renderUsers(users) {
         document.getElementById('usersTable').innerHTML = users.length ? users.map(u => `
             <tr>
-                <td>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center font-bold text-blue-600">${u.name?.charAt(0) || '؟'}</div>
-                        <div>
-                            <div class="font-semibold">${u.name}</div>
-                            <div class="text-xs text-gray-500">ID: ${u._id?.substr(-6)}</div>
-                        </div>
-                    </div>
-                </td>
+                <td><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center font-bold text-blue-600">${u.name?.charAt(0) || '؟'}</div><div><div class="font-semibold">${u.name}</div></div></div></td>
                 <td class="text-sm">${u.email}</td>
                 <td class="text-sm" dir="ltr">${u.phone || '-'}</td>
-                <td><span class="font-bold text-green-600">${u.balance || 0} دج</span></td>
+                <td><span class="font-bold text-green-600">${u.balance || 0} ${APP_CURRENCY}</span></td>
                 <td class="text-sm text-gray-500">${formatDate(u.createdAt)}</td>
-                <td>
-                    ${u.isBanned 
-                        ? '<span class="badge badge-danger">محظور</span>' 
-                        : '<span class="badge badge-success">نشط</span>'}
-                </td>
-                <td>
-                    <div class="flex gap-1">
-                        <button onclick="editUser('${u._id}')" class="btn btn-secondary btn-sm btn-icon" title="تعديل">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="addBalance('${u._id}', '${u.name}')" class="btn btn-success btn-sm btn-icon" title="إضافة رصيد">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button onclick="deleteUser('${u._id}', '${u.name}')" class="btn btn-danger btn-sm btn-icon" title="حذف">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
+                <td>${u.isBanned ? '<span class="badge badge-danger">محظور</span>' : '<span class="badge badge-success">نشط</span>'}</td>
+                <td><div class="flex gap-1">
+                    <button onclick="editUser('${u._id}')" class="btn btn-secondary btn-sm btn-icon"><i class="fas fa-edit"></i></button>
+                    <button onclick="addBalance('${u._id}', '${u.name}')" class="btn btn-success btn-sm btn-icon"><i class="fas fa-plus"></i></button>
+                    <button onclick="deleteUser('${u._id}', '${u.name}')" class="btn btn-danger btn-sm btn-icon"><i class="fas fa-trash"></i></button>
+                </div></td>
             </tr>
-        `).join('') : '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا يوجد مستخدمين</td></tr>';
+        `).join('') : '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا يوجد</td></tr>';
     }
 
-    function searchUsers() {
-        const q = document.getElementById('searchUsers').value.toLowerCase();
-        renderUsers(allUsers.filter(u => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q)));
-    }
+    function searchUsers() { renderUsers(allUsers.filter(u => u.name?.toLowerCase().includes(document.getElementById('searchUsers').value.toLowerCase()) || u.email?.toLowerCase().includes(document.getElementById('searchUsers').value.toLowerCase()))); }
 
     function editUser(id) {
-        const user = allUsers.find(u => u._id === id);
-        if (!user) return;
+        const user = allUsers.find(u => u._id === id); if (!user) return;
         document.getElementById('editUserId').value = id;
         document.getElementById('editUserName').value = user.name || '';
         document.getElementById('editUserEmail').value = user.email || '';
@@ -917,32 +904,21 @@
     async function saveUser() {
         const id = document.getElementById('editUserId').value;
         const data = { name: document.getElementById('editUserName').value, email: document.getElementById('editUserEmail').value, phone: document.getElementById('editUserPhone').value, balance: Number(document.getElementById('editUserBalance').value), isBanned: document.getElementById('editUserBanned').checked };
-        try {
-            await fetch('/api/admin/user/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...data }) });
-            closeModal('editUserModal');
-            showToast('تم حفظ التغييرات', 'success');
-            loadUsers();
-        } catch (e) { showToast('خطأ في الحفظ', 'error'); }
+        await fetch('/api/admin/user/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...data }) });
+        closeModal('editUserModal'); showToast('تم الحفظ', 'success'); loadUsers();
     }
 
     function addBalance(id, name) {
-        showPrompt(`كم تريد إضافة لرصيد ${name}؟`, async (amount) => {
-            if (!amount || isNaN(amount)) return;
-            try {
-                await fetch('/api/admin/user/add-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, amount: Number(amount) }) });
-                showToast(`تم إضافة ${amount} دج لـ ${name}`, 'success');
-                loadUsers();
-            } catch (e) { showToast('خطأ', 'error'); }
-        });
+        const amount = prompt(`كم تريد إضافة لرصيد ${name}؟`);
+        if (!amount || isNaN(amount)) return;
+        fetch('/api/admin/user/add-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, amount: Number(amount) }) })
+            .then(() => { showToast(`تم إضافة ${amount} لـ ${name}`, 'success'); loadUsers(); });
     }
 
     function deleteUser(id, name) {
-        showConfirm('حذف المستخدم', `هل تريد حذف المستخدم "${name}"؟`, async () => {
-            try {
-                await fetch('/api/admin/user/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-                showToast('تم حذف المستخدم', 'success');
-                loadUsers();
-            } catch (e) { showToast('خطأ', 'error'); }
+        showConfirm('حذف المستخدم', `هل تريد حذف "${name}"؟`, async () => {
+            await fetch('/api/admin/user/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            showToast('تم الحذف', 'success'); loadUsers();
         });
     }
 
@@ -952,32 +928,25 @@
             const res = await fetch('/api/admin/listings');
             allListings = await res.json();
             renderListings(allListings);
-        } catch (e) { document.getElementById('listingsTable').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
+        } catch (e) {}
     }
 
     function renderListings(listings) {
         document.getElementById('listingsTable').innerHTML = listings.length ? listings.map(l => `
             <tr>
-                <td>
-                    <div class="flex items-center gap-3">
-                        <img src="${l.images?.[0] || l.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/50'">
-                        <div class="max-w-xs"><div class="font-semibold truncate">${l.title}</div><div class="text-xs text-gray-500">${formatDate(l.date)}</div></div>
-                    </div>
-                </td>
+                <td><div class="flex items-center gap-3"><img src="${l.images?.[0] || l.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover"><div class="max-w-xs"><div class="font-semibold truncate">${l.title}</div></div></div></td>
                 <td class="text-sm">${l.userName || '-'}</td>
                 <td><span class="badge ${l.type === 'service' ? 'badge-info' : 'badge-warning'}">${l.type === 'service' ? 'خدمة' : 'منتج'}</span></td>
-                <td><span class="font-bold">${Number(l.price).toLocaleString()} دج</span></td>
+                <td><span class="font-bold">${Number(l.price).toLocaleString()} ${APP_CURRENCY}</span></td>
                 <td class="text-sm">${l.views || 0}</td>
                 <td>${l.active ? '<span class="badge badge-success">نشط</span>' : '<span class="badge badge-danger">معطل</span>'}</td>
-                <td>
-                    <div class="flex gap-1">
-                        <button onclick="editListing('${l._id}')" class="btn btn-secondary btn-sm btn-icon"><i class="fas fa-edit"></i></button>
-                        <button onclick="toggleListing('${l._id}', ${l.active})" class="btn ${l.active ? 'btn-warning' : 'btn-success'} btn-sm btn-icon"><i class="fas fa-${l.active ? 'pause' : 'play'}"></i></button>
-                        <button onclick="deleteListing('${l._id}')" class="btn btn-danger btn-sm btn-icon"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
+                <td><div class="flex gap-1">
+                    <button onclick="editListing('${l._id}')" class="btn btn-secondary btn-sm btn-icon"><i class="fas fa-edit"></i></button>
+                    <button onclick="toggleListing('${l._id}', ${l.active})" class="btn ${l.active ? 'btn-warning' : 'btn-success'} btn-sm btn-icon"><i class="fas fa-${l.active ? 'pause' : 'play'}"></i></button>
+                    <button onclick="deleteListing('${l._id}')" class="btn btn-danger btn-sm btn-icon"><i class="fas fa-trash"></i></button>
+                </div></td>
             </tr>
-        `).join('') : '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا توجد إعلانات</td></tr>';
+        `).join('') : '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا يوجد</td></tr>';
     }
 
     function searchListings() { renderListings(allListings.filter(l => l.title?.toLowerCase().includes(document.getElementById('searchListings').value.toLowerCase()))); }
@@ -996,10 +965,8 @@
     async function saveListing() {
         const id = document.getElementById('editListingId').value;
         const data = { title: document.getElementById('editListingTitle').value, desc: document.getElementById('editListingDesc').value, price: Number(document.getElementById('editListingPrice').value), type: document.getElementById('editListingType').value, active: document.getElementById('editListingActive').checked };
-        try {
-            await fetch('/api/admin/listing/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...data }) });
-            closeModal('editListingModal'); showToast('تم الحفظ', 'success'); loadListings();
-        } catch (e) { showToast('خطأ', 'error'); }
+        await fetch('/api/admin/listing/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...data }) });
+        closeModal('editListingModal'); showToast('تم الحفظ', 'success'); loadListings();
     }
 
     async function toggleListing(id, active) {
@@ -1025,13 +992,13 @@
                     <td>${o.buyerName}</td>
                     <td dir="ltr" class="font-mono">${o.buyerPhone}</td>
                     <td>${o.buyerWilaya}</td>
-                    <td><span class="font-bold text-green-600">${Number(o.totalPrice || 0).toLocaleString()} دج</span></td>
+                    <td><span class="font-bold text-green-600">${Number(o.totalPrice || 0).toLocaleString()} ${APP_CURRENCY}</span></td>
                     <td>${o.isRevealed ? '<span class="badge badge-success">مكشوف</span>' : '<span class="badge badge-warning">مخفي</span>'}</td>
                     <td class="text-sm text-gray-500">${formatDate(o.date)}</td>
                     <td><button onclick="deleteOrder('${o._id}')" class="btn btn-danger btn-sm btn-icon"><i class="fas fa-trash"></i></button></td>
                 </tr>
-            `).join('') : '<tr><td colspan="8" class="text-center py-8 text-gray-500">لا توجد طلبات</td></tr>';
-        } catch (e) { document.getElementById('ordersTable').innerHTML = '<tr><td colspan="8" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
+            `).join('') : '<tr><td colspan="8" class="text-center py-8 text-gray-500">لا يوجد</td></tr>';
+        } catch (e) {}
     }
 
     function deleteOrder(id) {
@@ -1054,8 +1021,8 @@
                     <td class="text-sm text-gray-500 truncate max-w-xs">${c.lastMessage || '-'}</td>
                     <td class="text-sm text-gray-500">${formatDate(c.lastMessageDate || c.createdAt)}</td>
                 </tr>
-            `).join('') : '<tr><td colspan="5" class="text-center py-8 text-gray-500">لا توجد محادثات</td></tr>';
-        } catch (e) { document.getElementById('chatsTable').innerHTML = '<tr><td colspan="5" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
+            `).join('') : '<tr><td colspan="5" class="text-center py-8 text-gray-500">لا يوجد</td></tr>';
+        } catch (e) {}
     }
 
     // ========== DEPOSITS ==========
@@ -1064,7 +1031,7 @@
             const res = await fetch(`/api/admin/deposits?status=${currentDepositFilter}`);
             allDeposits = await res.json();
             renderDeposits(allDeposits);
-        } catch (e) { document.getElementById('depositsGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ</p>'; }
+        } catch (e) {}
     }
 
     function filterDeposits(filter) {
@@ -1075,7 +1042,7 @@
 
     function renderDeposits(deposits) {
         if (!deposits.length) {
-            document.getElementById('depositsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check-circle text-green-600 text-3xl"></i></div><h3 class="text-xl font-bold mb-2">لا توجد طلبات</h3></div>`;
+            document.getElementById('depositsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check-circle text-green-600 text-3xl"></i></div><h3 class="text-xl font-bold">لا توجد طلبات</h3></div>`;
             return;
         }
         document.getElementById('depositsGrid').innerHTML = deposits.map(d => `
@@ -1083,13 +1050,12 @@
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold">${d.userName?.charAt(0) || 'م'}</div>
-                        <div><div class="font-bold">${d.userName || 'مستخدم'}</div><div class="text-xs text-gray-500">ID: ${d.userId?.substr(-6)}</div></div>
+                        <div><div class="font-bold">${d.userName || 'مستخدم'}</div></div>
                     </div>
-                    <div class="text-left"><div class="text-xl font-black text-green-600">+${Number(d.amount).toLocaleString()}</div><div class="text-xs text-gray-500">دج</div></div>
+                    <div class="text-xl font-black text-green-600">+${Number(d.amount).toLocaleString()} ${APP_CURRENCY}</div>
                 </div>
-                ${d.paymentMethod ? `<div class="text-sm text-gray-500 mb-2"><i class="fas fa-credit-card ml-1"></i> ${d.paymentMethod}</div>` : ''}
                 <div class="h-40 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden cursor-pointer mb-4" onclick="showImage('${d.proof}')">
-                    <img src="${d.proof}" class="w-full h-full object-cover hover:scale-105 transition" onerror="this.src='https://via.placeholder.com/400x300?text=صورة+غير+متاحة'">
+                    <img src="${d.proof}" class="w-full h-full object-cover">
                 </div>
                 <div class="flex items-center justify-between mb-3">
                     <span class="badge ${d.status === 'approved' ? 'badge-success' : d.status === 'rejected' ? 'badge-danger' : 'badge-warning'}">${d.status === 'approved' ? 'مقبول' : d.status === 'rejected' ? 'مرفوض' : 'معلق'}</span>
@@ -1101,7 +1067,7 @@
     }
 
     function processDeposit(id, action) {
-        showConfirm(action === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض', action === 'approve' ? 'سيتم إضافة الرصيد للمستخدم' : 'سيتم رفض الطلب', async () => {
+        showConfirm(action === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض', action === 'approve' ? 'سيتم إضافة الرصيد' : 'سيتم رفض الطلب', async () => {
             await fetch('/api/admin/approve-deposit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transId: id, action }) });
             showToast(action === 'approve' ? 'تمت الموافقة ✅' : 'تم الرفض', action === 'approve' ? 'success' : 'error');
             loadDeposits(); loadDashboard();
@@ -1114,12 +1080,12 @@
             const res = await fetch('/api/admin/payment-methods');
             allPaymentMethods = await res.json();
             renderPaymentMethods(allPaymentMethods);
-        } catch (e) { document.getElementById('paymentMethodsGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ</p>'; }
+        } catch (e) {}
     }
 
     function renderPaymentMethods(methods) {
         if (!methods.length) {
-            document.getElementById('paymentMethodsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-credit-card text-blue-600 text-3xl"></i></div><h3 class="text-xl font-bold mb-2">لا توجد طرق دفع</h3><button onclick="openPaymentModal()" class="btn btn-primary mt-4"><i class="fas fa-plus"></i> إضافة</button></div>`;
+            document.getElementById('paymentMethodsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><button onclick="openPaymentModal()" class="btn btn-primary"><i class="fas fa-plus"></i> إضافة</button></div>`;
             return;
         }
         document.getElementById('paymentMethodsGrid').innerHTML = methods.map(m => `
@@ -1145,7 +1111,6 @@
         document.getElementById('paymentAccount').value = '';
         document.getElementById('paymentHolder').value = '';
         document.getElementById('paymentIcon').value = 'credit-card';
-        document.getElementById('paymentInstructions').value = '';
         document.getElementById('paymentActive').checked = true;
         document.getElementById('paymentModal').classList.remove('hidden');
     }
@@ -1159,19 +1124,16 @@
         document.getElementById('paymentAccount').value = m.account || '';
         document.getElementById('paymentHolder').value = m.holder || '';
         document.getElementById('paymentIcon').value = m.icon || 'credit-card';
-        document.getElementById('paymentInstructions').value = m.instructions || '';
         document.getElementById('paymentActive').checked = m.isActive !== false;
         document.getElementById('paymentModal').classList.remove('hidden');
     }
 
     async function savePaymentMethod() {
         const id = document.getElementById('editPaymentId').value;
-        const data = { name: document.getElementById('paymentName').value, type: document.getElementById('paymentType').value, account: document.getElementById('paymentAccount').value, holder: document.getElementById('paymentHolder').value, icon: document.getElementById('paymentIcon').value, instructions: document.getElementById('paymentInstructions').value, isActive: document.getElementById('paymentActive').checked };
-        if (!data.name || !data.account) { showToast('يرجى ملء الحقول المطلوبة', 'error'); return; }
-        try {
-            await fetch(id ? '/api/admin/payment-method/update' : '/api/admin/payment-method/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(id ? { id, ...data } : data) });
-            closeModal('paymentModal'); showToast('تم الحفظ', 'success'); loadPaymentMethods();
-        } catch (e) { showToast('خطأ', 'error'); }
+        const data = { name: document.getElementById('paymentName').value, type: document.getElementById('paymentType').value, account: document.getElementById('paymentAccount').value, holder: document.getElementById('paymentHolder').value, icon: document.getElementById('paymentIcon').value, isActive: document.getElementById('paymentActive').checked };
+        if (!data.name || !data.account) { showToast('يرجى ملء الحقول', 'error'); return; }
+        await fetch(id ? '/api/admin/payment-method/update' : '/api/admin/payment-method/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(id ? { id, ...data } : data) });
+        closeModal('paymentModal'); showToast('تم الحفظ', 'success'); loadPaymentMethods();
     }
 
     function deletePaymentMethod(id) {
@@ -1189,13 +1151,23 @@
             document.getElementById('settingOrderRevealPrice').value = s.orderRevealPrice || 50;
             document.getElementById('settingChatPrice').value = s.chatPrice || 50;
             document.getElementById('settingMinDeposit').value = s.minDeposit || 100;
+            document.getElementById('settingFreeMode').checked = s.freeMode || false;
+            document.getElementById('settingCurrency').value = s.currency || 'دج';
+            APP_CURRENCY = s.currency || 'دج';
         } catch (e) {}
     }
 
     async function saveSettings() {
-        const data = { orderRevealPrice: Number(document.getElementById('settingOrderRevealPrice').value), chatPrice: Number(document.getElementById('settingChatPrice').value), minDeposit: Number(document.getElementById('settingMinDeposit').value) };
+        const data = { 
+            orderRevealPrice: Number(document.getElementById('settingOrderRevealPrice').value), 
+            chatPrice: Number(document.getElementById('settingChatPrice').value), 
+            minDeposit: Number(document.getElementById('settingMinDeposit').value),
+            freeMode: document.getElementById('settingFreeMode').checked,
+            currency: document.getElementById('settingCurrency').value
+        };
         await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-        showToast('تم الحفظ', 'success');
+        APP_CURRENCY = data.currency;
+        showToast('تم حفظ الإعدادات ✅', 'success');
     }
 
     function clearOldOrders() {
@@ -1245,11 +1217,6 @@
     }
 
     function executeConfirm() { if (confirmCallback) confirmCallback(); closeModal('confirmModal'); confirmCallback = null; }
-
-    function showPrompt(message, callback) {
-        const result = window.prompt(message);
-        if (result !== null) callback(result);
-    }
 
     // ========== TOAST ==========
     function showToast(message, type = 'info') {
