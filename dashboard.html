@@ -3,198 +3,539 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السوق المفتوح</title>
+    <title>DzMarket - السوق الجزائري</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca', 300: '#fca5a5', 400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c', 800: '#991b1b', 900: '#7f1d1d' },
+                        dark: { 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background: #f5f5f5; -webkit-tap-highlight-color: transparent; }
-        .hidden { display: none !important; }
+        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         
-        /* Sidebar Animation */
-        #sidebar { transition: transform 0.3s ease-in-out; transform: translateX(100%); }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        .dark {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+        
+        body { background: var(--bg-secondary); color: var(--text-primary); }
+        .hidden { display: none !important; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-slideUp { animation: slideUp 0.4s ease-out; }
+        .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
+        .animate-spin { animation: spin 1s linear infinite; }
+
+        /* Sidebar */
+        #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
         #sidebar.open { transform: translateX(0); }
         .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .overlay.open { opacity: 1; pointer-events: auto; }
 
-        /* AliExpress Card Style */
-        .ali-card { background: white; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .ali-img-box { width: 100%; padding-top: 100%; position: relative; background: #f9f9f9; } /* Square Aspect Ratio */
-        .ali-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.5em; line-height: 1.25em; }
-        
-        /* Bottom Nav for Mobile (Optional look) */
-        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #666; }
-        .mobile-nav-item.active { color: #eb001b; font-weight: bold; }
+        /* Product Card */
+        .product-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .product-card:active { transform: scale(0.98); }
+
+        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f1f5f9; }
+        .dark .product-img { background: #334155; }
+
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Input */
+        .input-field {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        .input-field:focus { border-color: #dc2626; outline: none; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+        .input-field::placeholder { color: var(--text-secondary); }
+
+        /* Button */
+        .btn-primary {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Bottom Nav */
+        .bottom-nav { background: var(--bg-card); border-top: 1px solid var(--border-color); }
+        .nav-item { transition: all 0.2s; color: var(--text-secondary); }
+        .nav-item.active { color: #dc2626; }
+
+        /* Modal */
+        .modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-content { background: var(--bg-card); animation: scaleIn 0.3s ease-out; }
+
+        /* Toast */
+        .toast { animation: slideUp 0.3s ease-out; }
+
+        /* Hide scrollbar */
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Category Pills */
+        .category-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+            color: var(--text-primary);
+        }
+        .category-pill:hover, .category-pill.active {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
     </style>
 </head>
-<body class="pb-16 md:pb-0">
+<body class="min-h-screen pb-20 md:pb-0">
 
-    <div id="loader" class="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600"></div>
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 bg-white dark:bg-dark-900 z-[9999] flex flex-col items-center justify-center gap-4">
+        <div class="relative">
+            <div class="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
+            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-primary-600 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+        <span class="text-primary-600 font-bold text-xl">DzMarket</span>
     </div>
 
-    <div id="authScreen" class="hidden min-h-screen flex items-center justify-center p-4 bg-white">
-        <div class="w-full max-w-sm text-center">
-            <h1 class="text-4xl font-black text-red-600 mb-2 tracking-tighter">DzMarket</h1>
-            <p class="text-gray-400 text-sm mb-8">بيع واشتري بذكاء 🇩🇿</p>
-            
-            <div id="loginForm" class="space-y-4">
-                <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:border-red-500">
-                <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:border-red-500">
-                <button onclick="login()" class="w-full bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-red-200">تسجيل الدخول</button>
-                <p class="text-sm text-gray-500 mt-4">جديد معنا؟ <span class="text-red-600 font-bold cursor-pointer" onclick="toggleAuth()">إنشاء حساب</span></p>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-20 right-20 w-72 h-72 bg-primary-600/20 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative w-full max-w-md animate-scaleIn">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-lg shadow-primary-500/30 mb-4">
+                    <i class="fas fa-store text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-black text-white mb-2">DzMarket</h1>
+                <p class="text-gray-400">السوق الجزائري الأول للبيع والشراء 🇩🇿</p>
             </div>
 
-            <div id="regForm" class="hidden space-y-4">
-                <input id="rName" type="text" placeholder="الاسم الكامل" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                <input id="rEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                <input id="rPhone" type="tel" placeholder="رقم الهاتف" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                <button onclick="register()" class="w-full bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg">إنشاء حساب</button>
-                <p class="text-sm text-gray-500 mt-4">لديك حساب؟ <span class="text-red-600 font-bold cursor-pointer" onclick="toggleAuth()">دخول</span></p>
+            <div class="bg-white dark:bg-dark-800 rounded-3xl p-8 shadow-2xl">
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">تسجيل الدخول</h2>
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
+                        </div>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="lPass" type="password" placeholder="كلمة المرور" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
+                        </div>
+                        <button onclick="login()" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-lg">
+                            دخول <i class="fas fa-arrow-left mr-2"></i>
+                        </button>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <span class="text-gray-500">جديد هنا؟</span>
+                        <button onclick="toggleAuth()" class="text-primary-600 font-bold mr-2 hover:underline">إنشاء حساب</button>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="regForm" class="hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">حساب جديد</h2>
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <i class="fas fa-user absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="rName" type="text" placeholder="الاسم الكامل" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
+                        </div>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="rEmail" type="email" placeholder="البريد الإلكتروني" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
+                        </div>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="rPass" type="password" placeholder="كلمة المرور" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
+                        </div>
+                        <div class="relative">
+                            <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input id="rPhone" type="tel" placeholder="رقم الهاتف" class="input-field w-full pr-12 pl-4 py-4 rounded-xl text-base">
+                        </div>
+                        <button onclick="register()" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-lg">
+                            إنشاء الحساب <i class="fas fa-user-plus mr-2"></i>
+                        </button>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <span class="text-gray-500">لديك حساب؟</span>
+                        <button onclick="toggleAuth()" class="text-primary-600 font-bold mr-2 hover:underline">تسجيل الدخول</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Main App -->
     <div id="mainApp" class="hidden">
-        
-        <header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-40 px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar(true)" class="text-slate-800 text-xl"><i class="fas fa-bars"></i></button>
-                <span class="font-black text-xl text-red-600 tracking-tight">DzMarket</span>
-            </div>
-            <div class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-                <i class="fas fa-wallet text-yellow-500 text-xs"></i>
-                <span class="text-xs font-bold text-slate-700"><span id="userBalance">0</span> دج</span>
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-dark-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-dark-800">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar(true)" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-dark-800 transition">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-store text-white text-sm"></i>
+                        </div>
+                        <span class="font-black text-xl text-primary-600 hidden sm:inline">DzMarket</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 px-4 py-2 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <i class="fas fa-wallet text-amber-600"></i>
+                    <span class="font-bold text-amber-700 dark:text-amber-400"><span id="userBalance">0</span> دج</span>
+                </div>
             </div>
         </header>
 
+        <!-- Sidebar Overlay -->
         <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-50 overlay" onclick="toggleSidebar(false)"></div>
-        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-72 bg-white z-[60] shadow-2xl flex flex-col">
-            <div class="p-5 border-b flex justify-between items-center bg-slate-50">
-                <div>
-                    <h2 class="font-bold text-lg" id="userName">...</h2>
-                    <p class="text-xs text-gray-500" id="userEmail">...</p>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-80 bg-white dark:bg-dark-900 z-[60] shadow-2xl flex flex-col">
+            <div class="p-6 bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+                <button onclick="toggleSidebar(false)" class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
+                    <div>
+                        <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
+                        <p class="text-sm text-white/70" id="userEmail">user@email.com</p>
+                    </div>
                 </div>
-                <button onclick="toggleSidebar(false)" class="text-gray-400"><i class="fas fa-times"></i></button>
+                <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
+                    <i class="fas fa-wallet text-yellow-300"></i>
+                    <span class="font-bold"><span id="sidebarBalance">0</span> دج</span>
+                </div>
             </div>
-            
-            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
-                    <i class="fas fa-home w-5"></i> الرئيسية
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-dark-800 hover:text-primary-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-primary-50 dark:bg-dark-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-primary-600"></i></div>
+                    الصفحة الرئيسية
                 </button>
-                <button onclick="nav('leads')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
-                    <i class="fas fa-bell w-5"></i> الطلبات الواردة <span class="bg-red-500 text-white text-[10px] px-2 rounded-full hidden" id="leadsBadge">New</span>
+                <button onclick="nav('leads')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-dark-800 hover:text-primary-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-green-50 dark:bg-dark-800 rounded-xl flex items-center justify-center"><i class="fas fa-bell text-green-600"></i></div>
+                    الطلبات الواردة
                 </button>
-                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
-                    <i class="fas fa-plus-circle w-5"></i> بيع منتج
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-dark-800 hover:text-primary-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-blue-50 dark:bg-dark-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-blue-600"></i></div>
+                    بيع منتج جديد
                 </button>
-                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
-                    <i class="fas fa-box w-5"></i> عروضي
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-dark-800 hover:text-primary-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-purple-50 dark:bg-dark-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-purple-600"></i></div>
+                    إعلاناتي
                 </button>
-                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-red-50 hover:text-red-600 font-bold transition">
-                    <i class="fas fa-wallet w-5"></i> المحفظة والشحن
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-dark-800 hover:text-primary-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-dark-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
+                    المحفظة والشحن
                 </button>
             </nav>
 
-            <div class="p-4 border-t">
-                <button onclick="logout()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold text-sm">تسجيل الخروج</button>
+            <div class="p-4 border-t border-gray-100 dark:border-dark-800">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-primary-50 dark:bg-dark-800 text-primary-600 py-3 rounded-xl font-bold hover:bg-primary-100 dark:hover:bg-dark-700 transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                    تسجيل الخروج
+                </button>
             </div>
         </aside>
 
-        <main class="pt-16 p-2 md:p-6 max-w-7xl mx-auto">
-            
-            <div id="view-market">
-                <div class="mb-4 relative">
-                    <input type="text" placeholder="ابحث عن منتجات..." class="w-full bg-white p-3 pr-10 rounded-xl shadow-sm border border-gray-100 outline-none text-sm">
-                    <i class="fas fa-search absolute top-3.5 right-3.5 text-gray-400"></i>
+        <!-- Main Content -->
+        <main class="pt-20 px-4 max-w-7xl mx-auto">
+
+            <!-- View: Market -->
+            <div id="view-market" class="animate-fadeIn">
+                <div class="mb-6">
+                    <div class="relative">
+                        <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input id="searchInput" type="text" placeholder="ابحث عن منتجات، خدمات..." class="input-field w-full pr-12 pl-4 py-4 rounded-2xl text-base" oninput="filterProducts()">
+                    </div>
                 </div>
 
-                <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
-                    </div>
+                <div class="mb-6 flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                    <button onclick="filterCategory('all')" class="category-pill active px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="all">
+                        <i class="fas fa-th-large ml-1"></i> الكل
+                    </button>
+                    <button onclick="filterCategory('product')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="product">
+                        <i class="fas fa-box ml-1"></i> منتجات
+                    </button>
+                    <button onclick="filterCategory('service')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="service">
+                        <i class="fas fa-tools ml-1"></i> خدمات
+                    </button>
+                </div>
+
+                <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <p class="text-gray-500 col-span-full text-center py-10">جاري التحميل...</p>
+                </div>
             </div>
 
-            <div id="view-add" class="hidden">
-                <div class="bg-white p-5 rounded-2xl shadow-sm max-w-lg mx-auto">
-                    <h2 class="text-lg font-bold mb-4">ماذا تريد أن تبيع؟</h2>
-                    <div class="space-y-4">
-                        <div class="flex gap-2">
-                            <select id="pType" class="bg-gray-50 p-3 rounded-xl border text-sm outline-none">
-                                <option value="product">منتج مادي</option>
-                                <option value="service">خدمة رقمية</option>
-                            </select>
-                            <input id="pTitle" placeholder="عنوان الإعلان" class="flex-1 bg-gray-50 p-3 rounded-xl border text-sm outline-none">
+            <!-- View: Add Product -->
+            <div id="view-add" class="hidden animate-slideUp">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white dark:bg-dark-800 rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100 dark:border-dark-700">
+                        <div class="text-center mb-8">
+                            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-plus text-white text-2xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-black text-gray-900 dark:text-white">إضافة إعلان جديد</h2>
+                            <p class="text-gray-500 mt-2">أضف منتجك أو خدمتك مجاناً</p>
                         </div>
-                        <input id="pImg" placeholder="رابط الصورة (URL)" class="w-full bg-gray-50 p-3 rounded-xl border text-sm outline-none ltr text-left">
-                        <input id="pPrice" type="number" placeholder="السعر (دج)" class="w-full bg-gray-50 p-3 rounded-xl border text-sm outline-none">
-                        <textarea id="pDesc" rows="4" placeholder="اكتب وصفاً مفصلاً..." class="w-full bg-gray-50 p-3 rounded-xl border text-sm outline-none"></textarea>
-                        <button onclick="publish()" class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-lg">نشر الإعلان مجاناً</button>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">نوع الإعلان</label>
+                                <select id="pType" class="input-field w-full px-4 py-3 rounded-xl text-base">
+                                    <option value="product">منتج مادي</option>
+                                    <option value="service">خدمة رقمية</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">عنوان الإعلان</label>
+                                <input id="pTitle" type="text" placeholder="مثال: آيفون 15 برو ماكس جديد" class="input-field w-full px-4 py-3 rounded-xl text-base">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">رابط الصورة</label>
+                                <input id="pImg" type="url" placeholder="https://example.com/image.jpg" class="input-field w-full px-4 py-3 rounded-xl text-base text-left" dir="ltr">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">السعر (دج)</label>
+                                <input id="pPrice" type="number" placeholder="0" class="input-field w-full px-4 py-3 rounded-xl text-base">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">الوصف التفصيلي</label>
+                                <textarea id="pDesc" rows="4" placeholder="اكتب وصفاً مفصلاً..." class="input-field w-full px-4 py-3 rounded-xl text-base resize-none"></textarea>
+                            </div>
+                            <button onclick="publish()" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-lg">
+                                نشر الإعلان مجاناً <i class="fas fa-rocket mr-2"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="view-leads" class="hidden">
-                <h2 class="font-bold text-lg mb-4 px-2">الطلبات الواردة (Leads)</h2>
-                <div id="leadsList" class="space-y-3 max-w-lg mx-auto"></div>
-            </div>
-
-            <div id="view-wallet" class="hidden">
-                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl max-w-md mx-auto text-center relative overflow-hidden mb-6">
-                    <div class="relative z-10">
-                        <div class="text-xs text-gray-400 mb-1">رصيد كشف الأرقام</div>
-                        <div class="text-4xl font-black mb-4"><span id="wBalance">0</span> دج</div>
-                        <button onclick="document.getElementById('depositModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-full font-bold text-sm">شحن الرصيد</button>
+            <!-- View: Leads -->
+            <div id="view-leads" class="hidden animate-slideUp">
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-black text-gray-900 dark:text-white">الطلبات الواردة</h2>
                     </div>
+                    <div id="leadsList" class="space-y-4"></div>
                 </div>
             </div>
 
-            <div id="view-mylist" class="hidden">
-                <h2 class="font-bold text-lg mb-4 px-2">إعلاناتي</h2>
+            <!-- View: My Listings -->
+            <div id="view-mylist" class="hidden animate-slideUp">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white">إعلاناتي</h2>
+                    <button onclick="nav('add')" class="btn-primary px-4 py-2 rounded-xl text-white font-semibold text-sm">
+                        <i class="fas fa-plus ml-1"></i> إضافة جديد
+                    </button>
+                </div>
                 <div id="myListGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+            </div>
+
+            <!-- View: Wallet -->
+            <div id="view-wallet" class="hidden animate-slideUp">
+                <div class="max-w-xl mx-auto">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden mb-6">
+                        <div class="absolute top-0 left-0 w-40 h-40 bg-primary-500/20 rounded-full blur-3xl"></div>
+                        <div class="relative">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-wallet text-yellow-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-white/60">رصيدك الحالي</div>
+                                    <div class="font-bold">رصيد كشف الأرقام</div>
+                                </div>
+                            </div>
+                            <div class="text-5xl font-black mb-6">
+                                <span id="wBalance">0</span>
+                                <span class="text-2xl text-white/60">دج</span>
+                            </div>
+                            <button onclick="openDepositModal()" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition">
+                                <i class="fas fa-plus-circle"></i>
+                                شحن الرصيد
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-dark-700">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-blue-500"></i>
+                            كيف يعمل النظام؟
+                        </h3>
+                        <ul class="space-y-3 text-gray-600 dark:text-gray-400">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-green-600 text-xs"></i>
+                                </span>
+                                <span>نشر الإعلانات <strong class="text-green-600">مجاني</strong> تماماً</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-coins text-amber-600 text-xs"></i>
+                                </span>
+                                <span>كشف رقم المشتري يكلف <strong class="text-amber-600">50 دج</strong> فقط</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
         </main>
 
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 z-40 pb-safe">
-            <button onclick="nav('market')" class="mobile-nav-item active"><i class="fas fa-home text-lg mb-1"></i>الرئيسية</button>
-            <button onclick="nav('add')" class="mobile-nav-item"><i class="fas fa-plus-circle text-lg mb-1"></i>بيع</button>
-            <button onclick="nav('leads')" class="mobile-nav-item"><i class="fas fa-comment-dots text-lg mb-1"></i>الطلبات</button>
-            <button onclick="nav('wallet')" class="mobile-nav-item"><i class="fas fa-user text-lg mb-1"></i>حسابي</button>
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav md:hidden fixed bottom-0 left-0 right-0 flex justify-around py-2 z-40">
+            <button onclick="nav('market')" class="nav-item active flex-1 flex flex-col items-center py-2" data-view="market">
+                <i class="fas fa-home text-xl mb-1"></i>
+                <span class="text-[10px] font-semibold">الرئيسية</span>
+            </button>
+            <button onclick="nav('add')" class="nav-item flex-1 flex flex-col items-center py-2" data-view="add">
+                <i class="fas fa-plus-circle text-xl mb-1"></i>
+                <span class="text-[10px] font-semibold">بيع</span>
+            </button>
+            <button onclick="nav('leads')" class="nav-item flex-1 flex flex-col items-center py-2" data-view="leads">
+                <i class="fas fa-bell text-xl mb-1"></i>
+                <span class="text-[10px] font-semibold">الطلبات</span>
+            </button>
+            <button onclick="nav('wallet')" class="nav-item flex-1 flex flex-col items-center py-2" data-view="wallet">
+                <i class="fas fa-wallet text-xl mb-1"></i>
+                <span class="text-[10px] font-semibold">المحفظة</span>
+            </button>
         </nav>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-xs text-center">
-            <h3 class="font-bold mb-4">شحن عبر RedotPay</h3>
-            <div class="bg-gray-100 p-2 rounded text-xs font-mono select-all mb-4">TRC20: 12345678</div>
-            <input id="depAmount" type="number" placeholder="المبلغ (دج)" class="w-full p-3 border rounded-xl mb-2 text-sm">
-            <input id="depProof" type="text" placeholder="رابط الوصل" class="w-full p-3 border rounded-xl mb-4 text-sm">
-            <button onclick="submitDeposit()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm">تأكيد</button>
-            <button onclick="document.getElementById('depositModal').classList.add('hidden')" class="mt-3 text-xs text-gray-400">إلغاء</button>
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content w-full max-w-md rounded-3xl p-6 md:p-8">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-credit-card text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 dark:text-white">شحن الرصيد</h3>
+                <p class="text-gray-500 mt-2">أرسل المبلغ ثم ارفق الوصل</p>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl mb-6 border border-gray-100 dark:border-dark-700">
+                <div class="text-sm text-gray-500 mb-2">أرسل إلى (CCP / BaridiMob):</div>
+                <div class="font-mono font-bold text-lg text-gray-900 dark:text-white select-all">0012345678 90</div>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">المبلغ المرسل (دج)</label>
+                    <input id="depAmount" type="number" placeholder="مثال: 500" class="input-field w-full px-4 py-3 rounded-xl text-base">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">رابط صورة الوصل</label>
+                    <input id="depProof" type="url" placeholder="https://..." class="input-field w-full px-4 py-3 rounded-xl text-base text-left" dir="ltr">
+                </div>
+                <button onclick="submitDeposit()" class="btn-primary w-full text-white font-bold py-4 rounded-xl">
+                    تأكيد الإرسال <i class="fas fa-paper-plane mr-2"></i>
+                </button>
+                <button onclick="closeDepositModal()" class="w-full text-gray-500 py-2 font-semibold hover:text-gray-700 transition">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content w-full max-w-sm rounded-2xl p-6 text-center">
+            <div class="w-14 h-14 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-question text-amber-600 text-2xl"></i>
+            </div>
+            <h3 id="confirmTitle" class="text-xl font-bold text-gray-900 dark:text-white mb-2">تأكيد</h3>
+            <p id="confirmMessage" class="text-gray-500 mb-6">هل أنت متأكد؟</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirm()" class="flex-1 py-3 rounded-xl border border-gray-200 dark:border-dark-600 text-gray-600 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-dark-700 transition">إلغاء</button>
+                <button onclick="confirmAction()" class="flex-1 btn-primary py-3 rounded-xl text-white font-semibold">تأكيد</button>
+            </div>
         </div>
     </div>
 
 <script>
-    let USER = null;
+    // ========== DARK MODE ==========
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        document.documentElement.classList.toggle('dark', event.matches);
+    });
 
-    // --- Sidebar Logic ---
-    function toggleSidebar(open) {
-        const el = document.getElementById('sidebar');
-        const ov = document.getElementById('sidebarOverlay');
-        if(open) { el.classList.add('open'); ov.classList.add('open'); }
-        else { el.classList.remove('open'); ov.classList.remove('open'); }
+    // ========== STATE ==========
+    let USER = null;
+    let ALL_LISTINGS = [];
+    let confirmCallback = null;
+
+    function getFingerprint() { 
+        return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16); 
     }
 
-    function getFingerprint() { return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16); }
-
-    // --- Init ---
+    // ========== INIT ==========
     window.onload = async () => {
         const stored = localStorage.getItem('dz_user');
         if(stored) {
             try {
                 const u = JSON.parse(stored);
-                const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
+                const res = await fetch('/api/user/refresh', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify({id: u._id}) 
+                });
                 const d = await res.json();
                 if(d.success) {
                     USER = d.user;
@@ -204,140 +545,423 @@
             } catch(e) { showAuth(); }
         } else showAuth();
         document.getElementById('loader').classList.add('hidden');
-    }
+    };
 
     function initApp() {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('userBalance').innerText = USER.balance;
-        document.getElementById('wBalance').innerText = USER.balance;
-        document.getElementById('userName').innerText = USER.name;
-        document.getElementById('userEmail').innerText = USER.email;
+        updateUserUI();
         nav('market');
     }
 
-    function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
-    function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('regForm').classList.toggle('hidden'); }
+    function updateUserUI() {
+        document.getElementById('userBalance').innerText = USER.balance.toLocaleString();
+        document.getElementById('wBalance').innerText = USER.balance.toLocaleString();
+        document.getElementById('sidebarBalance').innerText = USER.balance.toLocaleString();
+        document.getElementById('userName').innerText = USER.name;
+        document.getElementById('userEmail').innerText = USER.email;
+        document.getElementById('sidebarInitial').innerText = USER.name.charAt(0);
+    }
 
-    // --- Navigation ---
+    function showAuth() { 
+        document.getElementById('authScreen').classList.remove('hidden'); 
+    }
+
+    function toggleAuth() { 
+        document.getElementById('loginForm').classList.toggle('hidden'); 
+        document.getElementById('regForm').classList.toggle('hidden'); 
+    }
+
+    // ========== SIDEBAR ==========
+    function toggleSidebar(open) {
+        document.getElementById('sidebar').classList.toggle('open', open);
+        document.getElementById('sidebarOverlay').classList.toggle('open', open);
+    }
+
+    // ========== NAVIGATION ==========
     function nav(view) {
-        ['market','add','leads','wallet','mylist'].forEach(v => document.getElementById('view-'+v).classList.add('hidden'));
-        document.getElementById('view-'+view).classList.remove('hidden');
-        toggleSidebar(false); // Close sidebar on nav
+        ['market','add','leads','wallet','mylist'].forEach(v => {
+            const el = document.getElementById('view-'+v);
+            if(el) el.classList.add('hidden');
+        });
+        const el = document.getElementById('view-'+view);
+        if(el) el.classList.remove('hidden');
         
-        // Update Bottom Nav Active State
-        document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
-        // Simple logic for demo, can be improved based on ID
+        toggleSidebar(false);
+        
+        document.querySelectorAll('.nav-item').forEach(b => {
+            b.classList.toggle('active', b.dataset.view === view);
+        });
         
         if(view === 'market') loadMarket();
         if(view === 'leads') loadLeads();
         if(view === 'mylist') loadMyList();
     }
 
-    // --- Market (AliExpress Cards) ---
+    // ========== MARKET ==========
     async function loadMarket() {
-        const res = await fetch('/api/market');
-        const list = await res.json();
-        document.getElementById('marketGrid').innerHTML = list.map(i => `
-            <div class="ali-card cursor-pointer" onclick="window.open('/p/${i._id}', '_blank')">
-                <div class="ali-img-box">
-                    <img src="${i.image || 'https://via.placeholder.com/300'}" class="ali-img" loading="lazy">
-                </div>
-                <div class="p-2">
-                    <h3 class="text-xs text-gray-700 line-clamp-2 mb-1 h-8 leading-tight">${i.title}</h3>
-                    <div class="flex items-end gap-1">
-                        <span class="text-red-600 font-bold text-sm">${i.price}</span>
-                        <span class="text-[10px] text-gray-400 mb-0.5">د.ج</span>
+        try {
+            const res = await fetch('/api/market');
+            ALL_LISTINGS = await res.json();
+            renderProducts(ALL_LISTINGS);
+        } catch(e) {
+            document.getElementById('marketGrid').innerHTML = '<p class="text-red-500 col-span-full text-center py-10">خطأ في تحميل البيانات</p>';
+        }
+    }
+
+    function renderProducts(list) {
+        const grid = document.getElementById('marketGrid');
+        if(list.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="w-20 h-20 bg-gray-100 dark:bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-box-open text-gray-400 text-2xl"></i>
                     </div>
-                    <div class="text-[10px] text-gray-400 mt-1 flex justify-between">
-                        <span>${i.type === 'service' ? 'خدمة' : 'شحن 58'}</span>
-                        <span>4.8 ⭐</span>
+                    <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-2">لا توجد منتجات</h3>
+                </div>
+            `;
+            return;
+        }
+        grid.innerHTML = list.map(i => `
+            <div class="product-card cursor-pointer" onclick="window.open('/p/${i._id}', '_blank')">
+                <div class="relative">
+                    <img src="${i.image || 'https://via.placeholder.com/300'}" class="product-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300'">
+                    ${i.type === 'service' ? '<span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">خدمة</span>' : ''}
+                </div>
+                <div class="p-3">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 h-10">${i.title}</h3>
+                    <div class="flex items-baseline gap-1 mb-2">
+                        <span class="text-primary-600 font-black text-lg">${Number(i.price).toLocaleString()}</span>
+                        <span class="text-gray-400 text-xs">د.ج</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                        <span><i class="fas fa-user-circle ml-1"></i>${i.userName || 'بائع'}</span>
+                        <span>${i.type === 'service' ? 'خدمة' : 'منتج'}</span>
                     </div>
                 </div>
             </div>
         `).join('');
     }
 
-    // --- Auth & Actions ---
+    function filterProducts() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = ALL_LISTINGS.filter(i => 
+            i.title.toLowerCase().includes(q) || 
+            (i.desc && i.desc.toLowerCase().includes(q))
+        );
+        renderProducts(filtered);
+    }
+
+    function filterCategory(cat) {
+        document.querySelectorAll('.category-pill').forEach(b => {
+            b.classList.toggle('active', b.dataset.cat === cat);
+        });
+        if(cat === 'all') {
+            renderProducts(ALL_LISTINGS);
+        } else {
+            renderProducts(ALL_LISTINGS.filter(i => i.type === cat));
+        }
+    }
+
+    // ========== AUTH ==========
     async function login() {
         const email = document.getElementById('lEmail').value;
         const password = document.getElementById('lPass').value;
-        const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password}) });
-        const d = await res.json();
-        if(d.success) { localStorage.setItem('dz_user', JSON.stringify(d.user)); location.reload(); }
-        else alert(d.msg);
+        
+        if(!email || !password) {
+            showToast('يرجى ملء جميع الحقول', 'error');
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/auth/login', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify({email, password}) 
+            });
+            const d = await res.json();
+            if(d.success) { 
+                localStorage.setItem('dz_user', JSON.stringify(d.user)); 
+                location.reload(); 
+            } else {
+                showToast(d.msg || 'خطأ في تسجيل الدخول', 'error');
+            }
+        } catch(e) {
+            showToast('خطأ في الاتصال بالخادم', 'error');
+        }
     }
 
     async function register() {
         const data = {
-            name: document.getElementById('rName').value, email: document.getElementById('rEmail').value,
-            password: document.getElementById('rPass').value, phone: document.getElementById('rPhone').value,
+            name: document.getElementById('rName').value, 
+            email: document.getElementById('rEmail').value,
+            password: document.getElementById('rPass').value, 
+            phone: document.getElementById('rPhone').value,
             fingerprint: getFingerprint()
         };
-        const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-        const d = await res.json();
-        if(d.success) { localStorage.setItem('dz_user', JSON.stringify(d.user)); location.reload(); }
-        else alert(d.msg);
+        
+        if(!data.name || !data.email || !data.password || !data.phone) {
+            showToast('يرجى ملء جميع الحقول', 'error');
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/auth/register', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify(data) 
+            });
+            const d = await res.json();
+            if(d.success) { 
+                localStorage.setItem('dz_user', JSON.stringify(d.user)); 
+                showToast('تم إنشاء الحساب بنجاح! 🎉', 'success');
+                location.reload(); 
+            } else {
+                showToast(d.msg || 'خطأ في التسجيل', 'error');
+            }
+        } catch(e) {
+            showToast('خطأ في الاتصال بالخادم', 'error');
+        }
     }
 
+    function logout() { 
+        localStorage.removeItem('dz_user'); 
+        location.reload(); 
+    }
+
+    // ========== PUBLISH ==========
     async function publish() {
         const data = {
-            userId: USER._id, userName: USER.name, type: document.getElementById('pType').value,
-            title: document.getElementById('pTitle').value, image: document.getElementById('pImg').value,
-            price: document.getElementById('pPrice').value, desc: document.getElementById('pDesc').value
+            userId: USER._id, 
+            userName: USER.name, 
+            type: document.getElementById('pType').value,
+            title: document.getElementById('pTitle').value, 
+            image: document.getElementById('pImg').value,
+            price: document.getElementById('pPrice').value, 
+            desc: document.getElementById('pDesc').value
         };
-        await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-        alert('تم النشر! 🎉'); nav('market');
+        
+        if(!data.title || !data.price) {
+            showToast('يرجى ملء العنوان والسعر على الأقل', 'error');
+            return;
+        }
+        
+        try {
+            await fetch('/api/listing/create', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify(data) 
+            });
+            showToast('تم النشر بنجاح! 🎉', 'success');
+            document.getElementById('pTitle').value = '';
+            document.getElementById('pImg').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pDesc').value = '';
+            nav('market');
+        } catch(e) {
+            showToast('خطأ في نشر الإعلان', 'error');
+        }
     }
 
+    // ========== LEADS ==========
     async function loadLeads() {
-        const res = await fetch('/api/seller/leads', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
-        const leads = await res.json();
-        document.getElementById('leadsList').innerHTML = leads.length ? leads.map(l => `
-            <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between">
-                <div>
-                    <div class="font-bold text-sm text-slate-800">${l.buyerName}</div>
-                    <div class="text-xs text-gray-500">${l.buyerWilaya}</div>
+        try {
+            const res = await fetch('/api/seller/leads', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify({userId: USER._id}) 
+            });
+            const leads = await res.json();
+            
+            const list = document.getElementById('leadsList');
+            if(!leads.length) {
+                list.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="w-20 h-20 bg-gray-100 dark:bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-inbox text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-2">لا توجد طلبات</h3>
+                        <p class="text-gray-500 text-sm">ستظهر هنا طلبات العملاء المهتمين</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = leads.map(l => `
+                <div class="bg-white dark:bg-dark-800 p-5 rounded-2xl border border-gray-100 dark:border-dark-700 shadow-sm animate-slideUp">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-bold">
+                                ${l.buyerName.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 dark:text-white">${l.buyerName}</div>
+                                <div class="text-sm text-gray-500 flex items-center gap-2">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    ${l.buyerWilaya}
+                                </div>
+                            </div>
+                        </div>
+                        ${l.isRevealed ? `
+                            <a href="tel:${l.buyerPhone}" class="flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-xl font-mono font-bold text-sm" dir="ltr">
+                                <i class="fas fa-phone"></i>
+                                ${l.buyerPhone}
+                            </a>
+                        ` : `
+                            <button onclick="revealLead('${l._id}')" class="btn-primary px-4 py-2 rounded-xl text-white font-semibold text-sm flex items-center gap-2">
+                                <i class="fas fa-eye"></i>
+                                كشف (-50دج)
+                            </button>
+                        `}
+                    </div>
                 </div>
-                ${l.isRevealed 
-                    ? `<a href="tel:${l.buyerPhone}" class="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-xs font-bold font-mono dir-ltr">${l.buyerPhone}</a>`
-                    : `<button onclick="revealLead('${l._id}')" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold">كشف (-50دج)</button>`
-                }
-            </div>
-        `).join('') : '<p class="text-center text-gray-400 py-10 text-sm">لا توجد طلبات</p>';
+            `).join('');
+        } catch(e) {
+            document.getElementById('leadsList').innerHTML = '<p class="text-red-500 text-center py-10">خطأ في تحميل الطلبات</p>';
+        }
     }
 
     async function revealLead(leadId) {
-        if(!confirm('خصم 50 دج؟')) return;
-        const res = await fetch('/api/lead/reveal', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id, leadId}) });
-        const d = await res.json();
-        if(d.success) { USER.balance = d.newBalance; document.getElementById('userBalance').innerText = USER.balance; loadLeads(); }
-        else { alert(d.msg); nav('wallet'); }
+        showConfirm('كشف رقم العميل', 'سيتم خصم 50 دج من رصيدك. هل تريد المتابعة؟', async () => {
+            try {
+                const res = await fetch('/api/lead/reveal', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify({userId: USER._id, leadId}) 
+                });
+                const d = await res.json();
+                if(d.success) { 
+                    USER.balance = d.newBalance; 
+                    updateUserUI();
+                    showToast('تم كشف الرقم بنجاح! 📞', 'success');
+                    loadLeads(); 
+                } else { 
+                    showToast(d.msg || 'رصيد غير كافٍ', 'error'); 
+                    nav('wallet'); 
+                }
+            } catch(e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
+        });
     }
 
+    // ========== MY LISTINGS ==========
     async function loadMyList() {
-        const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
-        const list = await res.json();
-        document.getElementById('myListGrid').innerHTML = list.map(i => `
-            <div class="bg-white p-2 rounded-lg border flex gap-3">
-                <img src="${i.image}" class="w-16 h-16 rounded object-cover">
-                <div>
-                    <div class="font-bold text-sm line-clamp-1">${i.title}</div>
-                    <div class="text-xs text-green-600 font-bold">${i.price} دج</div>
+        try {
+            const res = await fetch('/api/user/listings', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify({userId: USER._id}) 
+            });
+            const list = await res.json();
+            
+            const grid = document.getElementById('myListGrid');
+            if(!list.length) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="w-20 h-20 bg-gray-100 dark:bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-box-open text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-2">لا توجد إعلانات</h3>
+                        <button onclick="nav('add')" class="btn-primary px-6 py-3 rounded-xl text-white font-semibold mt-4">
+                            <i class="fas fa-plus ml-2"></i> إضافة إعلان
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = list.map(i => `
+                <div class="bg-white dark:bg-dark-800 p-3 rounded-xl border border-gray-100 dark:border-dark-700 flex gap-3">
+                    <img src="${i.image || 'https://via.placeholder.com/100'}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" onerror="this.src='https://via.placeholder.com/100'">
+                    <div class="min-w-0">
+                        <div class="font-bold text-sm line-clamp-1 text-gray-900 dark:text-white">${i.title}</div>
+                        <div class="text-primary-600 font-bold text-sm">${Number(i.price).toLocaleString()} دج</div>
+                        <span class="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-[10px] font-semibold">نشط</span>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+        } catch(e) {
+            document.getElementById('myListGrid').innerHTML = '<p class="text-red-500 col-span-full text-center py-10">خطأ في تحميل الإعلانات</p>';
+        }
+    }
+
+    // ========== WALLET ==========
+    function openDepositModal() {
+        document.getElementById('depositModal').classList.remove('hidden');
+    }
+
+    function closeDepositModal() {
+        document.getElementById('depositModal').classList.add('hidden');
     }
 
     async function submitDeposit() {
-        await fetch('/api/wallet/deposit', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({ userId: USER._id, amount: document.getElementById('depAmount').value, proof: document.getElementById('depProof').value })
-        });
-        alert('جاري المراجعة'); document.getElementById('depositModal').classList.add('hidden');
+        const amount = document.getElementById('depAmount').value;
+        const proof = document.getElementById('depProof').value;
+        
+        if(!amount || !proof) {
+            showToast('يرجى ملء جميع الحقول', 'error');
+            return;
+        }
+        
+        try {
+            await fetch('/api/wallet/deposit', {
+                method:'POST', 
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({ 
+                    userId: USER._id, 
+                    amount: Number(amount), 
+                    proof 
+                })
+            });
+            showToast('تم إرسال الطلب! جاري المراجعة ⏳', 'success');
+            closeDepositModal();
+            document.getElementById('depAmount').value = '';
+            document.getElementById('depProof').value = '';
+        } catch(e) {
+            showToast('خطأ في إرسال الطلب', 'error');
+        }
     }
 
-    function logout() { localStorage.removeItem('dz_user'); location.reload(); }
+    // ========== TOAST ==========
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        
+        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+        
+        toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3`;
+        toast.innerHTML = `
+            <i class="fas ${icons[type]}"></i>
+            <span class="flex-1 font-semibold text-sm">${message}</span>
+            <button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ========== CONFIRM MODAL ==========
+    function showConfirm(title, message, callback) {
+        document.getElementById('confirmTitle').innerText = title;
+        document.getElementById('confirmMessage').innerText = message;
+        confirmCallback = callback;
+        document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirmModal').classList.add('hidden');
+        confirmCallback = null;
+    }
+
+    function confirmAction() {
+        if(confirmCallback) confirmCallback();
+        closeConfirm();
+    }
 </script>
 </body>
 </html>
+
