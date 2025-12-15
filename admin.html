@@ -2,160 +2,170 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Super Admin | DzAffiliate</title>
+    <title>Super Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Tajawal', sans-serif; background: #0f172a; color: white; }
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #1e293b; padding: 25px; border-radius: 15px; width: 95%; max-width: 500px; max-height: 80vh; overflow-y: auto; border: 1px solid #334155; }
-    </style>
+    <style>body{font-family:'Tajawal',sans-serif;background:#0f172a;color:white} .tab-btn.active{background:#2563eb;color:white}</style>
 </head>
 <body class="p-6">
-
-    <div class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
-        <h1 class="text-3xl font-bold text-yellow-400">👑 لوحة القيادة العليا</h1>
-        <div class="text-sm text-slate-400">مراقبة التجار والمسوقين</div>
-    </div>
-    
-    <div class="overflow-x-auto bg-slate-800 rounded-xl border border-slate-700 shadow-xl">
-        <table class="w-full text-right text-sm">
-            <thead class="bg-slate-900 text-slate-400 uppercase font-bold">
-                <tr>
-                    <th class="p-4">المستخدم</th>
-                    <th class="p-4">الدور</th>
-                    <th class="p-4">البصمة (Fraud Check)</th>
-                    <th class="p-4">مستحقات المنصة</th>
-                    <th class="p-4">رصيد الأرباح</th>
-                    <th class="p-4">الحالة</th>
-                    <th class="p-4 text-center">إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="usersTable" class="divide-y divide-slate-700"></tbody>
-        </table>
+    <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+        <h1 class="text-2xl font-bold text-yellow-400">👑 لوحة القيادة</h1>
+        <div class="flex gap-2">
+            <button onclick="switchTab('merchants')" class="tab-btn active bg-slate-800 px-4 py-2 rounded text-sm text-gray-300">التجار والديون</button>
+            <button onclick="switchTab('withdrawals')" class="tab-btn bg-slate-800 px-4 py-2 rounded text-sm text-gray-300">سحوبات المسوقين</button>
+            <button onclick="switchTab('settings')" class="tab-btn bg-slate-800 px-4 py-2 rounded text-sm text-gray-300">الإعدادات</button>
+        </div>
     </div>
 
-    <div id="msgModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-blue-400">📩 رسائل المستخدم</h3>
-                <button onclick="document.getElementById('msgModal').style.display='none'" class="text-red-400 hover:text-red-300">✕</button>
+    <div id="merchantsTab">
+        <div class="overflow-x-auto bg-slate-800 rounded-xl border border-slate-700">
+            <table class="w-full text-right text-sm">
+                <thead class="bg-slate-900 text-slate-400"><tr><th class="p-4">التاجر</th><th class="p-4">الدين</th><th class="p-4">الحالة</th><th class="p-4 text-center">إجراءات</th></tr></thead>
+                <tbody id="usersTable" class="divide-y divide-slate-700"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="withdrawalsTab" class="hidden">
+        <div class="overflow-x-auto bg-slate-800 rounded-xl border border-slate-700">
+            <table class="w-full text-right text-sm">
+                <thead class="bg-slate-900 text-slate-400"><tr><th class="p-4">المسوق</th><th class="p-4">المبلغ</th><th class="p-4">معلومات الدفع (CCP/Baridi)</th><th class="p-4">الحالة</th><th class="p-4 text-center">إجراء</th></tr></thead>
+                <tbody id="withdrawTable" class="divide-y divide-slate-700"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="settingsTab" class="hidden max-w-lg mx-auto bg-slate-800 p-6 rounded-xl border border-slate-700">
+        <h3 class="font-bold mb-4 text-lg">⚙️ إعدادات الدفع (تظهر للتجار والمسوقين)</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs text-gray-400">رقم RedotPay (للتجار)</label>
+                <input id="sRedot" class="w-full bg-slate-900 border border-slate-600 p-2 rounded text-white ltr text-left">
             </div>
-            <div id="msgList" class="space-y-4"></div>
+            <div>
+                <label class="text-xs text-gray-400">سعر الصرف (1$ = ? دج)</label>
+                <input id="sRate" type="number" class="w-full bg-slate-900 border border-slate-600 p-2 rounded text-white">
+            </div>
+            <div>
+                <label class="text-xs text-gray-400">الحد الأدنى للسحب للمسوقين</label>
+                <input id="sMin" type="number" class="w-full bg-slate-900 border border-slate-600 p-2 rounded text-white">
+            </div>
+            <button onclick="saveSettings()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded font-bold">حفظ الإعدادات</button>
+        </div>
+    </div>
+
+    <div id="msgModal" class="fixed inset-0 bg-black/80 hidden justify-center items-center z-50">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-md border border-slate-600">
+            <div class="flex justify-between mb-4"><h3 class="font-bold">الرسائل</h3><button onclick="closeMsg()">✕</button></div>
+            <div id="msgList" class="space-y-3 max-h-96 overflow-y-auto mb-4"></div>
+            <button id="markReadBtn" class="w-full bg-blue-600 py-2 rounded text-sm">تعليم كمقروء ✅</button>
         </div>
     </div>
 
 <script>
-    // جلب المستخدمين
+    function switchTab(t) {
+        ['merchants','withdrawals','settings'].forEach(x => {
+            document.getElementById(x+'Tab').classList.add('hidden');
+        });
+        document.getElementById(t+'Tab').classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        if(t === 'merchants') loadUsers();
+        if(t === 'withdrawals') loadWithdrawals();
+        if(t === 'settings') loadSettings();
+    }
+
+    // --- التجار ---
     async function loadUsers() {
         const res = await fetch('/api/admin/users');
         const users = await res.json();
+        document.getElementById('usersTable').innerHTML = users.map(u => {
+            const unread = u.messages.some(m => !m.read);
+            return `
+            <tr>
+                <td class="p-4 font-bold">${u.name}<br><span class="text-xs text-gray-500">${u.email}</span></td>
+                <td class="p-4 ${u.debt > 0 ? 'text-red-400' : 'text-green-400'}">${u.debt} دج</td>
+                <td class="p-4">${u.isBanned ? '⛔ محظور' : '✅ نشط'}</td>
+                <td class="p-4 text-center flex justify-center gap-2">
+                    <button onclick="openMsg('${u._id}')" class="px-3 py-1 rounded text-xs ${unread ? 'bg-red-600 animate-pulse' : 'bg-slate-600'}">
+                        رسائل ${unread ? '🔴' : ''}
+                    </button>
+                    ${u.debt > 0 ? `<button onclick="clearDebt('${u._id}')" class="bg-green-600 px-3 py-1 rounded text-xs">تم الدفع 💰</button>` : ''}
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function clearDebt(id) {
+        if(!confirm('تأكيد الدفع وفك الحظر؟')) return;
+        await fetch('/api/admin/clear-debt', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: id}) });
+        loadUsers();
+    }
+
+    // --- الرسائل ---
+    let currentMsgUser = null;
+    async function openMsg(uid) {
+        currentMsgUser = uid;
+        const res = await fetch('/api/admin/users');
+        const users = await res.json();
+        const u = users.find(x => x._id === uid);
         
-        document.getElementById('usersTable').innerHTML = users.map(u => `
-            <tr class="hover:bg-slate-700/50 transition">
-                <td class="p-4">
-                    <div class="font-bold text-white">${u.name}</div>
-                    <div class="text-xs text-slate-400">${u.email}</div>
-                </td>
-                <td class="p-4">
-                    <span class="px-2 py-1 rounded text-xs font-bold ${u.role==='merchant'?'bg-blue-900 text-blue-300':'bg-purple-900 text-purple-300'}">
-                        ${u.role==='merchant' ? 'تاجر 📦' : 'مسوق 📢'}
-                    </span>
-                </td>
-                <td class="p-4 font-mono text-xs text-slate-500 select-all" title="بصمة الجهاز">${u.fingerprint || 'N/A'}</td>
-                <td class="p-4">
-                    ${u.debt > 0 ? `<span class="text-red-400 font-bold">${u.debt} دج</span>` : '<span class="text-green-500">0</span>'}
-                </td>
-                <td class="p-4 text-green-400 font-bold">${u.balance} دج</td>
-                <td class="p-4">
-                    ${u.isBanned 
-                        ? '<span class="bg-red-900 text-red-200 px-2 py-1 rounded text-xs">محظور ⛔</span>' 
-                        : '<span class="bg-green-900 text-green-200 px-2 py-1 rounded text-xs">نشط ✅</span>'}
-                </td>
-                <td class="p-4 flex justify-center gap-2">
-                    <button onclick="showMessages('${u._id}')" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs relative">
-                        رسائل 💬 <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ${u.messages && u.messages.length > 0 ? '' : 'hidden'}"></span>
-                    </button>
-                    ${u.debt > 0 ? 
-                        `<button onclick="clearDebt('${u._id}')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-xs">دفع الدين 💰</button>` : ''}
-                    <button onclick="toggleBan('${u._id}', ${!u.isBanned})" class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-3 py-1 rounded text-xs transition">
-                        ${u.isBanned ? 'فك الحظر' : 'حظر'}
-                    </button>
+        document.getElementById('msgList').innerHTML = u.messages.length ? u.messages.reverse().map(m => `
+            <div class="bg-slate-900 p-3 rounded border border-slate-700 ${!m.read ? 'border-l-4 border-l-red-500' : ''}">
+                <p class="text-sm">${m.text}</p>
+                ${m.image ? `<a href="${m.image}" target="_blank" class="text-blue-400 text-xs underline">عرض الصورة المرفقة 📎</a>` : ''}
+                <div class="text-[10px] text-gray-500 mt-1">${new Date(m.date).toLocaleString()}</div>
+            </div>
+        `).join('') : 'لا توجد رسائل';
+        
+        document.getElementById('markReadBtn').onclick = async () => {
+            await fetch('/api/admin/read-msg', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: uid}) });
+            closeMsg(); loadUsers();
+        };
+        document.getElementById('msgModal').style.display = 'flex';
+    }
+    function closeMsg() { document.getElementById('msgModal').style.display = 'none'; }
+
+    // --- السحوبات ---
+    async function loadWithdrawals() {
+        const res = await fetch('/api/admin/withdrawals');
+        const w = await res.json();
+        document.getElementById('withdrawTable').innerHTML = w.map(i => `
+            <tr>
+                <td class="p-4">${i.userName}</td>
+                <td class="p-4 font-bold text-green-400">${i.amount} دج</td>
+                <td class="p-4 font-mono bg-slate-900 select-all">${i.ccp}</td>
+                <td class="p-4 text-xs">${i.status === 'pending' ? '⏳ قيد الانتظار' : '✅ مدفوع'}</td>
+                <td class="p-4 text-center">
+                    ${i.status === 'pending' ? `<button onclick="confirmPay('${i._id}')" class="bg-blue-600 px-3 py-1 rounded text-xs">تم الإرسال</button>` : '-'}
                 </td>
             </tr>
         `).join('');
     }
 
-    // عرض الرسائل (إثباتات الدفع)
-    async function showMessages(id) {
-        // في الواقع يجب جلب المستخدم بالتفصيل، لكن هنا سنعتمد على البيانات المحملة
-        // سنعيد جلب المستخدمين للتأكد
-        const res = await fetch('/api/admin/users');
-        const users = await res.json();
-        const user = users.find(u => u._id === id);
-        
-        const list = document.getElementById('msgList');
-        if(!user.messages || user.messages.length === 0) {
-            list.innerHTML = '<p class="text-center text-slate-500">لا توجد رسائل</p>';
-        } else {
-            list.innerHTML = user.messages.reverse().map(m => `
-                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <p class="text-sm text-gray-300 mb-2">${m.text}</p>
-                    ${m.image ? `<a href="${m.image}" target="_blank"><img src="${m.image}" class="w-full h-32 object-cover rounded border border-slate-600 hover:opacity-80 transition"></a>` : ''}
-                    <div class="text-[10px] text-gray-500 mt-2 text-left">${new Date(m.date).toLocaleString()}</div>
-                </div>
-            `).join('');
-        }
-        document.getElementById('msgModal').style.display = 'flex';
+    async function confirmPay(id) {
+        if(!confirm('هل أرسلت المال للمسوق؟')) return;
+        await fetch('/api/admin/confirm-withdraw', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+        loadWithdrawals();
     }
 
-    // تصفير الدين (بعد استلام المال)
-    async function clearDebt(id) {
-        if(!confirm('هل تأكدت من استلام المبلغ في RedotPay؟')) return;
-        
-        // هنا يجب إضافة API خاص لتصفير الدين في السيرفر (أضفته لك في index.js سابقاً تحت اسم clear-debt)
-        // لكن بما أنني لم أضعه في الكود الأخير، سأستخدم تحديث المستخدم مباشرة
-        // ملاحظة: في الكود السابق (Pro)، لم أضف endpoint خاص اسمه clear-debt، لذا سأضيفه لك الآن في ذهنك لتضيفه في index.js
-        // أو يمكنك استخدام "تحديث" عادي.
-        
-        // الأفضل: سأفترض أنك ستضيف هذا المسار في index.js، أو سأعطيك الكود له أدناه لتضيفه.
-        
-        // الحل السريع: نرسل تحديث عادي للمستخدم
-        /*
-        await fetch('/api/user/update', { ... }) 
-        ولكن، بما أننا لم نكتب هذا الـ API، سأفترض أنك ستضيف هذا المقطع الصغير في index.js:
-        
-        app.post('/api/admin/cleardebt', async (req, res) => {
-             const user = await User.findById(req.body.userId);
-             user.debt = 0; user.debtDeadline = null; user.isBanned = false;
-             await user.save();
-             res.json({success: true});
-        });
-        */
-        
-        // سأستخدم المسار الذي يفترض وجوده
-        await fetch('/api/admin/cleardebt', { // تأكد من إضافة هذا في index.js
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId: id })
-        });
-        
-        alert('تم تصفير الدين وفك الحظر!');
-        loadUsers();
+    // --- الإعدادات ---
+    async function loadSettings() {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        document.getElementById('sRedot').value = s.redotpayId;
+        document.getElementById('sRate').value = s.usdtRate;
+        document.getElementById('sMin').value = s.minWithdraw;
     }
 
-    // حظر / فك حظر
-    async function toggleBan(id, status) {
-        if(!confirm(status ? 'هل تريد حظر هذا المستخدم؟' : 'هل تريد فك الحظر؟')) return;
-        
-        // سنستخدم نفس المنطق، نفترض وجود API للحظر
-        await fetch('/api/admin/ban', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId: id, status })
-        });
-        loadUsers();
+    async function saveSettings() {
+        const data = {
+            redotpayId: document.getElementById('sRedot').value,
+            usdtRate: document.getElementById('sRate').value,
+            minWithdraw: document.getElementById('sMin').value
+        };
+        await fetch('/api/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+        alert('تم الحفظ');
     }
 
     loadUsers();
