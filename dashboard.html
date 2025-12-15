@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -23,7 +24,7 @@
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        
+
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         .animate-slideUp { animation: slideUp 0.4s ease-out; }
         .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
@@ -189,7 +190,7 @@
                             <i class="fas fa-bell text-lg"></i>
                             <span id="notifBadge" class="notif-badge hidden">0</span>
                         </button>
-                        
+
                         <!-- Notifications Dropdown -->
                         <div id="notifDropdown" class="hidden absolute left-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50">
                             <div class="p-4 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
@@ -230,7 +231,7 @@
                     <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
                     <div>
                         <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
-                        <p class="text-sm text-white/70" id="userEmail">user@email.com</p>
+                        <p class="text-sm text-white/70" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6411170116240109050d084a070b09">[email&#160;protected]</a></p>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
@@ -603,7 +604,7 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ========== DARK MODE ==========
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
@@ -623,7 +624,7 @@
     let pendingRevealOrderId = null;
     let pendingAcceptChatId = null;
     let notifInterval = null;
-    
+
     // الإعدادات العامة
     let APP_SETTINGS = {
         orderRevealPrice: 50,
@@ -632,8 +633,8 @@
         currency: 'دج'
     };
 
-    function getFingerprint() { 
-        return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16); 
+    function getFingerprint() {
+        return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
     }
 
     // ========== LOAD SETTINGS ==========
@@ -659,24 +660,24 @@
         // تحديث أسعار كشف الطلب
         const orderRevealEl = document.getElementById('orderRevealPriceDisplay');
         if (orderRevealEl) orderRevealEl.textContent = APP_SETTINGS.orderRevealPrice;
-        
+
         const revealPriceEl = document.getElementById('revealPrice');
         if (revealPriceEl) revealPriceEl.textContent = APP_SETTINGS.orderRevealPrice + ' ' + APP_SETTINGS.currency;
-        
+
         // تحديث أسعار المحادثة
         const chatPriceEl = document.getElementById('chatPriceDisplay');
         if (chatPriceEl) chatPriceEl.textContent = APP_SETTINGS.chatPrice;
-        
+
         const acceptChatPriceEl = document.getElementById('acceptChatPrice');
         if (acceptChatPriceEl) acceptChatPriceEl.textContent = APP_SETTINGS.chatPrice;
-        
+
         // إظهار/إخفاء إشعارات الوضع المجاني
         if (APP_SETTINGS.freeMode) {
             document.getElementById('freeModeNotice')?.classList.remove('hidden');
             document.getElementById('chatPriceNotice')?.classList.add('hidden');
             document.getElementById('orderFreeModeNotice')?.classList.remove('hidden');
             document.getElementById('orderPriceNotice')?.classList.add('hidden');
-            
+
             const acceptMsg = document.getElementById('acceptChatMessage');
             if (acceptMsg) acceptMsg.innerHTML = '<span class="text-green-600 font-bold">الوضع المجاني مفعّل - فتح المحادثة مجاني!</span>';
         } else {
@@ -689,22 +690,36 @@
 
     // ========== INIT ==========
     window.onload = async () => {
-        await loadAppSettings();
-        
-        const stored = localStorage.getItem('dz_user');
-        if (stored) {
-            try {
-                const u = JSON.parse(stored);
-                const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
-                const d = await res.json();
-                if (d.success) {
-                    USER = d.user;
-                    localStorage.setItem('dz_user', JSON.stringify(USER));
-                    initApp();
-                } else showAuth();
-            } catch(e) { showAuth(); }
-        } else showAuth();
-        document.getElementById('loader').classList.add('hidden');
+        const loader = document.getElementById('loader');
+        try {
+            await loadAppSettings();
+
+            const stored = localStorage.getItem('dz_user');
+            if (stored) {
+                try {
+                    const u = JSON.parse(stored);
+                    const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
+                    const d = await res.json();
+                    if (d.success) {
+                        USER = d.user;
+                        localStorage.setItem('dz_user', JSON.stringify(USER));
+                        initApp();
+                    } else {
+                        showAuth();
+                    }
+                } catch(e) {
+                    showAuth();
+                }
+            } else {
+                showAuth();
+            }
+        } catch(e) {
+            console.error('Init error:', e);
+            showAuth();
+        } finally {
+            // دائماً إخفاء الـ loader
+            if (loader) loader.classList.add('hidden');
+        }
     };
 
     function initApp() {
@@ -726,9 +741,9 @@
     }
 
     function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
-    function toggleAuth() { 
-        document.getElementById('loginForm').classList.toggle('hidden'); 
-        document.getElementById('regForm').classList.toggle('hidden'); 
+    function toggleAuth() {
+        document.getElementById('loginForm').classList.toggle('hidden');
+        document.getElementById('regForm').classList.toggle('hidden');
     }
 
     // ========== AUTH ==========
@@ -736,13 +751,13 @@
         const email = document.getElementById('lEmail').value;
         const password = document.getElementById('lPass').value;
         if (!email || !password) return showToast('يرجى ملء جميع الحقول', 'error');
-        
+
         try {
             const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password}) });
             const d = await res.json();
-            if (d.success) { 
-                localStorage.setItem('dz_user', JSON.stringify(d.user)); 
-                location.reload(); 
+            if (d.success) {
+                localStorage.setItem('dz_user', JSON.stringify(d.user));
+                location.reload();
             } else showToast(d.msg || 'خطأ', 'error');
         } catch(e) { showToast('خطأ في الاتصال', 'error'); }
     }
@@ -756,21 +771,21 @@
             fingerprint: getFingerprint()
         };
         if (!data.name || !data.email || !data.password) return showToast('يرجى ملء جميع الحقول', 'error');
-        
+
         try {
             const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
             const d = await res.json();
-            if (d.success) { 
-                localStorage.setItem('dz_user', JSON.stringify(d.user)); 
-                location.reload(); 
+            if (d.success) {
+                localStorage.setItem('dz_user', JSON.stringify(d.user));
+                location.reload();
             } else showToast(d.msg || 'خطأ', 'error');
         } catch(e) { showToast('خطأ في الاتصال', 'error'); }
     }
 
-    function logout() { 
-        localStorage.removeItem('dz_user'); 
+    function logout() {
+        localStorage.removeItem('dz_user');
         if (notifInterval) clearInterval(notifInterval);
-        location.reload(); 
+        location.reload();
     }
 
     // ========== SIDEBAR ==========
@@ -787,13 +802,13 @@
         });
         const el = document.getElementById('view-' + view);
         if (el) el.classList.remove('hidden');
-        
+
         toggleSidebar(false);
         document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-        
+
         // تحديث عرض الأسعار عند التنقل
         updatePriceDisplays();
-        
+
         switch(view) {
             case 'market': loadMarket(); break;
             case 'messages': loadChats(); break;
@@ -825,7 +840,7 @@
     function renderNotifications() {
         const unread = NOTIFICATIONS.filter(n => !n.read).length;
         const badge = document.getElementById('notifBadge');
-        
+
         if (unread > 0) {
             badge.classList.remove('hidden');
             badge.innerText = unread > 9 ? '9+' : unread;
@@ -871,14 +886,14 @@
 
     async function handleNotification(id, type, targetId) {
         await fetch('/api/notification/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-        
+
         document.getElementById('notifDropdown').classList.add('hidden');
-        
+
         if (type === 'order') nav('orders');
         else if (type === 'message' && targetId) openChat(targetId);
         else if (type === 'chat_request') nav('chat-requests');
         else if (type === 'deposit') nav('wallet');
-        
+
         loadNotifications();
     }
 
@@ -891,7 +906,7 @@
         try {
             const res = await fetch('/api/unread-counts/' + USER._id);
             const counts = await res.json();
-            
+
             // Messages badge
             const msgBadge = document.getElementById('msgBadge');
             const sidebarMsgBadge = document.getElementById('sidebarMsgBadge');
@@ -904,7 +919,7 @@
                 msgBadge.classList.add('hidden');
                 sidebarMsgBadge.classList.add('hidden');
             }
-            
+
             // Orders badge
             const ordersBadge = document.getElementById('ordersBadge');
             if (counts.orders > 0) {
@@ -913,7 +928,7 @@
             } else {
                 ordersBadge.classList.add('hidden');
             }
-            
+
             // Chat requests badge
             const chatRequestsBadge = document.getElementById('chatRequestsBadge');
             if (counts.pendingChats > 0) {
@@ -982,12 +997,12 @@
     function renderChatRequests() {
         const list = document.getElementById('chatRequestsList');
         document.getElementById('chatRequestsCount').innerText = PENDING_CHAT_REQUESTS.length + ' طلب';
-        
+
         if (!PENDING_CHAT_REQUESTS.length) {
             list.innerHTML = '<div class="text-center py-16"><i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i><p class="text-gray-500">لا توجد طلبات محادثة معلقة</p></div>';
             return;
         }
-        
+
         list.innerHTML = PENDING_CHAT_REQUESTS.map(c => `
             <div class="pending-chat rounded-2xl p-5">
                 <div class="flex items-start justify-between mb-4">
@@ -1000,11 +1015,11 @@
                     </div>
                     <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
                 </div>
-                
+
                 <div class="bg-white/50 dark:bg-slate-700/50 rounded-xl p-3 mb-4">
                     <p class="text-sm font-semibold">حول: ${c.listingTitle}</p>
                 </div>
-                
+
                 <div class="flex gap-2">
                     <button onclick="acceptChatRequest('${c._id}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition">
                         <i class="fas fa-check ml-2"></i>
@@ -1028,7 +1043,7 @@
 
     async function confirmAcceptChat() {
         if (!pendingAcceptChatId) return;
-        
+
         try {
             const res = await fetch('/api/chat/accept', {
                 method: 'POST',
@@ -1036,7 +1051,7 @@
                 body: JSON.stringify({ chatId: pendingAcceptChatId, sellerId: USER._id })
             });
             const d = await res.json();
-            
+
             if (d.success) {
                 showToast('تم فتح المحادثة بنجاح! ✅', 'success');
                 // تحديث رصيد المستخدم
@@ -1053,7 +1068,7 @@
                 showToast(d.msg || 'خطأ', 'error');
             }
         } catch(e) { showToast('خطأ', 'error'); }
-        
+
         closeAcceptChatModal();
     }
 
@@ -1093,17 +1108,17 @@
     async function openChat(chatId) {
         currentChatId = chatId;
         nav('chat');
-        
+
         try {
             const res = await fetch(`/api/chat/${chatId}`);
             const chat = await res.json();
-            
+
             const partner = chat.buyerId === USER._id ? chat.sellerName : chat.buyerName;
             document.getElementById('chatPartnerName').innerText = partner || 'المستخدم';
             document.getElementById('chatPartnerAvatar').innerText = partner?.charAt(0) || 'م';
-            
+
             loadChatMessages();
-            
+
             await fetch('/api/chat/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId, userId: USER._id}) });
             loadUnreadCounts();
         } catch(e) {}
@@ -1114,7 +1129,7 @@
         try {
             const res = await fetch(`/api/chat/messages/${currentChatId}`);
             const messages = await res.json();
-            
+
             const container = document.getElementById('chatMessagesContainer');
             container.innerHTML = messages.length ? messages.map(m => `
                 <div class="chat-bubble ${m.senderId === USER._id ? 'sent' : 'received'}">
@@ -1130,9 +1145,9 @@
         const input = document.getElementById('chatMessageInput');
         const content = input.value.trim();
         if (!content || !currentChatId) return;
-        
+
         input.value = '';
-        
+
         try {
             const res = await fetch('/api/chat/send', {
                 method: 'POST',
@@ -1162,12 +1177,12 @@
     function renderOrders() {
         const list = document.getElementById('ordersList');
         document.getElementById('ordersCount').innerText = ORDERS.length + ' طلب';
-        
+
         if (!ORDERS.length) {
             list.innerHTML = '<p class="text-center text-gray-500 py-16">لا توجد طلبات</p>';
             return;
         }
-        
+
         list.innerHTML = ORDERS.map(o => `
             <div class="order-card p-5">
                 <div class="flex items-start justify-between mb-4">
@@ -1180,14 +1195,14 @@
                         <div class="text-xs text-gray-500">الكمية: ${o.quantity || 1}</div>
                     </div>
                 </div>
-                
+
                 ${o.color || o.size ? `
                     <div class="flex gap-4 mb-4 text-sm">
                         ${o.color ? `<span><strong>اللون:</strong> ${o.color}</span>` : ''}
                         ${o.size ? `<span><strong>المقاس:</strong> ${o.size}</span>` : ''}
                     </div>
                 ` : ''}
-                
+
                 <div class="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 ${o.isRevealed ? '' : 'order-locked'}">
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <div><strong>الاسم:</strong> ${o.buyerName}</div>
@@ -1197,10 +1212,10 @@
                         <div class="col-span-2"><strong>العنوان:</strong> ${o.buyerAddress || '-'}</div>
                     </div>
                 </div>
-                
+
                 ${!o.isRevealed ? `
                     <button onclick="revealOrder('${o._id}')" class="btn-primary w-full mt-4 text-white font-bold py-3 rounded-xl">
-                        <i class="fas fa-eye ml-2"></i> 
+                        <i class="fas fa-eye ml-2"></i>
                         ${APP_SETTINGS.freeMode ? 'كشف المعلومات (مجاني)' : `كشف المعلومات (-${APP_SETTINGS.orderRevealPrice} ${APP_SETTINGS.currency})`}
                     </button>
                 ` : `
@@ -1208,7 +1223,7 @@
                         <i class="fas fa-phone ml-2"></i> اتصل بالعميل
                     </a>
                 `}
-                
+
                 <div class="text-center text-xs text-gray-400 mt-3">${formatTime(o.date)}</div>
             </div>
         `).join('');
@@ -1237,16 +1252,24 @@
                 body: JSON.stringify({ userId: USER._id, orderId: orderId })
             });
             const d = await res.json();
-            
+
             if (d.success) {
                 USER.balance = d.newBalance;
                 updateUserUI();
                 showToast('تم كشف المعلومات!', 'success');
-                loadOrders
+                loadOrders();
+            } else {
+                showToast(d.msg || 'حدث خطأ', 'error');
+            }
+        } catch(e) {
+            console.error(e);
+            showToast('حدث خطأ في الاتصال', 'error');
+        }
+    }
 
     async function confirmRevealOrder() {
         if (!pendingRevealOrderId) return;
-        
+
         try {
             const res = await fetch('/api/order/reveal', {
                 method: 'POST',
@@ -1254,7 +1277,7 @@
                 body: JSON.stringify({ userId: USER._id, orderId: pendingRevealOrderId })
             });
             const d = await res.json();
-            
+
             if (d.success) {
                 USER.balance = d.newBalance;
                 updateUserUI();
@@ -1264,7 +1287,7 @@
                 showToast(d.msg || 'رصيد غير كافٍ', 'error');
             }
         } catch(e) { showToast('خطأ', 'error'); }
-        
+
         closeRevealModal();
     }
 
@@ -1280,9 +1303,9 @@
         const price = document.getElementById('pPrice').value;
         const desc = document.getElementById('pDesc').value;
         const serviceImage = document.getElementById('pServiceImage').value.trim();
-        
+
         if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
-        
+
         const data = {
             userId: USER._id,
             userName: USER.name,
@@ -1292,31 +1315,31 @@
             desc,
             image: serviceImage || ''
         };
-        
+
         if (type === 'product') {
             const imagesText = document.getElementById('pImages').value;
             const additionalImages = imagesText.split('\n').map(u => u.trim()).filter(u => u);
             // دمج صورة الخدمة مع الصور الإضافية
             data.images = serviceImage ? [serviceImage, ...additionalImages] : additionalImages;
             data.image = data.images[0] || serviceImage || '';
-            
+
             const colorsText = document.getElementById('pColors').value;
             if (colorsText) data.colors = colorsText.split(',').map(c => c.trim()).filter(c => c);
-            
+
             const sizesText = document.getElementById('pSizes').value;
             if (sizesText) data.sizes = sizesText.split(',').map(s => s.trim()).filter(s => s);
-            
+
             const offerTime = document.getElementById('pOfferTime').value;
             if (offerTime) data.offerEndTime = Number(offerTime);
         } else {
             // للخدمات - استخدام صورة واحدة
             data.images = serviceImage ? [serviceImage] : [];
         }
-        
+
         try {
             await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
             showToast('تم نشر الإعلان! 🎉', 'success');
-            
+
             // Clear form
             document.getElementById('pTitle').value = '';
             document.getElementById('pPrice').value = '';
@@ -1326,7 +1349,7 @@
             document.getElementById('pColors').value = '';
             document.getElementById('pSizes').value = '';
             document.getElementById('pOfferTime').value = '';
-            
+
             nav('market');
         } catch(e) { showToast('خطأ', 'error'); }
     }
@@ -1336,13 +1359,13 @@
         try {
             const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
             const list = await res.json();
-            
+
             const grid = document.getElementById('myListGrid');
             if (!list.length) {
                 grid.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500 mb-4">لا توجد إعلانات</p><button onclick="nav(\'add\')" class="btn-primary px-6 py-3 rounded-xl text-white font-semibold">إضافة إعلان</button></div>';
                 return;
             }
-            
+
             grid.innerHTML = list.map(p => `
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
                     <div class="flex gap-4">
@@ -1362,17 +1385,17 @@
     async function loadWallet() {
         document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
         loadPaymentMethods();
-        
+
         try {
             const res = await fetch('/api/transactions/' + USER._id);
             const trans = await res.json();
-            
+
             const list = document.getElementById('transactionsList');
             if (!trans.length) {
                 list.innerHTML = '<p class="text-center text-gray-500 py-4">لا توجد معاملات</p>';
                 return;
             }
-            
+
             list.innerHTML = trans.slice(0, 10).map(t => `
                 <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
@@ -1392,7 +1415,7 @@
         try {
             const res = await fetch('/api/payment-methods');
             const methods = await res.json();
-            
+
             document.getElementById('paymentMethods').innerHTML = methods.map(m => `
                 <div class="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-100 dark:border-slate-600">
                     <div class="flex items-center gap-3 mb-2">
@@ -1413,7 +1436,7 @@
         const amount = document.getElementById('depAmount').value;
         const proof = document.getElementById('depProof').value;
         if (!amount || !proof) return showToast('يرجى ملء جميع الحقول', 'error');
-        
+
         try {
             await fetch('/api/wallet/deposit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, amount: Number(amount), proof }) });
             showToast('تم إرسال الطلب! جاري المراجعة', 'success');
@@ -1452,4 +1475,3 @@
 </script>
 </body>
 </html>
-
