@@ -14,503 +14,413 @@ app.use(express.urlencoded({ extended: true }));
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) {
     mongoose.connect(mongoUri)
-        .then(() => console.log('✅ MongoDB Connected Successfully'))
-        .catch(err => console.error('❌ MongoDB Connection Error:', err));
+        .then(() => console.log('✅ MongoDB Connected'))
+        .catch(err => console.error('❌ MongoDB Error:', err));
 }
-
-// ============ SETTINGS ============
-const LEAD_PRICE = 50; // سعر كشف الرقم
 
 // ============ MODELS ============
 
-// User Model
 const UserSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
-    balance: { type: Number, default: 0, min: 0 },
-    phone: { type: String, trim: true },
+    balance: { type: Number, default: 0 },
+    phone: String,
     fingerprint: String,
     isAdmin: { type: Boolean, default: false },
-    isVerified: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
-    lastLogin: { type: Date, default: Date.now }
+    isBanned: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
 
-// Listing Model
 const ListingSchema = new mongoose.Schema({
-    userId: { type: String, required: true, index: true },
-    userName: { type: String, required: true },
-    type: { type: String, enum: ['product', 'service'], default: 'product' },
-    title: { type: String, required: true, trim: true },
-    desc: { type: String, trim: true },
-    price: { type: Number, required: true, min: 0 },
-    image: { type: String, trim: true },
+    userId: { type: String, required: true },
+    userName: String,
+    type: { type: String, default: 'product' },
+    title: { type: String, required: true },
+    desc: String,
+    price: { type: Number, required: true },
+    image: String,
     category: { type: String, default: 'other' },
     active: { type: Boolean, default: true },
     views: { type: Number, default: 0 },
     date: { type: Date, default: Date.now }
 });
-ListingSchema.index({ active: 1, date: -1 });
 const Listing = mongoose.model('Listing', ListingSchema);
 
-// Lead Model
 const LeadSchema = new mongoose.Schema({
-    listingId: { type: String, required: true, index: true },
-    sellerId: { type: String, required: true, index: true },
-    buyerName: { type: String, required: true, trim: true },
-    buyerPhone: { type: String, required: true, trim: true },
-    buyerWilaya: { type: String, required: true, trim: true },
+    listingId: String,
+    sellerId: String,
+    sellerName: String,
+    buyerName: String,
+    buyerPhone: String,
+    buyerWilaya: String,
     buyerFingerprint: String,
     isRevealed: { type: Boolean, default: false },
-    revealedAt: Date,
     date: { type: Date, default: Date.now }
 });
 const Lead = mongoose.model('Lead', LeadSchema);
 
-// Transaction Model (Deposits)
 const TransSchema = new mongoose.Schema({
-    userId: { type: String, required: true, index: true },
+    userId: String,
     userName: String,
-    amount: { type: Number, required: true, min: 0 },
-    proof: { type: String, required: true },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
-    processedBy: String,
-    processedAt: Date,
+    amount: Number,
+    proof: String,
+    status: { type: String, default: 'pending' },
     date: { type: Date, default: Date.now }
 });
 const Trans = mongoose.model('Trans', TransSchema);
 
-// ============ HELPER FUNCTIONS ============
-
-// Error response helper
-const errorResponse = (res, message, status = 400) => {
-    return res.status(status).json({ success: false, msg: message });
-};
-
-// Success response helper
-const successResponse = (res, data = {}) => {
-    return res.json({ success: true, ...data });
-};
-
-// ============ ROUTES - PAGES ============
-
-app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'dashboard.html'));
+const SettingsSchema = new mongoose.Schema({
+    key: { type: String, unique: true },
+    value: mongoose.Schema.Types.Mixed
 });
+const Settings = mongoose.model('Settings', SettingsSchema);
 
-app.get('/p/:id', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'product.html'));
-});
+// ============ HELPER: GET SETTING ============
+async function getSetting(key, defaultValue) {
+    const s = await Settings.findOne({ key });
+    return s ? s.value : defaultValue;
+}
 
-app.get('/super-admin', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'admin.html'));
-});
+async function setSetting(key, value) {
+    await Settings.findOneAndUpdate({ key }, { value }, { upsert: true });
+}
 
-// ============ ROUTES - AUTH API ============
+// ============ PAGES ============
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html')));
+app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html')));
+app.get('/super-admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
 
-// Register
+// ============ AUTH API ============
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { name, email, password, phone, fingerprint } = req.body;
-
-        // Validation
-        if (!name || !email || !password) {
-            return errorResponse(res, 'جميع الحقول مطلوبة');
-        }
-
-        // Check existing email
+        if (!name || !email || !password) return res.json({ success: false, msg: 'جميع الحقول مطلوبة' });
+        
         const exists = await User.findOne({ email: email.toLowerCase() });
-        if (exists) {
-            return errorResponse(res, 'البريد الإلكتروني مستخدم مسبقاً');
-        }
-
-        // Create user
-        const user = await User.create({
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
-            password, // Note: In production, hash the password!
-            phone: phone?.trim(),
-            fingerprint
-        });
-
-        successResponse(res, { user });
-
+        if (exists) return res.json({ success: false, msg: 'البريد مستخدم' });
+        
+        const user = await User.create({ name, email: email.toLowerCase(), password, phone, fingerprint });
+        res.json({ success: true, user });
     } catch (e) {
-        console.error('Register Error:', e);
-        errorResponse(res, 'حدث خطأ في التسجيل', 500);
+        res.json({ success: false, msg: 'خطأ في التسجيل' });
     }
 });
 
-// Login
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        if (!email || !password) {
-            return errorResponse(res, 'البريد وكلمة المرور مطلوبان');
-        }
-
-        const user = await User.findOne({ 
-            email: email.toLowerCase(), 
-            password 
-        });
-
-        if (!user) {
-            return errorResponse(res, 'البريد أو كلمة المرور غير صحيحة');
-        }
-
-        // Update last login
-        user.lastLogin = new Date();
-        await user.save();
-
-        successResponse(res, { user });
-
+        const user = await User.findOne({ email: email.toLowerCase(), password });
+        
+        if (!user) return res.json({ success: false, msg: 'بيانات خاطئة' });
+        if (user.isBanned) return res.json({ success: false, msg: 'حسابك محظور' });
+        
+        res.json({ success: true, user });
     } catch (e) {
-        console.error('Login Error:', e);
-        errorResponse(res, 'حدث خطأ في تسجيل الدخول', 500);
+        res.json({ success: false, msg: 'خطأ' });
     }
 });
 
-// Refresh user data
 app.post('/api/user/refresh', async (req, res) => {
-    try {
-        const user = await User.findById(req.body.id);
-        if (user) {
-            successResponse(res, { user });
-        } else {
-            errorResponse(res, 'المستخدم غير موجود');
-        }
-    } catch (e) {
-        errorResponse(res, 'خطأ في تحديث البيانات', 500);
-    }
+    const user = await User.findById(req.body.id);
+    res.json(user ? { success: true, user } : { success: false });
 });
 
-// ============ ROUTES - LISTINGS API ============
-
-// Create listing
+// ============ LISTINGS API ============
 app.post('/api/listing/create', async (req, res) => {
     try {
-        const { userId, userName, type, title, desc, price, image, category } = req.body;
-
-        if (!userId || !title || !price) {
-            return errorResponse(res, 'البيانات غير مكتملة');
-        }
-
-        await Listing.create({
-            userId,
-            userName,
-            type: type || 'product',
-            title: title.trim(),
-            desc: desc?.trim(),
-            price: Number(price),
-            image: image?.trim(),
-            category: category || 'other'
-        });
-
-        successResponse(res);
-
+        await Listing.create(req.body);
+        res.json({ success: true });
     } catch (e) {
-        console.error('Create Listing Error:', e);
-        errorResponse(res, 'خطأ في نشر الإعلان', 500);
+        res.json({ success: false });
     }
 });
 
-// Get all active listings (market)
 app.get('/api/market', async (req, res) => {
-    try {
-        const listings = await Listing.find({ active: true })
-            .sort({ date: -1 })
-            .limit(100)
-            .lean();
-        res.json(listings);
-    } catch (e) {
-        console.error('Market Error:', e);
-        res.json([]);
-    }
+    const list = await Listing.find({ active: true }).sort({ date: -1 }).limit(100);
+    res.json(list);
 });
 
-// Get user's listings
 app.post('/api/user/listings', async (req, res) => {
+    const list = await Listing.find({ userId: req.body.userId }).sort({ date: -1 });
+    res.json(list);
+});
+
+app.get('/api/public/product/:id', async (req, res) => {
+    const p = await Listing.findById(req.params.id);
+    if (p) await Listing.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
+    res.json(p || {});
+});
+
+// ============ LEADS API ============
+app.post('/api/lead/create', async (req, res) => {
     try {
-        const listings = await Listing.find({ userId: req.body.userId })
-            .sort({ date: -1 })
-            .lean();
-        res.json(listings);
+        const { listingId, buyerName, buyerPhone, buyerWilaya, fingerprint } = req.body;
+        const listing = await Listing.findById(listingId);
+        if (!listing) return res.json({ success: false, msg: 'الإعلان غير موجود' });
+        
+        const seller = await User.findById(listing.userId);
+        if (seller?.fingerprint === fingerprint) return res.json({ success: false, msg: 'لا يمكنك الطلب من نفسك' });
+        
+        const exists = await Lead.findOne({ listingId, buyerFingerprint: fingerprint });
+        if (exists) return res.json({ success: false, msg: 'تم الطلب مسبقاً' });
+        
+        await Lead.create({ 
+            listingId, 
+            sellerId: listing.userId, 
+            sellerName: listing.userName,
+            buyerName, 
+            buyerPhone, 
+            buyerWilaya, 
+            buyerFingerprint: fingerprint 
+        });
+        res.json({ success: true });
     } catch (e) {
-        res.json([]);
+        res.json({ success: false });
     }
 });
 
-// Get single product (public)
-app.get('/api/public/product/:id', async (req, res) => {
+app.post('/api/seller/leads', async (req, res) => {
+    const leads = await Lead.find({ sellerId: req.body.userId }).sort({ date: -1 });
+    res.json(leads.map(l => ({
+        ...l.toObject(),
+        buyerPhone: l.isRevealed ? l.buyerPhone : l.buyerPhone.substring(0, 4) + '******'
+    })));
+});
+
+app.post('/api/lead/reveal', async (req, res) => {
     try {
-        const product = await Listing.findById(req.params.id).lean();
+        const { userId, leadId } = req.body;
+        const user = await User.findById(userId);
+        const lead = await Lead.findById(leadId);
         
-        if (product) {
-            // Increment views
-            await Listing.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
+        if (!user || !lead) return res.json({ success: false, msg: 'خطأ' });
+        if (lead.isRevealed) return res.json({ success: true, phone: lead.buyerPhone, newBalance: user.balance });
+        
+        const leadPrice = await getSetting('leadPrice', 50);
+        if (user.balance < leadPrice) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
+        
+        user.balance -= leadPrice;
+        lead.isRevealed = true;
+        await user.save();
+        await lead.save();
+        
+        res.json({ success: true, phone: lead.buyerPhone, newBalance: user.balance });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// ============ WALLET API ============
+app.post('/api/wallet/deposit', async (req, res) => {
+    try {
+        const user = await User.findById(req.body.userId);
+        await Trans.create({ ...req.body, userName: user?.name });
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// ============ ADMIN API ============
+
+// Stats
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        const [users, listings, leads, pendingDeposits, revealedLeads] = await Promise.all([
+            User.countDocuments(),
+            Listing.countDocuments(),
+            Lead.countDocuments(),
+            Trans.countDocuments({ status: 'pending' }),
+            Lead.countDocuments({ isRevealed: true })
+        ]);
+        res.json({ users, listings, leads, pendingDeposits, revealedLeads });
+    } catch (e) {
+        res.json({ users: 0, listings: 0, leads: 0, pendingDeposits: 0, revealedLeads: 0 });
+    }
+});
+
+// Users Management
+app.get('/api/admin/users', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 1000;
+    const users = await User.find().sort({ createdAt: -1 }).limit(limit);
+    res.json(users);
+});
+
+app.post('/api/admin/user/update', async (req, res) => {
+    try {
+        const { id, ...data } = req.body;
+        await User.findByIdAndUpdate(id, data);
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+app.post('/api/admin/user/add-balance', async (req, res) => {
+    try {
+        const { id, amount } = req.body;
+        await User.findByIdAndUpdate(id, { $inc: { balance: amount } });
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+app.post('/api/admin/user/delete', async (req, res) => {
+    try {
+        const { id } = req.body;
+        await User.findByIdAndDelete(id);
+        await Listing.deleteMany({ userId: id });
+        await Lead.deleteMany({ sellerId: id });
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// Listings Management
+app.get('/api/admin/listings', async (req, res) => {
+    const listings = await Listing.find().sort({ date: -1 });
+    res.json(listings);
+});
+
+app.post('/api/admin/listing/update', async (req, res) => {
+    try {
+        const { id, ...data } = req.body;
+        await Listing.findByIdAndUpdate(id, data);
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+app.post('/api/admin/listing/toggle', async (req, res) => {
+    try {
+        const { id, active } = req.body;
+        await Listing.findByIdAndUpdate(id, { active });
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+app.post('/api/admin/listing/delete', async (req, res) => {
+    try {
+        await Listing.findByIdAndDelete(req.body.id);
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+app.post('/api/admin/listings/clear-inactive', async (req, res) => {
+    try {
+        const result = await Listing.deleteMany({ active: false });
+        res.json({ success: true, deleted: result.deletedCount });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// Leads Management
+app.get('/api/admin/leads', async (req, res) => {
+    const leads = await Lead.find().sort({ date: -1 });
+    res.json(leads);
+});
+
+app.post('/api/admin/lead/delete', async (req, res) => {
+    try {
+        await Lead.findByIdAndDelete(req.body.id);
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+app.post('/api/admin/leads/clear-old', async (req, res) => {
+    try {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const result = await Lead.deleteMany({ date: { $lt: thirtyDaysAgo } });
+        res.json({ success: true, deleted: result.deletedCount });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// Deposits Management
+app.get('/api/admin/deposits', async (req, res) => {
+    const status = req.query.status;
+    const limit = parseInt(req.query.limit) || 1000;
+    const query = status && status !== 'all' ? { status } : {};
+    const deposits = await Trans.find(query).sort({ date: -1 }).limit(limit);
+    res.json(deposits);
+});
+
+app.post('/api/admin/approve-deposit', async (req, res) => {
+    try {
+        const { transId, action } = req.body;
+        const trans = await Trans.findById(transId);
+        
+        if (!trans || trans.status !== 'pending') {
+            return res.json({ success: false, msg: 'الطلب غير موجود أو تمت معالجته' });
         }
         
-        res.json(product || {});
+        if (action === 'approve') {
+            await User.findByIdAndUpdate(trans.userId, { $inc: { balance: trans.amount } });
+            trans.status = 'approved';
+        } else {
+            trans.status = 'rejected';
+        }
+        
+        await trans.save();
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// Settings
+app.get('/api/admin/settings', async (req, res) => {
+    try {
+        const settings = await Settings.find();
+        const obj = {};
+        settings.forEach(s => obj[s.key] = s.value);
+        res.json(obj);
     } catch (e) {
         res.json({});
     }
 });
 
-// Delete listing
-app.post('/api/listing/delete', async (req, res) => {
+app.post('/api/admin/settings', async (req, res) => {
     try {
-        const { userId, listingId } = req.body;
-        
-        const listing = await Listing.findById(listingId);
-        if (!listing) {
-            return errorResponse(res, 'الإعلان غير موجود');
+        for (const [key, value] of Object.entries(req.body)) {
+            await setSetting(key, value);
         }
-        
-        if (listing.userId !== userId) {
-            return errorResponse(res, 'غير مصرح لك بحذف هذا الإعلان');
-        }
-        
-        await Listing.findByIdAndDelete(listingId);
-        successResponse(res);
-        
+        res.json({ success: true });
     } catch (e) {
-        errorResponse(res, 'خطأ في حذف الإعلان', 500);
+        res.json({ success: false });
     }
 });
 
-// ============ ROUTES - LEADS API ============
-
-// Create lead (buyer interest)
-app.post('/api/lead/create', async (req, res) => {
+// Export Data
+app.get('/api/admin/export/:type', async (req, res) => {
     try {
-        const { listingId, buyerName, buyerPhone, buyerWilaya, fingerprint } = req.body;
-
-        if (!listingId || !buyerName || !buyerPhone || !buyerWilaya) {
-            return errorResponse(res, 'جميع الحقول مطلوبة');
+        let data;
+        switch (req.params.type) {
+            case 'users': data = await User.find().lean(); break;
+            case 'listings': data = await Listing.find().lean(); break;
+            case 'leads': data = await Lead.find().lean(); break;
+            default: data = [];
         }
-
-        const listing = await Listing.findById(listingId);
-        if (!listing) {
-            return errorResponse(res, 'الإعلان غير موجود');
-        }
-
-        // Prevent seller from ordering their own product
-        const seller = await User.findById(listing.userId);
-        if (seller && seller.fingerprint === fingerprint) {
-            return errorResponse(res, 'لا يمكنك الطلب من إعلانك الخاص!');
-        }
-
-        // Check for duplicate lead
-        const existingLead = await Lead.findOne({ 
-            listingId, 
-            buyerFingerprint: fingerprint 
-        });
-        
-        if (existingLead) {
-            return errorResponse(res, 'لقد أرسلت طلباً لهذا الإعلان مسبقاً');
-        }
-
-        await Lead.create({
-            listingId,
-            sellerId: listing.userId,
-            buyerName: buyerName.trim(),
-            buyerPhone: buyerPhone.trim(),
-            buyerWilaya: buyerWilaya.trim(),
-            buyerFingerprint: fingerprint
-        });
-
-        successResponse(res);
-
-    } catch (e) {
-        console.error('Create Lead Error:', e);
-        errorResponse(res, 'خطأ في إرسال الطلب', 500);
-    }
-});
-
-// Get seller's leads
-app.post('/api/seller/leads', async (req, res) => {
-    try {
-        const leads = await Lead.find({ sellerId: req.body.userId })
-            .sort({ date: -1 })
-            .lean();
-
-        // Protect unrevealed phone numbers
-        const protectedLeads = leads.map(lead => ({
-            ...lead,
-            buyerPhone: lead.isRevealed 
-                ? lead.buyerPhone 
-                : lead.buyerPhone.substring(0, 4) + '******'
-        }));
-
-        res.json(protectedLeads);
-
+        res.json(data);
     } catch (e) {
         res.json([]);
     }
-});
-
-// Reveal lead phone number
-app.post('/api/lead/reveal', async (req, res) => {
-    try {
-        const { userId, leadId } = req.body;
-
-        const user = await User.findById(userId);
-        const lead = await Lead.findById(leadId);
-
-        if (!user || !lead) {
-            return errorResponse(res, 'بيانات غير صحيحة');
-        }
-
-        // Already revealed
-        if (lead.isRevealed) {
-            return successResponse(res, { 
-                phone: lead.buyerPhone, 
-                newBalance: user.balance 
-            });
-        }
-
-        // Check balance
-        if (user.balance < LEAD_PRICE) {
-            return errorResponse(res, `رصيدك غير كافٍ. تحتاج ${LEAD_PRICE} دج على الأقل`);
-        }
-
-        // Deduct balance and reveal
-        user.balance -= LEAD_PRICE;
-        lead.isRevealed = true;
-        lead.revealedAt = new Date();
-
-        await user.save();
-        await lead.save();
-
-        successResponse(res, { 
-            phone: lead.buyerPhone, 
-            newBalance: user.balance 
-        });
-
-    } catch (e) {
-        console.error('Reveal Lead Error:', e);
-        errorResponse(res, 'خطأ في كشف الرقم', 500);
-    }
-});
-
-// ============ ROUTES - WALLET API ============
-
-// Request deposit
-app.post('/api/wallet/deposit', async (req, res) => {
-    try {
-        const { userId, amount, proof } = req.body;
-
-        if (!userId || !amount || !proof) {
-            return errorResponse(res, 'جميع الحقول مطلوبة');
-        }
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return errorResponse(res, 'المستخدم غير موجود');
-        }
-
-        await Trans.create({
-            userId,
-            userName: user.name,
-            amount: Number(amount),
-            proof: proof.trim()
-        });
-
-        successResponse(res);
-
-    } catch (e) {
-        console.error('Deposit Request Error:', e);
-        errorResponse(res, 'خطأ في إرسال طلب الشحن', 500);
-    }
-});
-
-// ============ ROUTES - ADMIN API ============
-
-// Get pending deposits
-app.get('/api/admin/deposits', async (req, res) => {
-    try {
-        const deposits = await Trans.find({ status: 'pending' })
-            .sort({ date: -1 })
-            .lean();
-        res.json(deposits);
-    } catch (e) {
-        res.json([]);
-    }
-});
-
-// Process deposit (approve/reject)
-app.post('/api/admin/approve-deposit', async (req, res) => {
-    try {
-        const { transId, action } = req.body;
-
-        const trans = await Trans.findById(transId);
-        if (!trans) {
-            return errorResponse(res, 'الطلب غير موجود');
-        }
-
-        if (trans.status !== 'pending') {
-            return errorResponse(res, 'تمت معالجة هذا الطلب مسبقاً');
-        }
-
-        if (action === 'approve') {
-            const user = await User.findById(trans.userId);
-            if (user) {
-                user.balance += trans.amount;
-                await user.save();
-            }
-            trans.status = 'approved';
-        } else {
-            trans.status = 'rejected';
-        }
-
-        trans.processedAt = new Date();
-        await trans.save();
-
-        successResponse(res);
-
-    } catch (e) {
-        console.error('Process Deposit Error:', e);
-        errorResponse(res, 'خطأ في معالجة الطلب', 500);
-    }
-});
-
-// Get admin statistics
-app.get('/api/admin/stats', async (req, res) => {
-    try {
-        const [users, leads, listings, pendingDeposits] = await Promise.all([
-            User.countDocuments(),
-            Lead.countDocuments(),
-            Listing.countDocuments(),
-            Trans.countDocuments({ status: 'pending' })
-        ]);
-
-        res.json({ users, leads, listings, pendingDeposits });
-
-    } catch (e) {
-        res.json({ users: 0, leads: 0, listings: 0, pendingDeposits: 0 });
-    }
-});
-
-// ============ ERROR HANDLING ============
-
-app.use((err, req, res, next) => {
-    console.error('Server Error:', err);
-    res.status(500).json({ success: false, msg: 'خطأ في الخادم' });
-});
-
-// 404 Handler
-app.use((req, res) => {
-    res.status(404).json({ success: false, msg: 'الصفحة غير موجودة' });
 });
 
 // ============ START SERVER ============
-
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`🚀 DzMarket Server Running on port ${port}`);
-    console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
 
