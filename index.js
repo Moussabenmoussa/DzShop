@@ -175,6 +175,19 @@ app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html'
 app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html')));
 app.get('/super-admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
 
+// ============ PUBLIC SETTINGS API ============
+app.get('/api/public/settings', async (req, res) => {
+    try {
+        const orderRevealPrice = await getSetting('orderRevealPrice', 50);
+        const chatPrice = await getSetting('chatPrice', 50);
+        const freeMode = await getSetting('freeMode', false);
+        const currency = await getSetting('currency', 'دج');
+        res.json({ orderRevealPrice, chatPrice, freeMode, currency });
+    } catch (e) {
+        res.json({ orderRevealPrice: 50, chatPrice: 50, freeMode: false, currency: 'دج' });
+    }
+});
+
 // ============ AUTH API ============
 app.post('/api/auth/register', async (req, res) => {
     try {
@@ -275,11 +288,14 @@ app.post('/api/order/create', async (req, res) => {
 });
 
 app.get('/api/seller/orders/:userId', async (req, res) => {
+    const freeMode = await getSetting('freeMode', false);
     const orders = await Order.find({ sellerId: req.params.userId }).sort({ date: -1 });
     res.json(orders.map(o => ({
         ...o.toObject(),
-        buyerPhone: o.isRevealed ? o.buyerPhone : o.buyerPhone.substring(0, 4) + '******',
-        buyerAddress: o.isRevealed ? o.buyerAddress : '********'
+        // إذا كان الوضع المجاني مفعل، أظهر كل المعلومات
+        buyerPhone: (o.isRevealed || freeMode) ? o.buyerPhone : o.buyerPhone.substring(0, 4) + '******',
+        buyerAddress: (o.isRevealed || freeMode) ? o.buyerAddress : '********',
+        isRevealed: o.isRevealed || freeMode
     })));
 });
 
@@ -291,6 +307,14 @@ app.post('/api/order/reveal', async (req, res) => {
         
         if (!user || !order) return res.json({ success: false, msg: 'خطأ' });
         if (order.isRevealed) return res.json({ success: true, newBalance: user.balance });
+        
+        // تحقق من الوضع المجاني
+        const freeMode = await getSetting('freeMode', false);
+        if (freeMode) {
+            order.isRevealed = true;
+            await order.save();
+            return res.json({ success: true, newBalance: user.balance });
+        }
         
         const revealPrice = await getSetting('orderRevealPrice', 50);
         if (user.balance < revealPrice) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
@@ -307,10 +331,12 @@ app.post('/api/order/reveal', async (req, res) => {
     }
 });
 
-// ============ CHAT API (للخدمات) ============
-app.post('/api/chat/start', async (req, res) => {
+// ============ CHAT API (للخدمات) - البائع يدفع ============
+
+// طلب محادثة من المشتري (لا يدفع المشتري)
+app.post('/api/chat/request', async (req, res) => {
     try {
-        const { listingId, fingerprint, userId, userName } = req.body;
+        const { listingId, fingerprint, buyerName } = req.body;
         
         const listing = await Listing.findById(listingId);
         if (!listing) return res.json({ success: false, msg: 'الخدمة غير موجودة' });
@@ -320,49 +346,123 @@ app.post('/api/chat/start', async (req, res) => {
         // تحقق إذا كانت محادثة موجودة
         let chat = await Chat.findOne({ listingId, buyerFingerprint: fingerprint });
         
+        if (chat) {
+            return res.json({ success: true, chatId: chat._id, isPaid: chat.isPaid });
+        }
+        
+        // إنشاء محادثة جديدة (غير مدفوعة بعد)
+        chat = await Chat.create({
+            listingId,
+            listingTitle: listing.title,
+            sellerId: listing.userId,
+            sellerName: listing.userName,
+            buyerName: buyerName || 'مشتري',
+            buyerFingerprint: fingerprint,
+            isPaid: false
+        });
+        
+        // إشعار للبائع بوجود طلب محادثة جديد
+        await createNotification(listing.userId, 'chat_request', 'طلب محادثة جديد! 💬', `${buyerName || 'مشتري'} يريد التواصل معك حول "${listing.title}"`, chat._id);
+        
+        return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'تم إرسال طلب المحادثة للبائع' });
+    } catch (e) {
+        res.json({ success: false, msg: 'خطأ' });
+    }
+});
+
+// البائع يقبل المحادثة ويدفع
+app.post('/api/chat/accept', async (req, res) => {
+    try {
+        const { chatId, sellerId } = req.body;
+        
+        const chat = await Chat.findById(chatId);
+        if (!chat) return res.json({ success: false, msg: 'المحادثة غير موجودة' });
+        
+        if (chat.sellerId !== sellerId) return res.json({ success: false, msg: 'غير مصرح' });
+        
+        if (chat.isPaid) return res.json({ success: true, msg: 'المحادثة مفتوحة بالفعل' });
+        
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.json({ success: false, msg: 'البائع غير موجود' });
+        
+        // تحقق من الوضع المجاني
+        const freeMode = await getSetting('freeMode', false);
+        
+        if (!freeMode) {
+            const chatPrice = await getSetting('chatPrice', 50);
+            
+            if (seller.balance < chatPrice) {
+                return res.json({ success: false, msg: `رصيدك غير كافٍ. تحتاج ${chatPrice} لفتح المحادثة` });
+            }
+            
+            // خصم الرصيد من البائع
+            const newBalance = await deductBalance(sellerId, chatPrice, `فتح محادثة: ${chat.listingTitle}`);
+            if (newBalance === false) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
+        }
+        
+        chat.isPaid = true;
+        await chat.save();
+        
+        // إشعار للمشتري
+        if (chat.buyerId) {
+            await createNotification(chat.buyerId, 'message', 'تم قبول طلبك! ✅', `${chat.sellerName} قبل طلب المحادثة حول "${chat.listingTitle}"`, chatId);
+        }
+        
+        return res.json({ success: true, msg: 'تم فتح المحادثة بنجاح' });
+    } catch (e) {
+        res.json({ success: false, msg: 'خطأ' });
+    }
+});
+
+// الحصول على طلبات المحادثات المعلقة للبائع
+app.get('/api/chat/pending/:sellerId', async (req, res) => {
+    try {
+        const chats = await Chat.find({ sellerId: req.params.sellerId, isPaid: false }).sort({ createdAt: -1 });
+        res.json(chats);
+    } catch (e) {
+        res.json([]);
+    }
+});
+
+// إبقاء الـ API القديم للتوافق (لكن بمنطق جديد)
+app.post('/api/chat/start', async (req, res) => {
+    try {
+        const { listingId, fingerprint, userId, userName } = req.body;
+        
+        const listing = await Listing.findById(listingId);
+        if (!listing) return res.json({ success: false, msg: 'الخدمة غير موجودة' });
+        
+        if (listing.type !== 'service') return res.json({ success: false, msg: 'هذا ليس خدمة' });
+        
+        // تحقق إذا كانت محادثة موجودة ومدفوعة
+        let chat = await Chat.findOne({ listingId, buyerFingerprint: fingerprint });
+        
         if (chat && chat.isPaid) {
             return res.json({ success: true, chatId: chat._id });
         }
         
-        // إذا كان المستخدم مسجل، تحقق من الرصيد
-        if (userId) {
-            const chatPrice = await getSetting('chatPrice', 50);
-            const user = await User.findById(userId);
-            
-            if (!user || user.balance < chatPrice) {
-                return res.json({ success: false, msg: `رصيدك غير كافٍ. تحتاج ${chatPrice} دج` });
-            }
-            
-            // خصم الرصيد
-            const newBalance = await deductBalance(userId, chatPrice, `فتح محادثة: ${listing.title}`);
-            if (newBalance === false) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
-            
-            // إنشاء أو تحديث المحادثة
-            if (chat) {
-                chat.isPaid = true;
-                chat.buyerId = userId;
-                chat.buyerName = userName;
-                await chat.save();
-            } else {
-                chat = await Chat.create({
-                    listingId,
-                    listingTitle: listing.title,
-                    sellerId: listing.userId,
-                    sellerName: listing.userName,
-                    buyerId: userId,
-                    buyerName: userName,
-                    buyerFingerprint: fingerprint,
-                    isPaid: true
-                });
-            }
-            
-            // إشعار للبائع
-            await createNotification(listing.userId, 'message', 'محادثة جديدة! 💬', `${userName} بدأ محادثة حول "${listing.title}"`, chat._id);
-            
-            return res.json({ success: true, chatId: chat._id, newBalance });
+        // إنشاء أو تحديث المحادثة
+        if (chat) {
+            chat.buyerId = userId;
+            chat.buyerName = userName;
+            await chat.save();
+        } else {
+            chat = await Chat.create({
+                listingId,
+                listingTitle: listing.title,
+                sellerId: listing.userId,
+                sellerName: listing.userName,
+                buyerId: userId,
+                buyerName: userName,
+                buyerFingerprint: fingerprint,
+                isPaid: false
+            });
         }
         
-        return res.json({ success: false, msg: 'يجب تسجيل الدخول أولاً' });
+        // إشعار للبائع
+        await createNotification(listing.userId, 'chat_request', 'طلب محادثة جديد! 💬', `${userName || 'مشتري'} يريد التواصل معك حول "${listing.title}"`, chat._id);
+        
+        return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'تم إرسال طلب المحادثة للبائع. انتظر قبوله.' });
     } catch (e) {
         res.json({ success: false, msg: 'خطأ' });
     }
@@ -400,6 +500,9 @@ app.post('/api/chat/send', async (req, res) => {
         
         const chat = await Chat.findById(chatId);
         if (!chat) return res.json({ success: false });
+        
+        // التحقق من أن المحادثة مدفوعة
+        if (!chat.isPaid) return res.json({ success: false, msg: 'المحادثة غير مفتوحة بعد' });
         
         const sender = await User.findById(senderId);
         
@@ -482,9 +585,12 @@ app.get('/api/unread-counts/:userId', async (req, res) => {
         messages += c.sellerId === userId ? (c.sellerUnread || 0) : (c.buyerUnread || 0);
     });
     
+    // عد طلبات المحادثات المعلقة للبائع
+    const pendingChats = await Chat.countDocuments({ sellerId: userId, isPaid: false });
+    
     const orders = await Order.countDocuments({ sellerId: userId, isRevealed: false });
     
-    res.json({ messages, orders });
+    res.json({ messages, orders, pendingChats });
 });
 
 // ============ PAYMENT METHODS API ============
@@ -575,7 +681,7 @@ app.post('/api/admin/user/add-balance', async (req, res) => {
             status: 'completed'
         });
         
-        await createNotification(id, 'deposit', 'تم شحن رصيدك! 💰', `تم إضافة ${amount} دج لرصيدك`);
+        await createNotification(id, 'deposit', 'تم شحن رصيدك! 💰', `تم إضافة ${amount} لرصيدك`);
         
         res.json({ success: true });
     } catch (e) {
@@ -682,7 +788,7 @@ app.post('/api/admin/approve-deposit', async (req, res) => {
         if (action === 'approve') {
             await User.findByIdAndUpdate(trans.userId, { $inc: { balance: trans.amount } });
             trans.status = 'approved';
-            await createNotification(trans.userId, 'deposit', 'تم شحن رصيدك! 💰', `تم إضافة ${trans.amount} دج لرصيدك`);
+            await createNotification(trans.userId, 'deposit', 'تم شحن رصيدك! 💰', `تم إضافة ${trans.amount} لرصيدك`);
         } else {
             trans.status = 'rejected';
             await createNotification(trans.userId, 'deposit', 'تم رفض طلب الشحن', 'يرجى التواصل مع الدعم');
