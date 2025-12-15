@@ -2,92 +2,461 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إدارة المنصة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الإدارة - DzMarket</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <style>body{font-family:'Tajawal',sans-serif;background:#0f172a;color:white}</style>
-</head>
-<body class="p-6">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        .dark {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+        
+        body { background: var(--bg-primary); color: var(--text-primary); }
 
-    <div class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
-        <h1 class="text-3xl font-bold text-blue-400">💎 الإدارة المالية</h1>
-        <div class="flex gap-4 text-sm text-slate-400">
-            <div>المستخدمين: <span id="sUsers" class="text-white font-bold">...</span></div>
-            <div>العروض: <span id="sListings" class="text-white font-bold">...</span></div>
-            <div>الطلبات: <span id="sLeads" class="text-white font-bold">...</span></div>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-slideUp { animation: slideUp 0.4s ease-out; }
+        .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
+        .animate-pulse { animation: pulse 2s infinite; }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+
+        .deposit-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .deposit-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+        .btn-approve {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-approve:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4); }
+
+        .btn-reject {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-reject:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
+
+        .modal-backdrop { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+
+        .toast { animation: slideUp 0.3s ease-out; }
+
+        .proof-img {
+            transition: all 0.3s ease;
+        }
+        .proof-img:hover { opacity: 1 !important; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="max-w-7xl mx-auto mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-xl">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-2xl text-blue-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black">لوحة الإدارة</h1>
+                    <p class="text-white/60 text-sm">إدارة المنصة وطلبات الشحن</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-8 text-sm">
+                    <div class="text-center">
+                        <div class="text-2xl font-black text-blue-400" id="sUsers">-</div>
+                        <div class="text-white/60">مستخدم</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-black text-green-400" id="sListings">-</div>
+                        <div class="text-white/60">إعلان</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-black text-amber-400" id="sLeads">-</div>
+                        <div class="text-white/60">طلب</div>
+                    </div>
+                </div>
+                <a href="/" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2">
+                    <i class="fas fa-home"></i>
+                    <span class="hidden md:inline">الرئيسية</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat-card rounded-2xl p-5 animate-slideUp" style="animation-delay: 0ms">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-blue-600" id="statUsers">0</div>
+                <div class="text-sm text-gray-500">إجمالي المستخدمين</div>
+            </div>
+            
+            <div class="stat-card rounded-2xl p-5 animate-slideUp" style="animation-delay: 100ms">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-box text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-green-600" id="statListings">0</div>
+                <div class="text-sm text-gray-500">إجمالي الإعلانات</div>
+            </div>
+            
+            <div class="stat-card rounded-2xl p-5 animate-slideUp" style="animation-delay: 200ms">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-bell text-amber-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-amber-600" id="statLeads">0</div>
+                <div class="text-sm text-gray-500">إجمالي الطلبات</div>
+            </div>
+            
+            <div class="stat-card rounded-2xl p-5 animate-slideUp" style="animation-delay: 300ms">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clock text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-purple-600" id="statPending">0</div>
+                <div class="text-sm text-gray-500">��لبات شحن معلقة</div>
+            </div>
+        </div>
+
+        <!-- Pending Deposits Section -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-credit-card text-amber-600"></i>
+                    </div>
+                    طلبات شحن الرصيد المعلقة
+                </h2>
+                <button onclick="loadDeposits()" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+                    <i class="fas fa-sync-alt"></i>
+                    تحديث
+                </button>
+            </div>
+        </div>
+
+        <div id="depositList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="col-span-full text-center py-10">
+                <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-500">جاري التحميل...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Image Zoom Modal -->
+    <div id="imgModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-full animate-scaleIn">
+            <button onclick="closeImageModal()" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-white/20 hover:bg-white/30 text-white w-10 h-10 rounded-full flex items-center justify-center transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <img id="zoomImg" src="" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl">
         </div>
     </div>
 
-    <h2 class="text-xl font-bold mb-4 text-yellow-400">💸 طلبات شحن الرصيد (المعلقة)</h2>
-    <div id="depositList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <p class="text-slate-500 col-span-full">جاري التحميل...</p>
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-6 text-center animate-scaleIn">
+            <div id="confirmIcon" class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h3 id="confirmTitle" class="text-xl font-bold text-gray-900 dark:text-white mb-2">تأكيد العملية</h3>
+            <p id="confirmMessage" class="text-gray-500 mb-6">هل أنت متأكد من هذه العملية؟</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    إلغاء
+                </button>
+                <button id="confirmBtn" onclick="executeConfirm()" class="flex-1 py-3 rounded-xl text-white font-semibold btn-approve">
+                    تأكيد
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div id="imgModal" class="fixed inset-0 bg-black/90 hidden justify-center items-center z-50 p-4" onclick="this.style.display='none'">
-        <img id="zoomImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl border border-slate-600">
-    </div>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[100] space-y-2"></div>
 
 <script>
-    // 1. جلب الإحصائيات
-    fetch('/api/admin/stats').then(r=>r.json()).then(d => {
-        document.getElementById('sUsers').innerText = d.users;
-        document.getElementById('sListings').innerText = d.listings;
-        document.getElementById('sLeads').innerText = d.leads;
+    // ========== DARK MODE ==========
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        document.documentElement.classList.toggle('dark', event.matches);
     });
 
-    // 2. جلب طلبات الشحن
-    async function loadDeposits() {
-        const res = await fetch('/api/admin/deposits');
-        const list = await res.json();
-        
-        const container = document.getElementById('depositList');
-        if(list.length === 0) {
-            container.innerHTML = '<p class="text-slate-500 col-span-full text-center py-10 bg-slate-800 rounded-xl">لا توجد طلبات شحن جديدة ✅</p>';
-            return;
+    // ========== STATE ==========
+    let pendingAction = null;
+
+    // ========== INIT ==========
+    window.onload = () => {
+        loadStats();
+        loadDeposits();
+    };
+
+    // ========== LOAD STATS ==========
+    async function loadStats() {
+        try {
+            const res = await fetch('/api/admin/stats');
+            const d = await res.json();
+            
+            document.getElementById('sUsers').innerText = d.users;
+            document.getElementById('sListings').innerText = d.listings;
+            document.getElementById('sLeads').innerText = d.leads;
+            
+            document.getElementById('statUsers').innerText = d.users;
+            document.getElementById('statListings').innerText = d.listings;
+            document.getElementById('statLeads').innerText = d.leads;
+        } catch(e) {
+            console.error('Error loading stats:', e);
         }
-
-        container.innerHTML = list.map(t => `
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg">
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <div class="font-bold text-lg">${t.userName}</div>
-                        <div class="text-xs text-slate-400">ID: ${t.userId.substr(-4)}</div>
-                    </div>
-                    <div class="text-green-400 font-bold text-xl">+${t.amount} دج</div>
-                </div>
-                
-                <div class="mb-4 h-32 bg-slate-900 rounded-lg overflow-hidden cursor-pointer relative group" onclick="showImg('${t.proof}')">
-                    <img src="${t.proof}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
-                    <div class="absolute inset-0 flex items-center justify-center text-xs text-white opacity-0 group-hover:opacity-100 bg-black/50 transition">اضغط للتكبير 🔍</div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="process('${t._id}', 'approve')" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded-lg font-bold text-sm">موافقة ✅</button>
-                    <button onclick="process('${t._id}', 'reject')" class="flex-1 bg-red-600 hover:bg-red-500 py-2 rounded-lg font-bold text-sm">رفض ❌</button>
-                </div>
-                <div class="text-[10px] text-slate-500 mt-2 text-center">${new Date(t.date).toLocaleString()}</div>
-            </div>
-        `).join('');
     }
 
-    // 3. معالجة الطلب (موافقة/رفض)
-    async function process(id, action) {
-        if(!confirm(action === 'approve' ? 'هل وصلك المال فعلاً؟ سيتم إضافة الرصيد للمستخدم.' : 'رفض الطلب؟')) return;
+    // ========== LOAD DEPOSITS ==========
+    async function loadDeposits() {
+        const container = document.getElementById('depositList');
         
-        await fetch('/api/admin/approve-deposit', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ transId: id, action })
-        });
-        loadDeposits(); // تحديث القائمة
+        try {
+            const res = await fetch('/api/admin/deposits');
+            const list = await res.json();
+            
+            document.getElementById('statPending').innerText = list.length;
+            
+            if(list.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-gray-100 dark:border-gray-700">
+                            <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">لا توجد طلبات معلقة</h3>
+                            <p class="text-gray-500">جميع طلبات الشحن تمت معالجتها ✅</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map((t, i) => `
+                <div class="deposit-card rounded-2xl p-5 animate-slideUp" style="animation-delay: ${i * 100}ms">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                ${t.userName ? t.userName.charAt(0) : 'م'}
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 dark:text-white">${t.userName || 'مستخدم'}</div>
+                                <div class="text-xs text-gray-500">ID: ${t.userId.substr(-6)}</div>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-black text-green-600">+${Number(t.amount).toLocaleString()}</div>
+                            <div class="text-xs text-gray-500">دينار جزائري</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 h-40 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden cursor-pointer relative group" onclick="showImage('${t.proof}')">
+                        <img src="${t.proof}" class="proof-img w-full h-full object-cover opacity-90 group-hover:scale-105 transition duration-300" onerror="this.src='https://via.placeholder.com/400x300?text=صورة+غير+متاحة'">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
+                            <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white font-semibold text-sm">
+                                <i class="fas fa-search-plus ml-2"></i>
+                                اضغط للتكبير
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 mb-3">
+                        <button onclick="processDeposit('${t._id}', 'approve', ${t.amount}, '${t.userName}')" class="flex-1 btn-approve py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2">
+                            <i class="fas fa-check"></i>
+                            موافقة
+                        </button>
+                        <button onclick="processDeposit('${t._id}', 'reject', ${t.amount}, '${t.userName}')" class="flex-1 btn-reject py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2">
+                            <i class="fas fa-times"></i>
+                            رفض
+                        </button>
+                    </div>
+                    
+                    <div class="text-center text-xs text-gray-400 flex items-center justify-center gap-2">
+                        <i class="fas fa-clock"></i>
+                        ${formatDate(t.date)}
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-10">
+                    <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                    </div>
+                    <p class="text-red-600 font-semibold">خطأ في تحميل البيانات</p>
+                    <button onclick="loadDeposits()" class="mt-4 bg-red-100 dark:bg-red-900/30 text-red-600 px-4 py-2 rounded-xl font-semibold text-sm">
+                        إعادة المحاولة
+                    </button>
+                </div>
+            `;
+        }
     }
 
-    function showImg(url) {
+    // ========== PROCESS DEPOSIT ==========
+    function processDeposit(id, action, amount, userName) {
+        const isApprove = action === 'approve';
+        
+        pendingAction = { id, action };
+        
+        const icon = document.getElementById('confirmIcon');
+        const title = document.getElementById('confirmTitle');
+        const message = document.getElementById('confirmMessage');
+        const btn = document.getElementById('confirmBtn');
+        
+        if(isApprove) {
+            icon.className = 'w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4';
+            icon.innerHTML = '<i class="fas fa-check text-green-600 text-2xl"></i>';
+            title.innerText = 'تأكيد الموافقة';
+            message.innerHTML = `هل تأكدت من استلام المبلغ؟<br><strong class="text-green-600">${Number(amount).toLocaleString()} دج</strong> من <strong>${userName}</strong>`;
+            btn.className = 'flex-1 py-3 rounded-xl text-white font-semibold btn-approve';
+        } else {
+            icon.className = 'w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4';
+            icon.innerHTML = '<i class="fas fa-times text-red-600 text-2xl"></i>';
+            title.innerText = 'تأكيد الرفض';
+            message.innerHTML = `هل تريد رفض طلب الشحن من <strong>${userName}</strong>؟<br><span class="text-red-600">لن يتم إضافة الرصيد</span>`;
+            btn.className = 'flex-1 py-3 rounded-xl text-white font-semibold btn-reject';
+        }
+        
+        document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    async function executeConfirm() {
+        if(!pendingAction) return;
+        
+        const { id, action } = pendingAction;
+        
+        try {
+            await fetch('/api/admin/approve-deposit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ transId: id, action })
+            });
+            
+            closeConfirmModal();
+            
+            if(action === 'approve') {
+                showToast('تمت الموافقة وإضافة الرصيد للمستخدم ✅', 'success');
+            } else {
+                showToast('تم رفض الطلب', 'error');
+            }
+            
+            loadDeposits();
+            loadStats();
+        } catch(e) {
+            showToast('حدث خطأ أثناء المعالجة', 'error');
+        }
+    }
+
+    // ========== IMAGE MODAL ==========
+    function showImage(url) {
         document.getElementById('zoomImg').src = url;
-        document.getElementById('imgModal').style.display = 'flex';
+        document.getElementById('imgModal').classList.remove('hidden');
     }
 
-    loadDeposits();
+    function closeImageModal() {
+        document.getElementById('imgModal').classList.add('hidden');
+    }
+
+    // ========== CONFIRM MODAL ==========
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.add('hidden');
+        pendingAction = null;
+    }
+
+    // ========== TOAST ==========
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        
+        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+        
+        toast.className = `toast ${colors[type]} text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-3`;
+        toast.innerHTML = `
+            <i class="fas ${icons[type]} text-xl"></i>
+            <span class="flex-1 font-semibold">${message}</span>
+            <button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ========== HELPERS ==========
+    function formatDate(date) {
+        const d = new Date(date);
+        const now = new Date();
+        const diff = now - d;
+        
+        if(diff < 60000) return 'الآن';
+        if(diff < 3600000) return Math.floor(diff / 60000) + ' دقيقة';
+        if(diff < 86400000) return Math.floor(diff / 3600000) + ' ساعة';
+        return d.toLocaleDateString('ar-DZ') + ' ' + d.toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') {
+            closeImageModal();
+            closeConfirmModal();
+        }
+    });
 </script>
 </body>
 </html>
+
