@@ -40,26 +40,46 @@
         .animate-slideUp { animation: slideUp 0.4s ease-out; }
         .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
 
-        /* Sidebar */
         .sidebar { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
         .sidebar-item { transition: all 0.2s; }
         .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
         .sidebar-item.active { border-right: 3px solid #3b82f6; }
 
-        /* Cards */
+        /* Sidebar Responsive */
+        @media (max-width: 1023px) {
+            #sidebar {
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); transition: all 0.3s; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 
         .data-card { background: var(--bg-card); border: 1px solid var(--border-color); }
 
-        /* Table */
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th { background: var(--bg-primary); font-weight: 600; text-align: right; padding: 12px 16px; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); }
         .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
         .data-table tr:hover td { background: var(--bg-primary); }
 
-        /* Buttons */
-        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; border: none; }
         .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
         .btn-primary:hover { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
         .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
@@ -69,18 +89,14 @@
         .btn-sm { padding: 6px 12px; font-size: 12px; }
         .btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; border-radius: 8px; }
 
-        /* Inputs */
         .input-field { background: var(--bg-primary); border: 2px solid var(--border-color); color: var(--text-primary); padding: 10px 14px; border-radius: 10px; width: 100%; transition: all 0.2s; }
         .input-field:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
-        /* Modal */
         .modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
         .modal-content { background: var(--bg-card); animation: scaleIn 0.3s ease-out; }
 
-        /* Toast */
         .toast { animation: slideUp 0.3s ease-out; }
 
-        /* Badge */
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .badge-success { background: #dcfce7; color: #16a34a; }
         .badge-danger { background: #fee2e2; color: #dc2626; }
@@ -91,34 +107,54 @@
         .dark .badge-warning { background: rgba(245, 158, 11, 0.2); }
         .dark .badge-info { background: rgba(59, 130, 246, 0.2); }
 
-        /* Tabs */
-        .tab-btn { padding: 10px 20px; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn { padding: 10px 20px; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.2s; background: none; cursor: pointer; }
         .tab-btn:hover { color: var(--text-primary); }
         .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
     </style>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen">
+
+    <!-- Mobile Header -->
+    <header class="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 z-30 px-4 py-3 flex items-center justify-between">
+        <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <i class="fas fa-shield-alt text-white text-sm"></i>
+            </div>
+            <span class="font-bold">DzMarket Admin</span>
+        </div>
+        <div class="w-10"></div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay lg:hidden" onclick="toggleSidebar()"></div>
 
     <!-- Sidebar -->
-    <aside class="sidebar w-64 min-h-screen flex flex-col text-white fixed right-0 top-0 bottom-0 z-50">
+    <aside id="sidebar" class="sidebar w-64 min-h-screen flex flex-col text-white fixed right-0 top-0 bottom-0 z-50">
         <div class="p-6 border-b border-white/10">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-shield-alt"></i>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold">DzMarket</h1>
+                        <p class="text-xs text-white/50">لوحة الإدارة</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold">DzMarket</h1>
-                    <p class="text-xs text-white/50">لوحة الإدارة</p>
-                </div>
+                <button onclick="toggleSidebar()" class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
 
-        <nav class="flex-1 p-4 space-y-1">
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
             <button onclick="showSection('dashboard')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="dashboard">
                 <i class="fas fa-th-large w-5"></i>
                 <span>الرئيسية</span>
@@ -131,14 +167,22 @@
                 <i class="fas fa-box w-5"></i>
                 <span>الإعلانات</span>
             </button>
-            <button onclick="showSection('leads')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="leads">
-                <i class="fas fa-phone w-5"></i>
+            <button onclick="showSection('orders')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="orders">
+                <i class="fas fa-shopping-bag w-5"></i>
                 <span>الطلبات</span>
+            </button>
+            <button onclick="showSection('chats')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="chats">
+                <i class="fas fa-comments w-5"></i>
+                <span>المحادثات</span>
             </button>
             <button onclick="showSection('deposits')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="deposits">
                 <i class="fas fa-credit-card w-5"></i>
                 <span>طلبات الشحن</span>
                 <span id="pendingBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+            </button>
+            <button onclick="showSection('payments')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="payments">
+                <i class="fas fa-wallet w-5"></i>
+                <span>طرق الدفع</span>
             </button>
             <button onclick="showSection('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="settings">
                 <i class="fas fa-cog w-5"></i>
@@ -155,11 +199,11 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 mr-64 p-6">
+    <main class="min-h-screen p-4 pt-20 lg:pt-6 lg:pr-72 lg:pl-6">
         
         <!-- Section: Dashboard -->
         <section id="section-dashboard" class="animate-fadeIn">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold">لوحة التحكم</h2>
                     <p class="text-sm text-gray-500">مرحباً بك في لوحة إدارة DzMarket</p>
@@ -171,43 +215,60 @@
             </div>
 
             <!-- Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="stat-card rounded-2xl p-5">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="stat-card rounded-2xl p-4 lg:p-5">
                     <div class="flex items-center justify-between mb-3">
-                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-lg lg:text-xl"></i>
                         </div>
-                        <span class="text-green-500 text-sm font-semibold">+12%</span>
                     </div>
-                    <div class="text-3xl font-black" id="statUsers">0</div>
-                    <div class="text-sm text-gray-500">المستخدمين</div>
+                    <div class="text-2xl lg:text-3xl font-black" id="statUsers">0</div>
+                    <div class="text-xs lg:text-sm text-gray-500">المستخدمين</div>
                 </div>
-                <div class="stat-card rounded-2xl p-5">
+                <div class="stat-card rounded-2xl p-4 lg:p-5">
                     <div class="flex items-center justify-between mb-3">
-                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-box text-green-600 text-xl"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-box text-green-600 text-lg lg:text-xl"></i>
                         </div>
                     </div>
-                    <div class="text-3xl font-black" id="statListings">0</div>
-                    <div class="text-sm text-gray-500">الإعلانات</div>
+                    <div class="text-2xl lg:text-3xl font-black" id="statListings">0</div>
+                    <div class="text-xs lg:text-sm text-gray-500">الإعلانات</div>
                 </div>
-                <div class="stat-card rounded-2xl p-5">
+                <div class="stat-card rounded-2xl p-4 lg:p-5">
                     <div class="flex items-center justify-between mb-3">
-                        <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-phone text-amber-600 text-xl"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-shopping-bag text-amber-600 text-lg lg:text-xl"></i>
                         </div>
                     </div>
-                    <div class="text-3xl font-black" id="statLeads">0</div>
-                    <div class="text-sm text-gray-500">الطلبات</div>
+                    <div class="text-2xl lg:text-3xl font-black" id="statOrders">0</div>
+                    <div class="text-xs lg:text-sm text-gray-500">الطلبات</div>
                 </div>
-                <div class="stat-card rounded-2xl p-5">
+                <div class="stat-card rounded-2xl p-4 lg:p-5">
                     <div class="flex items-center justify-between mb-3">
-                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-wallet text-purple-600 text-xl"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-comments text-indigo-600 text-lg lg:text-xl"></i>
                         </div>
                     </div>
-                    <div class="text-3xl font-black" id="statRevenue">0</div>
-                    <div class="text-sm text-gray-500">إجمالي الأرباح (دج)</div>
+                    <div class="text-2xl lg:text-3xl font-black" id="statChats">0</div>
+                    <div class="text-xs lg:text-sm text-gray-500">المحادثات</div>
+                </div>
+                <div class="stat-card rounded-2xl p-4 lg:p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-red-600 text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl lg:text-3xl font-black" id="statPending">0</div>
+                    <div class="text-xs lg:text-sm text-gray-500">طلبات معلقة</div>
+                </div>
+                <div class="stat-card rounded-2xl p-4 lg:p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-coins text-purple-600 text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl lg:text-3xl font-black" id="statRevenue">0</div>
+                    <div class="text-xs lg:text-sm text-gray-500">الأرباح (دج)</div>
                 </div>
             </div>
 
@@ -236,15 +297,15 @@
 
         <!-- Section: Users -->
         <section id="section-users" class="hidden animate-fadeIn">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold">إدارة المستخدمين</h2>
                     <p class="text-sm text-gray-500">عرض وتعديل وحذف المستخدمين</p>
                 </div>
                 <div class="flex gap-2">
-                    <div class="relative">
+                    <div class="relative flex-1 sm:flex-none">
                         <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchUsers" placeholder="بحث..." class="input-field pr-10 w-64" oninput="searchUsers()">
+                        <input type="text" id="searchUsers" placeholder="بحث..." class="input-field pr-10 w-full sm:w-64" oninput="searchUsers()">
                     </div>
                     <button onclick="loadUsers()" class="btn btn-secondary btn-icon">
                         <i class="fas fa-sync-alt"></i>
@@ -276,15 +337,15 @@
 
         <!-- Section: Listings -->
         <section id="section-listings" class="hidden animate-fadeIn">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold">إدارة الإعلانات</h2>
                     <p class="text-sm text-gray-500">عرض وتعديل وحذف الإعلانات</p>
                 </div>
                 <div class="flex gap-2">
-                    <div class="relative">
+                    <div class="relative flex-1 sm:flex-none">
                         <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchListings" placeholder="بحث..." class="input-field pr-10 w-64" oninput="searchListings()">
+                        <input type="text" id="searchListings" placeholder="بحث..." class="input-field pr-10 w-full sm:w-64" oninput="searchListings()">
                     </div>
                     <button onclick="loadListings()" class="btn btn-secondary btn-icon">
                         <i class="fas fa-sync-alt"></i>
@@ -314,14 +375,14 @@
             </div>
         </section>
 
-        <!-- Section: Leads -->
-        <section id="section-leads" class="hidden animate-fadeIn">
-            <div class="flex items-center justify-between mb-6">
+        <!-- Section: Orders -->
+        <section id="section-orders" class="hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold">جميع الطلبات</h2>
-                    <p class="text-sm text-gray-500">عرض جميع طلبات الاتصال</p>
+                    <p class="text-sm text-gray-500">عرض طلبات المنتجات المادية</p>
                 </div>
-                <button onclick="loadLeads()" class="btn btn-secondary">
+                <button onclick="loadOrders()" class="btn btn-secondary">
                     <i class="fas fa-sync-alt"></i>
                     تحديث
                 </button>
@@ -332,17 +393,51 @@
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th>المنتج</th>
                                 <th>المشتري</th>
                                 <th>الهاتف</th>
                                 <th>الولاية</th>
-                                <th>البائع</th>
+                                <th>المبلغ</th>
                                 <th>الكشف</th>
                                 <th>التاريخ</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="leadsTable">
-                            <tr><td colspan="7" class="text-center py-8 text-gray-500">جاري التحميل...</td></tr>
+                        <tbody id="ordersTable">
+                            <tr><td colspan="8" class="text-center py-8 text-gray-500">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Chats -->
+        <section id="section-chats" class="hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">المحادثات</h2>
+                    <p class="text-sm text-gray-500">محادثات الخدمات المدفوعة</p>
+                </div>
+                <button onclick="loadChats()" class="btn btn-secondary">
+                    <i class="fas fa-sync-alt"></i>
+                    تحديث
+                </button>
+            </div>
+
+            <div class="data-card rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>الخدمة</th>
+                                <th>البائع</th>
+                                <th>المشتري</th>
+                                <th>آخر رسالة</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chatsTable">
+                            <tr><td colspan="5" class="text-center py-8 text-gray-500">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -351,12 +446,12 @@
 
         <!-- Section: Deposits -->
         <section id="section-deposits" class="hidden animate-fadeIn">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold">طلبات الشحن</h2>
                     <p class="text-sm text-gray-500">الموافقة أو رفض طلبات شحن الرصيد</p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <div class="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
                         <button onclick="filterDeposits('pending')" class="tab-btn active" data-filter="pending">معلق</button>
                         <button onclick="filterDeposits('approved')" class="tab-btn" data-filter="approved">مقبول</button>
@@ -370,6 +465,24 @@
             </div>
 
             <div id="depositsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="col-span-full text-center py-10 text-gray-500">جاري التحميل...</p>
+            </div>
+        </section>
+
+        <!-- Section: Payment Methods -->
+        <section id="section-payments" class="hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">طرق الدفع</h2>
+                    <p class="text-sm text-gray-500">إدارة طرق الدفع المتاحة للعملاء</p>
+                </div>
+                <button onclick="openPaymentModal()" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    إضافة طريقة دفع
+                </button>
+            </div>
+
+            <div id="paymentMethodsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <p class="col-span-full text-center py-10 text-gray-500">جاري التحميل...</p>
             </div>
         </section>
@@ -390,8 +503,12 @@
                     </h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-semibold mb-2">سعر كشف الرقم (دج)</label>
-                            <input type="number" id="settingLeadPrice" class="input-field" value="50">
+                            <label class="block text-sm font-semibold mb-2">سعر كشف معلومات الطلب (دج)</label>
+                            <input type="number" id="settingOrderRevealPrice" class="input-field" value="50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">سعر فتح المحادثة للخدمات (دج)</label>
+                            <input type="number" id="settingChatPrice" class="input-field" value="50">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-2">الحد الأدنى للشحن (دج)</label>
@@ -404,28 +521,6 @@
                     </div>
                 </div>
 
-                <!-- Payment Info -->
-                <div class="data-card rounded-2xl p-6">
-                    <h3 class="font-bold mb-4 flex items-center gap-2">
-                        <i class="fas fa-credit-card text-blue-500"></i>
-                        معلومات الدفع
-                    </h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">رقم CCP/BaridiMob</label>
-                            <input type="text" id="settingPaymentAccount" class="input-field" value="0012345678 90">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">اسم صاحب الحساب</label>
-                            <input type="text" id="settingPaymentName" class="input-field" value="اسم المستلم">
-                        </div>
-                        <button onclick="savePaymentSettings()" class="btn btn-primary w-full">
-                            <i class="fas fa-save"></i>
-                            حفظ معلومات الدفع
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Danger Zone -->
                 <div class="data-card rounded-2xl p-6 border-red-200 dark:border-red-900">
                     <h3 class="font-bold mb-4 flex items-center gap-2 text-red-600">
@@ -433,7 +528,7 @@
                         منطقة الخطر
                     </h3>
                     <div class="space-y-3">
-                        <button onclick="clearOldLeads()" class="btn btn-danger w-full">
+                        <button onclick="clearOldOrders()" class="btn btn-danger w-full">
                             <i class="fas fa-trash"></i>
                             حذف الطلبات القديمة (أكثر من 30 يوم)
                         </button>
@@ -445,23 +540,27 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="data-card rounded-2xl p-6">
+                <div class="data-card rounded-2xl p-6 md:col-span-2">
                     <h3 class="font-bold mb-4 flex items-center gap-2">
-                        <i class="fas fa-bolt text-yellow-500"></i>
-                        إجراءات سريعة
+                        <i class="fas fa-download text-blue-500"></i>
+                        تصدير البيانات
                     </h3>
-                    <div class="space-y-3">
-                        <button onclick="exportData('users')" class="btn btn-secondary w-full">
-                            <i class="fas fa-download"></i>
-                            تصدير المستخدمين (JSON)
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button onclick="exportData('users')" class="btn btn-secondary">
+                            <i class="fas fa-users"></i>
+                            المستخدمين
                         </button>
-                        <button onclick="exportData('listings')" class="btn btn-secondary w-full">
-                            <i class="fas fa-download"></i>
-                            تصدير الإعلانات (JSON)
+                        <button onclick="exportData('listings')" class="btn btn-secondary">
+                            <i class="fas fa-box"></i>
+                            الإعلانات
                         </button>
-                        <button onclick="exportData('leads')" class="btn btn-secondary w-full">
-                            <i class="fas fa-download"></i>
-                            تصدير الطلبات (JSON)
+                        <button onclick="exportData('orders')" class="btn btn-secondary">
+                            <i class="fas fa-shopping-bag"></i>
+                            الطلبات
+                        </button>
+                        <button onclick="exportData('chats')" class="btn btn-secondary">
+                            <i class="fas fa-comments"></i>
+                            المحادثات
                         </button>
                     </div>
                 </div>
@@ -472,7 +571,7 @@
 
     <!-- Edit User Modal -->
     <div id="editUserModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
-        <div class="modal-content w-full max-w-md rounded-2xl p-6">
+        <div class="modal-content w-full max-w-md rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold">تعديل المستخدم</h3>
                 <button onclick="closeModal('editUserModal')" class="btn-icon btn-secondary">
@@ -511,7 +610,7 @@
 
     <!-- Edit Listing Modal -->
     <div id="editListingModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
-        <div class="modal-content w-full max-w-lg rounded-2xl p-6">
+        <div class="modal-content w-full max-w-lg rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold">تعديل الإعلان</h3>
                 <button onclick="closeModal('editListingModal')" class="btn-icon btn-secondary">
@@ -541,10 +640,6 @@
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-2">رابط الصورة</label>
-                    <input type="url" id="editListingImage" class="input-field text-left" dir="ltr">
-                </div>
                 <div class="flex items-center gap-3">
                     <input type="checkbox" id="editListingActive" class="w-5 h-5 rounded">
                     <label for="editListingActive" class="font-semibold">نشط</label>
@@ -552,6 +647,63 @@
                 <div class="flex gap-3 mt-6">
                     <button onclick="closeModal('editListingModal')" class="btn btn-secondary flex-1">إلغاء</button>
                     <button onclick="saveListing()" class="btn btn-primary flex-1">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Method Modal -->
+    <div id="paymentModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content w-full max-w-md rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold" id="paymentModalTitle">إضافة طريقة دفع</h3>
+                <button onclick="closeModal('paymentModal')" class="btn-icon btn-secondary">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <input type="hidden" id="editPaymentId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">اسم الطريقة *</label>
+                    <input type="text" id="paymentName" class="input-field" placeholder="مثال: BaridiMob, PayPal, CCP, RedotPay">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">النوع</label>
+                    <select id="paymentType" class="input-field">
+                        <option value="local">محلي (جزائري)</option>
+                        <option value="international">دولي</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">رقم الحساب / البريد *</label>
+                    <input type="text" id="paymentAccount" class="input-field" placeholder="رقم CCP أو RIP أو بريد PayPal">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">اسم صاحب الحساب</label>
+                    <input type="text" id="paymentHolder" class="input-field" placeholder="الاسم الكامل">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">الأيقونة</label>
+                    <select id="paymentIcon" class="input-field">
+                        <option value="credit-card">💳 بطاقة ائتمان</option>
+                        <option value="mobile-alt">📱 موبايل</option>
+                        <option value="university">🏦 بنك</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="bitcoin">₿ عملة رقمية</option>
+                        <option value="money-bill">💵 نقد</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">تعليمات إضافية</label>
+                    <textarea id="paymentInstructions" class="input-field h-20 resize-none" placeholder="تعليمات للعميل..."></textarea>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="paymentActive" class="w-5 h-5 rounded" checked>
+                    <label for="paymentActive" class="font-semibold">مفعّل</label>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeModal('paymentModal')" class="btn btn-secondary flex-1">إلغاء</button>
+                    <button onclick="savePaymentMethod()" class="btn btn-primary flex-1">حفظ</button>
                 </div>
             </div>
         </div>
@@ -578,7 +730,7 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-4 left-4 z-[200] space-y-2 w-80"></div>
+    <div id="toastContainer" class="fixed top-20 lg:top-4 left-4 right-4 lg:right-auto z-[200] space-y-2 lg:w-80"></div>
 
 <script>
     // ========== DARK MODE ==========
@@ -592,10 +744,18 @@
     // ========== STATE ==========
     let allUsers = [];
     let allListings = [];
-    let allLeads = [];
+    let allOrders = [];
+    let allChats = [];
     let allDeposits = [];
+    let allPaymentMethods = [];
     let currentDepositFilter = 'pending';
     let confirmCallback = null;
+
+    // ========== SIDEBAR TOGGLE ==========
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
 
     // ========== INIT ==========
     window.onload = () => {
@@ -612,13 +772,19 @@
             btn.classList.toggle('active', btn.dataset.section === section);
         });
 
-        // Load data for section
+        // Close sidebar on mobile after navigation
+        if (window.innerWidth < 1024) {
+            toggleSidebar();
+        }
+
         switch(section) {
             case 'dashboard': loadDashboard(); break;
             case 'users': loadUsers(); break;
             case 'listings': loadListings(); break;
-            case 'leads': loadLeads(); break;
+            case 'orders': loadOrders(); break;
+            case 'chats': loadChats(); break;
             case 'deposits': loadDeposits(); break;
+            case 'payments': loadPaymentMethods(); break;
             case 'settings': loadSettings(); break;
         }
     }
@@ -631,10 +797,11 @@
             
             document.getElementById('statUsers').innerText = stats.users || 0;
             document.getElementById('statListings').innerText = stats.listings || 0;
-            document.getElementById('statLeads').innerText = stats.leads || 0;
-            document.getElementById('statRevenue').innerText = ((stats.revealedLeads || 0) * 50).toLocaleString();
+            document.getElementById('statOrders').innerText = stats.orders || 0;
+            document.getElementById('statChats').innerText = stats.chats || 0;
+            document.getElementById('statPending').innerText = stats.pendingDeposits || 0;
+            document.getElementById('statRevenue').innerText = (stats.revenue || 0).toLocaleString();
 
-            // Update pending badge
             const badge = document.getElementById('pendingBadge');
             if (stats.pendingDeposits > 0) {
                 badge.classList.remove('hidden');
@@ -643,7 +810,6 @@
                 badge.classList.add('hidden');
             }
 
-            // Load recent users
             const usersRes = await fetch('/api/admin/users?limit=5');
             const users = await usersRes.json();
             document.getElementById('recentUsers').innerHTML = users.length ? users.map(u => `
@@ -657,7 +823,6 @@
                 </div>
             `).join('') : '<p class="text-gray-500 text-sm text-center py-4">لا يوجد مستخدمين</p>';
 
-            // Load recent deposits
             const depsRes = await fetch('/api/admin/deposits?status=pending&limit=5');
             const deps = await depsRes.json();
             document.getElementById('recentDeposits').innerHTML = deps.length ? deps.map(d => `
@@ -734,79 +899,50 @@
 
     function searchUsers() {
         const q = document.getElementById('searchUsers').value.toLowerCase();
-        const filtered = allUsers.filter(u => 
-            u.name?.toLowerCase().includes(q) || 
-            u.email?.toLowerCase().includes(q) ||
-            u.phone?.includes(q)
-        );
-        renderUsers(filtered);
+        renderUsers(allUsers.filter(u => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q)));
     }
 
     function editUser(id) {
         const user = allUsers.find(u => u._id === id);
         if (!user) return;
-        
         document.getElementById('editUserId').value = id;
         document.getElementById('editUserName').value = user.name || '';
         document.getElementById('editUserEmail').value = user.email || '';
         document.getElementById('editUserPhone').value = user.phone || '';
         document.getElementById('editUserBalance').value = user.balance || 0;
         document.getElementById('editUserBanned').checked = user.isBanned || false;
-        
         document.getElementById('editUserModal').classList.remove('hidden');
     }
 
     async function saveUser() {
         const id = document.getElementById('editUserId').value;
-        const data = {
-            name: document.getElementById('editUserName').value,
-            email: document.getElementById('editUserEmail').value,
-            phone: document.getElementById('editUserPhone').value,
-            balance: Number(document.getElementById('editUserBalance').value),
-            isBanned: document.getElementById('editUserBanned').checked
-        };
-
+        const data = { name: document.getElementById('editUserName').value, email: document.getElementById('editUserEmail').value, phone: document.getElementById('editUserPhone').value, balance: Number(document.getElementById('editUserBalance').value), isBanned: document.getElementById('editUserBanned').checked };
         try {
-            await fetch('/api/admin/user/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, ...data })
-            });
+            await fetch('/api/admin/user/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...data }) });
             closeModal('editUserModal');
             showToast('تم حفظ التغييرات', 'success');
             loadUsers();
-        } catch (e) {
-            showToast('خطأ في الحفظ', 'error');
-        }
+        } catch (e) { showToast('خطأ في الحفظ', 'error'); }
     }
 
     function addBalance(id, name) {
-        const amount = prompt(`كم تريد إضافة لرصيد ${name}؟`);
-        if (!amount || isNaN(amount)) return;
-
-        fetch('/api/admin/user/add-balance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, amount: Number(amount) })
-        }).then(() => {
-            showToast(`تم إضافة ${amount} دج لـ ${name}`, 'success');
-            loadUsers();
-        }).catch(() => showToast('خطأ', 'error'));
+        showPrompt(`كم تريد إضافة لرصيد ${name}؟`, async (amount) => {
+            if (!amount || isNaN(amount)) return;
+            try {
+                await fetch('/api/admin/user/add-balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, amount: Number(amount) }) });
+                showToast(`تم إضافة ${amount} دج لـ ${name}`, 'success');
+                loadUsers();
+            } catch (e) { showToast('خطأ', 'error'); }
+        });
     }
 
     function deleteUser(id, name) {
-        showConfirm('حذف المستخدم', `هل تريد حذف المستخدم "${name}"؟ سيتم حذف جميع بياناته.`, async () => {
+        showConfirm('حذف المستخدم', `هل تريد حذف المستخدم "${name}"؟`, async () => {
             try {
-                await fetch('/api/admin/user/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id })
-                });
+                await fetch('/api/admin/user/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
                 showToast('تم حذف المستخدم', 'success');
                 loadUsers();
-            } catch (e) {
-                showToast('خطأ في الحذف', 'error');
-            }
+            } catch (e) { showToast('خطأ', 'error'); }
         });
     }
 
@@ -816,9 +952,7 @@
             const res = await fetch('/api/admin/listings');
             allListings = await res.json();
             renderListings(allListings);
-        } catch (e) {
-            document.getElementById('listingsTable').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">خطأ في التحميل</td></tr>';
-        }
+        } catch (e) { document.getElementById('listingsTable').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
     }
 
     function renderListings(listings) {
@@ -826,165 +960,102 @@
             <tr>
                 <td>
                     <div class="flex items-center gap-3">
-                        <img src="${l.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/50'">
-                        <div class="max-w-xs">
-                            <div class="font-semibold truncate">${l.title}</div>
-                            <div class="text-xs text-gray-500">${formatDate(l.date)}</div>
-                        </div>
+                        <img src="${l.images?.[0] || l.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                        <div class="max-w-xs"><div class="font-semibold truncate">${l.title}</div><div class="text-xs text-gray-500">${formatDate(l.date)}</div></div>
                     </div>
                 </td>
                 <td class="text-sm">${l.userName || '-'}</td>
                 <td><span class="badge ${l.type === 'service' ? 'badge-info' : 'badge-warning'}">${l.type === 'service' ? 'خدمة' : 'منتج'}</span></td>
                 <td><span class="font-bold">${Number(l.price).toLocaleString()} دج</span></td>
                 <td class="text-sm">${l.views || 0}</td>
-                <td>
-                    ${l.active 
-                        ? '<span class="badge badge-success">نشط</span>' 
-                        : '<span class="badge badge-danger">معطل</span>'}
-                </td>
+                <td>${l.active ? '<span class="badge badge-success">نشط</span>' : '<span class="badge badge-danger">معطل</span>'}</td>
                 <td>
                     <div class="flex gap-1">
-                        <button onclick="editListing('${l._id}')" class="btn btn-secondary btn-sm btn-icon" title="تعديل">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="toggleListing('${l._id}', ${l.active})" class="btn ${l.active ? 'btn-warning' : 'btn-success'} btn-sm btn-icon" title="${l.active ? 'تعطيل' : 'تفعيل'}">
-                            <i class="fas fa-${l.active ? 'pause' : 'play'}"></i>
-                        </button>
-                        <button onclick="deleteListing('${l._id}')" class="btn btn-danger btn-sm btn-icon" title="حذف">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button onclick="editListing('${l._id}')" class="btn btn-secondary btn-sm btn-icon"><i class="fas fa-edit"></i></button>
+                        <button onclick="toggleListing('${l._id}', ${l.active})" class="btn ${l.active ? 'btn-warning' : 'btn-success'} btn-sm btn-icon"><i class="fas fa-${l.active ? 'pause' : 'play'}"></i></button>
+                        <button onclick="deleteListing('${l._id}')" class="btn btn-danger btn-sm btn-icon"><i class="fas fa-trash"></i></button>
                     </div>
                 </td>
             </tr>
         `).join('') : '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا توجد إعلانات</td></tr>';
     }
 
-    function searchListings() {
-        const q = document.getElementById('searchListings').value.toLowerCase();
-        const filtered = allListings.filter(l => 
-            l.title?.toLowerCase().includes(q) || 
-            l.userName?.toLowerCase().includes(q)
-        );
-        renderListings(filtered);
-    }
+    function searchListings() { renderListings(allListings.filter(l => l.title?.toLowerCase().includes(document.getElementById('searchListings').value.toLowerCase()))); }
 
     function editListing(id) {
-        const listing = allListings.find(l => l._id === id);
-        if (!listing) return;
-        
+        const l = allListings.find(x => x._id === id); if (!l) return;
         document.getElementById('editListingId').value = id;
-        document.getElementById('editListingTitle').value = listing.title || '';
-        document.getElementById('editListingDesc').value = listing.desc || '';
-        document.getElementById('editListingPrice').value = listing.price || 0;
-        document.getElementById('editListingType').value = listing.type || 'product';
-        document.getElementById('editListingImage').value = listing.image || '';
-        document.getElementById('editListingActive').checked = listing.active !== false;
-        
+        document.getElementById('editListingTitle').value = l.title || '';
+        document.getElementById('editListingDesc').value = l.desc || '';
+        document.getElementById('editListingPrice').value = l.price || 0;
+        document.getElementById('editListingType').value = l.type || 'product';
+        document.getElementById('editListingActive').checked = l.active !== false;
         document.getElementById('editListingModal').classList.remove('hidden');
     }
 
     async function saveListing() {
         const id = document.getElementById('editListingId').value;
-        const data = {
-            title: document.getElementById('editListingTitle').value,
-            desc: document.getElementById('editListingDesc').value,
-            price: Number(document.getElementById('editListingPrice').value),
-            type: document.getElementById('editListingType').value,
-            image: document.getElementById('editListingImage').value,
-            active: document.getElementById('editListingActive').checked
-        };
-
+        const data = { title: document.getElementById('editListingTitle').value, desc: document.getElementById('editListingDesc').value, price: Number(document.getElementById('editListingPrice').value), type: document.getElementById('editListingType').value, active: document.getElementById('editListingActive').checked };
         try {
-            await fetch('/api/admin/listing/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, ...data })
-            });
-            closeModal('editListingModal');
-            showToast('تم حفظ التغييرات', 'success');
-            loadListings();
-        } catch (e) {
-            showToast('خطأ في الحفظ', 'error');
-        }
+            await fetch('/api/admin/listing/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...data }) });
+            closeModal('editListingModal'); showToast('تم الحفظ', 'success'); loadListings();
+        } catch (e) { showToast('خطأ', 'error'); }
     }
 
-    async function toggleListing(id, currentStatus) {
-        try {
-            await fetch('/api/admin/listing/toggle', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, active: !currentStatus })
-            });
-            showToast(currentStatus ? 'تم تعطيل الإعلان' : 'تم تفعيل الإعلان', 'success');
-            loadListings();
-        } catch (e) {
-            showToast('خطأ', 'error');
-        }
+    async function toggleListing(id, active) {
+        await fetch('/api/admin/listing/toggle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, active: !active }) });
+        showToast(active ? 'تم التعطيل' : 'تم التفعيل', 'success'); loadListings();
     }
 
     function deleteListing(id) {
-        showConfirm('حذف الإعلان', 'هل تريد حذف هذا الإعلان نهائياً؟', async () => {
-            try {
-                await fetch('/api/admin/listing/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id })
-                });
-                showToast('تم حذف الإعلان', 'success');
-                loadListings();
-            } catch (e) {
-                showToast('خطأ', 'error');
-            }
+        showConfirm('حذف الإعلان', 'هل أنت متأكد؟', async () => {
+            await fetch('/api/admin/listing/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            showToast('تم الحذف', 'success'); loadListings();
         });
     }
 
-    // ========== LEADS ==========
-    async function loadLeads() {
+    // ========== ORDERS ==========
+    async function loadOrders() {
         try {
-            const res = await fetch('/api/admin/leads');
-            allLeads = await res.json();
-            renderLeads(allLeads);
-        } catch (e) {
-            document.getElementById('leadsTable').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">خطأ في التحميل</td></tr>';
-        }
+            const res = await fetch('/api/admin/orders');
+            allOrders = await res.json();
+            document.getElementById('ordersTable').innerHTML = allOrders.length ? allOrders.map(o => `
+                <tr>
+                    <td class="font-semibold">${o.listingTitle || '-'}</td>
+                    <td>${o.buyerName}</td>
+                    <td dir="ltr" class="font-mono">${o.buyerPhone}</td>
+                    <td>${o.buyerWilaya}</td>
+                    <td><span class="font-bold text-green-600">${Number(o.totalPrice || 0).toLocaleString()} دج</span></td>
+                    <td>${o.isRevealed ? '<span class="badge badge-success">مكشوف</span>' : '<span class="badge badge-warning">مخفي</span>'}</td>
+                    <td class="text-sm text-gray-500">${formatDate(o.date)}</td>
+                    <td><button onclick="deleteOrder('${o._id}')" class="btn btn-danger btn-sm btn-icon"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('') : '<tr><td colspan="8" class="text-center py-8 text-gray-500">لا توجد طلبات</td></tr>';
+        } catch (e) { document.getElementById('ordersTable').innerHTML = '<tr><td colspan="8" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
     }
 
-    function renderLeads(leads) {
-        document.getElementById('leadsTable').innerHTML = leads.length ? leads.map(l => `
-            <tr>
-                <td class="font-semibold">${l.buyerName}</td>
-                <td dir="ltr" class="font-mono">${l.buyerPhone}</td>
-                <td>${l.buyerWilaya}</td>
-                <td class="text-sm">${l.sellerName || '-'}</td>
-                <td>
-                    ${l.isRevealed 
-                        ? '<span class="badge badge-success">مكشوف</span>' 
-                        : '<span class="badge badge-warning">مخفي</span>'}
-                </td>
-                <td class="text-sm text-gray-500">${formatDate(l.date)}</td>
-                <td>
-                    <button onclick="deleteLead('${l._id}')" class="btn btn-danger btn-sm btn-icon" title="حذف">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('') : '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا توجد طلبات</td></tr>';
-    }
-
-    function deleteLead(id) {
-        showConfirm('حذف الطلب', 'هل تريد حذف هذا الطلب؟', async () => {
-            try {
-                await fetch('/api/admin/lead/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id })
-                });
-                showToast('تم حذف الطلب', 'success');
-                loadLeads();
-            } catch (e) {
-                showToast('خطأ', 'error');
-            }
+    function deleteOrder(id) {
+        showConfirm('حذف الطلب', 'هل أنت متأكد؟', async () => {
+            await fetch('/api/admin/order/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            showToast('تم الحذف', 'success'); loadOrders();
         });
+    }
+
+    // ========== CHATS ==========
+    async function loadChats() {
+        try {
+            const res = await fetch('/api/admin/chats');
+            allChats = await res.json();
+            document.getElementById('chatsTable').innerHTML = allChats.length ? allChats.map(c => `
+                <tr>
+                    <td class="font-semibold">${c.listingTitle || '-'}</td>
+                    <td>${c.sellerName || '-'}</td>
+                    <td>${c.buyerName || '-'}</td>
+                    <td class="text-sm text-gray-500 truncate max-w-xs">${c.lastMessage || '-'}</td>
+                    <td class="text-sm text-gray-500">${formatDate(c.lastMessageDate || c.createdAt)}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="5" class="text-center py-8 text-gray-500">لا توجد محادثات</td></tr>';
+        } catch (e) { document.getElementById('chatsTable').innerHTML = '<tr><td colspan="5" class="text-center py-8 text-red-500">خطأ</td></tr>'; }
     }
 
     // ========== DEPOSITS ==========
@@ -993,208 +1064,173 @@
             const res = await fetch(`/api/admin/deposits?status=${currentDepositFilter}`);
             allDeposits = await res.json();
             renderDeposits(allDeposits);
-        } catch (e) {
-            document.getElementById('depositsGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ في التحميل</p>';
-        }
+        } catch (e) { document.getElementById('depositsGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ</p>'; }
     }
 
     function filterDeposits(filter) {
         currentDepositFilter = filter;
-        document.querySelectorAll('[data-filter]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.filter === filter);
-        });
+        document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
         loadDeposits();
     }
 
     function renderDeposits(deposits) {
         if (!deposits.length) {
-            document.getElementById('depositsGrid').innerHTML = `
-                <div class="col-span-full data-card rounded-2xl p-12 text-center">
-                    <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">لا توجد طلبات</h3>
-                    <p class="text-gray-500">${currentDepositFilter === 'pending' ? 'لا توجد طلبات معلقة ✅' : 'لا توجد طلبات في هذه الفئة'}</p>
-                </div>
-            `;
+            document.getElementById('depositsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check-circle text-green-600 text-3xl"></i></div><h3 class="text-xl font-bold mb-2">لا توجد طلبات</h3></div>`;
             return;
         }
-
         document.getElementById('depositsGrid').innerHTML = deposits.map(d => `
             <div class="data-card rounded-2xl p-5 animate-slideUp">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
-                            ${d.userName?.charAt(0) || 'م'}
-                        </div>
-                        <div>
-                            <div class="font-bold">${d.userName || 'مستخدم'}</div>
-                            <div class="text-xs text-gray-500">ID: ${d.userId?.substr(-6)}</div>
-                        </div>
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold">${d.userName?.charAt(0) || 'م'}</div>
+                        <div><div class="font-bold">${d.userName || 'مستخدم'}</div><div class="text-xs text-gray-500">ID: ${d.userId?.substr(-6)}</div></div>
                     </div>
-                    <div class="text-left">
-                        <div class="text-xl font-black text-green-600">+${Number(d.amount).toLocaleString()}</div>
-                        <div class="text-xs text-gray-500">دج</div>
-                    </div>
+                    <div class="text-left"><div class="text-xl font-black text-green-600">+${Number(d.amount).toLocaleString()}</div><div class="text-xs text-gray-500">دج</div></div>
                 </div>
-                
+                ${d.paymentMethod ? `<div class="text-sm text-gray-500 mb-2"><i class="fas fa-credit-card ml-1"></i> ${d.paymentMethod}</div>` : ''}
                 <div class="h-40 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden cursor-pointer mb-4" onclick="showImage('${d.proof}')">
                     <img src="${d.proof}" class="w-full h-full object-cover hover:scale-105 transition" onerror="this.src='https://via.placeholder.com/400x300?text=صورة+غير+متاحة'">
                 </div>
-
                 <div class="flex items-center justify-between mb-3">
-                    <span class="badge ${d.status === 'approved' ? 'badge-success' : d.status === 'rejected' ? 'badge-danger' : 'badge-warning'}">
-                        ${d.status === 'approved' ? 'مقبول' : d.status === 'rejected' ? 'مرفوض' : 'معلق'}
-                    </span>
+                    <span class="badge ${d.status === 'approved' ? 'badge-success' : d.status === 'rejected' ? 'badge-danger' : 'badge-warning'}">${d.status === 'approved' ? 'مقبول' : d.status === 'rejected' ? 'مرفوض' : 'معلق'}</span>
                     <span class="text-xs text-gray-500">${formatDate(d.date)}</span>
                 </div>
-
-                ${d.status === 'pending' ? `
-                    <div class="flex gap-2">
-                        <button onclick="processDeposit('${d._id}', 'approve')" class="btn btn-success flex-1">
-                            <i class="fas fa-check"></i> موافقة
-                        </button>
-                        <button onclick="processDeposit('${d._id}', 'reject')" class="btn btn-danger flex-1">
-                            <i class="fas fa-times"></i> رفض
-                        </button>
-                    </div>
-                ` : ''}
+                ${d.status === 'pending' ? `<div class="flex gap-2"><button onclick="processDeposit('${d._id}', 'approve')" class="btn btn-success flex-1"><i class="fas fa-check"></i> موافقة</button><button onclick="processDeposit('${d._id}', 'reject')" class="btn btn-danger flex-1"><i class="fas fa-times"></i> رفض</button></div>` : ''}
             </div>
         `).join('');
     }
 
     function processDeposit(id, action) {
-        const msg = action === 'approve' 
-            ? 'هل تأكدت من استلام المبلغ؟ سيتم إضافة الرصيد للمستخدم.'
-            : 'هل تريد رفض هذا الطلب؟';
-        
-        showConfirm(action === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض', msg, async () => {
-            try {
-                await fetch('/api/admin/approve-deposit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ transId: id, action })
-                });
-                showToast(action === 'approve' ? 'تمت الموافقة ✅' : 'تم الرفض', action === 'approve' ? 'success' : 'error');
-                loadDeposits();
-                loadDashboard();
-            } catch (e) {
-                showToast('خطأ', 'error');
-            }
+        showConfirm(action === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض', action === 'approve' ? 'سيتم إضافة الرصيد للمستخدم' : 'سيتم رفض الطلب', async () => {
+            await fetch('/api/admin/approve-deposit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transId: id, action }) });
+            showToast(action === 'approve' ? 'تمت الموافقة ✅' : 'تم الرفض', action === 'approve' ? 'success' : 'error');
+            loadDeposits(); loadDashboard();
         }, action === 'approve' ? 'success' : 'danger');
+    }
+
+    // ========== PAYMENT METHODS ==========
+    async function loadPaymentMethods() {
+        try {
+            const res = await fetch('/api/admin/payment-methods');
+            allPaymentMethods = await res.json();
+            renderPaymentMethods(allPaymentMethods);
+        } catch (e) { document.getElementById('paymentMethodsGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ</p>'; }
+    }
+
+    function renderPaymentMethods(methods) {
+        if (!methods.length) {
+            document.getElementById('paymentMethodsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-credit-card text-blue-600 text-3xl"></i></div><h3 class="text-xl font-bold mb-2">لا توجد طرق دفع</h3><button onclick="openPaymentModal()" class="btn btn-primary mt-4"><i class="fas fa-plus"></i> إضافة</button></div>`;
+            return;
+        }
+        document.getElementById('paymentMethodsGrid').innerHTML = methods.map(m => `
+            <div class="data-card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center"><i class="fas fa-${m.icon || 'credit-card'} text-blue-600 text-xl"></i></div>
+                        <div><div class="font-bold">${m.name}</div><div class="text-xs text-gray-500">${m.type === 'local' ? 'محلي' : 'دولي'}</div></div>
+                    </div>
+                    <span class="badge ${m.isActive ? 'badge-success' : 'badge-danger'}">${m.isActive ? 'مفعّل' : 'معطّل'}</span>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 mb-4"><div class="font-mono text-sm select-all">${m.account || '-'}</div>${m.holder ? `<div class="text-xs text-gray-500 mt-1">${m.holder}</div>` : ''}</div>
+                <div class="flex gap-2"><button onclick="editPaymentMethod('${m._id}')" class="btn btn-secondary flex-1"><i class="fas fa-edit"></i> تعديل</button><button onclick="deletePaymentMethod('${m._id}')" class="btn btn-danger btn-icon"><i class="fas fa-trash"></i></button></div>
+            </div>
+        `).join('');
+    }
+
+    function openPaymentModal() {
+        document.getElementById('paymentModalTitle').innerText = 'إضافة طريقة دفع';
+        document.getElementById('editPaymentId').value = '';
+        document.getElementById('paymentName').value = '';
+        document.getElementById('paymentType').value = 'local';
+        document.getElementById('paymentAccount').value = '';
+        document.getElementById('paymentHolder').value = '';
+        document.getElementById('paymentIcon').value = 'credit-card';
+        document.getElementById('paymentInstructions').value = '';
+        document.getElementById('paymentActive').checked = true;
+        document.getElementById('paymentModal').classList.remove('hidden');
+    }
+
+    function editPaymentMethod(id) {
+        const m = allPaymentMethods.find(x => x._id === id); if (!m) return;
+        document.getElementById('paymentModalTitle').innerText = 'تعديل طريقة دفع';
+        document.getElementById('editPaymentId').value = id;
+        document.getElementById('paymentName').value = m.name || '';
+        document.getElementById('paymentType').value = m.type || 'local';
+        document.getElementById('paymentAccount').value = m.account || '';
+        document.getElementById('paymentHolder').value = m.holder || '';
+        document.getElementById('paymentIcon').value = m.icon || 'credit-card';
+        document.getElementById('paymentInstructions').value = m.instructions || '';
+        document.getElementById('paymentActive').checked = m.isActive !== false;
+        document.getElementById('paymentModal').classList.remove('hidden');
+    }
+
+    async function savePaymentMethod() {
+        const id = document.getElementById('editPaymentId').value;
+        const data = { name: document.getElementById('paymentName').value, type: document.getElementById('paymentType').value, account: document.getElementById('paymentAccount').value, holder: document.getElementById('paymentHolder').value, icon: document.getElementById('paymentIcon').value, instructions: document.getElementById('paymentInstructions').value, isActive: document.getElementById('paymentActive').checked };
+        if (!data.name || !data.account) { showToast('يرجى ملء الحقول المطلوبة', 'error'); return; }
+        try {
+            await fetch(id ? '/api/admin/payment-method/update' : '/api/admin/payment-method/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(id ? { id, ...data } : data) });
+            closeModal('paymentModal'); showToast('تم الحفظ', 'success'); loadPaymentMethods();
+        } catch (e) { showToast('خطأ', 'error'); }
+    }
+
+    function deletePaymentMethod(id) {
+        showConfirm('حذف طريقة الدفع', 'هل أنت متأكد؟', async () => {
+            await fetch('/api/admin/payment-method/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            showToast('تم الحذف', 'success'); loadPaymentMethods();
+        });
     }
 
     // ========== SETTINGS ==========
     async function loadSettings() {
         try {
             const res = await fetch('/api/admin/settings');
-            const settings = await res.json();
-            
-            document.getElementById('settingLeadPrice').value = settings.leadPrice || 50;
-            document.getElementById('settingMinDeposit').value = settings.minDeposit || 100;
-            document.getElementById('settingPaymentAccount').value = settings.paymentAccount || '';
-            document.getElementById('settingPaymentName').value = settings.paymentName || '';
-        } catch (e) {
-            console.error('Settings Error:', e);
-        }
+            const s = await res.json();
+            document.getElementById('settingOrderRevealPrice').value = s.orderRevealPrice || 50;
+            document.getElementById('settingChatPrice').value = s.chatPrice || 50;
+            document.getElementById('settingMinDeposit').value = s.minDeposit || 100;
+        } catch (e) {}
     }
 
     async function saveSettings() {
-        const data = {
-            leadPrice: Number(document.getElementById('settingLeadPrice').value),
-            minDeposit: Number(document.getElementById('settingMinDeposit').value)
-        };
-
-        try {
-            await fetch('/api/admin/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            showToast('تم حفظ الإعدادات', 'success');
-        } catch (e) {
-            showToast('خطأ في الحفظ', 'error');
-        }
+        const data = { orderRevealPrice: Number(document.getElementById('settingOrderRevealPrice').value), chatPrice: Number(document.getElementById('settingChatPrice').value), minDeposit: Number(document.getElementById('settingMinDeposit').value) };
+        await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        showToast('تم الحفظ', 'success');
     }
 
-    async function savePaymentSettings() {
-        const data = {
-            paymentAccount: document.getElementById('settingPaymentAccount').value,
-            paymentName: document.getElementById('settingPaymentName').value
-        };
-
-        try {
-            await fetch('/api/admin/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            showToast('تم حفظ معلومات الدفع', 'success');
-        } catch (e) {
-            showToast('خطأ في الحفظ', 'error');
-        }
-    }
-
-    function clearOldLeads() {
-        showConfirm('حذف الطلبات القديمة', 'سيتم حذف جميع الطلبات الأقدم من 30 يوم. هل أنت متأكد؟', async () => {
-            try {
-                const res = await fetch('/api/admin/leads/clear-old', { method: 'POST' });
-                const data = await res.json();
-                showToast(`تم حذف ${data.deleted || 0} طلب`, 'success');
-            } catch (e) {
-                showToast('خطأ', 'error');
-            }
+    function clearOldOrders() {
+        showConfirm('حذف الطلبات القديمة', 'سيتم حذف الطلبات الأقدم من 30 يوم', async () => {
+            const res = await fetch('/api/admin/orders/clear-old', { method: 'POST' });
+            const d = await res.json();
+            showToast(`تم حذف ${d.deleted || 0} طلب`, 'success');
         });
     }
 
     function clearInactiveListings() {
-        showConfirm('حذف الإعلانات المعطلة', 'سيتم حذف جميع الإعلانات المعطلة. هل أنت متأكد؟', async () => {
-            try {
-                const res = await fetch('/api/admin/listings/clear-inactive', { method: 'POST' });
-                const data = await res.json();
-                showToast(`تم حذف ${data.deleted || 0} إعلان`, 'success');
-            } catch (e) {
-                showToast('خطأ', 'error');
-            }
+        showConfirm('حذف الإعلانات المعطلة', 'هل أنت متأكد؟', async () => {
+            const res = await fetch('/api/admin/listings/clear-inactive', { method: 'POST' });
+            const d = await res.json();
+            showToast(`تم حذف ${d.deleted || 0} إعلان`, 'success');
         });
     }
 
     async function exportData(type) {
-        try {
-            const res = await fetch(`/api/admin/export/${type}`);
-            const data = await res.json();
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${type}_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showToast('تم تصدير البيانات', 'success');
-        } catch (e) {
-            showToast('خطأ في التصدير', 'error');
-        }
+        const res = await fetch(`/api/admin/export/${type}`);
+        const data = await res.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${type}_${new Date().toISOString().split('T')[0]}.json`; a.click();
+        showToast('تم التصدير', 'success');
     }
 
     // ========== MODALS ==========
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
-    }
-
-    function showImage(url) {
-        document.getElementById('modalImage').src = url;
-        document.getElementById('imageModal').classList.remove('hidden');
-    }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function showImage(url) { document.getElementById('modalImage').src = url; document.getElementById('imageModal').classList.remove('hidden'); }
 
     function showConfirm(title, message, callback, type = 'danger') {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmMessage').innerText = message;
-        
         const icon = document.getElementById('confirmIcon');
         const btn = document.getElementById('confirmBtn');
-        
         if (type === 'success') {
             icon.className = 'w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4';
             icon.innerHTML = '<i class="fas fa-check text-green-600 text-2xl"></i>';
@@ -1204,32 +1240,24 @@
             icon.innerHTML = '<i class="fas fa-trash text-red-600 text-2xl"></i>';
             btn.className = 'btn btn-danger flex-1';
         }
-        
         confirmCallback = callback;
         document.getElementById('confirmModal').classList.remove('hidden');
     }
 
-    function executeConfirm() {
-        if (confirmCallback) confirmCallback();
-        closeModal('confirmModal');
-        confirmCallback = null;
+    function executeConfirm() { if (confirmCallback) confirmCallback(); closeModal('confirmModal'); confirmCallback = null; }
+
+    function showPrompt(message, callback) {
+        const result = window.prompt(message);
+        if (result !== null) callback(result);
     }
 
     // ========== TOAST ==========
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        
         const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
-        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
-        
         toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3`;
-        toast.innerHTML = `
-            <i class="fas ${icons[type]}"></i>
-            <span class="flex-1 font-semibold text-sm">${message}</span>
-            <button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100"><i class="fas fa-times"></i></button>
-        `;
-        
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span class="flex-1 font-semibold text-sm">${message}</span><button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100"><i class="fas fa-times"></i></button>`;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 4000);
     }
@@ -1238,9 +1266,7 @@
     function formatDate(date) {
         if (!date) return '-';
         const d = new Date(date);
-        const now = new Date();
-        const diff = now - d;
-        
+        const diff = Date.now() - d.getTime();
         if (diff < 60000) return 'الآن';
         if (diff < 3600000) return Math.floor(diff / 60000) + ' دقيقة';
         if (diff < 86400000) return Math.floor(diff / 3600000) + ' ساعة';
@@ -1248,10 +1274,14 @@
         return d.toLocaleDateString('ar-DZ');
     }
 
-    // Keyboard shortcuts
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(m => m.classList.add('hidden'));
+        if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(m => m.classList.add('hidden'));
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
         }
     });
 </script>
