@@ -22,7 +22,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        
+
         .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
         .animate-slideUp { animation: slideUp 0.6s ease-out; }
         .animate-pulse-slow { animation: pulse 2s infinite; }
@@ -114,7 +114,7 @@
 
         <main class="max-w-6xl mx-auto p-4 pb-32">
             <div class="lg:flex lg:gap-8">
-                
+
                 <div class="lg:w-1/2 mb-6 lg:mb-0">
                     <div id="timerSection" class="countdown-box mb-4 animate-pulse-slow">
                         <div class="flex items-center justify-center gap-2 mb-2">
@@ -350,7 +350,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="chat-container p-4" id="chatMessages"></div>
 
                     <div class="p-4 border-t flex gap-2">
@@ -388,7 +388,7 @@
         { code: '31', name: 'وهران', cities: ['وهران', 'وهران الوسطى', 'السانية', 'بئر الجير', 'الكرمة', 'عين الترك', 'أرزيو'] },
         { code: '34', name: 'برج بوعريريج', cities: ['برج بوعريريج', 'رأس الوادي', 'الجعافرة', 'برج الغدير'] },
         { code: '35', name: 'بومرداس', cities: ['بومرداس', 'الثنية', 'برج منايل', 'دلس', 'الروبة'] },
-        { code: '42', name: 'تيبازة', cities: ['تيبازة', 'شرشال', 'القليعة', 'حجوط', 'الد��موس'] },
+        { code: '42', name: 'تيبازة', cities: ['تيبازة', 'شرشال', 'القليعة', 'حجوط', 'الدلموس'] },
     ];
 
     let productData = null;
@@ -418,7 +418,7 @@
         try {
             const res = await fetch('/api/public/product/' + pid);
             const p = await res.json();
-            
+
             if (!p || !p.title) { showError(); return; }
 
             productData = p;
@@ -447,7 +447,7 @@
         const price = Number(p.price);
         const oldPrice = Math.round(price * 1.3);
         const currency = APP_SETTINGS.currency;
-        
+
         document.getElementById('currentPrice').innerText = price.toLocaleString() + ' ' + currency;
         document.getElementById('oldPrice').innerText = oldPrice.toLocaleString() + ' ' + currency;
         document.getElementById('summaryPrice').innerText = price.toLocaleString() + ' ' + currency;
@@ -537,13 +537,13 @@
     }
 
     function loadWilayas() {
-        document.getElementById('orderWilaya').innerHTML = '<option value="">اختر الولاية</option>' + 
+        document.getElementById('orderWilaya').innerHTML = '<option value="">اختر الولاية</option>' +
             WILAYAS.map(w => `<option value="${w.code}">${w.code} - ${w.name}</option>`).join('');
     }
 
     function loadCities() {
         const wilaya = WILAYAS.find(w => w.code === document.getElementById('orderWilaya').value);
-        document.getElementById('orderCity').innerHTML = wilaya 
+        document.getElementById('orderCity').innerHTML = wilaya
             ? '<option value="">اختر البلدية</option>' + wilaya.cities.map(c => `<option value="${c}">${c}</option>`).join('')
             : '<option value="">اختر البلدية</option>';
     }
@@ -607,33 +607,41 @@
         document.getElementById('chatAvatar').innerText = (p.userName || 'ب').charAt(0);
         document.getElementById('chatName').innerText = p.userName || 'البائع';
 
+        // التحقق من وجود محادثة سابقة (بدون إرسال إشعار)
         checkExistingChat();
     }
 
+    // التحقق من وجود محادثة - بدون إنشاء محادثة جديدة أو إرسال إشعار
     async function checkExistingChat() {
         try {
-            const res = await fetch('/api/chat/start', {
+            const res = await fetch('/api/chat/check', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ listingId: pid, fingerprint: fp })
             });
             const data = await res.json();
-            
-            if (data.success && data.chatId) {
+
+            if (data.success && data.exists && data.chatId) {
                 chatId = data.chatId;
                 if (data.isPaid) {
+                    // المحادثة مفتوحة ومدفوعة - إظهار نافذة المحادثة
                     document.getElementById('startChatSection').classList.add('hidden');
                     document.getElementById('pendingSection').classList.add('hidden');
                     document.getElementById('chatSection').classList.remove('hidden');
                     loadChatMessages();
                 } else {
+                    // المحادثة موجودة ولكن في انتظار قبول البائع
                     document.getElementById('startChatSection').classList.add('hidden');
                     document.getElementById('pendingSection').classList.remove('hidden');
                 }
             }
-        } catch(e) {}
+            // إذا لم توجد محادثة، لا نفعل شيء - نترك زر "إرسال طلب محادثة" ظاهراً
+        } catch(e) {
+            console.error('Error checking chat:', e);
+        }
     }
 
+    // طلب محادثة جديدة - هذا يرسل الإشعار للبائع
     async function requestChat() {
         const buyerName = document.getElementById('buyerNameInput').value.trim();
         if (!buyerName) { showToast('يرجى إدخال اسمك', 'error'); return; }
@@ -643,21 +651,23 @@
         btn.innerHTML = '<i class="fas fa-spinner animate-spin ml-2"></i> جاري الإرسال...';
 
         try {
-            const res = await fetch('/api/chat/start', {
+            const res = await fetch('/api/chat/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ listingId: pid, fingerprint: fp, userName: buyerName })
+                body: JSON.stringify({ listingId: pid, fingerprint: fp, buyerName: buyerName })
             });
             const data = await res.json();
 
             if (data.success) {
                 chatId = data.chatId;
                 if (data.isPaid) {
+                    // المحادثة مفتوحة مباشرة (ربما الوضع المجاني)
                     document.getElementById('startChatSection').classList.add('hidden');
                     document.getElementById('chatSection').classList.remove('hidden');
                     loadChatMessages();
                     showToast('تم فتح المحادثة! يمكنك الآن التواصل مع البائع', 'success');
                 } else {
+                    // تم إرسال الطلب - في انتظار قبول البائع
                     document.getElementById('startChatSection').classList.add('hidden');
                     document.getElementById('pendingSection').classList.remove('hidden');
                     showToast(data.msg || 'تم إرسال طلب المحادثة للبائع', 'success');
@@ -705,7 +715,27 @@
         } catch (e) { showToast('خطأ في إرسال الرسالة', 'error'); }
     }
 
-    setInterval(() => { if (chatId) { loadChatMessages(); checkExistingChat(); } }, 5000);
+    // تحديث دوري للتحقق من حالة المحادثة
+    setInterval(() => {
+        if (chatId) {
+            loadChatMessages();
+            // التحقق إذا تم قبول المحادثة
+            checkChatStatus();
+        }
+    }, 5000);
+
+    async function checkChatStatus() {
+        if (!chatId) return;
+        try {
+            const res = await fetch(`/api/chat/${chatId}`);
+            const chat = await res.json();
+            if (chat && chat.isPaid) {
+                // تم قبول المحادثة
+                document.getElementById('pendingSection').classList.add('hidden');
+                document.getElementById('chatSection').classList.remove('hidden');
+            }
+        } catch(e) {}
+    }
 
     function formatTime(date) {
         const d = new Date(date);
