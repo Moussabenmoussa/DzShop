@@ -2,8 +2,28 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-<meta name="google" content="notranslate">
 
+
+<script type="text/javascript">
+        (function() {
+            var userLang = navigator.language || navigator.userLanguage; 
+            var targetLang = userLang.split('-')[0]; 
+            // إذا لم يكن عربياً، نزرع الكوكي فوراً لإجبار الترجمة وإخفاء شريط المتصفح
+            if (targetLang !== 'ar') {
+                document.cookie = "googtrans=/ar/" + targetLang + "; path=/";
+                document.cookie = "googtrans=/ar/" + targetLang + "; path=/; domain=" + window.location.hostname;
+            }
+        })();
+    </script>
+    <style>
+        /* إخفاء كل أدوات جوجل */
+        .goog-te-banner-frame, .goog-te-gadget-icon, .goog-te-gadget-simple, 
+        .goog-te-menu-value, #google_translate_element { display: none !important; }
+        .goog-text-highlight { background: none !important; box-shadow: none !important; }
+        body { top: 0 !important; position: static !important; }
+    </style>
+
+    
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تفاصيل المنتج - DzMarket</title>
@@ -119,7 +139,17 @@
 
 
 
-
+<div id="google_translate_element" style="display:none"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ar',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE, 
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 
     
@@ -882,66 +912,6 @@ setTimeout(showPromo, 5000);
     </div>
 </div>
 
-
-
-
-<div id="google_translate_element" style="display:none"></div>
-
-<script type="text/javascript">
-    // دالة الترجمة (لن تعمل إلا عندما نستدعيها)
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-            pageLanguage: 'ar',
-            includedLanguages: 'en,fr,de,es,it,ru,tr',
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false
-        }, 'google_translate_element');
-    }
-
-    // المنطق الذكي: خداع المتصفح ثم الترجمة
-    window.addEventListener('load', function() {
-        
-        // 1. نتأكد من لغة المستخدم
-        var userLang = navigator.language || navigator.userLanguage; 
-        var targetLang = userLang.split('-')[0]; 
-
-        // إذا لم يكن عربياً، نجهز الكوكيز
-        if (targetLang !== 'ar') {
-            document.cookie = "googtrans=/ar/" + targetLang + "; path=/";
-            document.cookie = "googtrans=/ar/" + targetLang + "; path=/; domain=" + window.location.hostname;
-            
-            // 2. خدعة الوقت: ننتظر المتصفح حتى يقرأ "notranslate" ويخفي شريطه
-            setTimeout(function() {
-                // الآن نحذف كود المنع لنسمح للمترجم الخاص بنا بالعمل
-                const meta = document.querySelector('meta[name="google"][content="notranslate"]');
-                if (meta) meta.remove();
-                
-                // ونستدعي سكربت جوجل الآن فقط
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-                document.body.appendChild(script);
-                
-            }, 1000); // انتظار ثانية واحدة
-        }
-    });
-
-    // كود التنظيف المستمر (لإخفاء أي شريط يظهر من مترجمنا الخاص)
-    setInterval(function() {
-        const frame = document.querySelector('.goog-te-banner-frame');
-        if(frame) frame.remove();
-        document.body.style.top = '0px';
-    }, 500);
-</script>
-
-<style>
-    /* إخفاء واجهة مترجمنا الخاص */
-    .goog-te-banner-frame, .goog-te-gadget-icon, #google_translate_element, 
-    .goog-te-gadget-simple, .goog-te-menu-value, .goog-te-gadget {
-        display: none !important;
-    }
-    body { top: 0 !important; position: static !important; }
-</style>
 
 
 
