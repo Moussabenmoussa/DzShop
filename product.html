@@ -128,7 +128,7 @@
                 
                 <a href="https://dzshop.onrender.com" class="flex items-center gap-2 text-red-600 hover:text-red-700 transition no-underline animate-attention">
     <i class="fas fa-store text-xl"></i>
-    <span class="font-black text-lg">سجل بيع اشتري DzMarket</span>
+    <span class="font-black text-lg">سجل الان DzMarket</span>
 </a>
 
                 
@@ -781,7 +781,83 @@
         if (navigator.share) { navigator.share({ title: productData?.title, url: window.location.href }); }
         else { navigator.clipboard.writeText(window.location.href); showToast('تم نسخ الرابط!', 'success'); }
     }
+
+
+
+
+
+// دالة إظهار البوب أب
+function showPromo() {
+    // نتحقق أولاً إذا كان المستخدم قد رآه من قبل (اختياري)
+    if (!sessionStorage.getItem('promoShown')) {
+        const popup = document.getElementById('promoPopup');
+        const content = popup.firstElementChild;
+        
+        popup.classList.remove('hidden');
+        // تأخير بسيط لتفعيل الأنيميشن
+        setTimeout(() => {
+            popup.classList.remove('opacity-0');
+            content.classList.remove('scale-75');
+            content.classList.add('scale-100');
+        }, 100);
+
+        // نسجل أنه ظهر
+        sessionStorage.setItem('promoShown', 'true');
+    }
+}
+
+// دالة الإغلاق
+function closePromo() {
+    const popup = document.getElementById('promoPopup');
+    const content = popup.firstElementChild;
+    
+    popup.classList.add('opacity-0');
+    content.classList.remove('scale-100');
+    content.classList.add('scale-75');
+    
+    setTimeout(() => {
+        popup.classList.add('hidden');
+    }, 500);
+}
+
+// تشغيل بعد 5 ثواني (5000 ميلي ثانية)
+setTimeout(showPromo, 15000);
+
+
+
+
+
+    
 </script>
+
+
+
+
+
+
+<div id="promoPopup" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 hidden opacity-0 transition-opacity duration-500">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-11/12 max-w-sm text-center relative transform scale-75 transition-transform duration-500">
+        <button onclick="closePromo()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl transition">✕</button>
+        
+        <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+            <i class="fas fa-gift text-4xl text-red-600"></i>
+        </div>
+
+        <h2 class="text-2xl font-black text-slate-800 mb-2">انضم إلينا الآن! 🇩🇿</h2>
+        <p class="text-gray-500 mb-6 text-sm">
+            سجل في <strong>DzMarket</strong> مجاناً واحصل على حساب تاجر تبيع او تشري اي منتوج عندك ميزات حصرية وتخفيضات لا تفوت!
+        </p>
+
+        <a href="https://dzshop.onrender.com" class="block w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-200 transition transform hover:scale-105">
+            إنشاء حساب جديد 🚀
+        </a>
+        
+        <p class="mt-4 text-xs text-gray-400 cursor-pointer hover:underline" onclick="closePromo()">لا شكراً، سأكمل التصفح</p>
+    </div>
+</div>
+
+
+    
 </body>
 </html>
 
