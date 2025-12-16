@@ -54,6 +54,10 @@ const ListingSchema = new mongoose.Schema({
     views: { type: Number, default: 0 },
     date: { type: Date, default: Date.now }
 });
+
+// فهرسة البيانات لتسريع البحث 100 مرة 🚀
+ListingSchema.index({ title: 1, category: 1, active: 1, date: -1 });
+
 const Listing = mongoose.model('Listing', ListingSchema);
 
 const OrderSchema = new mongoose.Schema({
