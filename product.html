@@ -785,44 +785,48 @@
 
 
 
-
-// دالة إظهار البوب أب
+// دالة إظهار البوب أب الذكي
 function showPromo() {
-    // نتحقق أولاً إذا كان المستخدم قد رآه من قبل (اختياري)
+    // 1. تحقق: هل المستخدم مسجل دخول؟ (إذا نعم، أوقف الدالة فوراً)
+    if (localStorage.getItem('dz_user')) {
+        return; // لا تفعل شيئاً، المستخدم مسجل بالفعل
+    }
+
+    // 2. تحقق: هل الزائر رأى الإعلان من قبل في هذه الجلسة؟
     if (!sessionStorage.getItem('promoShown')) {
         const popup = document.getElementById('promoPopup');
-        const content = popup.firstElementChild;
         
-        popup.classList.remove('hidden');
-        // تأخير بسيط لتفعيل الأنيميشن
-        setTimeout(() => {
-            popup.classList.remove('opacity-0');
-            content.classList.remove('scale-75');
-            content.classList.add('scale-100');
-        }, 100);
+        if (popup) {
+            const content = popup.firstElementChild;
+            popup.classList.remove('hidden');
+            
+            // تفعيل الأنيميشن
+            setTimeout(() => {
+                popup.classList.remove('opacity-0');
+                content.classList.remove('scale-75');
+                content.classList.add('scale-100');
+            }, 100);
 
-        // نسجل أنه ظهر
-        sessionStorage.setItem('promoShown', 'true');
+            // تسجيل أن الإعلان ظهر لهذا الزائر
+            sessionStorage.setItem('promoShown', 'true');
+        }
     }
 }
 
-// دالة الإغلاق
+// دالة الإغلاق (تبقى كما هي)
 function closePromo() {
     const popup = document.getElementById('promoPopup');
-    const content = popup.firstElementChild;
-    
-    popup.classList.add('opacity-0');
-    content.classList.remove('scale-100');
-    content.classList.add('scale-75');
-    
-    setTimeout(() => {
-        popup.classList.add('hidden');
-    }, 500);
+    if (popup) {
+        const content = popup.firstElementChild;
+        popup.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-75');
+        setTimeout(() => popup.classList.add('hidden'), 500);
+    }
 }
 
-// تشغيل بعد 7 ثواني (7000 ميلي ثانية)
-setTimeout(showPromo, 7000);
-
+// تشغيل بعد 5 ثواني
+setTimeout(showPromo, 5000);
 
 
 
