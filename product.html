@@ -74,7 +74,27 @@
         .chat-message.sent { background: var(--primary); color: white; margin-left: auto; border-bottom-left-radius: 4px; }
         .chat-message.received { background: #f0f0f0; margin-right: auto; border-bottom-right-radius: 4px; }
 
-        .pending-status { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+       
+        
+       .pending-status { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+
+
+
+/* تعريف حركة النبض */
+@keyframes pulse-scale { 
+    0%, 100% { transform: scale(1); } 
+    50% { transform: scale(1.1); color: #c1121f; } 
+}
+
+/* الكلاس الذي سنستخدمه */
+.animate-pulse-slow { 
+    animation: pulse-scale 1.5s infinite ease-in-out; 
+}
+
+
+        
+
+        
     </style>
 </head>
 <body class="min-h-screen">
