@@ -959,8 +959,13 @@
         }
         grid.innerHTML = list.map(p => `
             <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-                <div class="relative">
-                    <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300'">
+                <div class="relative"><img 
+    src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
+    class="product-img" 
+    loading="lazy" 
+    decoding="async"
+    onerror="this.src='https://via.placeholder.com/300'"
+>
                     ${p.type === 'service' ? '<span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">خدمة</span>' : ''}
                     ${p.offerEndTime ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold animate-pulse">عرض محدود</span>' : ''}
                 </div>
