@@ -357,19 +357,28 @@ app.post('/api/listing/create', async (req, res) => {
 });
 
 app.get('/api/market', async (req, res) => {
-    const list = await Listing.find({ active: true }).sort({ date: -1 }).limit(100);
+    const list = await Listing.find({ active: true }).sort({ date: -1 }).limit(100).lean();
     res.json(list);
 });
 
 app.post('/api/user/listings', async (req, res) => {
-    const list = await Listing.find({ userId: req.body.userId }).sort({ date: -1 });
+    const list = await Listing.find({ userId: req.body.userId }).sort({ date: -1 }).lean();
     res.json(list);
 });
 
 app.get('/api/public/product/:id', async (req, res) => {
-    const p = await Listing.findById(req.params.id);
-    if (p) await Listing.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
-    res.json(p || {});
+    try {
+        // جلب المنتج + زيادة المشاهدات في خطوة واحدة سريعة
+        const p = await Listing.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } }, 
+            { new: true } 
+        ).lean(); 
+
+        res.json(p || {});
+    } catch (e) {
+        res.json({});
+    }
 });
 
 // ============ ORDERS API ============
