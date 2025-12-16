@@ -79,16 +79,19 @@
        .pending-status { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
 
 
-
-/* تعريف حركة النبض */
-@keyframes pulse-scale { 
-    0%, 100% { transform: scale(1); } 
-    50% { transform: scale(1.1); color: #c1121f; } 
+/* حركة نبض القلب */
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.15); color: #dc2626; /* لون أحمر غامق */ }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.15); color: #dc2626; }
+    60% { transform: scale(1); }
+    100% { transform: scale(1); }
 }
 
-/* الكلاس الذي سنستخدمه */
-.animate-pulse-slow { 
-    animation: pulse-scale 1.5s infinite ease-in-out; 
+.animate-attention {
+    animation: heartbeat 2s infinite; /* يتكرر كل ثانيتين */
+    display: inline-flex; /* ضروري لعمل الحركة بشكل صحيح */
 }
 
 
@@ -123,7 +126,7 @@
                     <span class="font-semibold">رجوع</span>
                 </a>
                 
-                <a href="https://dzshop.onrender.com" class="flex items-center gap-2 text-red-600 hover:text-red-700 transition no-underline animate-pulse-slow">
+                <a href="https://dzshop.onrender.com" class="flex items-center gap-2 text-red-600 hover:text-red-700 transition no-underline animate-attention">
     <i class="fas fa-store text-xl"></i>
     <span class="font-black text-lg">سجل الان DzMarket</span>
 </a>
