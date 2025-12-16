@@ -103,29 +103,44 @@
 
 
 
-<script type="text/javascript">
-        var userLang = navigator.language || navigator.userLanguage; 
-        var targetLang = userLang.split('-')[0]; 
-        if (targetLang !== 'ar' && !document.cookie.includes('googtrans')) {
-            document.cookie = "googtrans=/ar/" + targetLang + "; path=/";
-            document.cookie = "googtrans=/ar/" + targetLang + "; path=/; domain=" + window.location.hostname;
-        }
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'ar', 
-                includedLanguages: 'en,fr,de,es,it,ru,tr', 
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-    <style>
-        .goog-te-banner-frame.skiptranslate { display: none !important; } 
-        body { top: 0px !important; } 
-        #google_translate_element { display: none; }
-        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
-    </style>
+<style>
+    /* 1. إخفاء شريط جوجل الأزرق العلوي */
+    iframe.goog-te-banner-frame {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+    
+    .goog-te-banner-frame.skiptranslate {
+        display: none !important;
+    }
+    
+    /* 2. إلغاء الفراغ الأبيض الذي يتركه الشريط في الأعلى */
+    body {
+        top: 0px !important; 
+        position: static !important; 
+    }
+    
+    /* 3. إخفاء صندوق اختيار اللغة في الأسفل */
+    #google_translate_element {
+        display: none !important;
+    }
+    
+    /* 4. إخفاء "تلميحات" الترجمة المزعجة عند مرور الماوس */
+    .goog-text-highlight {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+    
+    /* 5. إخفاء شعار جوجل الذي قد يظهر */
+    .goog-logo-link {
+        display: none !important;
+    }
+    .goog-te-gadget {
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+</style>
 
 
 
