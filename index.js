@@ -1,11 +1,10 @@
+
 require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
-
 const app = express();
 
 // ============ MIDDLEWARE ============
@@ -20,17 +19,6 @@ if (mongoUri) {
         .then(() => console.log('✅ MongoDB Connected'))
         .catch(err => console.error('❌ MongoDB Error:', err));
 }
-
-// ============ EMAIL CONFIGURATION ============
-const emailTransporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || ''
-    }
-});
 
 // ============ MODELS ============
 
@@ -169,25 +157,42 @@ async function setSetting(key, value) {
     await Settings.findOneAndUpdate({ key }, { value }, { upsert: true });
 }
 
-// إرسال بريد إلكتروني
+// إرسال بريد إلكتروني عبر Brevo API
 async function sendEmail(to, subject, htmlContent) {
     try {
-        if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        if (!process.env.BREVO_API_KEY || !process.env.SENDER_EMAIL) {
             console.log('⚠️ Email settings not configured, skipping email send');
             return false;
         }
 
         const siteName = await getSetting('siteName', 'DzMarket');
 
-        await emailTransporter.sendMail({
-            from: `"${siteName}" <${process.env.SMTP_USER}>`,
-            to: to,
-            subject: subject,
-            html: htmlContent
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'api-key': process.env.BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                sender: {
+                    name: siteName,
+                    email: process.env.SENDER_EMAIL
+                },
+                to: [{ email: to }],
+                subject: subject,
+                htmlContent: htmlContent
+            })
         });
 
-        console.log('✅ Email sent to:', to);
-        return true;
+        if (response.ok) {
+            console.log('✅ Email sent to:', to);
+            return true;
+        } else {
+            const error = await response.json();
+            console.error('❌ Email error:', JSON.stringify(error));
+            return false;
+        }
     } catch (error) {
         console.error('❌ Email error:', error.message);
         return false;
