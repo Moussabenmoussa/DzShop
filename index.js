@@ -564,9 +564,10 @@ app.post('/api/chat/start', async (req, res) => {
         }
 
         if (chat && !chat.isPaid) {
-            return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'طلب المحادثة قيد الانتظار' });
+            return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'طلب المحادثة قيد الانتظار. البائع لم يقبل بعد.' });
         }
 
+        // إنشاء محادثة جديدة (غير مدفوعة) - المشتري يطلب والبائع يجب أن يدفع ليقبل
         chat = await Chat.create({
             listingId,
             listingTitle: listing.title,
