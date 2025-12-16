@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+<meta name="google" content="notranslate">
+
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تفاصيل المنتج - DzMarket</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -885,76 +888,65 @@ setTimeout(showPromo, 5000);
 <div id="google_translate_element" style="display:none"></div>
 
 <script type="text/javascript">
-    // 1. إعداد اللغة والكوكي
+    // 1. إعداد الكوكي لفرض الترجمة (هذا ما سيترجم الصفحة فعلياً)
     var userLang = navigator.language || navigator.userLanguage; 
-    var targetLang = userLang.split('-')[0]; 
+    var targetLang = userLang.split('-')[0]; // نأخذ لغة الهاتف (مثلاً de, fr, en)
     
+    // إذا كانت لغة الهاتف ليست العربية، نقوم بتفعيل الترجمة عبر الكوكي
     if (targetLang !== 'ar' && !document.cookie.includes('googtrans')) {
+        // نضع الكوكي ليقرأها سكربت جوجل ويترجم الصفحة فوراً
         document.cookie = "googtrans=/ar/" + targetLang + "; path=/";
         document.cookie = "googtrans=/ar/" + targetLang + "; path=/; domain=" + window.location.hostname;
     }
 
-    // 2. تهيئة الترجمة بنظام SIMPLE (المفترض أنه بدون شريط)
+    // 2. تشغيل المترجم
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({
             pageLanguage: 'ar',
-            includedLanguages: 'en,fr,de,es,it,ru,tr',
-            // هذا السطر مهم جداً لمحاولة منع الشريط أصلاً
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE, 
-            autoDisplay: false
+            // لا نضع autoDisplay لكي لا يظهر الشريط
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
         }, 'google_translate_element');
     }
 
-    // 3. "القاتل المتسلسل" للشريط الأزرق (Brute Force)
-    // هذا الكود يعمل كل نصف ثانية ليتأكد من اختفاء الشريط
+    // 3. (مهم جداً) إزالة كلاس "notranslate" بعد تحميل الصفحة
+    // لأننا وضعنا Meta Tag يمنع الترجمة لإخفاء شريط المتصفح،
+    // الآن نزيل المنع لكي يعمل السكربت الخاص بنا!
+    window.addEventListener('load', function() {
+        // ننتظر قليلاً ثم نسمح بالترجمة
+        setTimeout(function() {
+            // نسمح لسكربت جوجل بالعمل رغم أنف المتصفح
+            var meta = document.querySelector('meta[name="google"][content="notranslate"]');
+            if(meta) meta.remove();
+            document.body.classList.remove('notranslate');
+        }, 500);
+    });
+    
+    // 4. إخفاء أي شريط أزرق قد يظهر من السكربت
     setInterval(function() {
-        // أ. إجبار الجسم على الصعود للأعلى
-        if (document.body.style.top !== "0px") {
-            document.body.style.top = "0px";
-            document.body.style.position = "static";
-        }
-
-        // ب. البحث عن الشريط الأزرق وحذفه
-        const bannerFrame = document.querySelector('.goog-te-banner-frame');
-        if (bannerFrame) {
-            bannerFrame.remove(); // حذف العنصر تماماً من الكود
-        }
-        
-        const bannerFrame2 = document.querySelector('iframe[name="goog-te-banner-frame"]');
-        if (bannerFrame2) {
-            bannerFrame2.remove();
-        }
-
-        // ج. إخفاء أي عناصر متبقية
-        const gadgets = document.querySelectorAll('.goog-te-gadget-icon, .goog-te-gadget-simple');
-        gadgets.forEach(el => el.style.display = 'none');
-        
-    }, 500); // يتكرر كل 500 ميلي ثانية
+        const frame = document.querySelector('.goog-te-banner-frame');
+        if(frame) { frame.remove(); }
+        document.body.style.top = '0px';
+        document.body.style.position = 'static';
+    }, 300);
 
 </script>
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <style>
-    /* طبقة حماية إضافية بـ CSS */
-    .goog-te-banner-frame, 
-    iframe[name="goog-te-banner-frame"],
-    .goog-te-gadget-icon {
+    /* إخفاء تام لكل أدوات جوجل */
+    .goog-te-banner-frame.skiptranslate, 
+    .goog-te-gadget-icon, 
+    #google_translate_element, 
+    .goog-te-gadget-simple, 
+    .goog-te-menu-value {
         display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        width: 0 !important;
-        opacity: 0 !important;
     }
+    body { top: 0px !important; }
     
-    body {
-        top: 0px !important;
-        position: static !important;
-    }
+    /* ضمان عدم اختفاء الصور */
+    img { visibility: visible !important; }
 </style>
-
-
-
 
 
 
