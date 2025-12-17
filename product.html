@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
+        let affiliateId = null;
         tailwind.config = {
             darkMode: 'class',
             theme: { extend: { fontFamily: { cairo: ['Cairo', 'sans-serif'] } } }
@@ -99,18 +100,6 @@
 
         
     </style>
-
-
-
-
-
-
-
-
-
-
-
-    
 </head>
 <body class="min-h-screen">
 
@@ -441,6 +430,16 @@
     const fp = Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
 
     window.onload = async () => {
+        // Tracking Logic: Check URL for ?ref=USER_ID and save to localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const refId = urlParams.get('ref');
+        if (refId) {
+            localStorage.setItem('dz_affiliate', refId);
+        }
+        
+        // Retrieve affiliateId from localStorage for order submission
+        affiliateId = localStorage.getItem('dz_affiliate');
+
         await loadSettings();
         loadProduct();
     };
@@ -609,7 +608,8 @@
                     buyerWilaya: wilaya.options[wilaya.selectedIndex].text,
                     buyerCity: city, buyerAddress: address,
                     color: selectedColor, size: selectedSize,
-                    quantity: quantity, totalPrice: productData.price * quantity, fingerprint: fp
+                    quantity: quantity, totalPrice: productData.price * quantity, fingerprint: fp,
+                    affiliateId: affiliateId // Send affiliateId to backend
                 })
             });
             const data = await res.json();
@@ -873,13 +873,8 @@ setTimeout(showPromo, 5000);
 </div>
 
 
-
-
-
-
-
-    
     
 </body>
 </html>
+
 
