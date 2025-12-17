@@ -1,42 +1,25 @@
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
-    
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DzMarket - السوق الجزائري</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <script>
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>  <script>
         tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { cairo: ['Cairo', 'sans-serif'] } } } }
     </script>
     <style>
         * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        :root { 
-            --bg-primary: #ffffff; 
-            --bg-secondary: #f5f5f5; 
-            --bg-card: #ffffff; 
-            --text-primary: #191919; 
-            --text-secondary: #757575; 
-            --border-color: #e5e5e5; 
-            --primary: #ff4747; 
-            --primary-dark: #e63946;
-            --accent: #ff6600;
-            --success: #00c853;
-        }
-        .dark { 
-            --bg-primary: #0f0f0f; 
-            --bg-secondary: #1a1a1a; 
-            --bg-card: #1f1f1f; 
-            --text-primary: #f5f5f5; 
-            --text-secondary: #9e9e9e; 
-            --border-color: #333333; 
-        }
+        :root { --bg-primary: #ffffff; --bg-secondary: #f8fafc; --bg-card: #ffffff; --text-primary: #0f172a; --text-secondary: #64748b; --border-color: #e2e8f0; --primary: #e63946; }
+        .dark { --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; }
         body { background: var(--bg-secondary); color: var(--text-primary); }
         .hidden { display: none !important; }
 
@@ -46,22 +29,12 @@
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         .animate-slideUp { animation: slideUp 0.4s ease-out; }
         .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
         .animate-shake { animation: shake 0.5s ease-in-out; }
         .animate-pulse { animation: pulse 2s infinite; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-
-        /* Skeleton Loading */
-        .skeleton {
-            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-card) 50%, var(--bg-secondary) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
 
         /* Sidebar */
         #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
@@ -69,128 +42,19 @@
         .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .overlay.open { opacity: 1; pointer-events: auto; }
 
-        /* AliExpress Style Product Card */
-        .product-card { 
-            background: var(--bg-card); 
-            border-radius: 8px; 
-            overflow: hidden; 
-            transition: all 0.25s ease; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            position: relative;
-        }
-        .product-card:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
-        }
-        .product-card:active {
-            transform: scale(0.98);
-        }
-        .product-img-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1;
-            overflow: hidden;
-            background: #f8f8f8;
-        }
-        .dark .product-img-container {
-            background: #2a2a2a;
-        }
-        .product-img { 
-            width: 100%; 
-            height: 100%;
-            object-fit: cover; 
-            transition: transform 0.4s ease;
-        }
-        .product-card:hover .product-img {
-            transform: scale(1.05);
-        }
-        .product-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            z-index: 5;
-        }
-        .badge-service { background: #2196f3; color: white; }
-        .badge-offer { background: #ff4747; color: white; }
-        .badge-new { background: var(--success); color: white; }
-        .badge-hot { background: linear-gradient(135deg, #ff6b35, #f7c531); color: white; }
-        
-        .product-info {
-            padding: 10px 12px 14px;
-        }
-        .product-title {
-            font-size: 13px;
-            line-height: 1.4;
-            height: 36px;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-        .product-price {
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-        .price-current {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        .price-currency {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .product-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border-color);
-        }
-        .product-sold {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-        .product-rating {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-        .product-rating i {
-            font-size: 10px;
-            color: #ffc107;
-        }
-        .product-category-tag {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            backdrop-filter: blur(4px);
-        }
-
+        /* Product Card */
+        .product-card { background: var(--bg-card); border-radius: 16px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--border-color); }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f1f5f9; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* Input */
         .input-field { background: var(--bg-secondary); border: 2px solid var(--border-color); color: var(--text-primary); transition: all 0.2s; }
-        .input-field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(255, 71, 71, 0.1); }
+        .input-field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1); }
 
         /* Button */
-        .btn-primary { background: linear-gradient(135deg, #ff4747 0%, #e63946 100%); box-shadow: 0 4px 14px rgba(255, 71, 71, 0.3); transition: all 0.2s; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 71, 71, 0.4); }
+        .btn-primary { background: linear-gradient(135deg, #e63946 0%, #c1121f 100%); box-shadow: 0 4px 14px rgba(230, 57, 70, 0.3); transition: all 0.2s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         /* Bottom Nav */
@@ -206,12 +70,12 @@
         .toast { animation: slideUp 0.3s ease-out; }
 
         /* Notification Badge */
-        .notif-badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; background: #ff4747; color: white; font-size: 10px; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
+        .notif-badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; background: #e63946; color: white; font-size: 10px; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
 
         /* Chat */
         .chat-item { transition: all 0.2s; }
         .chat-item:hover { background: var(--bg-secondary); }
-        .chat-item.unread { background: rgba(255, 71, 71, 0.05); border-right: 3px solid var(--primary); }
+        .chat-item.unread { background: rgba(230, 57, 70, 0.05); border-right: 3px solid var(--primary); }
         .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; }
         .chat-bubble.sent { background: var(--primary); color: white; margin-left: auto; border-bottom-left-radius: 4px; }
         .chat-bubble.received { background: var(--bg-secondary); border-bottom-right-radius: 4px; }
@@ -221,141 +85,9 @@
         .order-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
         .order-locked { filter: blur(4px); pointer-events: none; user-select: none; }
 
-        /* Category Section - AliExpress Style */
-        .categories-section {
-            padding: 16px 0;
-            margin-bottom: 12px;
-        }
-        .categories-scroll {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 0 4px 12px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
-        .category-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            min-width: 70px;
-            scroll-snap-align: start;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .category-item:hover {
-            transform: translateY(-2px);
-        }
-        .category-item.active .category-icon {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 71, 71, 0.4);
-        }
-        .category-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            transition: all 0.2s;
-        }
-        .category-name {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-align: center;
-            white-space: nowrap;
-        }
-        .category-item.active .category-name {
-            color: var(--primary);
-        }
-
-        /* Flash Sale Banner */
-        .flash-sale-banner {
-            background: linear-gradient(135deg, #ff4747, #ff6b35);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-        }
-        .flash-sale-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 800;
-            font-size: 16px;
-        }
-        .flash-sale-timer {
-            display: flex;
-            gap: 4px;
-        }
-        .timer-box {
-            background: rgba(0,0,0,0.2);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        /* Category Pills Filter */
-        .filter-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 0 4px;
-        }
-        .category-pill { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            transition: all 0.2s; 
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-        .category-pill:hover, .category-pill.active { 
-            background: var(--primary); 
-            border-color: var(--primary); 
-            color: white; 
-        }
-
-        /* Search Bar - AliExpress Style */
-        .search-container {
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            transition: all 0.2s;
-        }
-        .search-container:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 71, 71, 0.1);
-        }
-        .search-container input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 12px 8px;
-            font-size: 14px;
-            color: var(--text-primary);
-            outline: none;
-        }
-        .search-container i {
-            color: var(--text-secondary);
-        }
+        /* Category Pills */
+        .category-pill { background: var(--bg-card); border: 1px solid var(--border-color); transition: all 0.2s; }
+        .category-pill:hover, .category-pill.active { background: var(--primary); border-color: var(--primary); color: white; }
 
         /* Hide scrollbar */
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -365,138 +97,34 @@
         .notif-dropdown { max-height: 400px; overflow-y: auto; }
         .notif-item { transition: all 0.2s; }
         .notif-item:hover { background: var(--bg-secondary); }
-        .notif-item.unread { background: rgba(255, 71, 71, 0.05); }
+        .notif-item.unread { background: rgba(230, 57, 70, 0.05); }
 
         /* Pending Chat Request */
         .pending-chat { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
         .dark .pending-chat { background: linear-gradient(135deg, #78350f, #92400e); }
-
-        /* Section Header */
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            padding: 0 4px;
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-link {
-            font-size: 13px;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        /* Products Grid - Responsive */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        @media (min-width: 640px) {
-            .products-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        }
-        @media (min-width: 768px) {
-            .products-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
-        }
-        @media (min-width: 1024px) {
-            .products-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
-        }
-        @media (min-width: 1280px) {
-            .products-grid { grid-template-columns: repeat(6, 1fr); gap: 16px; }
-        }
-
-        /* Lazy Load Image */
-        .lazy-img {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .lazy-img.loaded {
-            opacity: 1;
-        }
-
-        /* Quick Actions */
-        .quick-action {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: all 0.2s;
-            cursor: pointer;
-            z-index: 5;
-        }
-        .dark .quick-action {
-            background: rgba(0,0,0,0.7);
-            color: white;
-        }
-        .product-card:hover .quick-action {
-            opacity: 1;
-        }
-        .quick-action:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        .empty-state-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--bg-secondary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 32px;
-            color: var(--text-secondary);
-        }
-
-        /* Form Select Styled */
-        .select-styled {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 12px center;
-            background-size: 16px;
-            padding-left: 40px;
-        }
     </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
- 
+
+    <!-- Loader -->
     <div id="loader" class="fixed inset-0 bg-white dark:bg-slate-900 z-[9999] flex flex-col items-center justify-center gap-4">
         <div class="relative">
             <div class="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
-            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-red-500 rounded-full border-t-transparent animate-spin"></div>
+            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-red-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
-        <span class="text-red-500 font-bold text-xl">DzMarket</span>
+        <span class="text-red-600 font-bold text-xl">DzMarket</span>
     </div>
 
-    <div id="authScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);">
+    <!-- Auth Screen -->
+    <div id="authScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-20 right-20 w-72 h-72 bg-red-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-20 left-20 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute top-20 right-20 w-72 h-72 bg-red-600/20 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
         </div>
 
         <div class="relative w-full max-w-md animate-scaleIn">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg mb-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl shadow-lg mb-4">
                     <i class="fas fa-store text-white text-3xl"></i>
                 </div>
                 <h1 class="text-4xl font-black text-white mb-2">DzMarket</h1>
@@ -504,6 +132,7 @@
             </div>
 
             <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl">
+                <!-- Login Form -->
                 <div id="loginForm">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">تسجيل الدخول</h2>
                     <div class="space-y-4">
@@ -519,10 +148,11 @@
                     </div>
                     <div class="mt-6 text-center">
                         <span class="text-gray-500">جديد هنا؟</span>
-                        <button onclick="toggleAuth()" class="text-red-500 font-bold mr-2 hover:underline">إنشاء حساب</button>
+                        <button onclick="toggleAuth()" class="text-red-600 font-bold mr-2 hover:underline">إنشاء حساب</button>
                     </div>
                 </div>
 
+                <!-- Register Form -->
                 <div id="regForm" class="hidden">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">حساب جديد</h2>
                     <div class="space-y-4">
@@ -534,45 +164,43 @@
                     </div>
                     <div class="mt-6 text-center">
                         <span class="text-gray-500">لديك حساب؟</span>
-                        <button onclick="toggleAuth()" class="text-red-500 font-bold mr-2 hover:underline">تسجيل الدخول</button>
+                        <button onclick="toggleAuth()" class="text-red-600 font-bold mr-2 hover:underline">تسجيل الدخول</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="mainApp" class="hidden"><header class="fixed top-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-gray-100 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar(true)" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <button onclick="toggleSidebar(true)" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
                     <div class="flex items-center gap-2">
-                        <div class="w-9 h-9 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                        <div class="w-9 h-9 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center">
                             <i class="fas fa-store text-white text-sm"></i>
                         </div>
-                        <span class="font-black text-xl text-red-500 hidden sm:inline">DzMarket</span>
-                    </div>
-                </div>
-
-                <div class="hidden md:flex flex-1 max-w-xl mx-4">
-                    <div class="search-container w-full">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchInputDesktop" placeholder="ابحث عن منتجات، خدمات..." oninput="filterProducts()">
+                        <span class="font-black text-xl text-red-600 hidden sm:inline">DzMarket</span>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <!-- Notifications -->
                     <div class="relative">
-                        <button onclick="toggleNotifications()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition relative">
+                        <button onclick="toggleNotifications()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition relative">
                             <i class="fas fa-bell text-lg"></i>
                             <span id="notifBadge" class="notif-badge hidden">0</span>
                         </button>
 
-                        <div id="notifDropdown" class="hidden absolute left-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50">
-                            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                        <!-- Notifications Dropdown -->
+                        <div id="notifDropdown" class="hidden absolute left-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50">
+                            <div class="p-4 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
                                 <h3 class="font-bold">الإشعارات</h3>
-                                <button onclick="markAllRead()" class="text-xs text-red-500 hover:underline">تحديد الكل كمقروء</button>
+                                <button onclick="markAllRead()" class="text-xs text-red-600 hover:underline">تحديد الكل كمقروء</button>
                             </div>
                             <div id="notifList" class="notif-dropdown">
                                 <p class="text-center text-gray-500 py-8">لا توجد إشعارات</p>
@@ -580,11 +208,13 @@
                         </div>
                     </div>
 
-                    <button onclick="nav('messages')" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition relative">
+                    <!-- Messages -->
+                    <button onclick="nav('messages')" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition relative">
                         <i class="fas fa-comments text-lg"></i>
                         <span id="msgBadge" class="notif-badge hidden">0</span>
                     </button>
 
+                    <!-- Wallet -->
                     <button onclick="nav('wallet')" class="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 px-4 py-2 rounded-xl border border-amber-200 dark:border-amber-800">
                         <i class="fas fa-wallet text-amber-600"></i>
                         <span class="font-bold text-amber-700 dark:text-amber-400"><span id="userBalance">0</span> <span class="currency-symbol">دج</span></span>
@@ -593,10 +223,12 @@
             </div>
         </header>
 
+        <!-- Sidebar Overlay -->
         <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-50 overlay" onclick="toggleSidebar(false)"></div>
 
-        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-80 bg-white dark:bg-[#0f0f0f] z-[60] shadow-2xl flex flex-col">
-            <div class="p-6 bg-gradient-to-br from-red-500 to-red-600 text-white">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-80 bg-white dark:bg-slate-900 z-[60] shadow-2xl flex flex-col">
+            <div class="p-6 bg-gradient-to-br from-red-600 to-red-800 text-white">
                 <button onclick="toggleSidebar(false)" class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
                     <i class="fas fa-times"></i>
                 </button>
@@ -604,7 +236,7 @@
                     <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
                     <div>
                         <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
-                        <p class="text-sm text-white/70" id="userEmail">user@example.com</p>
+                        <p class="text-sm text-white/70" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6411170116240109050d084a070b09">[email&#160;protected]</a></p>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
@@ -614,123 +246,88 @@
             </div>
 
             <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-red-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-500"></i></div>
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
                     الصفحة الرئيسية
                 </button>
-                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-blue-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
+                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
                     الرسائل
                     <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-amber-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
                     طلبات المحادثة
                     <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-green-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
+                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
                     الطلبات الواردة
                     <span id="ordersBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-purple-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-purple-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
                     إضافة إعلان
                 </button>
-                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-orange-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-orange-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
                     إعلاناتي
                 </button>
-                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-gray-800 hover:text-red-500 font-semibold transition">
-                    <div class="w-10 h-10 bg-amber-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
                     المحفظة والشحن
                 </button>
             </nav>
 
-            <div class="p-4 border-t border-gray-100 dark:border-gray-800">
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-gray-800 text-red-500 py-3 rounded-xl font-bold hover:bg-red-100 transition">
+            <div class="p-4 border-t border-gray-100 dark:border-slate-800">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-slate-800 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition">
                     <i class="fas fa-sign-out-alt"></i>
                     تسجيل الخروج
                 </button>
             </div>
         </aside>
 
+        <!-- Main Content -->
         <main class="pt-20 px-4 max-w-7xl mx-auto">
 
+            <!-- View: Market -->
             <div id="view-market" class="animate-fadeIn">
-                <div class="mb-4 md:hidden">
-                    <div class="search-container">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="ابحث عن منتجات، خدمات..." oninput="filterProducts()">
+                <div class="mb-6">
+                    <div class="relative">
+                        <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input id="searchInput" type="text" placeholder="ابحث عن منتجات، خدمات..." class="input-field w-full pr-12 pl-4 py-4 rounded-2xl text-base" oninput="filterProducts()">
                     </div>
                 </div>
 
-                <div class="categories-section">
-                    <div class="categories-scroll hide-scrollbar" id="categoriesContainer">
-                        </div>
-                </div>
-
-                <div class="filter-section overflow-x-auto hide-scrollbar">
-                    <button onclick="filterType('all')" class="category-pill active" data-type="all">
+                <div class="mb-6 flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                    <button onclick="filterCategory('all')" class="category-pill active px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="all">
                         <i class="fas fa-th-large ml-1"></i> الكل
                     </button>
-                    <button onclick="filterType('product')" class="category-pill" data-type="product">
+                    <button onclick="filterCategory('product')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="product">
                         <i class="fas fa-box ml-1"></i> منتجات
                     </button>
-                    <button onclick="filterType('service')" class="category-pill" data-type="service">
+                    <button onclick="filterCategory('service')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="service">
                         <i class="fas fa-tools ml-1"></i> خدمات
                     </button>
                 </div>
 
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-fire text-orange-500"></i>
-                        <span>المنتجات الحديثة</span>
-                    </h2>
-                    <span class="text-sm text-gray-500" id="productsCount">0 منتج</span>
-                </div>
-
-                <div id="marketGrid" class="products-grid">
-                    <div class="product-card">
-                        <div class="product-img-container skeleton"></div>
-                        <div class="product-info">
-                            <div class="h-4 skeleton rounded mb-2"></div>
-                            <div class="h-4 w-2/3 skeleton rounded"></div>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="product-img-container skeleton"></div>
-                        <div class="product-info">
-                            <div class="h-4 skeleton rounded mb-2"></div>
-                            <div class="h-4 w-2/3 skeleton rounded"></div>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="product-img-container skeleton"></div>
-                        <div class="product-info">
-                            <div class="h-4 skeleton rounded mb-2"></div>
-                            <div class="h-4 w-2/3 skeleton rounded"></div>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="product-img-container skeleton"></div>
-                        <div class="product-info">
-                            <div class="h-4 skeleton rounded mb-2"></div>
-                            <div class="h-4 w-2/3 skeleton rounded"></div>
-                        </div>
-                    </div>
+                <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <p class="text-gray-500 col-span-full text-center py-10">جاري التحميل...</p>
                 </div>
             </div>
 
+            <!-- View: Messages -->
             <div id="view-messages" class="hidden animate-fadeIn">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-black">الرسائل</h2>
                 </div>
+
                 <div id="chatsList" class="space-y-2 max-w-2xl mx-auto">
                     <p class="text-center text-gray-500 py-16">لا توجد محادثات</p>
                 </div>
             </div>
 
+            <!-- View: Chat Requests (للبائع) -->
             <div id="view-chat-requests" class="hidden animate-fadeIn">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-black">طلبات المحادثة</h2>
@@ -756,14 +353,15 @@
                 </div>
             </div>
 
+            <!-- View: Chat (Single Conversation) -->
             <div id="view-chat" class="hidden animate-fadeIn">
                 <div class="max-w-2xl mx-auto">
-                    <button onclick="nav('messages')" class="mb-4 flex items-center gap-2 text-gray-500 hover:text-red-500 transition">
+                    <button onclick="nav('messages')" class="mb-4 flex items-center gap-2 text-gray-500 hover:text-red-600 transition">
                         <i class="fas fa-arrow-right"></i>
                         <span>رجوع للرسائل</span>
                     </button>
 
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 flex items-center gap-3">
                             <div id="chatPartnerAvatar" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">م</div>
                             <div>
@@ -773,9 +371,10 @@
                         </div>
 
                         <div id="chatMessagesContainer" class="h-96 overflow-y-auto p-4 space-y-3">
-                            </div>
+                            <!-- Messages -->
+                        </div>
 
-                        <div class="p-4 border-t border-gray-100 dark:border-gray-700 flex gap-2">
+                        <div class="p-4 border-t border-gray-100 dark:border-slate-700 flex gap-2">
                             <input type="text" id="chatMessageInput" class="input-field flex-1 px-4 py-3 rounded-xl" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter')sendChatMessage()">
                             <button onclick="sendChatMessage()" class="btn-primary px-6 rounded-xl text-white font-bold">
                                 <i class="fas fa-paper-plane"></i>
@@ -785,6 +384,7 @@
                 </div>
             </div>
 
+            <!-- View: Orders (للبائع) -->
             <div id="view-orders" class="hidden animate-fadeIn">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-black">الطلبات الواردة</h2>
@@ -810,9 +410,10 @@
                 </div>
             </div>
 
+            <!-- View: Add Product -->
             <div id="view-add" class="hidden animate-slideUp">
                 <div class="max-w-2xl mx-auto">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100 dark:border-slate-700">
                         <div class="text-center mb-8">
                             <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <i class="fas fa-plus text-white text-2xl"></i>
@@ -824,7 +425,7 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-semibold mb-2">نوع الإعلان</label>
-                                    <select id="pType" class="input-field select-styled w-full px-4 py-3 rounded-xl" onchange="toggleProductOptions()">
+                                    <select id="pType" class="input-field w-full px-4 py-3 rounded-xl" onchange="toggleProductOptions()">
                                         <option value="product">منتج مادي</option>
                                         <option value="service">خدمة رقمية</option>
                                     </select>
@@ -833,16 +434,6 @@
                                     <label class="block text-sm font-semibold mb-2">السعر (<span class="currency-symbol">دج</span>)</label>
                                     <input id="pPrice" type="number" placeholder="0" class="input-field w-full px-4 py-3 rounded-xl">
                                 </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">
-                                    <i class="fas fa-folder text-purple-500 ml-1"></i>
-                                    القسم
-                                </label>
-                                <select id="pCategory" class="input-field select-styled w-full px-4 py-3 rounded-xl">
-                                    <option value="">اختر القسم</option>
-                                </select>
                             </div>
 
                             <div>
@@ -855,11 +446,13 @@
                                 <textarea id="pDesc" rows="4" placeholder="وصف تفصيلي..." class="input-field w-full px-4 py-3 rounded-xl resize-none"></textarea>
                             </div>
 
+                            <!-- صورة الخدمة -->
                             <div id="serviceImageSection">
                                 <label class="block text-sm font-semibold mb-2">رابط صورة الخدمة/المنتج</label>
                                 <input id="pServiceImage" type="url" placeholder="https://example.com/image.jpg" class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
                             </div>
 
+                            <!-- Product-specific options -->
                             <div id="productOptions">
                                 <div>
                                     <label class="block text-sm font-semibold mb-2">روابط الصور الإضافية (كل رابط في سطر)</label>
@@ -891,6 +484,7 @@
                 </div>
             </div>
 
+            <!-- View: My Listings -->
             <div id="view-mylist" class="hidden animate-slideUp">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-black">إعلاناتي</h2>
@@ -901,9 +495,10 @@
                 <div id="myListGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
+            <!-- View: Wallet -->
             <div id="view-wallet" class="hidden animate-slideUp">
                 <div class="max-w-xl mx-auto">
-                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden mb-6">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden mb-6">
                         <div class="absolute top-0 left-0 w-40 h-40 bg-red-500/20 rounded-full blur-3xl"></div>
                         <div class="relative">
                             <div class="text-sm text-white/60 mb-1">رصيدك الحالي</div>
@@ -914,7 +509,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-100 dark:border-slate-700">
                         <h3 class="font-bold text-lg mb-4"><i class="fas fa-history text-blue-500 ml-2"></i>آخر المعاملات</h3>
                         <div id="transactionsList" class="space-y-3">
                             <p class="text-center text-gray-500 py-4">لا توجد معاملات</p>
@@ -925,6 +520,7 @@
 
         </main>
 
+        <!-- Bottom Navigation -->
         <nav class="bottom-nav md:hidden fixed bottom-0 left-0 right-0 flex justify-around py-2 z-40">
             <button onclick="nav('market')" class="nav-item active flex-1 flex flex-col items-center py-2" data-view="market">
                 <i class="fas fa-home text-xl mb-1"></i>
@@ -950,6 +546,7 @@
         </nav>
     </div>
 
+    <!-- Deposit Modal -->
     <div id="depositModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-md rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
             <div class="text-center mb-6">
@@ -959,8 +556,10 @@
                 <h3 class="text-xl font-black">شحن الرصيد</h3>
             </div>
 
+            <!-- Payment Methods -->
             <div id="paymentMethods" class="space-y-3 mb-6">
-                </div>
+                <!-- Will be loaded dynamically -->
+            </div>
 
             <div class="space-y-4">
                 <div>
@@ -977,13 +576,14 @@
         </div>
     </div>
 
+    <!-- Reveal Order Modal -->
     <div id="revealOrderModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-sm rounded-2xl p-6 text-center">
             <div class="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-eye text-amber-600 text-2xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">كشف معلومات الطلب</h3>
-            <p class="text-gray-500 mb-4">سيتم خصم <strong id="revealPrice" class="text-red-500">50 دج</strong> من رصيدك</p>
+            <p class="text-gray-500 mb-4">سيتم خصم <strong id="revealPrice" class="text-red-600">50 دج</strong> من رصيدك</p>
             <div class="flex gap-3">
                 <button onclick="closeRevealModal()" class="flex-1 py-3 rounded-xl border border-gray-200 font-semibold">إلغاء</button>
                 <button onclick="confirmRevealOrder()" class="flex-1 btn-primary py-3 rounded-xl text-white font-semibold">تأكيد</button>
@@ -991,13 +591,14 @@
         </div>
     </div>
 
+    <!-- Accept Chat Modal -->
     <div id="acceptChatModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-sm rounded-2xl p-6 text-center">
             <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-comments text-blue-600 text-2xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">قبول طلب المحادثة</h3>
-            <p id="acceptChatMessage" class="text-gray-500 mb-4">سيتم خصم <strong class="text-red-500"><span id="acceptChatPrice">50</span> <span class="currency-symbol">دج</span></strong> من رصيدك لفتح المحادثة</p>
+            <p id="acceptChatMessage" class="text-gray-500 mb-4">سيتم خصم <strong class="text-red-600"><span id="acceptChatPrice">50</span> <span class="currency-symbol">دج</span></strong> من رصيدك لفتح المحادثة</p>
             <div class="flex gap-3">
                 <button onclick="closeAcceptChatModal()" class="flex-1 py-3 rounded-xl border border-gray-200 font-semibold">إلغاء</button>
                 <button onclick="confirmAcceptChat()" class="flex-1 btn-primary py-3 rounded-xl text-white font-semibold">قبول</button>
@@ -1005,1008 +606,883 @@
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div><script>
-        // ========== DARK MODE ==========
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
+
+
+ <script>
+  // ========== DARK MODE ==========
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        document.documentElement.classList.toggle('dark', e.matches);
+    });
+
+    // ========== STATE ==========
+    let USER = null;
+    let ALL_LISTINGS = [];
+    let NOTIFICATIONS = [];
+    let CHATS = [];
+    let ORDERS = [];
+    let PENDING_CHAT_REQUESTS = [];
+    let currentChatId = null;
+    let pendingRevealOrderId = null;
+    let pendingAcceptChatId = null;
+    let notifInterval = null;
+
+    // الإعدادات العامة
+    let APP_SETTINGS = {
+        orderRevealPrice: 50,
+        chatPrice: 50,
+        freeMode: false,
+        currency: 'دج'
+    };
+
+    function getFingerprint() {
+        return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
+    }
+
+    // ========== LOAD SETTINGS ==========
+    async function loadAppSettings() {
+        try {
+            const res = await fetch('/api/public/settings');
+            const settings = await res.json();
+            APP_SETTINGS = { ...APP_SETTINGS, ...settings };
+            updateCurrencyDisplay();
+            updatePriceDisplays();
+        } catch(e) {
+            console.error('Error loading settings:', e);
         }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            document.documentElement.classList.toggle('dark', e.matches);
+    }
+
+    function updateCurrencyDisplay() {
+        document.querySelectorAll('.currency-symbol').forEach(el => {
+            el.textContent = APP_SETTINGS.currency;
         });
+    }
 
-        // ========== STATE ==========
-        let USER = null;
-        let ALL_LISTINGS = [];
-        let NOTIFICATIONS = [];
-        let CHATS = [];
-        let ORDERS = [];
-        let PENDING_CHAT_REQUESTS = [];
-        let CATEGORIES = [];
-        let currentChatId = null;
-        let pendingRevealOrderId = null;
-        let pendingAcceptChatId = null;
-        let notifInterval = null;
-        let currentCategory = 'all';
-        let currentType = 'all';
+    function updatePriceDisplays() {
+        // تحديث أسعار كشف الطلب
+        const orderRevealEl = document.getElementById('orderRevealPriceDisplay');
+        if (orderRevealEl) orderRevealEl.textContent = APP_SETTINGS.orderRevealPrice;
 
-        // الإعدادات العامة
-        let APP_SETTINGS = {
-            orderRevealPrice: 50,
-            chatPrice: 50,
-            freeMode: false,
-            currency: 'دج'
-        };
+        const revealPriceEl = document.getElementById('revealPrice');
+        if (revealPriceEl) revealPriceEl.textContent = APP_SETTINGS.orderRevealPrice + ' ' + APP_SETTINGS.currency;
 
-        // الأقسام الافتراضية
-        const DEFAULT_CATEGORIES = [
-            { id: 'electronics', name: 'إلكترونيات', icon: 'fa-laptop', color: '#3b82f6' },
-            { id: 'fashion', name: 'أزياء', icon: 'fa-tshirt', color: '#ec4899' },
-            { id: 'home', name: 'منزل', icon: 'fa-home', color: '#f59e0b' },
-            { id: 'beauty', name: 'جمال', icon: 'fa-spa', color: '#8b5cf6' },
-            { id: 'sports', name: 'رياضة', icon: 'fa-futbol', color: '#22c55e' },
-            { id: 'toys', name: 'ألعاب', icon: 'fa-gamepad', color: '#ef4444' },
-            { id: 'cars', name: 'سيارات', icon: 'fa-car', color: '#0ea5e9' },
-            { id: 'phones', name: 'هواتف', icon: 'fa-mobile-alt', color: '#14b8a6' },
-            { id: 'food', name: 'طعام', icon: 'fa-utensils', color: '#f97316' },
-            { id: 'services', name: 'خدمات', icon: 'fa-concierge-bell', color: '#6366f1' },
-            { id: 'other', name: 'أخرى', icon: 'fa-ellipsis-h', color: '#6b7280' }
-        ];
+        // تحديث أسعار المحادثة
+        const chatPriceEl = document.getElementById('chatPriceDisplay');
+        if (chatPriceEl) chatPriceEl.textContent = APP_SETTINGS.chatPrice;
 
-        function getFingerprint() {
-            return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16);
+        const acceptChatPriceEl = document.getElementById('acceptChatPrice');
+        if (acceptChatPriceEl) acceptChatPriceEl.textContent = APP_SETTINGS.chatPrice;
+
+        // إظهار/إخفاء إشعارات الوضع المجاني
+        if (APP_SETTINGS.freeMode) {
+            document.getElementById('freeModeNotice')?.classList.remove('hidden');
+            document.getElementById('chatPriceNotice')?.classList.add('hidden');
+            document.getElementById('orderFreeModeNotice')?.classList.remove('hidden');
+            document.getElementById('orderPriceNotice')?.classList.add('hidden');
+
+            const acceptMsg = document.getElementById('acceptChatMessage');
+            if (acceptMsg) acceptMsg.innerHTML = '<span class="text-green-600 font-bold">الوضع المجاني مفعّل - فتح المحادثة مجاني!</span>';
+        } else {
+            document.getElementById('freeModeNotice')?.classList.add('hidden');
+            document.getElementById('chatPriceNotice')?.classList.remove('hidden');
+            document.getElementById('orderFreeModeNotice')?.classList.add('hidden');
+            document.getElementById('orderPriceNotice')?.classList.remove('hidden');
         }
+    }
 
-        // ========== LOAD SETTINGS ==========
-        async function loadAppSettings() {
-            try {
-                const res = await fetch('/api/public/settings');
-                const settings = await res.json();
-                APP_SETTINGS = { ...APP_SETTINGS, ...settings };
-                updateCurrencyDisplay();
-                updatePriceDisplays();
-            } catch(e) {
-                console.error('Error loading settings:', e);
-            }
-        }
+    // ========== INIT ==========
+    window.onload = async () => {
+        const loader = document.getElementById('loader');
+        try {
+            await loadAppSettings();
 
-        // ========== LOAD CATEGORIES ==========
-        async function loadCategories() {
-            try {
-                const res = await fetch('/api/categories');
-                const data = await res.json();
-                CATEGORIES = data.length > 0 ? data : DEFAULT_CATEGORIES;
-            } catch(e) {
-                CATEGORIES = DEFAULT_CATEGORIES;
-            }
-            renderCategories();
-            populateCategorySelect();
-        }
-
-        function renderCategories() {
-            const container = document.getElementById('categoriesContainer');
-            
-            // Add "All" category first
-            let html = 
-                <div class="category-item active" data-cat="all" onclick="filterCategory('all')">
-                    <div class="category-icon" style="color: #ff4747;">
-                        <i class="fas fa-th-large"></i>
-                    </div>
-                    <span class="category-name">الكل</span>
-                </div>
-            ;
-            
-            html += CATEGORIES.map(cat => 
-                <div class="category-item" data-cat="${cat.id}" onclick="filterCategory('${cat.id}')">
-                    <div class="category-icon" style="color: ${cat.color};">
-                        <i class="fas ${cat.icon}"></i>
-                    </div>
-                    <span class="category-name">${cat.name}</span>
-                </div>
-            ).join('');
-            
-            container.innerHTML = html;
-        }
-
-        function populateCategorySelect() {
-            const select = document.getElementById('pCategory');
-            select.innerHTML = '<option value="">اختر القسم</option>' + 
-                CATEGORIES.map(cat => <option value="${cat.id}">${cat.name}</option>).join('');
-        }
-
-        function filterCategory(catId) {
-            currentCategory = catId;
-            
-            // Update active state
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.cat === catId);
-            });
-            
-            applyFilters();
-        }
-
-        function filterType(type) {
-            currentType = type;
-            
-            // Update active state
-            document.querySelectorAll('.category-pill').forEach(pill => {
-                pill.classList.toggle('active', pill.dataset.type === type);
-            });
-            
-            applyFilters();
-        }
-
-        function applyFilters() {
-            let filtered = [...ALL_LISTINGS];
-            
-            // Filter by category
-            if (currentCategory !== 'all') {
-                filtered = filtered.filter(p => p.category === currentCategory);
-            }
-            
-            // Filter by type
-            if (currentType !== 'all') {
-                filtered = filtered.filter(p => p.type === currentType);
-            }
-            
-            // Filter by search
-            const searchMobile = document.getElementById('searchInput');
-            const searchDesktop = document.getElementById('searchInputDesktop');
-            const query = (searchMobile?.value  searchDesktop?.value  '').toLowerCase();
-            
-            if (query) {
-                filtered = filtered.filter(p => 
-                    p.title.toLowerCase().includes(query) || 
-                    (p.desc && p.desc.toLowerCase().includes(query))
-                );
-            }
-            
-            renderProducts(filtered);
-        }
-
-        function updateCurrencyDisplay() {
-            document.querySelectorAll('.currency-symbol').forEach(el => {
-                el.textContent = APP_SETTINGS.currency;
-            });
-        }
-
-        function updatePriceDisplays() {
-            const orderRevealEl = document.getElementById('orderRevealPriceDisplay');
-            if (orderRevealEl) orderRevealEl.textContent = APP_SETTINGS.orderRevealPrice;
-
-            const revealPriceEl = document.getElementById('revealPrice');
-            if (revealPriceEl) revealPriceEl.textContent = APP_SETTINGS.orderRevealPrice + ' ' + APP_SETTINGS.currency;
-
-            const chatPriceEl = document.getElementById('chatPriceDisplay');
-            if (chatPriceEl) chatPriceEl.textContent = APP_SETTINGS.chatPrice;
-
-            const acceptChatPriceEl = document.getElementById('acceptChatPrice');
-            if (acceptChatPriceEl) acceptChatPriceEl.textContent = APP_SETTINGS.chatPrice;
-
-            if (APP_SETTINGS.freeMode) {
-                document.getElementById('freeModeNotice')?.classList.remove('hidden');
-                document.getElementById('chatPriceNotice')?.classList.add('hidden');
-                document.getElementById('orderFreeModeNotice')?.classList.remove('hidden');
-                document.getElementById('orderPriceNotice')?.classList.add('hidden');
-
-                const acceptMsg = document.getElementById('acceptChatMessage');
-                if (acceptMsg) acceptMsg.innerHTML = '<span class="text-green-600 font-bold">الوضع المجاني مفعّل - فتح المحادثة مجاني!</span>';
-            } else {
-                document.getElementById('freeModeNotice')?.classList.add('hidden');
-                document.getElementById('chatPriceNotice')?.classList.remove('hidden');
-                document.getElementById('orderFreeModeNotice')?.classList.add('hidden');
-                document.getElementById('orderPriceNotice')?.classList.remove('hidden');
-            }
-        }
-
-        // ========== INIT ==========
-        window.onload = async () => {
-            const loader = document.getElementById('loader');
-            try {
-                await Promise.all([loadAppSettings(), loadCategories()]);
-
-                const stored = localStorage.getItem('dz_user');
-                if (stored) {
-                    try {
-                        const u = JSON.parse(stored);
-                        const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
-                        const d = await res.json();
-                        if (d.success) {
-                            USER = d.user;
-                            localStorage.setItem('dz_user', JSON.stringify(USER));
-                            initApp();
-                        } else {
-                            showAuth();
-                        }
-                    } catch(e) {
+            const stored = localStorage.getItem('dz_user');
+            if (stored) {
+                try {
+                    const u = JSON.parse(stored);
+                    const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
+                    const d = await res.json();
+                    if (d.success) {
+                        USER = d.user;
+                        localStorage.setItem('dz_user', JSON.stringify(USER));
+                        initApp();
+                    } else {
                         showAuth();
                     }
-                } else {
+                } catch(e) {
                     showAuth();
                 }
-            } catch(e) {
-                console.error('Init error:', e);
+            } else {
                 showAuth();
-            } finally {
-                if (loader) loader.classList.add('hidden');
             }
+        } catch(e) {
+            console.error('Init error:', e);
+            showAuth();
+        } finally {
+            // دائماً إخفاء الـ loader
+            if (loader) loader.classList.add('hidden');
+        }
+    };
+
+    function initApp() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        updateUserUI();
+        nav('market');
+        startNotificationPolling();
+    }
+
+    function updateUserUI() {
+        document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('userName').innerText = USER.name;
+        document.getElementById('userEmail').innerText = USER.email;
+        document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'م';
+        updateCurrencyDisplay();
+    }
+
+    function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
+    function toggleAuth() {
+        document.getElementById('loginForm').classList.toggle('hidden');
+        document.getElementById('regForm').classList.toggle('hidden');
+    }
+
+    // ========== AUTH ==========
+    async function login() {
+        const email = document.getElementById('lEmail').value;
+        const password = document.getElementById('lPass').value;
+        if (!email || !password) return showToast('يرجى ملء جميع الحقول', 'error');
+
+        try {
+            const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password}) });
+            const d = await res.json();
+            if (d.success) {
+                localStorage.setItem('dz_user', JSON.stringify(d.user));
+                location.reload();
+            } else showToast(d.msg || 'خطأ', 'error');
+        } catch(e) { showToast('خطأ في الاتصال', 'error'); }
+    }
+
+    async function register() {
+        const data = {
+            name: document.getElementById('rName').value,
+            email: document.getElementById('rEmail').value,
+            password: document.getElementById('rPass').value,
+            phone: document.getElementById('rPhone').value,
+            fingerprint: getFingerprint()
         };
+        if (!data.name || !data.email || !data.password) return showToast('يرجى ملء جميع الحقول', 'error');
 
-        function initApp() {
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            updateUserUI();
-            nav('market');
-            startNotificationPolling();
+        try {
+            const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            const d = await res.json();
+            if (d.success) {
+                localStorage.setItem('dz_user', JSON.stringify(d.user));
+                location.reload();
+            } else showToast(d.msg || 'خطأ', 'error');
+        } catch(e) { showToast('خطأ في الاتصال', 'error'); }
+    }
+
+    function logout() {
+        localStorage.removeItem('dz_user');
+        if (notifInterval) clearInterval(notifInterval);
+        location.reload();
+    }
+
+    // ========== SIDEBAR ==========
+    function toggleSidebar(open) {
+        document.getElementById('sidebar').classList.toggle('open', open);
+        document.getElementById('sidebarOverlay').classList.toggle('open', open);
+    }
+
+    // ========== NAVIGATION ==========
+    function nav(view) {
+        ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
+            const el = document.getElementById('view-' + v);
+            if (el) el.classList.add('hidden');
+        });
+        const el = document.getElementById('view-' + view);
+        if (el) el.classList.remove('hidden');
+
+        toggleSidebar(false);
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+
+        // تحديث عرض الأسعار عند التنقل
+        updatePriceDisplays();
+
+        switch(view) {
+            case 'market': loadMarket(); break;
+            case 'messages': loadChats(); break;
+            case 'chat-requests': loadChatRequests(); break;
+            case 'orders': loadOrders(); break;
+            case 'mylist': loadMyList(); break;
+            case 'wallet': loadWallet(); break;
         }
+    }
 
-        function updateUserUI() {
-            document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
-            document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
-            document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
-            document.getElementById('userName').innerText = USER.name;
-            document.getElementById('userEmail').innerText = USER.email;
-            document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'م';
-            updateCurrencyDisplay();
-        }
-
-        function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
-        function toggleAuth() {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('regForm').classList.toggle('hidden');
-        }
-
-        // ========== AUTH ==========
-        async function login() {
-            const email = document.getElementById('lEmail').value;
-            const password = document.getElementById('lPass').value;
-            if (!email || !password) return showToast('يرجى ملء جميع الحقول', 'error');
-
-            try {
-                const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password}) });
-                const d = await res.json();
-                if (d.success) {
-                    localStorage.setItem('dz_user', JSON.stringify(d.user));
-                    location.reload();
-                } else showToast(d.msg || 'خطأ', 'error');
-            } catch(e) { showToast('خطأ في الاتصال', 'error'); }
-        }
-
-        async function register() {
-            const data = {
-                name: document.getElementById('rName').value,
-                email: document.getElementById('rEmail').value,
-                password: document.getElementById('rPass').value,
-                phone: document.getElementById('rPhone').value,
-                fingerprint: getFingerprint()
-            };
-            if (!data.name  !data.email  !data.password) return showToast('يرجى ملء جميع الحقول', 'error');
-
-            try {
-                const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-                const d = await res.json();
-                if (d.success) {
-                    localStorage.setItem('dz_user', JSON.stringify(d.user));
-                    location.reload();
-                } else showToast(d.msg || 'خطأ', 'error');
-            } catch(e) { showToast('خطأ في الاتصال', 'error'); }
-        }
-
-        function logout() {
-            localStorage.removeItem('dz_user');
-            if (notifInterval) clearInterval(notifInterval);
-            location.reload();
-        }
-
-        // ========== SIDEBAR ==========
-        function toggleSidebar(open) {
-            document.getElementById('sidebar').classList.toggle('open', open);
-            document.getElementById('sidebarOverlay').classList.toggle('open', open);
-        }
-
-        // ========== NAVIGATION ==========
-        function nav(view) {
-            ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
-                const el = document.getElementById('view-' + v);
-                if (el) el.classList.add('hidden');
-            });
-            const el = document.getElementById('view-' + view);
-            if (el) el.classList.remove('hidden');
-
-            toggleSidebar(false);
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-
-            updatePriceDisplays();
-
-            switch(view) {
-                case 'market': loadMarket(); break;
-                case 'messages': loadChats(); break;
-                case 'chat-requests': loadChatRequests(); break;
-                case 'orders': loadOrders(); break;
-                case 'mylist': loadMyList(); break;
-                case 'wallet': loadWallet(); break;
-            }
-        }
-
-        // ========== NOTIFICATIONS ==========
-        function startNotificationPolling() {
+    // ========== NOTIFICATIONS ==========
+    function startNotificationPolling() {
+        loadNotifications();
+        loadUnreadCounts();
+        notifInterval = setInterval(() => {
             loadNotifications();
             loadUnreadCounts();
-            notifInterval = setInterval(() => {
-                loadNotifications();
-                loadUnreadCounts();
-            }, 10000);
+        }, 10000);
+    }
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch('/api/notifications/' + USER._id);
+            NOTIFICATIONS = await res.json();
+            renderNotifications();
+        } catch(e) {}
+    }
+
+    function renderNotifications() {
+        const unread = NOTIFICATIONS.filter(n => !n.read).length;
+        const badge = document.getElementById('notifBadge');
+
+        if (unread > 0) {
+            badge.classList.remove('hidden');
+            badge.innerText = unread > 9 ? '9+' : unread;
+        } else {
+            badge.classList.add('hidden');
         }
 
-        async function loadNotifications() {
-            try {
-                const res = await fetch('/api/notifications/' + USER._id);
-                NOTIFICATIONS = await res.json();
-                renderNotifications();
-            } catch(e) {}
+        const list = document.getElementById('notifList');
+        if (!NOTIFICATIONS.length) {
+            list.innerHTML = '<p class="text-center text-gray-500 py-8">لا توجد إشعارات</p>';
+            return;
         }
 
-        function renderNotifications() {
-            const unread = NOTIFICATIONS.filter(n => !n.read).length;
-            const badge = document.getElementById('notifBadge');
+        list.innerHTML = NOTIFICATIONS.slice(0, 20).map(n => `
+            <div class="notif-item ${n.read ? '' : 'unread'} p-4 border-b border-gray-100 dark:border-slate-700 cursor-pointer" onclick="handleNotification('${n._id}', '${n.type}', '${n.targetId || ''}')">
+                <div class="flex gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getNotifIconClass(n.type)}">
+                        <i class="fas ${getNotifIcon(n.type)}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold truncate">${n.title}</p>
+                        <p class="text-xs text-gray-500 truncate">${n.message}</p>
+                        <span class="text-xs text-gray-400">${formatTime(n.date)}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
 
-            if (unread > 0) {
-                badge.classList.remove('hidden');
-                badge.innerText = unread > 9 ? '9+' : unread;
+    function getNotifIcon(type) {
+        const icons = { order: 'fa-shopping-bag', message: 'fa-comment', deposit: 'fa-wallet', system: 'fa-bell', chat_request: 'fa-user-clock' };
+        return icons[type] || 'fa-bell';
+    }
+
+    function getNotifIconClass(type) {
+        const classes = { order: 'bg-green-100 text-green-600', message: 'bg-blue-100 text-blue-600', deposit: 'bg-amber-100 text-amber-600', system: 'bg-gray-100 text-gray-600', chat_request: 'bg-amber-100 text-amber-600' };
+        return classes[type] || 'bg-gray-100 text-gray-600';
+    }
+
+    function toggleNotifications() {
+        document.getElementById('notifDropdown').classList.toggle('hidden');
+    }
+
+    async function handleNotification(id, type, targetId) {
+        await fetch('/api/notification/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+
+        document.getElementById('notifDropdown').classList.add('hidden');
+
+        if (type === 'order') nav('orders');
+        else if (type === 'message' && targetId) openChat(targetId);
+        else if (type === 'chat_request') nav('chat-requests');
+        else if (type === 'deposit') nav('wallet');
+
+        loadNotifications();
+    }
+
+    async function markAllRead() {
+        await fetch('/api/notifications/read-all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
+        loadNotifications();
+    }
+
+    async function loadUnreadCounts() {
+        try {
+            const res = await fetch('/api/unread-counts/' + USER._id);
+            const counts = await res.json();
+
+            // Messages badge
+            const msgBadge = document.getElementById('msgBadge');
+            const sidebarMsgBadge = document.getElementById('sidebarMsgBadge');
+            if (counts.messages > 0) {
+                msgBadge.classList.remove('hidden');
+                msgBadge.innerText = counts.messages;
+                sidebarMsgBadge.classList.remove('hidden');
+                sidebarMsgBadge.innerText = counts.messages;
             } else {
-                badge.classList.add('hidden');
+                msgBadge.classList.add('hidden');
+                sidebarMsgBadge.classList.add('hidden');
             }
 
-            const list = document.getElementById('notifList');
-            if (!NOTIFICATIONS.length) {
-                list.innerHTML = '<p class="text-center text-gray-500 py-8">لا توجد إشعارات</p>';
-                return;
+            // Orders badge
+            const ordersBadge = document.getElementById('ordersBadge');
+            if (counts.orders > 0) {
+                ordersBadge.classList.remove('hidden');
+                ordersBadge.innerText = counts.orders;
+            } else {
+                ordersBadge.classList.add('hidden');
             }
 
-            list.innerHTML = NOTIFICATIONS.slice(0, 20).map(n => 
-                <div class="notif-item ${n.read ? '' : 'unread'} p-4 border-b border-gray-100 dark:border-gray-700 cursor-pointer" onclick="handleNotification('${n._id}', '${n.type}', '${n.targetId || ''}')">
-                    <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getNotifIconClass(n.type)}">
-                            <i class="fas ${getNotifIcon(n.type)}"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold truncate">${n.title}</p>
-                            <p class="text-xs text-gray-500 truncate">${n.message}</p>
-                            <span class="text-xs text-gray-400">${formatTime(n.date)}</span>
-                        </div>
+            // Chat requests badge
+            const chatRequestsBadge = document.getElementById('chatRequestsBadge');
+            if (counts.pendingChats > 0) {
+                chatRequestsBadge.classList.remove('hidden');
+                chatRequestsBadge.innerText = counts.pendingChats;
+            } else {
+                chatRequestsBadge.classList.add('hidden');
+            }
+        } catch(e) {}
+    }
+
+    // ========== MARKET ==========
+    async function loadMarket() {
+        try {
+            const res = await fetch('/api/market');
+            ALL_LISTINGS = await res.json();
+            renderProducts(ALL_LISTINGS);
+        } catch(e) {
+            document.getElementById('marketGrid').innerHTML = '<p class="text-red-500 col-span-full text-center py-10">خطأ في التحميل</p>';
+        }
+    }
+
+    function renderProducts(list) {
+        const grid = document.getElementById('marketGrid');
+        if (!list.length) {
+            grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>';
+            return;
+        }
+        grid.innerHTML = list.map(p => `
+            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+                <div class="relative"><img 
+    src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
+    class="product-img" 
+    loading="lazy" 
+    decoding="async"
+    onerror="this.src='https://via.placeholder.com/300'"
+>
+                    ${p.type === 'service' ? '<span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">خدمة</span>' : ''}
+                    ${p.offerEndTime ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold animate-pulse">عرض محدود</span>' : ''}
+                </div>
+                <div class="p-3">
+                    <h3 class="text-sm font-semibold line-clamp-2 mb-2 h-10">${p.title}</h3>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-red-600 font-black text-lg">${Number(p.price).toLocaleString()}</span>
+                        <span class="text-gray-400 text-xs">${APP_SETTINGS.currency}</span>
                     </div>
                 </div>
-            ).join('');
+            </div>
+        `).join('');
+    }
+
+    function filterProducts() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q))));
+    }
+
+    function filterCategory(cat) {
+        document.querySelectorAll('.category-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+        renderProducts(cat === 'all' ? ALL_LISTINGS : ALL_LISTINGS.filter(p => p.type === cat));
+    }
+
+    // ========== CHAT REQUESTS (للبائع) ==========
+    async function loadChatRequests() {
+        try {
+            const res = await fetch('/api/chat/pending/' + USER._id);
+            PENDING_CHAT_REQUESTS = await res.json();
+            renderChatRequests();
+        } catch(e) {}
+    }
+
+    function renderChatRequests() {
+        const list = document.getElementById('chatRequestsList');
+        document.getElementById('chatRequestsCount').innerText = PENDING_CHAT_REQUESTS.length + ' طلب';
+
+        if (!PENDING_CHAT_REQUESTS.length) {
+            list.innerHTML = '<div class="text-center py-16"><i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i><p class="text-gray-500">لا توجد طلبات محادثة معلقة</p></div>';
+            return;
         }
 
-        function getNotifIcon(type) {
-            const icons = { order: 'fa-shopping-bag', message: 'fa-comment', deposit: 'fa-wallet', system: 'fa-bell', chat_request: 'fa-user-clock' };
-            return icons[type] || 'fa-bell';
-        }
-
-        function getNotifIconClass(type) {
-            const classes = { order: 'bg-green-100 text-green-600', message: 'bg-blue-100 text-blue-600', deposit: 'bg-amber-100 text-amber-600', system: 'bg-gray-100 text-gray-600', chat_request: 'bg-amber-100 text-amber-600' };
-            return classes[type] || 'bg-gray-100 text-gray-600';
-        }
-
-        function toggleNotifications() {
-            document.getElementById('notifDropdown').classList.toggle('hidden');
-        }
-
-        async function handleNotification(id, type, targetId) {
-            await fetch('/api/notification/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-
-            document.getElementById('notifDropdown').classList.add('hidden');
-
-            if (type === 'order') nav('orders');
-            else if (type === 'message' && targetId) openChat(targetId);
-            else if (type === 'chat_request') nav('chat-requests');
-            else if (type === 'deposit') nav('wallet');
-
-            loadNotifications();
-        }
-
-        async function markAllRead() {
-            await fetch('/api/notifications/read-all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
-            loadNotifications();
-        }
-
-        async function loadUnreadCounts() {
-            try {
-                const res = await fetch('/api/unread-counts/' + USER._id);
-                const counts = await res.json();
-
-                const msgBadge = document.getElementById('msgBadge');
-                const sidebarMsgBadge = document.getElementById('sidebarMsgBadge');
-                if (counts.messages > 0) {
-                    msgBadge.classList.remove('hidden');
-                    msgBadge.innerText = counts.messages;
-                    sidebarMsgBadge.classList.remove('hidden');
-                    sidebarMsgBadge.innerText = counts.messages;
-                } else {
-                    msgBadge.classList.add('hidden');
-                    sidebarMsgBadge.classList.add('hidden');
-                }
-
-                const ordersBadge = document.getElementById('ordersBadge');
-                if (counts.orders > 0) {
-                    ordersBadge.classList.remove('hidden');
-                    ordersBadge.innerText = counts.orders;
-                } else {
-                    ordersBadge.classList.add('hidden');
-                }
-
-                const chatRequestsBadge = document.getElementById('chatRequestsBadge');
-                if (counts.pendingChats > 0) {
-                    chatRequestsBadge.classList.remove('hidden');
-                    chatRequestsBadge.innerText = counts.pendingChats;
-                } else {
-                    chatRequestsBadge.classList.add('hidden');
-                }
-            } catch(e) {}
-        }
-
-        // ========== MARKET ==========
-        async function loadMarket() {
-            try {
-                const res = await fetch('/api/market');
-                ALL_LISTINGS = await res.json();
-                renderProducts(ALL_LISTINGS);
-            } catch(e) {
-                document.getElementById('marketGrid').innerHTML = '<div class="col-span-full empty-state"><div class="empty-state-icon"><i class="fas fa-exclamation-triangle"></i></div><p class="text-gray-500">خطأ في التحميل</p></div>';
-            }
-        }
-
-        function renderProducts(list) {
-            const grid = document.getElementById('marketGrid');
-            document.getElementById('productsCount').textContent = list.length + ' منتج';
-            
-            if (!list.length) {
-                grid.innerHTML = 
-                    <div class="col-span-full empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-box-open"></i>
-                        </div>
-                        <p class="text-gray-500 font-semibold mb-2">لا توجد منتجات</p>
-                        <p class="text-gray-400 text-sm">جرب تغيير الفلتر أو البحث</p>
-                    </div>
-                ;
-                return;
-            }
-            
-            grid.innerHTML = list.map((p, index) => {
-                const categoryInfo = CATEGORIES.find(c => c.id === p.category) || {};
-                const soldCount = Math.floor(Math.random() * 500) + 10;
-                const rating = (4 + Math.random()).toFixed(1);
-                
-                return 
-                    <div class="product-card" onclick="window.location.href='/p/${p._id}'" style="animation-delay: ${index * 30}ms;">
-                        <div class="product-img-container">
-                            <img 
-                                src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300x300?text=No+Image'}" 
-                                class="product-img lazy-img" 
-                                loading="lazy" 
-                                decoding="async"
-                                onload="this.classList.add('loaded')"
-                                onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'"
-                                alt="${p.title}"
-                            >
-                            ${p.type === 'service' ? '<span class="product-badge badge-service">خدمة</span>' : ''}
-                            ${p.offerEndTime ? '<span class="product-badge badge-offer animate-pulse">عرض</span>' : ''}
-                            ${categoryInfo.name ? <span class="product-category-tag">${categoryInfo.name}</span> : ''}
-                            <div class="quick-action" onclick="event.stopPropagation();">
-                                <i class="far fa-heart"></i>
-                            </div>
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title">${p.title}</h3>
-                            <div class="product-price">
-                                <span class="price-current">${Number(p.price).toLocaleString()}</span>
-                                <span class="price-currency">${APP_SETTINGS.currency}</span>
-                            </div>
-                            <div class="product-meta">
-                                <span class="product-sold">${soldCount}+ مبيعات</span>
-                                <div class="product-rating">
-                                    <i class="fas fa-star"></i>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">${rating}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ;
-            }).join('');
-        }
-
-        function filterProducts() {
-            applyFilters();
-        }
-
-        // ========== CHAT REQUESTS (للبائع) ==========
-        async function loadChatRequests() {
-            try {
-                const res = await fetch('/api/chat/pending/' + USER._id);
-                PENDING_CHAT_REQUESTS = await res.json();
-                renderChatRequests();
-            } catch(e) {}
-        }
-
-        function renderChatRequests() {
-            const list = document.getElementById('chatRequestsList');
-            document.getElementById('chatRequestsCount').innerText = PENDING_CHAT_REQUESTS.length + ' طلب';
-
-            if (!PENDING_CHAT_REQUESTS.length) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-check-circle text-green-500"></i></div><p class="text-gray-500">لا توجد طلبات محادثة معلقة</p></div>';
-                return;
-            }
-
-            list.innerHTML = PENDING_CHAT_REQUESTS.map(c => 
-                <div class="pending-chat rounded-2xl p-5">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">${(c.buyerName || 'م').charAt(0)}</div>
-                            <div>
-                                <h3 class="font-bold">${c.buyerName || 'مشتري'}</h3>
-                                <p class="text-sm text-gray-600">يريد التواصل معك</p>
-                            </div>
-                        </div>
-                        <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
-                    </div>
-
-                    <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-3 mb-4">
-                        <p class="text-sm font-semibold">حول: ${c.listingTitle}</p>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="acceptChatRequest('${c._id}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition">
-                            <i class="fas fa-check ml-2"></i>
-                            ${APP_SETTINGS.freeMode ? 'قبول (مجاني)' : قبول (-${APP_SETTINGS.chatPrice} ${APP_SETTINGS.currency})}
-                        </button>
-                    </div>
-                </div>
-            ).join('');
-        }
-
-        function acceptChatRequest(chatId) {
-            pendingAcceptChatId = chatId;
-            updatePriceDisplays();
-            document.getElementById('acceptChatModal').classList.remove('hidden');
-        }
-
-        function closeAcceptChatModal() {
-            document.getElementById('acceptChatModal').classList.add('hidden');
-            pendingAcceptChatId = null;
-        }
-
-        async function confirmAcceptChat() {
-            if (!pendingAcceptChatId) return;
-
-            try {
-                const res = await fetch('/api/chat/accept', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ chatId: pendingAcceptChatId, sellerId: USER._id })
-                });
-                const d = await res.json();
-
-                if (d.success) {
-                    showToast('تم فتح المحادثة بنجاح! ✅', 'success');
-                    const userRes = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: USER._id}) });
-                    const userData = await userRes.json();
-                    if (userData.success) {
-                        USER = userData.user;
-                        localStorage.setItem('dz_user', JSON.stringify(USER));
-                        updateUserUI();
-                    }
-                    loadChatRequests();
-                    loadUnreadCounts();
-                } else {
-                    showToast(d.msg || 'خطأ', 'error');
-                }
-            } catch(e) { showToast('خطأ', 'error'); }
-
-            closeAcceptChatModal();
-        }
-
-        // ========== CHATS ==========
-        async function loadChats() {
-            try {
-                const res = await fetch('/api/chats/' + USER._id);
-                CHATS = await res.json();
-                renderChats();
-            } catch(e) {}
-        }
-
-        function renderChats() {
-            const list = document.getElementById('chatsList');
-            if (!CHATS.length) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-comments"></i></div><p class="text-gray-500">لا توجد محادثات</p></div>';
-                return;
-            }
-            list.innerHTML = CHATS.map(c => {
-                const partner = c.buyerId === USER._id ? c.sellerName : c.buyerName;
-                return 
-                    <div class="chat-item ${c.unreadCount > 0 ? 'unread' : ''} bg-white dark:bg-gray-800 p-4 rounded-xl cursor-pointer flex items-center gap-4" onclick="openChat('${c._id}')">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">${partner?.charAt(0) || 'م'}</div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-bold truncate">${partner || 'مستخدم'}</h3>
-                                <span class="text-xs text-gray-400">${formatTime(c.lastMessageDate)}</span>
-                            </div>
-                            <p class="text-sm text-gray-500 truncate">${c.lastMessage || 'ابدأ المحادثة...'}</p>
-                        </div>
-                        ${c.unreadCount > 0 ? <span class="bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center">${c.unreadCount}</span> : ''}
-                    </div>
-                ;
-            }).join('');
-        }
-
-        async function openChat(chatId) {
-            currentChatId = chatId;
-            nav('chat');
-
-            try {
-                const res = await fetch(/api/chat/${chatId});
-                const chat = await res.json();
-
-                const partner = chat.buyerId === USER._id ? chat.sellerName : chat.buyerName;
-                document.getElementById('chatPartnerName').innerText = partner || 'المستخدم';
-                document.getElementById('chatPartnerAvatar').innerText = partner?.charAt(0) || 'م';
-
-                loadChatMessages();
-
-                await fetch('/api/chat/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId, userId: USER._id}) });
-                loadUnreadCounts();
-            } catch(e) {}
-        }
-
-        async function loadChatMessages() {
-            if (!currentChatId) return;
-            try {
-                const res = await fetch(/api/chat/messages/${currentChatId});
-                const messages = await res.json();
-
-                const container = document.getElementById('chatMessagesContainer');
-                container.innerHTML = messages.length ? messages.map(m => 
-                    <div class="chat-bubble ${m.senderId === USER._id ? 'sent' : 'received'}">
-                        ${m.content}
-                        <div class="text-xs opacity-50 mt-1">${formatTime(m.date)}</div>
-                    </div>
-                ).join('') : '<p class="text-center text-gray-500 py-8">ابدأ المحادثة الآن...</p>';
-                container.scrollTop = container.scrollHeight;
-            } catch(e) {}
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chatMessageInput');
-            const content = input.value.trim();
-            if (!content || !currentChatId) return;
-
-            input.value = '';
-
-            try {
-                const res = await fetch('/api/chat/send', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ chatId: currentChatId, senderId: USER._id, content })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    loadChatMessages();
-                } else {
-                    showToast(data.msg || 'خطأ في الإرسال', 'error');
-                }
-            } catch(e) { showToast('خطأ في الإرسال', 'error'); }
-        }
-
-        setInterval(() => { if (currentChatId) loadChatMessages(); }, 3000);
-
-        // ========== ORDERS ==========
-        async function loadOrders() {
-            try {
-                const res = await fetch('/api/seller/orders/' + USER._id);
-                ORDERS = await res.json();
-                renderOrders();
-            } catch(e) {}
-        }
-
-        function renderOrders() {
-            const list = document.getElementById('ordersList');
-            document.getElementById('ordersCount').innerText = ORDERS.length + ' طلب';
-
-            if (!ORDERS.length) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-shopping-bag"></i></div><p class="text-gray-500">لا توجد طلبات</p></div>';
-                return;
-            }
-
-            list.innerHTML = ORDERS.map(o => 
-                <div class="order-card p-5">
-                    <div class="flex items-start justify-between mb-4">
+        list.innerHTML = PENDING_CHAT_REQUESTS.map(c => `
+            <div class="pending-chat rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">${(c.buyerName || 'م').charAt(0)}</div>
                         <div>
-                            <span class="px-2 py-1 ${o.isRevealed ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'} rounded text-xs font-bold">${o.isRevealed ? 'مكشوف' : 'مخفي'}</span>
-                            <h3 class="font-bold text-lg mt-2">${o.listingTitle || 'طلب'}</h3>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-xl font-black text-green-600">${Number(o.totalPrice).toLocaleString()} ${APP_SETTINGS.currency}</div>
-                            <div class="text-xs text-gray-500">الكمية: ${o.quantity || 1}</div>
+                            <h3 class="font-bold">${c.buyerName || 'مشتري'}</h3>
+                            <p class="text-sm text-gray-600">يريد التواصل معك</p>
                         </div>
                     </div>
-
-                    ${o.color || o.size ? 
-                        <div class="flex gap-4 mb-4 text-sm">
-                            ${o.color ? <span><strong>اللون:</strong> ${o.color}</span> : ''}
-                            ${o.size ? <span><strong>المقاس:</strong> ${o.size}</span> : ''}
-                        </div>
-                     : ''}
-
-                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 ${o.isRevealed ? '' : 'order-locked'}">
-                        <div class="grid grid-cols-2 gap-3 text-sm">
-                            <div><strong>الاسم:</strong> ${o.buyerName}</div>
-                            <div><strong>الهاتف:</strong> ${o.buyerPhone}</div>
-                            <div><strong>الولاية:</strong> ${o.buyerWilaya}</div>
-                            <div><strong>البلدية:</strong> ${o.buyerCity || '-'}</div>
-                            <div class="col-span-2"><strong>العنوان:</strong> ${o.buyerAddress || '-'}</div>
-                        </div>
-                    </div>
-
-                    ${!o.isRevealed ? 
-                        <button onclick="revealOrder('${o._id}')" class="btn-primary w-full mt-4 text-white font-bold py-3 rounded-xl">
-                            <i class="fas fa-eye ml-2"></i>
-                            ${APP_SETTINGS.freeMode ? 'كشف المعلومات (مجاني)' : كشف المعلومات (-${APP_SETTINGS.orderRevealPrice} ${APP_SETTINGS.currency})}
-                        </button>
-                     : 
-                        <a href="tel:${o.buyerPhone}" class="block w-full mt-4 bg-green-600 text-white font-bold py-3 rounded-xl text-center">
-                            <i class="fas fa-phone ml-2"></i> اتصل بالعميل
-                        </a>
-                    }
-
-                    <div class="text-center text-xs text-gray-400 mt-3">${formatTime(o.date)}</div>
+                    <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
                 </div>
-            ).join('');
+
+                <div class="bg-white/50 dark:bg-slate-700/50 rounded-xl p-3 mb-4">
+                    <p class="text-sm font-semibold">حول: ${c.listingTitle}</p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="acceptChatRequest('${c._id}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition">
+                        <i class="fas fa-check ml-2"></i>
+                        ${APP_SETTINGS.freeMode ? 'قبول (مجاني)' : `قبول (-${APP_SETTINGS.chatPrice} ${APP_SETTINGS.currency})`}
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function acceptChatRequest(chatId) {
+        pendingAcceptChatId = chatId;
+        updatePriceDisplays();
+        document.getElementById('acceptChatModal').classList.remove('hidden');
+    }
+
+    function closeAcceptChatModal() {
+        document.getElementById('acceptChatModal').classList.add('hidden');
+        pendingAcceptChatId = null;
+    }
+
+    async function confirmAcceptChat() {
+        if (!pendingAcceptChatId) return;
+
+        try {
+            const res = await fetch('/api/chat/accept', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ chatId: pendingAcceptChatId, sellerId: USER._id })
+            });
+            const d = await res.json();
+
+            if (d.success) {
+                showToast('تم فتح المحادثة بنجاح! ✅', 'success');
+                // تحديث رصيد المستخدم
+                const userRes = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: USER._id}) });
+                const userData = await userRes.json();
+                if (userData.success) {
+                    USER = userData.user;
+                    localStorage.setItem('dz_user', JSON.stringify(USER));
+                    updateUserUI();
+                }
+                loadChatRequests();
+                loadUnreadCounts();
+            } else {
+                showToast(d.msg || 'خطأ', 'error');
+            }
+        } catch(e) { showToast('خطأ', 'error'); }
+
+        closeAcceptChatModal();
+    }
+
+    // ========== CHATS ==========
+    async function loadChats() {
+        try {
+            const res = await fetch('/api/chats/' + USER._id);
+            CHATS = await res.json();
+            renderChats();
+        } catch(e) {}
+    }
+
+    function renderChats() {
+        const list = document.getElementById('chatsList');
+        if (!CHATS.length) {
+            list.innerHTML = '<p class="text-center text-gray-500 py-16">لا توجد محادثات</p>';
+            return;
+        }
+        list.innerHTML = CHATS.map(c => {
+            const partner = c.buyerId === USER._id ? c.sellerName : c.buyerName;
+            return `
+                <div class="chat-item ${c.unreadCount > 0 ? 'unread' : ''} bg-white dark:bg-slate-800 p-4 rounded-xl cursor-pointer flex items-center gap-4" onclick="openChat('${c._id}')">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">${partner?.charAt(0) || 'م'}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold truncate">${partner || 'مستخدم'}</h3>
+                            <span class="text-xs text-gray-400">${formatTime(c.lastMessageDate)}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 truncate">${c.lastMessage || 'ابدأ المحادثة...'}</p>
+                    </div>
+                    ${c.unreadCount > 0 ? `<span class="bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center">${c.unreadCount}</span>` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function openChat(chatId) {
+        currentChatId = chatId;
+        nav('chat');
+
+        try {
+            const res = await fetch(`/api/chat/${chatId}`);
+            const chat = await res.json();
+
+            const partner = chat.buyerId === USER._id ? chat.sellerName : chat.buyerName;
+            document.getElementById('chatPartnerName').innerText = partner || 'المستخدم';
+            document.getElementById('chatPartnerAvatar').innerText = partner?.charAt(0) || 'م';
+
+            loadChatMessages();
+
+            await fetch('/api/chat/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId, userId: USER._id}) });
+            loadUnreadCounts();
+        } catch(e) {}
+    }
+
+    async function loadChatMessages() {
+        if (!currentChatId) return;
+        try {
+            const res = await fetch(`/api/chat/messages/${currentChatId}`);
+            const messages = await res.json();
+
+            const container = document.getElementById('chatMessagesContainer');
+            container.innerHTML = messages.length ? messages.map(m => `
+                <div class="chat-bubble ${m.senderId === USER._id ? 'sent' : 'received'}">
+                    ${m.content}
+                    <div class="text-xs opacity-50 mt-1">${formatTime(m.date)}</div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-500 py-8">ابدأ المحادثة الآن...</p>';
+            container.scrollTop = container.scrollHeight;
+        } catch(e) {}
+    }
+
+    async function sendChatMessage() {
+        const input = document.getElementById('chatMessageInput');
+        const content = input.value.trim();
+        if (!content || !currentChatId) return;
+
+        input.value = '';
+
+        try {
+            const res = await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ chatId: currentChatId, senderId: USER._id, content })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadChatMessages();
+            } else {
+                showToast(data.msg || 'خطأ في الإرسال', 'error');
+            }
+        } catch(e) { showToast('خطأ في الإرسال', 'error'); }
+    }
+
+    setInterval(() => { if (currentChatId) loadChatMessages(); }, 3000);
+
+    // ========== ORDERS ==========
+    async function loadOrders() {
+        try {
+            const res = await fetch('/api/seller/orders/' + USER._id);
+            ORDERS = await res.json();
+            renderOrders();
+        } catch(e) {}
+    }
+
+    function renderOrders() {
+        const list = document.getElementById('ordersList');
+        document.getElementById('ordersCount').innerText = ORDERS.length + ' طلب';
+
+        if (!ORDERS.length) {
+            list.innerHTML = '<p class="text-center text-gray-500 py-16">لا توجد طلبات</p>';
+            return;
         }
 
-        function revealOrder(orderId) {
-            if (APP_SETTINGS.freeMode) {
-                confirmRevealOrderDirect(orderId);
+        list.innerHTML = ORDERS.map(o => `
+            <div class="order-card p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <span class="px-2 py-1 ${o.isRevealed ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'} rounded text-xs font-bold">${o.isRevealed ? 'مكشوف' : 'مخفي'}</span>
+                        <h3 class="font-bold text-lg mt-2">${o.listingTitle || 'طلب'}</h3>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xl font-black text-green-600">${Number(o.totalPrice).toLocaleString()} ${APP_SETTINGS.currency}</div>
+                        <div class="text-xs text-gray-500">الكمية: ${o.quantity || 1}</div>
+                    </div>
+                </div>
+
+                ${o.color || o.size ? `
+                    <div class="flex gap-4 mb-4 text-sm">
+                        ${o.color ? `<span><strong>اللون:</strong> ${o.color}</span>` : ''}
+                        ${o.size ? `<span><strong>المقاس:</strong> ${o.size}</span>` : ''}
+                    </div>
+                ` : ''}
+
+                <div class="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 ${o.isRevealed ? '' : 'order-locked'}">
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div><strong>الاسم:</strong> ${o.buyerName}</div>
+                        <div><strong>الهاتف:</strong> ${o.buyerPhone}</div>
+                        <div><strong>الولاية:</strong> ${o.buyerWilaya}</div>
+                        <div><strong>البلدية:</strong> ${o.buyerCity || '-'}</div>
+                        <div class="col-span-2"><strong>العنوان:</strong> ${o.buyerAddress || '-'}</div>
+                    </div>
+                </div>
+
+                ${!o.isRevealed ? `
+                    <button onclick="revealOrder('${o._id}')" class="btn-primary w-full mt-4 text-white font-bold py-3 rounded-xl">
+                        <i class="fas fa-eye ml-2"></i>
+                        ${APP_SETTINGS.freeMode ? 'كشف المعلومات (مجاني)' : `كشف المعلومات (-${APP_SETTINGS.orderRevealPrice} ${APP_SETTINGS.currency})`}
+                    </button>
+                ` : `
+                    <a href="tel:${o.buyerPhone}" class="block w-full mt-4 bg-green-600 text-white font-bold py-3 rounded-xl text-center">
+                        <i class="fas fa-phone ml-2"></i> اتصل بالعميل
+                    </a>
+                `}
+
+                <div class="text-center text-xs text-gray-400 mt-3">${formatTime(o.date)}</div>
+            </div>
+        `).join('');
+    }
+
+    function revealOrder(orderId) {
+        if (APP_SETTINGS.freeMode) {
+            confirmRevealOrderDirect(orderId);
+            return;
+        }
+        pendingRevealOrderId = orderId;
+        updatePriceDisplays();
+        document.getElementById('revealOrderModal').classList.remove('hidden');
+    }
+
+    function closeRevealModal() {
+        document.getElementById('revealOrderModal').classList.add('hidden');
+        pendingRevealOrderId = null;
+    }
+
+    async function confirmRevealOrderDirect(orderId) {
+        try {
+            const res = await fetch('/api/order/reveal', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userId: USER._id, orderId: orderId })
+            });
+            const d = await res.json();
+
+            if (d.success) {
+                USER.balance = d.newBalance;
+                updateUserUI();
+                showToast('تم كشف المعلومات!', 'success');
+                loadOrders();
+            } else {
+                showToast(d.msg || 'حدث خطأ', 'error');
+            }
+        } catch(e) {
+            console.error(e);
+            showToast('حدث خطأ في الاتصال', 'error');
+        }
+    }
+
+    async function confirmRevealOrder() {
+        if (!pendingRevealOrderId) return;
+
+        try {
+            const res = await fetch('/api/order/reveal', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userId: USER._id, orderId: pendingRevealOrderId })
+            });
+            const d = await res.json();
+
+            if (d.success) {
+                USER.balance = d.newBalance;
+                updateUserUI();
+                showToast('تم كشف المعلومات!', 'success');
+                loadOrders();
+            } else {
+                showToast(d.msg || 'رصيد غير كافٍ', 'error');
+            }
+        } catch(e) { showToast('خطأ', 'error'); }
+
+        closeRevealModal();
+    }
+
+    // ========== ADD PRODUCT ==========
+    function toggleProductOptions() {
+        const type = document.getElementById('pType').value;
+        document.getElementById('productOptions').style.display = type === 'product' ? 'block' : 'none';
+    }
+
+    async function publish() {
+        const type = document.getElementById('pType').value;
+        const title = document.getElementById('pTitle').value;
+        const price = document.getElementById('pPrice').value;
+        const desc = document.getElementById('pDesc').value;
+        const serviceImage = document.getElementById('pServiceImage').value.trim();
+
+        if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
+
+        const data = {
+            userId: USER._id,
+            userName: USER.name,
+            type,
+            title,
+            price: Number(price),
+            desc,
+            image: serviceImage || ''
+        };
+
+        if (type === 'product') {
+            const imagesText = document.getElementById('pImages').value;
+            const additionalImages = imagesText.split('\n').map(u => u.trim()).filter(u => u);
+            // دمج صورة الخدمة مع الصور الإضافية
+            data.images = serviceImage ? [serviceImage, ...additionalImages] : additionalImages;
+            data.image = data.images[0] || serviceImage || '';
+
+            const colorsText = document.getElementById('pColors').value;
+            if (colorsText) data.colors = colorsText.split(',').map(c => c.trim()).filter(c => c);
+
+            const sizesText = document.getElementById('pSizes').value;
+            if (sizesText) data.sizes = sizesText.split(',').map(s => s.trim()).filter(s => s);
+
+            const offerTime = document.getElementById('pOfferTime').value;
+            if (offerTime) data.offerEndTime = Number(offerTime);
+        } else {
+            // للخدمات - استخدام صورة واحدة
+            data.images = serviceImage ? [serviceImage] : [];
+        }
+
+        try {
+            await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            showToast('تم نشر الإعلان! 🎉', 'success');
+
+            // Clear form
+            document.getElementById('pTitle').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pDesc').value = '';
+            document.getElementById('pServiceImage').value = '';
+            document.getElementById('pImages').value = '';
+            document.getElementById('pColors').value = '';
+            document.getElementById('pSizes').value = '';
+            document.getElementById('pOfferTime').value = '';
+
+            nav('market');
+        } catch(e) { showToast('خطأ', 'error'); }
+    }
+
+    // ========== MY LIST ==========
+    async function loadMyList() {
+        try {
+            const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
+            const list = await res.json();
+
+            const grid = document.getElementById('myListGrid');
+            if (!list.length) {
+                grid.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500 mb-4">لا توجد إعلانات</p><button onclick="nav(\'add\')" class="btn-primary px-6 py-3 rounded-xl text-white font-semibold">إضافة إعلان</button></div>';
                 return;
             }
-            pendingRevealOrderId = orderId;
-            updatePriceDisplays();
-            document.getElementById('revealOrderModal').classList.remove('hidden');
-        }
 
-        function closeRevealModal() {
-            document.getElementById('revealOrderModal').classList.add('hidden');
-            pendingRevealOrderId = null;
-        }
-
-        async function confirmRevealOrderDirect(orderId) {
-            try {
-                const res = await fetch('/api/order/reveal', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ userId: USER._id, orderId: orderId })
-                });
-                const d = await res.json();
-
-                if (d.success) {
-                    USER.balance = d.newBalance;
-                    updateUserUI();
-                    showToast('تم كشف المعلومات!', 'success');
-                    loadOrders();
-                } else {
-                    showToast(d.msg || 'حدث خطأ', 'error');
-                }
-            } catch(e) {
-                console.error(e);
-                showToast('حدث خطأ في الاتصال', 'error');
-            }
-        }
-
-        async function confirmRevealOrder() {
-            if (!pendingRevealOrderId) return;
-
-            try {
-                const res = await fetch('/api/order/reveal', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ userId: USER._id, orderId: pendingRevealOrderId })
-                });
-                const d = await res.json();
-
-                if (d.success) {
-                    USER.balance = d.newBalance;
-                    updateUserUI();
-                    showToast('تم كشف المعلومات!', 'success');
-                    loadOrders();
-                } else {
-                    showToast(d.msg || 'رصيد غير كافٍ', 'error');
-                }
-            } catch(e) { showToast('خطأ', 'error'); }
-
-            closeRevealModal();
-        }
-
-        // ========== ADD PRODUCT ==========
-        function toggleProductOptions() {
-            const type = document.getElementById('pType').value;
-            document.getElementById('productOptions').style.display = type === 'product' ? 'block' : 'none';
-        }
-
-        async function publish() {
-            const type = document.getElementById('pType').value;
-            const category = document.getElementById('pCategory').value;
-            const title = document.getElementById('pTitle').value;
-            const price = document.getElementById('pPrice').value;
-            const desc = document.getElementById('pDesc').value;
-            const serviceImage = document.getElementById('pServiceImage').value.trim();
-
-            if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
-            if (!category) return showToast('يرجى اختيار القسم', 'error');
-
-            const data = {
-                userId: USER._id,
-                userName: USER.name,
-                type,
-                category,
-                title,
-                price: Number(price),
-                desc,
-                image: serviceImage || ''
-            };
-
-            if (type === 'product') {
-                const imagesText = document.getElementById('pImages').value;
-                const additionalImages = imagesText.split('\n').map(u => u.trim()).filter(u => u);
-                data.images = serviceImage ? [serviceImage, ...additionalImages] : additionalImages;
-                data.image = data.images serviceImage e || '';
-
-                const colorsText = document.getElementById('pColors').value;
-                if (colorsText) data.colors = colorsText.split(',').map(c => c.trim()).filter(c => c);
-
-                const sizesText = document.getElementById('pSizes').value;
-                if (sizesText) data.sizes = sizesText.split(',').map(s => s.trim()).filter(s => s);
-
-                const offerTime = document.getElementById('pOfferTime').value;
-                if (offerTime) data.offerEndTime = Number(offerTime);
-            } else {
-                data.images = serviceImage ? [serviceImage] : [];
-            }
-
-            try {
-                await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-                showToast('تم نشر الإعلان! 🎉', 'success');
-
-                document.getElementById('pTitle').value = '';
-                document.getElementById('pPrice').value = '';
-                document.getElementById('pDesc').value = '';
-                document.getElementById('pCategory').value = '';
-                document.getElementById('pServiceImage').value = '';
-                document.getElementById('pImages').value = '';
-                document.getElementById('pColors').value = '';
-                document.getElementById('pSizes').value = '';
-                document.getElementById('pOfferTime').value = '';
-
-                nav('market');
-            } catch(e) { showToast('خطأ', 'error'); }
-        }
-
-        // ========== MY LIST ==========
-        async function loadMyList() {
-            try {
-                const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
-                const list = await res.json();
-
-                const grid = document.getElementById('myListGrid');
-                if (!list.length) {
-                    grid.innerHTML = '<div class="col-span-full empty-state"><div class="empty-state-icon"><i class="fas fa-box"></i></div><p class="text-gray-500 mb-4">لا توجد إعلانات</p><button onclick="nav(\'add\')" class="btn-primary px-6 py-3 rounded-xl text-white font-semibold">إضافة إعلان</button></div>';
-                    return;
-                }
-
-                grid.innerHTML = list.map(p => 
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                        <div class="flex gap-4">
-                            <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/100'}" class="w-20 h-20 rounded-xl object-cover" loading="lazy">
-                            <div class="flex-1 min-w-0">
-                                <h3 class="font-bold truncate">${p.title}</h3>
-                                <p class="text-red-500 font-bold">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</p>
-                                <span class="text-xs ${p.active ? 'text-green-600' : 'text-gray-500'}">${p.active ? 'نشط' : 'معطل'}</span>
-                            </div>
+            grid.innerHTML = list.map(p => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
+                    <div class="flex gap-4">
+                        <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/100'}" class="w-20 h-20 rounded-xl object-cover">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold truncate">${p.title}</h3>
+                            <p class="text-red-600 font-bold">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</p>
+                            <span class="text-xs ${p.active ? 'text-green-600' : 'text-gray-500'}">${p.active ? 'نشط' : 'معطل'}</span>
                         </div>
                     </div>
-                ).join('');
-            } catch(e) {}
-        }
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
 
-        // ========== WALLET ==========
-        async function loadWallet() {
-            document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
-            loadPaymentMethods();
+    // ========== WALLET ==========
+    async function loadWallet() {
+        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        loadPaymentMethods();
 
-            try {
-                const res = await fetch('/api/transactions/' + USER._id);
-                const trans = await res.json();
+        try {
+            const res = await fetch('/api/transactions/' + USER._id);
+            const trans = await res.json();
 
-                const list = document.getElementById('transactionsList');
-                if (!trans.length) {
-                    list.innerHTML = '<p class="text-center text-gray-500 py-4">لا توجد معاملات</p>';
-                    return;
-                }
-
-                list.innerHTML = trans.slice(0, 10).map(t => 
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                            <i class="fas fa-${t.type === 'deposit' ? 'arrow-down' : 'arrow-up'}"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="font-semibold">${t.description || (t.type === 'deposit' ? 'شحن رصيد' : 'خصم')}</div>
-                            <div class="text-xs text-gray-500">${formatTime(t.date)}</div>
-                        </div>
-                        <span class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount} ${APP_SETTINGS.currency}</span>
-                    </div>
-                ).join('');
-            } catch(e) {}
-        }
-
-        async function loadPaymentMethods() {
-            try {
-                const res = await fetch('/api/payment-methods');
-                const methods = await res.json();
-
-                document.getElementById('paymentMethods').innerHTML = methods.map(m => 
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fas fa-${m.icon || 'credit-card'} text-xl text-blue-600"></i>
-                            <span class="font-bold">${m.name}</span>
-                        </div>
-                        <div class="font-mono text-lg select-all">${m.account}</div>
-                        ${m.holder ? <div class="text-sm text-gray-500 mt-1">${m.holder}</div> : ''}
-                    </div>
-                ).join('');
-            } catch(e) {}
-        }
-
-        function openDepositModal() { document.getElementById('depositModal').classList.remove('hidden'); }
-        function closeDepositModal() { document.getElementById('depositModal').classList.add('hidden'); }
-
-        async function submitDeposit() {
-            const amount = document.getElementById('depAmount').value;
-            const proof = document.getElementById('depProof').value;
-            if (!amount || !proof) return showToast('يرجى ملء جميع الحقول', 'error');
-
-            try {
-                await fetch('/api/wallet/deposit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, amount: Number(amount), proof }) });
-                showToast('تم إرسال الطلب! جاري المراجعة', 'success');
-                closeDepositModal();
-                document.getElementById('depAmount').value = '';
-                document.getElementById('depProof').value = '';
-            } catch(e) { showToast('خطأ', 'error'); }
-        }
-
-        // ========== HELPERS ==========
-        function formatTime(date) {
-            if (!date) return '';
-            const d = new Date(date);
-            const diff = Date.now() - d.getTime();
-            if (diff < 60000) return 'الآن';
-            if (diff < 3600000) return Math.floor(diff / 60000) + ' دقيقة';
-            if (diff < 86400000) return Math.floor(diff / 3600000) + ' ساعة';
-            return d.toLocaleDateString('ar-DZ');
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
-            toast.className = toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3;
-            toast.innerHTML = <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span class="flex-1 font-semibold text-sm">${message}</span><button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100"><i class="fas fa-times"></i></button>;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
-
-        document.addEventListener('click', e => {
-            if (!e.target.closest('#notifDropdown') && !e.target.closest('[onclick*="toggleNotifications"]')) {
-                document.getElementById('notifDropdown').classList.add('hidden');
+            const list = document.getElementById('transactionsList');
+            if (!trans.length) {
+                list.innerHTML = '<p class="text-center text-gray-500 py-4">لا توجد معاملات</p>';
+                return;
             }
-        });
-    </script>
+
+            list.innerHTML = trans.slice(0, 10).map(t => `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                        <i class="fas fa-${t.type === 'deposit' ? 'arrow-down' : 'arrow-up'}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold">${t.description || (t.type === 'deposit' ? 'شحن رصيد' : 'خصم')}</div>
+                        <div class="text-xs text-gray-500">${formatTime(t.date)}</div>
+                    </div>
+                    <span class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount} ${APP_SETTINGS.currency}</span>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    async function loadPaymentMethods() {
+        try {
+            const res = await fetch('/api/payment-methods');
+            const methods = await res.json();
+
+            document.getElementById('paymentMethods').innerHTML = methods.map(m => `
+                <div class="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-100 dark:border-slate-600">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-${m.icon || 'credit-card'} text-xl text-blue-600"></i>
+                        <span class="font-bold">${m.name}</span>
+                    </div>
+                    <div class="font-mono text-lg select-all">${m.account}</div>
+                    ${m.holder ? `<div class="text-sm text-gray-500 mt-1">${m.holder}</div>` : ''}
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    function openDepositModal() { document.getElementById('depositModal').classList.remove('hidden'); }
+    function closeDepositModal() { document.getElementById('depositModal').classList.add('hidden'); }
+
+    async function submitDeposit() {
+        const amount = document.getElementById('depAmount').value;
+        const proof = document.getElementById('depProof').value;
+        if (!amount || !proof) return showToast('يرجى ملء جميع الحقول', 'error');
+
+        try {
+            await fetch('/api/wallet/deposit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, amount: Number(amount), proof }) });
+            showToast('تم إرسال الطلب! جاري المراجعة', 'success');
+            closeDepositModal();
+            document.getElementById('depAmount').value = '';
+            document.getElementById('depProof').value = '';
+        } catch(e) { showToast('خطأ', 'error'); }
+    }
+
+    // ========== HELPERS ==========
+    function formatTime(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        const diff = Date.now() - d.getTime();
+        if (diff < 60000) return 'الآن';
+        if (diff < 3600000) return Math.floor(diff / 60000) + ' دقيقة';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + ' ساعة';
+        return d.toLocaleDateString('ar-DZ');
+    }
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+        toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span class="flex-1 font-semibold text-sm">${message}</span><button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100"><i class="fas fa-times"></i></button>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#notifDropdown') && !e.target.closest('[onclick*="toggleNotifications"]')) {
+            document.getElementById('notifDropdown').classList.add('hidden');
+        }
+    });
+</script>
 </body>
-    </html>
+</html>
