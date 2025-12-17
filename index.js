@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 
 const express = require('express');
@@ -50,6 +51,8 @@ const ListingSchema = new mongoose.Schema({
     offerEndTime: { type: Number },
     active: { type: Boolean, default: true },
     views: { type: Number, default: 0 },
+    isAffiliate: { type: Boolean, default: false },
+    commission: { type: Number, default: 0 },
     date: { type: Date, default: Date.now }
 });
 const Listing = mongoose.model('Listing', ListingSchema);
@@ -71,6 +74,8 @@ const OrderSchema = new mongoose.Schema({
     totalPrice: Number,
     isRevealed: { type: Boolean, default: false },
     status: { type: String, default: 'pending' },
+    affiliateId: String,
+    commissionAmount: { type: Number, default: 0 },
     date: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', OrderSchema);
@@ -369,13 +374,18 @@ app.get('/api/public/product/:id', async (req, res) => {
 // ============ ORDERS API ============
 app.post('/api/order/create', async (req, res) => {
     try {
-        const { listingId, buyerName, buyerPhone, buyerWilaya, buyerCity, buyerAddress, color, size, quantity, totalPrice, fingerprint } = req.body;
+        const { listingId, buyerName, buyerPhone, buyerWilaya, buyerCity, buyerAddress, color, size, quantity, totalPrice, fingerprint, affiliateId } = req.body;
 
         const listing = await Listing.findById(listingId);
         if (!listing) return res.json({ success: false, msg: 'الإعلان غير موجود' });
 
         const seller = await User.findById(listing.userId);
         if (seller?.fingerprint === fingerprint) return res.json({ success: false, msg: 'لا يمكنك الطلب من نفسك' });
+
+        let commissionAmount = 0;
+        if (listing.isAffiliate && listing.commission > 0 && affiliateId && affiliateId !== listing.userId) {
+            commissionAmount = (listing.price * listing.commission) / 100;
+        }
 
         const order = await Order.create({
             listingId,
@@ -391,7 +401,9 @@ app.post('/api/order/create', async (req, res) => {
             color,
             size,
             quantity: quantity || 1,
-            totalPrice: totalPrice || listing.price
+            totalPrice: totalPrice || listing.price,
+            affiliateId: affiliateId || null,
+            commissionAmount
         });
 
         await createNotification(listing.userId, 'order', 'طلب جديد! 🎉', `لديك طلب جديد على "${listing.title}" من ${buyerName}`, order._id);
@@ -416,10 +428,10 @@ app.get('/api/seller/orders/:userId', async (req, res) => {
 app.post('/api/order/reveal', async (req, res) => {
     try {
         const { userId, orderId } = req.body;
-        const user = await User.findById(userId);
+        const user = await User.findById(userId); // This is the SELLER
         const order = await Order.findById(orderId);
 
-        if (!user || !order) return res.json({ success: false, msg: 'خطأ' });
+        if (!user || !order) return res.json({ success: false, msg: 'خطأ في العثور على الطلب أو المستخدم' });
         if (order.isRevealed) return res.json({ success: true, newBalance: user.balance });
 
         const freeMode = await getSetting('freeMode', false);
@@ -430,17 +442,44 @@ app.post('/api/order/reveal', async (req, res) => {
         }
 
         const revealPrice = await getSetting('orderRevealPrice', 50);
-        if (user.balance < revealPrice) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
+        const commissionAmount = order.commissionAmount || 0;
+        const totalDeduct = revealPrice + commissionAmount;
 
-        const newBalance = await deductBalance(userId, revealPrice, `كشف طلب: ${order.listingTitle}`);
-        if (newBalance === false) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
+        if (user.balance < totalDeduct) {
+            return res.json({ success: false, msg: `رصيد غير كافٍ. المطلوب: ${totalDeduct}` });
+        }
+
+        // 1. Deduct from Seller's balance
+        const newBalance = await deductBalance(userId, totalDeduct, `كشف طلب وعمولة: ${order.listingTitle}`);
+        if (newBalance === false) {
+            return res.json({ success: false, msg: 'حدث خطأ أثناء خصم الرصيد' });
+        }
+
+        // 2. Add to Affiliate's balance
+        if (commissionAmount > 0 && order.affiliateId) {
+            const affiliateUser = await User.findById(order.affiliateId);
+            if (affiliateUser) {
+                affiliateUser.balance += commissionAmount;
+                await affiliateUser.save();
+                await Trans.create({
+                    userId: order.affiliateId,
+                    userName: affiliateUser.name,
+                    type: 'commission',
+                    amount: commissionAmount,
+                    description: `عمولة من بيع: ${order.listingTitle}`,
+                    status: 'completed'
+                });
+                await createNotification(order.affiliateId, 'deposit', 'أرباح جديدة! 💰', `لقد ربحت ${commissionAmount} كعمولة من بيع المنتج "${order.listingTitle}"`);
+            }
+        }
 
         order.isRevealed = true;
         await order.save();
 
         res.json({ success: true, newBalance });
     } catch (e) {
-        res.json({ success: false });
+        console.error('Reveal Error:', e);
+        res.json({ success: false, msg: 'حدث خطأ غير متوقع' });
     }
 });
 
@@ -996,4 +1035,3 @@ app.post('/api/admin/orders/clear-old', async (req, res) => {
 // ============ START SERVER ============
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
-
