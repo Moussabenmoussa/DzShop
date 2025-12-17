@@ -698,9 +698,26 @@
 
                             <!-- صورة الخدمة/المنتج الرئيسية -->
                             <div id="serviceImageSection">
-                                <label class="block text-sm font-semibold mb-2">رابط صورة المنتج الرئيسية</label>
-                                <input id="pServiceImage" type="url" placeholder="https://example.com/image.jpg" class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
-                            </div>
+    <label class="block text-sm font-semibold mb-2">صورة المنتج الرئيسية</label>
+    
+    <div class="flex items-center gap-2 mb-2">
+        <input type="file" id="fileInput" accept="image/*" class="block w-full text-sm text-slate-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-xl file:border-0
+          file:text-sm file:font-semibold
+          file:bg-red-50 file:text-red-700
+          hover:file:bg-red-100
+        "/>
+    </div>
+
+    <div id="loadingMsg" class="hidden mb-2">
+        <p class="text-blue-600 text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-spinner fa-spin"></i> جاري رفع الصورة...
+        </p>
+    </div>
+
+    <input id="pServiceImage" type="url" placeholder="الرابط سيظهر هنا تلقائياً" class="input-field w-full px-4 py-3 rounded-xl text-left bg-gray-100 text-gray-600" dir="ltr" readonly>
+</div>
 
                             <!-- Discount Fields -->
                             <div class="grid grid-cols-2 gap-4">
@@ -1884,5 +1901,74 @@
     } else {
         setTimeout(preloadCriticalImages, 2000);
     }
+</script>
+
+<script>
+    // 1. دالة الرفع إلى Cloudinary
+    async function uploadToCloudinary(file) {
+        // بيانات حسابك كما في الصور التي أرسلتها
+        const cloudName = 'dvtuocsxs'; 
+        const uploadPreset = 'DZmarket';
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+
+        try {
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.secure_url) {
+                // تحسين الرابط (تصغير الحجم + تسريع التحميل)
+                return data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/');
+            } else {
+                console.error('Cloudinary Error:', data);
+                return null;
+            }
+        } catch (error) {
+            console.error('Upload Error:', error);
+            return null;
+        }
+    }
+
+    // 2. مراقبة زر اختيار الملف
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput'); // الزر الجديد
+        const linkInput = document.getElementById('pServiceImage'); // حقل الرابط الأصلي في متجرك
+        const loadingMsg = document.getElementById('loadingMsg'); // رسالة الانتظار
+
+        if (fileInput) {
+            fileInput.addEventListener('change', async function() {
+                const file = fileInput.files[0];
+                
+                if (file) {
+                    // أظهر رسالة التحميل
+                    loadingMsg.classList.remove('hidden');
+                    fileInput.disabled = true; // تجميد الزر أثناء الرفع
+                    
+                    // ابدأ الرفع
+                    const url = await uploadToCloudinary(file);
+                    
+                    // أخفِ رسالة التحميل
+                    loadingMsg.classList.add('hidden');
+                    fileInput.disabled = false;
+
+                    if (url) {
+                        // نجاح! ضع الرابط في الحقل المخصص
+                        linkInput.value = url;
+                        // وميض بسيط ليلاحظ المستخدم أن الرابط تم وضعه
+                        linkInput.style.borderColor = '#22c55e'; // لون أخضر
+                        setTimeout(() => linkInput.style.borderColor = '', 2000);
+                    } else {
+                        alert('حدث خطأ أثناء رفع الصورة، يرجى المحاولة مرة أخرى.');
+                    }
+                }
+            });
+        }
+    });
 </script>
 
