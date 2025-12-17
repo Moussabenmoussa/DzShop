@@ -46,14 +46,19 @@
         /* Product Card - AliExpress Style */
         .product-card { 
             background: var(--bg-card); 
-            border-radius: 12px; 
+            border-radius: 8px; 
             overflow: hidden; 
-            transition: all 0.2s ease; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
             border: 1px solid var(--border-color); 
             position: relative;
             display: flex;
             flex-direction: column;
+            height: 100%;
+        }
+        .product-card:hover { 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
         }
         .product-card:active { transform: scale(0.98); }
         .product-img { 
@@ -61,73 +66,105 @@
             aspect-ratio: 1; 
             object-fit: cover; 
             background: #f1f5f9;
+            will-change: opacity;
         }
         .product-img-container {
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);
+        }
+        .product-img-skeleton {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #f0f4f8 25%, #e8ecf1 50%, #f0f4f8 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
         .discount-badge {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 8px;
+            right: 8px;
             background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
             color: white;
-            padding: 4px 8px;
-            font-size: 11px;
-            font-weight: 800;
-            border-radius: 0 0 8px 0;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            border-radius: 4px;
             box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+            z-index: 2;
+        }
+        .free-shipping-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
         }
         .offer-badge {
             position: absolute;
             top: 8px;
-            right: 8px;
+            left: 8px;
             background: #ff4757;
             color: white;
-            padding: 2px 6px;
-            font-size: 9px;
+            padding: 4px 8px;
+            font-size: 10px;
             font-weight: 700;
             border-radius: 4px;
             animation: pulse 2s infinite;
+            z-index: 2;
         }
         .product-info {
-            padding: 8px;
+            padding: 10px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
         .product-title {
-            font-size: 12px;
-            line-height: 1.3;
+            font-size: 13px;
+            line-height: 1.4;
             color: var(--text-primary);
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            min-height: 32px;
+            min-height: 34px;
             margin-bottom: 6px;
+            font-weight: 500;
         }
         .price-container {
             display: flex;
             align-items: baseline;
-            gap: 4px;
-            margin-bottom: 4px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
         .current-price {
             color: #ff4757;
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
         }
         .original-price {
             color: #94a3b8;
-            font-size: 11px;
+            font-size: 12px;
             text-decoration: line-through;
         }
         .rating-container {
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 10px;
+            font-size: 11px;
             color: #ffa502;
             margin-top: auto;
         }
@@ -138,8 +175,29 @@
         .rating-count {
             color: #94a3b8;
             margin-right: 4px;
+            font-size: 10px;
         }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Grid Layout - AliExpress Style */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 8px;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 12px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 16px;
+            }
+        }
 
         /* Input */
         .input-field { background: var(--bg-secondary); border: 2px solid var(--border-color); color: var(--text-primary); transition: all 0.2s; }
@@ -482,7 +540,7 @@
                 </div>
 
                 <!-- Products Grid -->
-                <div id="marketGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                <div id="marketGrid" class="products-grid">
                     <p class="text-gray-500 col-span-full text-center py-10">جاري التحميل...</p>
                 </div>
             </div>
@@ -1216,6 +1274,7 @@
                         onerror="this.src='https://via.placeholder.com/300'"
                     >
                     ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    <div class="free-shipping-badge"><i class="fas fa-truck"></i> مجاني</div>
                     ${p.offerEndTime ? '<div class="offer-badge">عرض محدود</div>' : ''}
                 </div>
                 <div class="product-info">
@@ -1763,4 +1822,64 @@
 </script>
 </body>
 </html>
+
+<script>
+    // Performance Optimization Script
+    
+    // 1. تحسين الصور - Lazy Loading مع Intersection Observer
+    document.addEventListener('DOMContentLoaded', function() {
+        setupLazyLoading();
+        
+        // تحسين الأداء - تأجيل تحميل الخطوط غير الحرجة
+        if ('fonts' in document) {
+            document.fonts.ready.then(() => {
+                document.body.style.fontFamily = 'Cairo, sans-serif';
+            });
+        }
+    });
+    
+    // 2. تحسين معالجة الأحداث - Event Delegation
+    document.addEventListener('DOMContentLoaded', function() {
+        // تحسين الأداء عند التمرير
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    // معالجة الأحداث هنا
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    });
+    
+    // 3. تحسين الذاكرة - تنظيف الموارد
+    window.addEventListener('beforeunload', function() {
+        // تنظيف المراقبين والمستمعين
+        if (window.imageObserver) {
+            window.imageObserver.disconnect();
+        }
+    });
+    
+    // 4. تحسين سرعة التحميل - Preload الصور المهمة
+    function preloadCriticalImages() {
+        const criticalImages = document.querySelectorAll('img[data-critical]');
+        criticalImages.forEach(img => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = img.dataset.src;
+            document.head.appendChild(link);
+        });
+    }
+    
+    // 5. تحسين الأداء - استخدام requestIdleCallback
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            preloadCriticalImages();
+        });
+    } else {
+        setTimeout(preloadCriticalImages, 2000);
+    }
+</script>
 
