@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const express = require('express');
@@ -43,7 +42,6 @@ const ListingSchema = new mongoose.Schema({
     title: { type: String, required: true },
     desc: String,
     price: { type: Number, required: true },
-    shippingPrice: { type: Number, default: 0 },
     images: [{ type: String }],
     image: String,
     category: { type: String, default: 'other' },
@@ -368,38 +366,6 @@ app.get('/api/public/product/:id', async (req, res) => {
     res.json(p || {});
 });
 
-// ============ UPDATE LISTING API ============
-app.post('/api/listing/update', async (req, res) => {
-    try {
-        const { id, userId, ...data } = req.body;
-        const listing = await Listing.findById(id);
-        
-        if (!listing) return res.json({ success: false, msg: 'الإعلان غير موجود' });
-        if (listing.userId !== userId) return res.json({ success: false, msg: 'غير مصرح' });
-        
-        await Listing.findByIdAndUpdate(id, data);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في التعديل' });
-    }
-});
-
-// ============ DELETE LISTING API ============
-app.post('/api/listing/delete', async (req, res) => {
-    try {
-        const { id, userId } = req.body;
-        const listing = await Listing.findById(id);
-        
-        if (!listing) return res.json({ success: false, msg: 'الإعلان غير موجود' });
-        if (listing.userId !== userId) return res.json({ success: false, msg: 'غير مصرح' });
-        
-        await Listing.findByIdAndDelete(id);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
-    }
-});
-
 // ============ ORDERS API ============
 app.post('/api/order/create', async (req, res) => {
     try {
@@ -475,21 +441,6 @@ app.post('/api/order/reveal', async (req, res) => {
         res.json({ success: true, newBalance });
     } catch (e) {
         res.json({ success: false });
-    }
-});
-
-app.post('/api/order/delete', async (req, res) => {
-    try {
-        const { orderId, userId } = req.body;
-        const order = await Order.findById(orderId);
-        
-        if (!order) return res.json({ success: false, msg: 'الطلب غير موجود' });
-        if (order.sellerId !== userId) return res.json({ success: false, msg: 'غير مصرح' });
-        
-        await Order.findByIdAndDelete(orderId);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
     }
 });
 
@@ -724,39 +675,6 @@ app.post('/api/chat/read', async (req, res) => {
     }
 });
 
-app.post('/api/chat/delete', async (req, res) => {
-    try {
-        const { chatId, userId } = req.body;
-        const chat = await Chat.findById(chatId);
-        
-        if (!chat) return res.json({ success: false, msg: 'المحادثة غير موجودة' });
-        if (chat.sellerId !== userId && chat.buyerId !== userId) {
-            return res.json({ success: false, msg: 'غير مصرح' });
-        }
-        
-        await Message.deleteMany({ chatId });
-        await Chat.findByIdAndDelete(chatId);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
-    }
-});
-
-app.post('/api/chat/request/delete', async (req, res) => {
-    try {
-        const { chatId, userId } = req.body;
-        const chat = await Chat.findById(chatId);
-        
-        if (!chat) return res.json({ success: false, msg: 'الطلب غير موجود' });
-        if (chat.sellerId !== userId) return res.json({ success: false, msg: 'غير مصرح' });
-        
-        await Chat.findByIdAndDelete(chatId);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
-    }
-});
-
 // ============ NOTIFICATIONS API ============
 app.get('/api/notifications/:userId', async (req, res) => {
     const notifs = await Notification.find({ userId: req.params.userId }).sort({ date: -1 }).limit(50);
@@ -771,30 +689,6 @@ app.post('/api/notification/read', async (req, res) => {
 app.post('/api/notifications/read-all', async (req, res) => {
     await Notification.updateMany({ userId: req.body.userId }, { read: true });
     res.json({ success: true });
-});
-
-app.post('/api/notification/delete', async (req, res) => {
-    try {
-        const { id, userId } = req.body;
-        const notif = await Notification.findById(id);
-        
-        if (!notif) return res.json({ success: false, msg: 'الإشعار غير موجود' });
-        if (notif.userId !== userId) return res.json({ success: false, msg: 'غير مصرح' });
-        
-        await Notification.findByIdAndDelete(id);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
-    }
-});
-
-app.post('/api/notifications/delete-all', async (req, res) => {
-    try {
-        await Notification.deleteMany({ userId: req.body.userId });
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
-    }
 });
 
 app.get('/api/unread-counts/:userId', async (req, res) => {
@@ -826,21 +720,6 @@ app.get('/api/payment-methods', async (req, res) => {
 app.get('/api/transactions/:userId', async (req, res) => {
     const trans = await Trans.find({ userId: req.params.userId }).sort({ date: -1 }).limit(50);
     res.json(trans);
-});
-
-app.post('/api/transaction/delete', async (req, res) => {
-    try {
-        const { transId, userId } = req.body;
-        const trans = await Trans.findById(transId);
-        
-        if (!trans) return res.json({ success: false, msg: 'المعاملة غير موجودة' });
-        if (trans.userId !== userId) return res.json({ success: false, msg: 'غير مصرح' });
-        
-        await Trans.findByIdAndDelete(transId);
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ في الحذف' });
-    }
 });
 
 // ============ WALLET API ============
@@ -1117,3 +996,4 @@ app.post('/api/admin/orders/clear-old', async (req, res) => {
 // ============ START SERVER ============
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
+
