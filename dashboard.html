@@ -433,111 +433,66 @@
         <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-50 overlay" onclick="toggleSidebar(false)"></div>
 
         <!-- Sidebar -->
-
-
-
-        
-        <div id="sidebar" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-slate-900 shadow-2xl z-[300] transform translate-x-full transition-transform duration-300 overflow-y-auto">
-    
-    <div id="userSection" class="hidden p-6 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-        <div class="flex items-center gap-4 mb-4">
-            <div id="sidebarInitial" class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold border-2 border-white/30">م</div>
-            <div>
-                <h3 id="userName" class="font-bold truncate w-40 text-lg">اسم المستخدم</h3>
-                <p id="userEmail" class="text-xs opacity-75 truncate w-40">email@example.com</p>
-            </div>
-        </div>
-        <div class="bg-white/10 p-3 rounded-xl flex justify-between items-center backdrop-blur-sm border border-white/10">
-            <span class="text-sm font-medium">الرصيد:</span>
-            <span class="font-bold text-lg"><span id="sidebarBalance">0</span> دج</span>
-        </div>
-    </div>
-
-    <div id="guestSection" class="p-8 bg-gray-50 dark:bg-slate-800 text-center border-b dark:border-slate-700">
-        <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-shopping-bag text-2xl text-blue-600 dark:text-blue-400"></i>
-        </div>
-        <h3 class="font-bold text-gray-800 dark:text-white mb-1">مرحباً بك!</h3>
-        <p class="text-xs text-gray-500 mb-4">سجل الدخول للبيع أو الشراء</p>
-        
-        <div class="space-y-2">
-            <button onclick="showAuth()" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition">
-                تسجيل الدخول
-            </button>
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="showAuth()" class="bg-white dark:bg-slate-700 text-gray-700 dark:text-white border dark:border-slate-600 py-2 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
-                    كن بائعاً
+        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-80 bg-white dark:bg-slate-900 z-[60] shadow-2xl flex flex-col">
+            <div class="p-6 bg-gradient-to-br from-red-600 to-red-800 text-white">
+                <button onclick="toggleSidebar(false)" class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
+                    <i class="fas fa-times"></i>
                 </button>
-                <button onclick="showAuth()" class="bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-300 border border-purple-100 dark:border-purple-800 py-2 rounded-xl font-bold text-xs hover:bg-purple-100 transition">
-                    كن مسوقاً
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
+                    <div>
+                        <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
+                        <p class="text-sm text-white/70" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c494f594e7c59445d514c5059125f5351">[email&#160;protected]</a></p>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
+                    <i class="fas fa-wallet text-yellow-300"></i>
+                    <span class="font-bold"><span id="sidebarBalance">0</span> <span class="currency-symbol">دج</span></span>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
+                    الصفحة الرئيسية
+                </button>
+                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
+                    الرسائل
+                    <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
+                    طلبات المحادثة
+                    <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
+                    الطلبات الواردة
+                    <span id="ordersBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-purple-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
+                    إضافة إعلان
+                </button>
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-orange-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
+                    إعلاناتي
+                </button>
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
+                    المحفظة والشحن
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100 dark:border-slate-800">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-slate-800 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                    تسجيل الخروج
                 </button>
             </div>
-        </div>
-    </div>
+        </aside>
 
-    <div class="p-4 space-y-1">
-        <button onclick="nav('market')" class="w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition group">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition">
-                <i class="fas fa-home"></i>
-            </div>
-            <span class="font-bold">السوق الرئيسي</span>
-        </button>
-
-        <div class="auth-only hidden space-y-1">
-            <button onclick="nav('add')" class="w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition group">
-                <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 group-hover:bg-green-100 transition">
-                    <i class="fas fa-plus-circle"></i>
-                </div>
-                <span class="font-bold">إضافة منتج</span>
-            </button>
-            
-            <button onclick="nav('wallet')" class="w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition group">
-                <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 group-hover:bg-purple-100 transition">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <span class="font-bold">المحفظة</span>
-            </button>
-
-            <button onclick="nav('mylist')" class="w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition group">
-                <div class="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 group-hover:bg-orange-100 transition">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <span class="font-bold">إعلاناتي</span>
-            </button>
-
-            <button onclick="nav('orders')" class="w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition group">
-                <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 group-hover:bg-red-100 transition">
-                    <i class="fas fa-box"></i>
-                </div>
-                <span class="font-bold">الطلبات الواردة</span>
-                <span id="sidebarOrdersBadge" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
-            </button>
-
-            <button onclick="nav('messages')" class="w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition group">
-                <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition">
-                    <i class="fas fa-comment-alt"></i>
-                </div>
-                <span class="font-bold">الرسائل</span>
-                <span id="sidebarMsgBadge" class="mr-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
-            </button>
-        </div>
-
-        <hr class="border-gray-100 dark:border-slate-800 my-2">
-
-        <button onclick="logout()" class="auth-only hidden w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 transition">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center">
-                <i class="fas fa-sign-out-alt"></i>
-            </div>
-            <span class="font-bold">تسجيل خروج</span>
-        </button>
-    </div>
-</div>
-
-
-
-
-
-        
         <!-- Main Content -->
         <main class="pt-20 px-4 max-w-7xl mx-auto">
 
@@ -1003,7 +958,15 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2 pointer-events-none"></div>
+    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
+
+
+
+    
+    
+
+
+<div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
@@ -1011,138 +974,147 @@
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
     }
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        document.documentElement.classList.toggle('dark', e.matches);
-    });
     
-    let USER = null; // null = زائر
+    let USER = null;
     let ALL_LISTINGS = [];
     let NOTIFICATIONS = [];
     let CHATS = [];
     let ORDERS = [];
+    let PENDING_CHAT_REQUESTS = [];
+    let currentChatId = null;
+    let pendingRevealOrderId = null;
+    let pendingAcceptChatId = null;
+    let notifInterval = null;
+
     let APP_SETTINGS = { orderRevealPrice: 50, chatPrice: 50, freeMode: false, currency: 'دج' };
     const CLOUD_CONFIG = { name: 'dvtuocsxs', preset: 'DZmarket' };
 
-    // ========== 2. التهيئة (فتح الموقع للجميع) ==========
+    // ========== 2. التهيئة والتحميل (Init) ==========
     window.onload = async () => {
         const loader = document.getElementById('loader');
         try {
             await loadAppSettings();
             const stored = localStorage.getItem('dz_user');
             if (stored) {
-                // إذا كان هناك بيانات محفوظة، نحاول استعادة الجلسة
                 const u = JSON.parse(stored);
                 const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
                 const d = await res.json();
                 if (d.success) {
                     USER = d.user;
                     localStorage.setItem('dz_user', JSON.stringify(USER));
-                } else {
-                    localStorage.removeItem('dz_user'); // انتهت الجلسة
-                }
-            }
-            initApp(); // تشغيل التطبيق (سواء كعضو أو كزائر)
-        } catch(e) { 
-            initApp(); // تشغيل كزائر عند الخطأ
-        } 
+                    initApp();
+                } else showAuth();
+            } else showAuth();
+        } catch(e) { showAuth(); } 
         finally { if (loader) loader.classList.add('hidden'); }
     };
 
     function initApp() {
-        // إخفاء شاشة التسجيل وفتح التطبيق فوراً
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
+        updateUserUI();
+        nav('market');
+        startNotificationPolling();
+        setupLazyLoading();
         
-        updateSidebarUI(); // تحديث القائمة حسب الحالة (زائر/عضو)
-        nav('market'); // الذهاب للسوق
-        
-        if (USER) {
-            // تحميل البيانات الخاصة فقط للأعضاء
-            startNotificationPolling();
-        }
-
-        // تتبع رابط الأفيليت (حتى للزوار)
+        // تتبع الأفيليت
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
         if (ref) localStorage.setItem('dz_affiliate', ref);
-        
-        setupLazyLoading();
     }
 
-    // ========== 3. إدارة الواجهة (Sidebar & Nav) ==========
-    function updateSidebarUI() {
-        if (USER) {
-            // وضع العضو المسجل
-            document.getElementById('userName').innerText = USER.name;
-            document.getElementById('userEmail').innerText = USER.email;
-            document.getElementById('sidebarInitial').innerText = USER.name.charAt(0);
-            document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
-            
-            document.getElementById('userSection').classList.remove('hidden');
-            document.getElementById('guestSection').classList.add('hidden');
-            document.querySelectorAll('.auth-only').forEach(el => el.classList.remove('hidden'));
+    async function loadAppSettings() {
+        try {
+            const res = await fetch('/api/public/settings');
+            const settings = await res.json();
+            APP_SETTINGS = { ...APP_SETTINGS, ...settings };
+            updatePriceDisplays();
+        } catch(e) {}
+    }
+
+    function updatePriceDisplays() {
+        document.querySelectorAll('.currency-symbol').forEach(el => el.textContent = APP_SETTINGS.currency);
+        
+        const elIds = {
+            'orderRevealPriceDisplay': APP_SETTINGS.orderRevealPrice,
+            'revealPrice': APP_SETTINGS.orderRevealPrice + ' ' + APP_SETTINGS.currency,
+            'chatPriceDisplay': APP_SETTINGS.chatPrice,
+            'acceptChatPrice': APP_SETTINGS.chatPrice
+        };
+        
+        for (const [id, val] of Object.entries(elIds)) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+
+        // إظهار/إخفاء ملاحظات الوضع المجاني
+        const toggle = (id, show) => {
+            const el = document.getElementById(id);
+            if(el) show ? el.classList.remove('hidden') : el.classList.add('hidden');
+        };
+
+        toggle('freeModeNotice', APP_SETTINGS.freeMode);
+        toggle('chatPriceNotice', !APP_SETTINGS.freeMode);
+        toggle('orderFreeModeNotice', APP_SETTINGS.freeMode);
+        toggle('orderPriceNotice', !APP_SETTINGS.freeMode);
+    }
+
+    function updateUserUI() {
+        document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('userName').innerText = USER.name;
+        document.getElementById('userEmail').innerText = USER.email;
+        document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'م';
+    }
+
+    // ========== 3. دوال الأفيليت (Affiliate Logic) ==========
+    function toggleAffiliateInput() {
+        const isChecked = document.getElementById('pIsAffiliate').checked; // الاسم الصحيح للزر
+        const group = document.getElementById('affiliateCommissionGroup');
+        const input = document.getElementById('pCommission');
+        
+        if (isChecked) {
+            group.classList.remove('hidden');
+            input.removeAttribute('disabled');
         } else {
-            // وضع الزائر
-            document.getElementById('userSection').classList.add('hidden');
-            document.getElementById('guestSection').classList.remove('hidden');
-            document.querySelectorAll('.auth-only').forEach(el => el.classList.add('hidden'));
+            group.classList.add('hidden');
+            input.setAttribute('disabled', 'true');
+            input.value = '';
         }
     }
 
-    function nav(view) {
-        // حماية الصفحات التي تتطلب تسجيل دخول
-        const protectedViews = ['add', 'wallet', 'mylist', 'orders', 'messages', 'chat-requests'];
+    function copyAffiliateLink(id, profit, e) {
+        if(e) e.stopPropagation();
+        if (!USER) return showToast('يجب تسجيل الدخول', 'error');
         
-        if (!USER && protectedViews.includes(view)) {
-            showToast('يجب تسجيل الدخول للوصول لهذه الصفحة', 'info');
-            showAuth(); // فتح نافذة التسجيل
-            toggleSidebar(false);
-            return;
-        }
-
-        ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
-            const el = document.getElementById('view-' + v);
-            if(el) el.classList.add('hidden');
-        });
+        // تصحيح الرابط ليكون /p/id?ref=...
+        const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
         
-        const target = document.getElementById('view-' + view);
-        if(target) target.classList.remove('hidden');
-        
-        toggleSidebar(false);
-
-        if(view === 'market') loadMarket();
-        if(view === 'mylist' && USER) loadMyList();
-        if(view === 'wallet' && USER) loadWallet();
-        if(view === 'orders' && USER) loadOrders();
-        if(view === 'messages' && USER) loadChats();
+        navigator.clipboard.writeText(link).then(() => {
+            showToast(`تم نسخ الرابط! 📋\nاربح ${profit} ${APP_SETTINGS.currency} عن كل بيعة`, 'success');
+        }).catch(() => prompt("انسخ الرابط يدوياً:", link));
     }
 
-    // ========== 4. السوق (Market) ==========
+    // ========== 4. السوق والمنتجات (Market) ==========
     async function loadMarket() {
         try {
             const res = await fetch('/api/market');
             ALL_LISTINGS = await res.json();
             renderProducts(ALL_LISTINGS);
         } catch(e) {
-            document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">فشل تحميل المنتجات</p>';
+            document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ في التحميل</p>';
         }
     }
 
 
 
+
     
-    
-
-
-
-
-
-
-
-function renderProducts(list) {
+    function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) { 
-            grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500">لا توجد منتجات حالياً</div>'; 
+            grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
             return; 
         }
         
@@ -1152,52 +1124,36 @@ function renderProducts(list) {
             // حساب الأفيليت
             const affiliateProfit = p.isAffiliate ? Math.floor((p.price * p.commission) / 100) : 0;
             const affiliateBadge = p.isAffiliate 
-                ? `<div class="absolute top-2 left-2 z-10 bg-blue-600/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md"><i class="fas fa-hand-holding-usd"></i> عمولة ${p.commission}%</div>` 
+                ? `<div class="absolute top-2 left-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md animate-pulse"><i class="fas fa-hand-holding-usd"></i> عمولة ${p.commission}%</div>` 
                 : '';
             
-            // زر النسخ (للمسجلين فقط)
             const affiliateBtn = (p.isAffiliate && USER && p.userId !== USER._id) 
-                ? `<button onclick="copyAffiliateLink('${p._id}', '${affiliateProfit}', event)" class="mt-3 w-full flex items-center justify-center gap-2 bg-purple-50 text-purple-700 text-xs font-bold py-2.5 rounded-xl border border-purple-100 hover:bg-purple-100 transition active:scale-95">
-                     <i class="fas fa-share-alt"></i> <span>سوق واربح ${affiliateProfit} ${APP_SETTINGS.currency}</span>
+                ? `<button onclick="copyAffiliateLink('${p._id}', '${affiliateProfit}', event)" class="mt-3 w-full flex items-center justify-center gap-2 bg-purple-50 text-purple-700 text-xs font-bold py-2 rounded-lg border border-purple-200 hover:bg-purple-100 transition active:scale-95">
+                     <i class="fas fa-link"></i> <span>سوق واربح ${affiliateProfit} ${APP_SETTINGS.currency}</span>
                    </button>` 
                 : '';
 
             return `
-            <div class="product-card group cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-                <div class="product-img-container relative overflow-hidden rounded-xl">
+            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+                <div class="product-img-container relative">
                     ${affiliateBadge}
-                    <img 
-                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect fill='%23f3f4f6' width='300' height='300'/%3E%3C/svg%3E"
-                        data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
-                        class="product-img w-full aspect-square object-cover transition duration-500 group-hover:scale-105" 
-                        loading="lazy"
-                    >
-                    ${discount > 0 ? `<div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">-${discount}%</div>` : ''}
+                    <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img w-full aspect-square object-cover" loading="lazy">
+                    ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                     <div class="free-shipping-badge"><i class="fas fa-truck"></i> مجاني</div>
+                    ${p.offerEndTime ? '<div class="offer-badge">عرض محدود</div>' : ''}
                 </div>
                 <div class="product-info p-3">
-                    <h3 class="product-title font-bold text-sm mb-1 truncate text-gray-800 dark:text-gray-200">${p.title}</h3>
+                    <h3 class="product-title font-bold text-sm mb-1 truncate">${p.title}</h3>
                     <div class="price-container flex gap-2 items-baseline">
-                        <span class="current-price text-red-600 font-bold text-lg">${Number(p.price).toLocaleString()} <span class="text-xs">${APP_SETTINGS.currency}</span></span>
+                        <span class="current-price text-red-600 font-bold text-lg">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</span>
                         ${p.originalPrice ? `<span class="original-price text-xs text-gray-400 line-through">${Number(p.originalPrice).toLocaleString()}</span>` : ''}
                     </div>
                     ${affiliateBtn}
                 </div>
             </div>`;
         }).join('');
-        
-        // تشغيل التحميل الذكي
         setupLazyLoading();
-}
-
-
-
-
-
-
-
-
-
+    }
 
 
 
@@ -1206,14 +1162,20 @@ function renderProducts(list) {
 
 
     
+    function filterProducts() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q))));
+    }
 
+    function filterCategory(cat) {
+        document.querySelectorAll('.category-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+        if (cat === 'all') renderProducts(ALL_LISTINGS);
+        else if (cat === 'product' || cat === 'service') renderProducts(ALL_LISTINGS.filter(p => p.type === cat));
+        else renderProducts(ALL_LISTINGS.filter(p => p.category === cat));
+    }
 
-
-    
-    // ========== 5. النشر (Publish) - (كاملة مع الأفيليت والصور) ==========
+    // ========== 5. النشر وإضافة إعلان (Publish) ==========
     async function publish() {
-        if (!USER) return showAuth(); // حماية إضافية
-
         const type = document.getElementById('pType').value;
         const title = document.getElementById('pTitle').value;
         const price = document.getElementById('pPrice').value;
@@ -1221,12 +1183,12 @@ function renderProducts(list) {
         const serviceImage = document.getElementById('pServiceImage').value.trim();
         const category = document.getElementById('pCategory').value;
         
-        // الأفيليت (هام جداً)
-        const isAffiliate = document.getElementById('pIsAffiliate')?.checked || false;
-        const commission = document.getElementById('pCommission')?.value;
+        // الأفيليت
+        const isAffiliate = document.getElementById('pIsAffiliate').checked;
+        const commission = document.getElementById('pCommission').value;
 
         if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
-        if (isAffiliate && (!commission || commission < 10)) return showToast('العمولة يجب أن تكون 10% على الأقل', 'error');
+        if (isAffiliate && (!commission || commission < 10)) return showToast('العمولة 10% على الأقل', 'error');
 
         const data = {
             userId: USER._id, userName: USER.name,
@@ -1237,7 +1199,6 @@ function renderProducts(list) {
             commission: isAffiliate ? Number(commission) : 0
         };
 
-        // باقي الحقول
         const originalPrice = document.getElementById('pOriginalPrice').value;
         if (originalPrice) data.originalPrice = Number(originalPrice);
         const rating = document.getElementById('pRating').value;
@@ -1269,44 +1230,364 @@ function renderProducts(list) {
         } catch(e) { showToast('خطأ في الاتصال', 'error'); }
     }
 
-    // ========== 6. دوال الأفيليت المساعدة ==========
-    function toggleAffiliateInput() {
-        const isChecked = document.getElementById('pIsAffiliate').checked;
-        const group = document.getElementById('affiliateCommissionGroup');
-        const input = document.getElementById('pCommission');
-        
-        if (isChecked) {
-            group.classList.remove('hidden');
-            input.removeAttribute('disabled');
-        } else {
-            group.classList.add('hidden');
-            input.setAttribute('disabled', 'true');
-            input.value = '';
+    function toggleProductOptions() {
+        const type = document.getElementById('pType').value;
+        document.getElementById('productOptions').style.display = type === 'product' ? 'block' : 'none';
+    }
+
+    // ========== 6. الطلبات (Orders) ==========
+    async function loadOrders() {
+        try {
+            const res = await fetch('/api/seller/orders/' + USER._id);
+            ORDERS = await res.json();
+            renderOrders();
+        } catch(e) {}
+    }
+
+    function renderOrders() {
+        const list = document.getElementById('ordersList');
+        document.getElementById('ordersCount').innerText = ORDERS.length + ' طلب';
+
+        if (!ORDERS.length) {
+            list.innerHTML = '<p class="text-center text-gray-500 py-16">لا توجد طلبات</p>';
+            return;
         }
+
+        list.innerHTML = ORDERS.map(o => `
+            <div class="order-card p-5">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <span class="px-2 py-1 ${o.isRevealed ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'} rounded text-xs font-bold">${o.isRevealed ? 'مكشوف' : 'مخفي'}</span>
+                        <h3 class="font-bold text-lg mt-1">${o.listingTitle || 'طلب'}</h3>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xl font-black text-green-600">${Number(o.totalPrice).toLocaleString()} ${APP_SETTINGS.currency}</div>
+                    </div>
+                </div>
+                ${!o.isRevealed ? `
+                    <button onclick="revealOrder('${o._id}')" class="btn-primary w-full text-white font-bold py-3 rounded-xl">
+                        <i class="fas fa-eye ml-2"></i> كشف المعلومات
+                    </button>
+                ` : `
+                    <div class="bg-gray-50 p-4 rounded-xl text-sm">
+                        <p><strong>الاسم:</strong> ${o.buyerName}</p>
+                        <p><strong>الهاتف:</strong> <a href="tel:${o.buyerPhone}" class="text-blue-600">${o.buyerPhone}</a></p>
+                        <p><strong>العنوان:</strong> ${o.buyerWilaya} - ${o.buyerAddress}</p>
+                    </div>
+                `}
+                <div class="text-center text-xs text-gray-400 mt-3">${formatTime(o.date)}</div>
+            </div>
+        `).join('');
     }
 
-    function copyAffiliateLink(id, profit, e) {
-        if(e) e.stopPropagation();
-        if (!USER) return showToast('يجب تسجيل الدخول لنسخ رابطك الخاص', 'error');
-        
-        const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
-        navigator.clipboard.writeText(link).then(() => {
-            showToast(`تم نسخ الرابط! 📋\nاربح ${profit} دج عن كل بيعة`, 'success');
-        }).catch(() => prompt("انسخ الرابط:", link));
+    function revealOrder(orderId) {
+        if (APP_SETTINGS.freeMode) {
+            confirmRevealOrderDirect(orderId);
+            return;
+        }
+        pendingRevealOrderId = orderId;
+        document.getElementById('revealOrderModal').classList.remove('hidden');
     }
 
-    // ========== 7. رفع الصور (Cloudinary) ==========
+    function closeRevealModal() {
+        document.getElementById('revealOrderModal').classList.add('hidden');
+        pendingRevealOrderId = null;
+    }
+
+    async function confirmRevealOrder() {
+        if (!pendingRevealOrderId) return;
+        try {
+            const res = await fetch('/api/order/reveal', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userId: USER._id, orderId: pendingRevealOrderId })
+            });
+            const d = await res.json();
+            if (d.success) {
+                USER.balance = d.newBalance;
+                updateUserUI();
+                showToast('تم كشف المعلومات!', 'success');
+                loadOrders();
+            } else showToast(d.msg || 'رصيد غير كافٍ', 'error');
+        } catch(e) { showToast('خطأ', 'error'); }
+        closeRevealModal();
+    }
+
+    async function confirmRevealOrderDirect(orderId) {
+        // نسخة خاصة للوضع المجاني
+        try {
+            const res = await fetch('/api/order/reveal', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ userId: USER._id, orderId: orderId })
+            });
+            const d = await res.json();
+            if (d.success) {
+                showToast('تم كشف المعلومات!', 'success');
+                loadOrders();
+            } else showToast('خطأ', 'error');
+        } catch(e) {}
+    }
+
+    // ========== 7. الرسائل وطلبات المحادثة (Chats) ==========
+    async function loadChats() {
+        try {
+            const res = await fetch('/api/chats/' + USER._id);
+            CHATS = await res.json();
+            const list = document.getElementById('chatsList');
+            if (!CHATS.length) { list.innerHTML = '<p class="text-center py-16 text-gray-500">لا توجد محادثات</p>'; return; }
+            list.innerHTML = CHATS.map(c => {
+                const partner = c.buyerId === USER._id ? c.sellerName : c.buyerName;
+                return `<div class="chat-item bg-white dark:bg-slate-800 p-4 rounded-xl cursor-pointer flex items-center gap-4 mb-2" onclick="openChat('${c._id}')">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-600">${partner?.charAt(0)||'م'}</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold">${partner||'مستخدم'}</h3>
+                        <p class="text-sm text-gray-500 truncate">${c.lastMessage||'...'}</p>
+                    </div>
+                    ${c.unreadCount > 0 ? `<span class="bg-red-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full">${c.unreadCount}</span>` : ''}
+                </div>`;
+            }).join('');
+        } catch(e) {}
+    }
+
+    async function openChat(chatId) {
+        currentChatId = chatId;
+        nav('chat');
+        try {
+            const res = await fetch(`/api/chat/${chatId}`);
+            const chat = await res.json();
+            const partner = chat.buyerId === USER._id ? chat.sellerName : chat.buyerName;
+            document.getElementById('chatPartnerName').innerText = partner || 'المستخدم';
+            document.getElementById('chatPartnerAvatar').innerText = partner?.charAt(0) || 'م';
+            loadChatMessages();
+            await fetch('/api/chat/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId, userId: USER._id}) });
+        } catch(e) {}
+    }
+
+    async function loadChatMessages() {
+        if (!currentChatId) return;
+        try {
+            const res = await fetch(`/api/chat/messages/${currentChatId}`);
+            const messages = await res.json();
+            const container = document.getElementById('chatMessagesContainer');
+            container.innerHTML = messages.map(m => `
+                <div class="chat-bubble ${m.senderId === USER._id ? 'sent' : 'received'}">
+                    ${m.content}
+                    <div class="text-xs opacity-50 mt-1">${formatTime(m.date)}</div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        } catch(e) {}
+    }
+
+    async function sendChatMessage() {
+        const input = document.getElementById('chatMessageInput');
+        const content = input.value.trim();
+        if (!content || !currentChatId) return;
+        input.value = '';
+        try {
+            await fetch('/api/chat/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatId: currentChatId, senderId: USER._id, content }) });
+            loadChatMessages();
+        } catch(e) {}
+    }
+
+    async function loadChatRequests() {
+        try {
+            const res = await fetch('/api/chat/pending/' + USER._id);
+            PENDING_CHAT_REQUESTS = await res.json();
+            const list = document.getElementById('chatRequestsList');
+            document.getElementById('chatRequestsCount').innerText = PENDING_CHAT_REQUESTS.length + ' طلب';
+            if (!PENDING_CHAT_REQUESTS.length) { list.innerHTML = '<p class="text-center py-16 text-gray-500">لا توجد طلبات</p>'; return; }
+            list.innerHTML = PENDING_CHAT_REQUESTS.map(c => `
+                <div class="pending-chat rounded-2xl p-5 mb-3">
+                    <div class="flex justify-between mb-2">
+                        <h3 class="font-bold">${c.buyerName}</h3>
+                        <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
+                    </div>
+                    <p class="text-sm mb-4">حول: ${c.listingTitle}</p>
+                    <button onclick="acceptChatRequest('${c._id}')" class="btn-primary w-full py-2 rounded-lg text-white">قبول الطلب</button>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    function acceptChatRequest(id) {
+        pendingAcceptChatId = id;
+        document.getElementById('acceptChatModal').classList.remove('hidden');
+    }
+    
+    function closeAcceptChatModal() { document.getElementById('acceptChatModal').classList.add('hidden'); }
+
+    async function confirmAcceptChat() {
+        if(!pendingAcceptChatId) return;
+        try {
+            const res = await fetch('/api/chat/accept', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatId: pendingAcceptChatId, sellerId: USER._id }) });
+            const d = await res.json();
+            if(d.success) {
+                showToast('تم قبول المحادثة', 'success');
+                // تحديث الرصيد
+                const uRes = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: USER._id}) });
+                const uData = await uRes.json();
+                if(uData.success) { USER = uData.user; updateUserUI(); }
+                loadChatRequests();
+            } else showToast(d.msg, 'error');
+        } catch(e){}
+        closeAcceptChatModal();
+    }
+
+    setInterval(() => { if (currentChatId) loadChatMessages(); }, 3000);
+
+    // ========== 8. المحفظة (Wallet) ==========
+    async function loadWallet() {
+        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        loadPaymentMethods();
+        try {
+            const res = await fetch('/api/transactions/' + USER._id);
+            const trans = await res.json();
+            const list = document.getElementById('transactionsList');
+            if(!trans.length) { list.innerHTML = '<p class="text-center py-4">لا توجد معاملات</p>'; return; }
+            list.innerHTML = trans.slice(0, 10).map(t => `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                        <i class="fas fa-${t.type === 'deposit' ? 'arrow-down' : 'arrow-up'}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold">${t.description || (t.type === 'deposit' ? 'شحن' : 'خصم')}</div>
+                        <div class="text-xs text-gray-500">${formatTime(t.date)}</div>
+                    </div>
+                    <span class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount}</span>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    async function loadPaymentMethods() {
+        try {
+            const res = await fetch('/api/payment-methods');
+            const methods = await res.json();
+            document.getElementById('paymentMethods').innerHTML = methods.map(m => `
+                <div class="bg-gray-50 p-4 rounded-xl border mb-2">
+                    <div class="font-bold flex gap-2"><i class="fas fa-credit-card text-blue-600"></i> ${m.name}</div>
+                    <div class="font-mono text-lg select-all">${m.account}</div>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    function openDepositModal() { document.getElementById('depositModal').classList.remove('hidden'); }
+    function closeDepositModal() { document.getElementById('depositModal').classList.add('hidden'); }
+
+    async function submitDeposit() {
+        const amount = document.getElementById('depAmount').value;
+        const proof = document.getElementById('depProof').value;
+        if (!amount || !proof) return showToast('املأ الحقول', 'error');
+        try {
+            await fetch('/api/wallet/deposit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, amount: Number(amount), proof }) });
+            showToast('تم الإرسال للمراجعة', 'success');
+            closeDepositModal();
+        } catch(e) { showToast('خطأ', 'error'); }
+    }
+
+    // ========== 9. إعلاناتي (My List) ==========
+    async function loadMyList() {
+        try {
+            const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
+            const list = await res.json();
+            const grid = document.getElementById('myListGrid');
+            if(!list.length) { grid.innerHTML = '<div class="col-span-full text-center py-16"><p>لا توجد إعلانات</p><button onclick="nav(\'add\')" class="btn-primary px-4 py-2 mt-2 text-white rounded-lg">أضف إعلانك</button></div>'; return; }
+            
+            grid.innerHTML = list.map(p => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border flex gap-4">
+                    <img src="${p.images?.[0]||p.image}" class="w-20 h-20 rounded-xl object-cover">
+                    <div class="flex-1">
+                        <h3 class="font-bold truncate">${p.title}</h3>
+                        <p class="text-red-600 font-bold">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs ${p.active?'text-green-600':'text-gray-500'}">${p.active?'نشط':'مغلق'}</span>
+                            ${p.isAffiliate ? `<button onclick="copyAffiliateLink('${p._id}', '${Math.floor(p.price*p.commission/100)}')" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">نسخ الرابط</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    // ========== 10. الإشعارات (Notifications) ==========
+    function startNotificationPolling() {
+        loadNotifications();
+        loadUnreadCounts();
+        if(notifInterval) clearInterval(notifInterval);
+        notifInterval = setInterval(() => { loadNotifications(); loadUnreadCounts(); }, 10000);
+    }
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch('/api/notifications/' + USER._id);
+            NOTIFICATIONS = await res.json();
+            const unread = NOTIFICATIONS.filter(n => !n.read).length;
+            const badge = document.getElementById('notifBadge');
+            if (unread > 0) { badge.classList.remove('hidden'); badge.innerText = unread > 9 ? '9+' : unread; } 
+            else badge.classList.add('hidden');
+            
+            const list = document.getElementById('notifList');
+            if(!NOTIFICATIONS.length) { list.innerHTML = '<p class="text-center py-8 text-gray-500">لا إشعارات</p>'; return; }
+            list.innerHTML = NOTIFICATIONS.slice(0, 20).map(n => `
+                <div class="p-4 border-b hover:bg-gray-50 cursor-pointer ${n.read?'':'bg-blue-50'}" onclick="handleNotification('${n._id}', '${n.type}', '${n.targetId}')">
+                    <div class="font-bold text-sm">${n.title}</div>
+                    <div class="text-xs text-gray-600">${n.message}</div>
+                    <div class="text-xs text-gray-400 mt-1">${formatTime(n.date)}</div>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    function toggleNotifications() { document.getElementById('notifDropdown').classList.toggle('hidden'); }
+
+    async function handleNotification(id, type, targetId) {
+        await fetch('/api/notification/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+        document.getElementById('notifDropdown').classList.add('hidden');
+        if(type === 'order') nav('orders');
+        else if(type === 'message' && targetId) openChat(targetId);
+        else if(type === 'chat_request') nav('chat-requests');
+        else if(type === 'deposit') nav('wallet');
+        loadNotifications();
+    }
+
+    async function markAllRead() {
+        await fetch('/api/notifications/read-all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
+        loadNotifications();
+    }
+
+    async function loadUnreadCounts() {
+        try {
+            const res = await fetch('/api/unread-counts/' + USER._id);
+            const counts = await res.json();
+            
+            const setBadge = (id, count) => {
+                const el = document.getElementById(id);
+                if(count > 0) { el.classList.remove('hidden'); el.innerText = count; } 
+                else el.classList.add('hidden');
+            };
+            
+            setBadge('msgBadge', counts.messages);
+            setBadge('sidebarMsgBadge', counts.messages);
+            setBadge('ordersBadge', counts.orders);
+            setBadge('chatRequestsBadge', counts.pendingChats);
+        } catch(e) {}
+    }
+
+    // ========== 11. رفع الصور والألوان (Cloudinary + Colors) ==========
     async function uploadToCloudinary(file) {
         const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', CLOUD_CONFIG.preset);
         try {
             const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.name}/image/upload`, { method:'POST', body:fd });
             const data = await res.json();
-            return data.secure_url;
+            return data.secure_url ? data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/') : null;
         } catch(e) { return null; }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Main Image
+        // Main Image Upload
         const fInput = document.getElementById('fileInput');
         if(fInput) fInput.addEventListener('change', async () => {
             document.getElementById('loadingMsg').classList.remove('hidden');
@@ -1318,7 +1599,7 @@ function renderProducts(list) {
             }
         });
 
-        // Extra Images
+        // Extra Images Upload
         const exInput = document.getElementById('extraFilesInput');
         if(exInput) exInput.addEventListener('change', async () => {
             document.getElementById('extraLoadingMsg').classList.remove('hidden');
@@ -1335,38 +1616,44 @@ function renderProducts(list) {
                 document.getElementById('extraSuccessMsg').classList.remove('hidden');
             }
         });
-        
-        // Color Palette Logic (Colors)
+
+        // Colors
         const colors = [
             {n:'أسود',v:'Black',c:'#000',t:'#fff'}, {n:'أبيض',v:'White',c:'#fff',t:'#000',b:true},
             {n:'أحمر',v:'Red',c:'#ef4444',t:'#fff'}, {n:'أزرق',v:'Blue',c:'#3b82f6',t:'#fff'},
-            {n:'أخضر',v:'Green',c:'#22c55e',t:'#fff'}, {n:'أصفر',v:'Yellow',c:'#eab308',t:'#000'}
+            {n:'أخضر',v:'Green',c:'#22c55e',t:'#fff'}, {n:'أصفر',v:'Yellow',c:'#eab308',t:'#000'},
+            {n:'وردي',v:'Pink',c:'#ec4899',t:'#fff'}, {n:'بنفسجي',v:'Purple',c:'#a855f7',t:'#fff'},
+            {n:'برتقالي',v:'Orange',c:'#f97316',t:'#fff'}, {n:'رمادي',v:'Grey',c:'#64748b',t:'#fff'},
+            {n:'بني',v:'Brown',c:'#78350f',t:'#fff'}, {n:'ذهبي',v:'Gold',c:'#FFD700',t:'#000'}
         ];
         const pal = document.getElementById('colorPalette');
         const colInp = document.getElementById('pColors');
         let selCols = [];
+        
         if(pal) colors.forEach(c => {
             const btn = document.createElement('button');
             btn.className = 'flex items-center gap-2 px-3 py-2 rounded-lg border hover:shadow-md transition';
             btn.style.backgroundColor = c.c; btn.style.color = c.t;
             if(c.b) btn.style.borderColor = '#ddd';
-            btn.innerHTML = `<span>${c.n}</span><i class="fas fa-check hidden"></i>`;
+            btn.innerHTML = `<span class="font-bold text-sm">${c.n}</span><i class="fas fa-check hidden"></i>`;
             btn.onclick = (e) => {
                 e.preventDefault();
                 const icon = btn.querySelector('i');
                 if(selCols.includes(c.v)) {
                     selCols = selCols.filter(i=>i!==c.v); icon.classList.add('hidden');
+                    btn.style.transform = 'scale(1)';
                 } else {
                     selCols.push(c.v); icon.classList.remove('hidden');
+                    btn.style.transform = 'scale(1.05)';
                 }
                 colInp.value = selCols.join(',');
-                document.getElementById('selectedColorsText').innerText = selCols.length ? selCols.join(', ') : 'لم يتم الاختيار';
+                document.getElementById('selectedColorsText').innerText = selCols.length ? selCols.join('، ') : 'لم يتم الاختيار';
             };
             pal.appendChild(btn);
         });
     });
 
-    // ========== 8. المصادقة (Auth) ==========
+    // ========== 12. Authentication & Navigation ==========
     function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
     function toggleAuth() {
         document.getElementById('loginForm').classList.toggle('hidden');
@@ -1403,100 +1690,75 @@ function renderProducts(list) {
 
     function logout() { localStorage.removeItem('dz_user'); location.reload(); }
 
-    // ========== 9. دوال مساعدة أخرى ==========
+    function nav(view) {
+        ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
+            const el = document.getElementById('view-' + v);
+            if(el) el.classList.add('hidden');
+        });
+        document.getElementById('view-' + view).classList.remove('hidden');
+        toggleSidebar(false);
+        updatePriceDisplays(); // تحديث الأسعار عند التنقل
+        
+        if(view === 'market') loadMarket();
+        else if(view === 'mylist') loadMyList();
+        else if(view === 'wallet') loadWallet();
+        else if(view === 'orders') loadOrders();
+        else if(view === 'messages') loadChats();
+        else if(view === 'chat-requests') loadChatRequests();
+    }
+
     function toggleSidebar(open) {
         document.getElementById('sidebar').classList.toggle('open', open);
         document.getElementById('sidebarOverlay').classList.toggle('open', open);
     }
-    function showToast(msg, type='info') {
-        const box = document.getElementById('toastContainer');
-        const d = document.createElement('div');
-        d.className = `p-3 rounded-xl text-white shadow-lg mb-2 text-sm font-bold ${type=='error'?'bg-red-600':type=='success'?'bg-green-600':'bg-blue-600'}`;
-        d.innerText = msg;
-        box.appendChild(d);
-        setTimeout(()=>d.remove(), 3000);
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+        toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slideUp`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span class="flex-1 font-semibold text-sm">${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
     }
+
+    // دوال مساعدة
     function calculateDiscount(o, c) { return (o && o>c) ? Math.round(((o-c)/o)*100) : 0; }
+    function formatTime(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        const diff = Date.now() - d.getTime();
+        if (diff < 60000) return 'الآن';
+        if (diff < 3600000) return Math.floor(diff / 60000) + ' دقيقة';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + ' ساعة';
+        return d.toLocaleDateString('ar-DZ');
+    }
     function getFingerprint() { return Math.abs(((navigator.userAgent+screen.width).split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))).toString(16); }
-    
-    // دوال التحميل الإضافية (محفظة، طلبات...)
-    async function loadAppSettings() {
-        try {
-            const res = await fetch('/api/public/settings');
-            const settings = await res.json();
-            APP_SETTINGS = { ...APP_SETTINGS, ...settings };
-            updatePriceDisplays();
-        } catch(e) {}
-    }
-    function updatePriceDisplays() { document.querySelectorAll('.currency-symbol').forEach(el => el.textContent = APP_SETTINGS.currency); }
-    
-    async function loadMyList() {
-        try {
-            const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
-            const list = await res.json();
-            const grid = document.getElementById('myListGrid');
-            if(!list.length) { grid.innerHTML = '<p class="text-center p-4">لا توجد إعلانات</p>'; return; }
-            grid.innerHTML = list.map(p => `
-                <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border dark:border-slate-700 flex gap-3">
-                    <img src="${p.images?.[0]||p.image}" class="w-16 h-16 rounded object-cover">
-                    <div>
-                        <h4 class="font-bold text-gray-800 dark:text-gray-200">${p.title}</h4>
-                        <p class="text-red-600">${p.price} دج</p>
-                        ${p.isAffiliate ? '<span class="text-xs bg-blue-100 text-blue-600 px-2 rounded">أفيليت مفعل</span>' : ''}
-                    </div>
-                </div>`).join('');
-        } catch(e){}
-    }
-    
-    async function loadWallet() {
-        document.getElementById('wBalance').innerText = USER.balance;
-        try {
-            const res = await fetch('/api/transactions/'+USER._id);
-            const tr = await res.json();
-            document.getElementById('transactionsList').innerHTML = tr.map(t => `<div class="p-2 border-b dark:border-slate-700 flex justify-between"><span>${t.description}</span><span class="${t.type=='deposit'?'text-green-600':'text-red-600'}">${t.amount}</span></div>`).join('');
-        } catch(e){}
-    }
-    
-    // إشعارات ورسائل (مختصرة للحفاظ على الحجم)
-    function startNotificationPolling() { setInterval(() => loadNotifications(), 10000); }
-    async function loadNotifications() { /* نفس الكود السابق */ }
-    async function loadOrders() { /* نفس الكود السابق */ }
-    async function loadChats() { /* نفس الكود السابق */ }
 
     function setupLazyLoading() {
-        if('IntersectionObserver' in window) {
-            const obs = new IntersectionObserver(ents => {
-                ents.forEach(e => {
-                    if(e.isIntersecting) {
-                        e.target.src = e.target.dataset.src;
-                        e.target.classList.remove('lazy');
-                        obs.unobserve(e.target);
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        observer.unobserve(img);
                     }
                 });
             });
-            document.querySelectorAll('img[loading="lazy"]').forEach(i => obs.observe(i));
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => observer.observe(img));
         }
     }
+
+    // إغلاق القوائم عند النقر خارجها
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#notifDropdown') && !e.target.closest('[onclick*="toggleNotifications"]')) {
+            document.getElementById('notifDropdown').classList.add('hidden');
+        }
+    });
 </script>
 
-
-
-    
-
-
-
-    
-    
-                
-                            
-            
-                        
-            
-            
-                    
-            
-                
-    
 
 
 
@@ -1518,4 +1780,5 @@ function renderProducts(list) {
     
 </body>
 </html>
+
 
