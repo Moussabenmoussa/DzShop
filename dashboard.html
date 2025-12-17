@@ -2,6 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e63946">
+<link rel="icon" type="image/webp" href="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp">
+
+    
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
@@ -305,6 +310,24 @@
     </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
+
+
+<div id="installBanner" class="hidden fixed top-0 left-0 right-0 z-[10000] bg-gradient-to-r from-red-600 to-red-800 text-white shadow-xl animate-slideUp">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <span class="bg-white/20 p-2 rounded-lg"><i class="fas fa-mobile-alt text-xl"></i></span>
+            <div>
+                <p class="font-bold text-sm">حمل تطبيق DzMarket</p>
+                <p class="text-xs text-red-100">تصفح أسرع وتجربة أفضل 🚀</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btnInstallPWA" class="bg-white text-red-700 px-4 py-2 rounded-lg font-bold text-xs shadow-md active:scale-95 transition-transform">تثبيت</button>
+            <button onclick="document.getElementById('installBanner').classList.add('hidden')" class="text-white/70 hover:text-white p-2"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+</div>
+    
 
     <!-- Loader -->
     <div id="loader" class="fixed inset-0 bg-white dark:bg-slate-900 z-[9999] flex flex-col items-center justify-center gap-4">
@@ -2107,6 +2130,47 @@
         }
     });
 </script>
+
+
+
+<script>
+    // === كود تشغيل التطبيق (PWA) ===
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
+    }
+
+    let deferredPrompt;
+    const installBanner = document.getElementById('installBanner');
+    const btnInstall = document.getElementById('btnInstallPWA');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installBanner) installBanner.classList.remove('hidden');
+    });
+
+    if (btnInstall) {
+        btnInstall.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBanner.classList.add('hidden');
+            }
+        });
+    }
+    
+    window.addEventListener('appinstalled', () => {
+        if (installBanner) installBanner.classList.add('hidden');
+    });
+</script>
+
+
+
+
+
+
+
     
 </body>
 </html>
