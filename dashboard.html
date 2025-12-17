@@ -739,10 +739,45 @@
 
                             <!-- Product-specific options -->
                             <div id="productOptions">
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">روابط الصور الإضافية (كل رابط في سطر)</label>
-                                    <textarea id="pImages" rows="3" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" class="input-field w-full px-4 py-3 rounded-xl resize-none text-left" dir="ltr"></textarea>
-                                </div>
+    <div>
+        <label class="block text-sm font-semibold mb-2">صور إضافية (يمكنك اختيار أكثر من صورة)</label>
+        
+        <div class="flex items-center gap-2 mb-2">
+            <input type="file" id="extraFilesInput" multiple accept="image/*" class="block w-full text-sm text-slate-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-xl file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-50 file:text-blue-700
+              hover:file:bg-blue-100
+            "/>
+        </div>
+
+        <div id="extraLoadingMsg" class="hidden mb-2">
+            <p class="text-blue-600 text-sm font-bold flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin"></i> جاري رفع الصور... يرجى الانتظار
+            </p>
+        </div>
+
+        <textarea id="pImages" rows="4" placeholder="الروابط ستظهر هنا تلقائياً" class="input-field w-full px-4 py-3 rounded-xl resize-none text-left bg-gray-50 text-gray-600" dir="ltr" readonly></textarea>
+        <p class="text-xs text-gray-400 mt-1">سيتم وضع رابط كل صورة في سطر جديد تلقائياً.</p>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+            <label class="block text-sm font-semibold mb-2">الألوان المتاحة</label>
+            <input id="pColors" type="text" placeholder="أحمر، أزرق، أسود" class="input-field w-full px-4 py-3 rounded-xl">
+        </div>
+        <div>
+            <label class="block text-sm font-semibold mb-2">المقاسات المتاحة</label>
+            <input id="pSizes" type="text" placeholder="S, M, L, XL" class="input-field w-full px-4 py-3 rounded-xl">
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <label class="block text-sm font-semibold mb-2">مدة العرض (ساعات)</label>
+        <input id="pOfferTime" type="number" placeholder="24" class="input-field w-full px-4 py-3 rounded-xl">
+    </div>
+</div>
 
                                 <div class="grid grid-cols-2 gap-4 mt-4">
                                     <div>
@@ -1904,9 +1939,8 @@
 </script>
 
 <script>
-    // 1. دالة الرفع إلى Cloudinary
+    // 1. دالة الرفع الأساسية (لا تتغير)
     async function uploadToCloudinary(file) {
-        // بيانات حسابك كما في الصور التي أرسلتها
         const cloudName = 'dvtuocsxs'; 
         const uploadPreset = 'DZmarket';
 
@@ -1919,56 +1953,77 @@
                 method: 'POST',
                 body: formData
             });
-
             const data = await response.json();
-
             if (data.secure_url) {
-                // تحسين الرابط (تصغير الحجم + تسريع التحميل)
                 return data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/');
-            } else {
-                console.error('Cloudinary Error:', data);
-                return null;
             }
+            return null;
         } catch (error) {
-            console.error('Upload Error:', error);
+            console.error('Err:', error);
             return null;
         }
     }
 
-    // 2. مراقبة زر اختيار الملف
     document.addEventListener('DOMContentLoaded', function() {
-        const fileInput = document.getElementById('fileInput'); // الزر الجديد
-        const linkInput = document.getElementById('pServiceImage'); // حقل الرابط الأصلي في متجرك
-        const loadingMsg = document.getElementById('loadingMsg'); // رسالة الانتظار
+        
+        // --- أولاً: منطق الصورة الرئيسية (فردية) ---
+        const fileInput = document.getElementById('fileInput');
+        const linkInput = document.getElementById('pServiceImage');
+        const loadingMsg = document.getElementById('loadingMsg');
 
         if (fileInput) {
             fileInput.addEventListener('change', async function() {
                 const file = fileInput.files[0];
-                
                 if (file) {
-                    // أظهر رسالة التحميل
                     loadingMsg.classList.remove('hidden');
-                    fileInput.disabled = true; // تجميد الزر أثناء الرفع
+                    fileInput.disabled = true;
                     
-                    // ابدأ الرفع
                     const url = await uploadToCloudinary(file);
                     
-                    // أخفِ رسالة التحميل
                     loadingMsg.classList.add('hidden');
                     fileInput.disabled = false;
 
-                    if (url) {
-                        // نجاح! ضع الرابط في الحقل المخصص
-                        linkInput.value = url;
-                        // وميض بسيط ليلاحظ المستخدم أن الرابط تم وضعه
-                        linkInput.style.borderColor = '#22c55e'; // لون أخضر
-                        setTimeout(() => linkInput.style.borderColor = '', 2000);
-                    } else {
-                        alert('حدث خطأ أثناء رفع الصورة، يرجى المحاولة مرة أخرى.');
+                    if (url) linkInput.value = url;
+                }
+            });
+        }
+
+        // --- ثانياً: منطق الصور الإضافية (متعددة) ---
+        const extraInput = document.getElementById('extraFilesInput');
+        const extraTextarea = document.getElementById('pImages');
+        const extraLoading = document.getElementById('extraLoadingMsg');
+
+        if (extraInput) {
+            extraInput.addEventListener('change', async function() {
+                const files = Array.from(extraInput.files); // تحويل الملفات لمصفوفة
+                
+                if (files.length > 0) {
+                    extraLoading.classList.remove('hidden'); // إظهار الانتظار
+                    extraInput.disabled = true;
+                    
+                    let newUrls = []; // لتجميع الروابط الجديدة
+                    
+                    // رفع الملفات واحداً تلو الآخر
+                    for (const file of files) {
+                        const url = await uploadToCloudinary(file);
+                        if (url) newUrls.push(url);
+                    }
+                    
+                    // إخفاء الانتظار
+                    extraLoading.classList.add('hidden');
+                    extraInput.disabled = false;
+
+                    // إضافة الروابط للمربع النصي
+                    if (newUrls.length > 0) {
+                        const currentText = extraTextarea.value.trim();
+                        // إذا كان هناك نص سابق، أضف سطراً جديداً قبله
+                        const separator = currentText ? '\n' : '';
+                        extraTextarea.value = currentText + separator + newUrls.join('\n');
+                        
+                        alert(`تم رفع ${newUrls.length} صورة بنجاح!`);
                     }
                 }
             });
         }
     });
 </script>
-
