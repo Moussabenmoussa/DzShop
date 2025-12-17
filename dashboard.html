@@ -1088,7 +1088,9 @@
         if(e) e.stopPropagation();
         if (!USER) return showToast('يجب تسجيل الدخول', 'error');
         
-        const link = `${window.location.origin}/product.html?id=${id}&ref=${USER._id}`;
+        // تصحيح الرابط ليكون /p/id?ref=...
+        const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
+        
         navigator.clipboard.writeText(link).then(() => {
             showToast(`تم نسخ الرابط! 📋\nاربح ${profit} ${APP_SETTINGS.currency} عن كل بيعة`, 'success');
         }).catch(() => prompt("انسخ الرابط يدوياً:", link));
@@ -1105,6 +1107,10 @@
         }
     }
 
+
+
+
+    
     function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) { 
@@ -1115,7 +1121,7 @@
         grid.innerHTML = list.map(p => {
             const discount = calculateDiscount(p.originalPrice, p.price);
             
-            // منطق الأفيليت في العرض
+            // حساب الأفيليت
             const affiliateProfit = p.isAffiliate ? Math.floor((p.price * p.commission) / 100) : 0;
             const affiliateBadge = p.isAffiliate 
                 ? `<div class="absolute top-2 left-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md animate-pulse"><i class="fas fa-hand-holding-usd"></i> عمولة ${p.commission}%</div>` 
@@ -1128,7 +1134,7 @@
                 : '';
 
             return `
-            <div class="product-card cursor-pointer" onclick="window.location.href='/product.html?id=${p._id}'">
+            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
                 <div class="product-img-container relative">
                     ${affiliateBadge}
                     <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img w-full aspect-square object-cover" loading="lazy">
@@ -1149,6 +1155,13 @@
         setupLazyLoading();
     }
 
+
+
+
+
+
+
+    
     function filterProducts() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q))));
