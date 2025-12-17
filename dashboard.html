@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7,6 +5,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+
+
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DzMarket - السوق الجزائري</title>
@@ -42,10 +43,102 @@
         .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .overlay.open { opacity: 1; pointer-events: auto; }
 
-        /* Product Card */
-        .product-card { background: var(--bg-card); border-radius: 16px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--border-color); }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
-        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f1f5f9; }
+        /* Product Card - AliExpress Style */
+        .product-card { 
+            background: var(--bg-card); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: all 0.2s ease; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+            border: 1px solid var(--border-color); 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:active { transform: scale(0.98); }
+        .product-img { 
+            width: 100%; 
+            aspect-ratio: 1; 
+            object-fit: cover; 
+            background: #f1f5f9;
+        }
+        .product-img-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .discount-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+            color: white;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 0 0 8px 0;
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+        }
+        .offer-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff4757;
+            color: white;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 4px;
+            animation: pulse 2s infinite;
+        }
+        .product-info {
+            padding: 8px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-title {
+            font-size: 12px;
+            line-height: 1.3;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 32px;
+            margin-bottom: 6px;
+        }
+        .price-container {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .current-price {
+            color: #ff4757;
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .original-price {
+            color: #94a3b8;
+            font-size: 11px;
+            text-decoration: line-through;
+        }
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #ffa502;
+            margin-top: auto;
+        }
+        .rating-stars {
+            display: flex;
+            gap: 1px;
+        }
+        .rating-count {
+            color: #94a3b8;
+            margin-right: 4px;
+        }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* Input */
@@ -85,9 +178,44 @@
         .order-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
         .order-locked { filter: blur(4px); pointer-events: none; user-select: none; }
 
-        /* Category Pills */
-        .category-pill { background: var(--bg-card); border: 1px solid var(--border-color); transition: all 0.2s; }
-        .category-pill:hover, .category-pill.active { background: var(--primary); border-color: var(--primary); color: white; }
+        /* Category Pills - Horizontal Scrollable */
+        .categories-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .categories-container::-webkit-scrollbar {
+            display: none;
+        }
+        .category-pill { 
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .category-pill:active { transform: scale(0.95); }
+        .category-pill.active { 
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+            border-color: #ff4757;
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+        }
+        .category-icon {
+            font-size: 14px;
+        }
 
         /* Hide scrollbar */
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -102,6 +230,15 @@
         /* Pending Chat Request */
         .pending-chat { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
         .dark .pending-chat { background: linear-gradient(135deg, #78350f, #92400e); }
+
+        /* Performance optimization */
+        img[loading="lazy"] {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        img[loading="lazy"].loaded {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="min-h-screen pb-20 md:pb-0">
@@ -236,7 +373,7 @@
                     <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
                     <div>
                         <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
-                        <p class="text-sm text-white/70" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6411170116240109050d084a070b09">[email&#160;protected]</a></p>
+                        <p class="text-sm text-white/70" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c494f594e7c59445d514c5059125f5351">[email&#160;protected]</a></p>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
@@ -292,26 +429,60 @@
 
             <!-- View: Market -->
             <div id="view-market" class="animate-fadeIn">
-                <div class="mb-6">
+                <!-- Search Bar -->
+                <div class="mb-4">
                     <div class="relative">
                         <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input id="searchInput" type="text" placeholder="ابحث عن منتجات، خدمات..." class="input-field w-full pr-12 pl-4 py-4 rounded-2xl text-base" oninput="filterProducts()">
+                        <input id="searchInput" type="text" placeholder="ابحث عن منتجات، خدمات..." class="input-field w-full pr-12 pl-4 py-3 rounded-full text-sm" oninput="filterProducts()">
                     </div>
                 </div>
 
-                <div class="mb-6 flex gap-2 overflow-x-auto hide-scrollbar pb-2">
-                    <button onclick="filterCategory('all')" class="category-pill active px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="all">
-                        <i class="fas fa-th-large ml-1"></i> الكل
+                <!-- Horizontal Categories -->
+                <div class="categories-container mb-4">
+                    <button onclick="filterCategory('all')" class="category-pill active" data-cat="all">
+                        <i class="fas fa-th-large category-icon"></i>
+                        <span>الكل</span>
                     </button>
-                    <button onclick="filterCategory('product')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="product">
-                        <i class="fas fa-box ml-1"></i> منتجات
+                    <button onclick="filterCategory('product')" class="category-pill" data-cat="product">
+                        <i class="fas fa-box category-icon"></i>
+                        <span>منتجات</span>
                     </button>
-                    <button onclick="filterCategory('service')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" data-cat="service">
-                        <i class="fas fa-tools ml-1"></i> خدمات
+                    <button onclick="filterCategory('service')" class="category-pill" data-cat="service">
+                        <i class="fas fa-tools category-icon"></i>
+                        <span>خدمات</span>
+                    </button>
+                    <button onclick="filterCategory('electronics')" class="category-pill" data-cat="electronics">
+                        <i class="fas fa-laptop category-icon"></i>
+                        <span>إلكترونيات</span>
+                    </button>
+                    <button onclick="filterCategory('fashion')" class="category-pill" data-cat="fashion">
+                        <i class="fas fa-tshirt category-icon"></i>
+                        <span>أزياء</span>
+                    </button>
+                    <button onclick="filterCategory('home')" class="category-pill" data-cat="home">
+                        <i class="fas fa-home category-icon"></i>
+                        <span>منزل</span>
+                    </button>
+                    <button onclick="filterCategory('beauty')" class="category-pill" data-cat="beauty">
+                        <i class="fas fa-spa category-icon"></i>
+                        <span>جمال</span>
+                    </button>
+                    <button onclick="filterCategory('sports')" class="category-pill" data-cat="sports">
+                        <i class="fas fa-running category-icon"></i>
+                        <span>رياضة</span>
+                    </button>
+                    <button onclick="filterCategory('toys')" class="category-pill" data-cat="toys">
+                        <i class="fas fa-gamepad category-icon"></i>
+                        <span>ألعاب</span>
+                    </button>
+                    <button onclick="filterCategory('books')" class="category-pill" data-cat="books">
+                        <i class="fas fa-book category-icon"></i>
+                        <span>كتب</span>
                     </button>
                 </div>
 
-                <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <!-- Products Grid -->
+                <div id="marketGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                     <p class="text-gray-500 col-span-full text-center py-10">جاري التحميل...</p>
                 </div>
             </div>
@@ -436,6 +607,24 @@
                                 </div>
                             </div>
 
+                            <!-- Category Selection -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">القسم</label>
+                                <select id="pCategory" class="input-field w-full px-4 py-3 rounded-xl">
+                                    <option value="">اختر القسم...</option>
+                                    <option value="electronics">إلكترونيات</option>
+                                    <option value="fashion">أزياء</option>
+                                    <option value="home">منزل وحديقة</option>
+                                    <option value="beauty">جمال وصحة</option>
+                                    <option value="sports">رياضة ولياقة</option>
+                                    <option value="toys">ألعاب وهوايات</option>
+                                    <option value="books">كتب وقرطاسية</option>
+                                    <option value="automotive">سيارات وإكسسوارات</option>
+                                    <option value="food">طعام ومشروبات</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-semibold mb-2">عنوان الإعلان</label>
                                 <input id="pTitle" type="text" placeholder="عنوان جذاب لإعلانك" class="input-field w-full px-4 py-3 rounded-xl">
@@ -446,10 +635,28 @@
                                 <textarea id="pDesc" rows="4" placeholder="وصف تفصيلي..." class="input-field w-full px-4 py-3 rounded-xl resize-none"></textarea>
                             </div>
 
-                            <!-- صورة الخدمة -->
+                            <!-- صورة الخدمة/المنتج الرئيسية -->
                             <div id="serviceImageSection">
-                                <label class="block text-sm font-semibold mb-2">رابط صورة الخدمة/المنتج</label>
+                                <label class="block text-sm font-semibold mb-2">رابط صورة المنتج الرئيسية</label>
                                 <input id="pServiceImage" type="url" placeholder="https://example.com/image.jpg" class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
+                            </div>
+
+                            <!-- Discount Fields -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">السعر الأصلي (اختياري)</label>
+                                    <input id="pOriginalPrice" type="number" placeholder="0" class="input-field w-full px-4 py-3 rounded-xl">
+                                    <p class="text-xs text-gray-500 mt-1">لعرض خصم على المنتج</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">التقييم (من 5)</label>
+                                    <input id="pRating" type="number" step="0.1" min="0" max="5" placeholder="4.5" class="input-field w-full px-4 py-3 rounded-xl">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">عدد المراجعات (اختياري)</label>
+                                <input id="pReviews" type="number" placeholder="100" class="input-field w-full px-4 py-3 rounded-xl">
                             </div>
 
                             <!-- Product-specific options -->
@@ -610,7 +817,7 @@
     <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
 
 
- <script>
+ <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ========== DARK MODE ==========
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
@@ -734,6 +941,7 @@
         updateUserUI();
         nav('market');
         startNotificationPolling();
+        setupLazyLoading();
     }
 
     function updateUserUI() {
@@ -946,6 +1154,29 @@
         } catch(e) {}
     }
 
+    // ========== LAZY LOADING ==========
+    function setupLazyLoading() {
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px'
+            });
+
+            // Observe all lazy images
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    }
+
     // ========== MARKET ==========
     async function loadMarket() {
         try {
@@ -957,33 +1188,56 @@
         }
     }
 
+    function calculateDiscount(originalPrice, currentPrice) {
+        if (!originalPrice || originalPrice <= currentPrice) return 0;
+        return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+    }
+
     function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) {
             grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>';
             return;
         }
-        grid.innerHTML = list.map(p => `
+        grid.innerHTML = list.map(p => {
+            const discount = calculateDiscount(p.originalPrice, p.price);
+            const rating = p.rating || 0;
+            const reviews = p.reviews || 0;
+            
+            return `
             <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-                <div class="relative"><img 
-    src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
-    class="product-img" 
-    loading="lazy" 
-    decoding="async"
-    onerror="this.src='https://via.placeholder.com/300'"
->
-                    ${p.type === 'service' ? '<span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">خدمة</span>' : ''}
-                    ${p.offerEndTime ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold animate-pulse">عرض محدود</span>' : ''}
+                <div class="product-img-container">
+                    <img 
+                        data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect fill='%23f1f5f9' width='300' height='300'/%3E%3C/svg%3E"
+                        class="product-img" 
+                        loading="lazy" 
+                        decoding="async"
+                        onerror="this.src='https://via.placeholder.com/300'"
+                    >
+                    ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    ${p.offerEndTime ? '<div class="offer-badge">عرض محدود</div>' : ''}
                 </div>
-                <div class="p-3">
-                    <h3 class="text-sm font-semibold line-clamp-2 mb-2 h-10">${p.title}</h3>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-red-600 font-black text-lg">${Number(p.price).toLocaleString()}</span>
-                        <span class="text-gray-400 text-xs">${APP_SETTINGS.currency}</span>
+                <div class="product-info">
+                    <h3 class="product-title">${p.title}</h3>
+                    <div class="price-container">
+                        <span class="current-price">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</span>
+                        ${p.originalPrice ? `<span class="original-price">${Number(p.originalPrice).toLocaleString()}</span>` : ''}
                     </div>
+                    ${rating > 0 ? `
+                        <div class="rating-container">
+                            <div class="rating-stars">
+                                ${[...Array(5)].map((_, i) => `<i class="fas fa-star${i < Math.floor(rating) ? '' : (i < rating ? '-half-alt' : ' text-gray-300')}"></i>`).join('')}
+                            </div>
+                            <span class="rating-count">(${reviews})</span>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
-        `).join('');
+        `}).join('');
+        
+        // Re-setup lazy loading for new images
+        setupLazyLoading();
     }
 
     function filterProducts() {
@@ -993,7 +1247,14 @@
 
     function filterCategory(cat) {
         document.querySelectorAll('.category-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-        renderProducts(cat === 'all' ? ALL_LISTINGS : ALL_LISTINGS.filter(p => p.type === cat));
+        
+        if (cat === 'all') {
+            renderProducts(ALL_LISTINGS);
+        } else if (cat === 'product' || cat === 'service') {
+            renderProducts(ALL_LISTINGS.filter(p => p.type === cat));
+        } else {
+            renderProducts(ALL_LISTINGS.filter(p => p.category === cat));
+        }
     }
 
     // ========== CHAT REQUESTS (للبائع) ==========
@@ -1314,6 +1575,10 @@
         const price = document.getElementById('pPrice').value;
         const desc = document.getElementById('pDesc').value;
         const serviceImage = document.getElementById('pServiceImage').value.trim();
+        const category = document.getElementById('pCategory').value;
+        const originalPrice = document.getElementById('pOriginalPrice').value;
+        const rating = document.getElementById('pRating').value;
+        const reviews = document.getElementById('pReviews').value;
 
         if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
 
@@ -1324,8 +1589,16 @@
             title,
             price: Number(price),
             desc,
-            image: serviceImage || ''
+            image: serviceImage || '',
+            category: category || 'other'
         };
+
+        // Add optional fields
+        if (originalPrice && Number(originalPrice) > Number(price)) {
+            data.originalPrice = Number(originalPrice);
+        }
+        if (rating) data.rating = Number(rating);
+        if (reviews) data.reviews = Number(reviews);
 
         if (type === 'product') {
             const imagesText = document.getElementById('pImages').value;
@@ -1360,6 +1633,10 @@
             document.getElementById('pColors').value = '';
             document.getElementById('pSizes').value = '';
             document.getElementById('pOfferTime').value = '';
+            document.getElementById('pCategory').value = '';
+            document.getElementById('pOriginalPrice').value = '';
+            document.getElementById('pRating').value = '';
+            document.getElementById('pReviews').value = '';
 
             nav('market');
         } catch(e) { showToast('خطأ', 'error'); }
@@ -1486,3 +1763,4 @@
 </script>
 </body>
 </html>
+
