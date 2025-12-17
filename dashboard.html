@@ -676,6 +676,32 @@
                                 </div>
                             </div>
 
+
+<div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mt-4 mb-4">
+    <div class="flex items-center justify-between mb-2">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="pAffiliateEnabled" class="w-5 h-5 text-blue-600 rounded" onchange="toggleAffiliateInput()">
+            <span class="font-bold text-gray-800 dark:text-gray-200 text-sm">تفعيل التسويق بالعمولة (Affiliate) 💰</span>
+        </label>
+    </div>
+    
+    <div id="affiliateInputSection" class="hidden mt-3">
+        <label class="block text-sm font-semibold mb-2 text-blue-800 dark:text-blue-400">
+            نسبة العمولة للمسوق (%):
+            <span class="text-xs font-normal text-red-500">(الحد الأدنى 10%)</span>
+        </label>
+        <input id="pCommission" type="number" min="10" max="90" placeholder="مثال: 15" class="input-field w-full px-4 py-3 rounded-xl border-blue-300">
+        <p class="text-xs text-gray-500 mt-2">
+            مثال: إذا كان السعر 1000 دج والعمولة 10%، سيربح المسوق 100 دج عن كل مبيعة.
+        </p>
+    </div>
+</div>
+
+
+
+
+                            
+
                             <!-- Category Selection -->
                             <div>
                                 <label class="block text-sm font-semibold mb-2">القسم</label>
@@ -1322,6 +1348,15 @@
         return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
     }
 
+
+
+
+
+
+
+
+
+     
     function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) {
@@ -1333,10 +1368,32 @@
             const rating = p.rating || 0;
             const reviews = p.reviews || 0;
             
+            // ============================================================
+            // 1. حساب الأفيليت (إضافة جديدة)
+            // ============================================================
+            const affiliateProfit = p.isAffiliate ? Math.floor((p.price * p.commission) / 100) : 0;
+
+            // كود زر النسخ (يظهر فقط إذا كان المنتج يدعم الأفيليت)
+            const affiliateBtn = (p.isAffiliate && USER && p.userId !== USER._id) 
+                ? `<button onclick="copyAffiliateLink('${p._id}', '${affiliateProfit}', event)" class="mt-3 w-full flex items-center justify-center gap-2 bg-purple-50 text-purple-700 text-xs font-bold py-2 rounded-lg border border-purple-200 hover:bg-purple-100 transition active:scale-95">
+                     <i class="fas fa-link"></i> 
+                     <span>سوق واربح ${affiliateProfit} ${APP_SETTINGS.currency}</span>
+                   </button>`
+                : '';
+
+            // كود شارة العمولة
+            const affiliateBadge = p.isAffiliate 
+                ? `<div class="absolute top-2 left-2 z-10 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1 animate-pulse">
+                     <i class="fas fa-hand-holding-usd"></i> عمولة ${p.commission}%
+                   </div>` 
+                : '';
+            // ============================================================
+
             return `
             <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
                 <div class="product-img-container">
-                    <img 
+                    
+                    ${affiliateBadge} <img 
                         data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect fill='%23f1f5f9' width='300' height='300'/%3E%3C/svg%3E"
                         class="product-img" 
@@ -1362,7 +1419,8 @@
                             <span class="rating-count">(${reviews})</span>
                         </div>
                     ` : ''}
-                </div>
+
+                    ${affiliateBtn} </div>
             </div>
         `}).join('');
         
@@ -1370,6 +1428,13 @@
         setupLazyLoading();
     }
 
+
+
+
+
+
+
+     
     function filterProducts() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q))));
@@ -1699,61 +1764,90 @@
         document.getElementById('productOptions').style.display = type === 'product' ? 'block' : 'none';
     }
 
-    async function publish() {
+
+
+
+
+
+async function publish() {
         const type = document.getElementById('pType').value;
         const title = document.getElementById('pTitle').value;
         const price = document.getElementById('pPrice').value;
         const desc = document.getElementById('pDesc').value;
         const serviceImage = document.getElementById('pServiceImage').value.trim();
         const category = document.getElementById('pCategory').value;
-        const originalPrice = document.getElementById('pOriginalPrice').value;
-        const rating = document.getElementById('pRating').value;
-        const reviews = document.getElementById('pReviews').value;
+        
+        // >> الجديد: بيانات الأفيليت
+        const isAffiliate = document.getElementById('pAffiliateEnabled')?.checked || false;
+        const commission = document.getElementById('pCommission')?.value;
 
         if (!title || !price) return showToast('يرجى ملء العنوان والسعر', 'error');
+        
+        // >> التحقق من العمولة
+        if (isAffiliate && (!commission || commission < 10)) return showToast('العمولة يجب أن تكون 10% على الأقل', 'error');
 
         const data = {
             userId: USER._id,
             userName: USER.name,
-            type,
-            title,
-            price: Number(price),
-            desc,
+            type, title, price: Number(price), desc,
             image: serviceImage || '',
-            category: category || 'other'
+            category: category || 'other',
+            // >> إرسال الأفيليت
+            isAffiliate,
+            commission: isAffiliate ? Number(commission) : 0
         };
 
-        // Add optional fields
-        if (originalPrice && Number(originalPrice) > Number(price)) {
-            data.originalPrice = Number(originalPrice);
-        }
+        // إضافة الحقول الاختيارية
+        const originalPrice = document.getElementById('pOriginalPrice').value;
+        if (originalPrice) data.originalPrice = Number(originalPrice);
+        const rating = document.getElementById('pRating').value;
         if (rating) data.rating = Number(rating);
+        const reviews = document.getElementById('pReviews').value;
         if (reviews) data.reviews = Number(reviews);
 
+        // معالجة الصور (المنتجات والخدمات)
         if (type === 'product') {
             const imagesText = document.getElementById('pImages').value;
-            const additionalImages = imagesText.split('\n').map(u => u.trim()).filter(u => u);
-            // دمج صورة الخدمة مع الصور الإضافية
-            data.images = serviceImage ? [serviceImage, ...additionalImages] : additionalImages;
-            data.image = data.images[0] || serviceImage || '';
-
-            const colorsText = document.getElementById('pColors').value;
-            if (colorsText) data.colors = colorsText.split(',').map(c => c.trim()).filter(c => c);
-
-            const sizesText = document.getElementById('pSizes').value;
-            if (sizesText) data.sizes = sizesText.split(',').map(s => s.trim()).filter(s => s);
-
-            const offerTime = document.getElementById('pOfferTime').value;
-            if (offerTime) data.offerEndTime = Number(offerTime);
+            const extraImages = imagesText.split('\n').map(u => u.trim()).filter(u => u);
+            data.images = serviceImage ? [serviceImage, ...extraImages] : extraImages;
+            data.image = data.images[0] || '';
+            
+            const colors = document.getElementById('pColors').value;
+            if(colors) data.colors = colors.split(',').filter(c=>c);
+            
+            const sizes = document.getElementById('pSizes').value;
+            if(sizes) data.sizes = sizes.split(',').filter(s=>s);
+            
+            const time = document.getElementById('pOfferTime').value;
+            if(time) data.offerEndTime = Number(time);
         } else {
-            // للخدمات - استخدام صورة واحدة
             data.images = serviceImage ? [serviceImage] : [];
         }
 
         try {
             await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-            showToast('تم نشر الإعلان! 🎉', 'success');
+            showToast('تم نشر الإعلان بنجاح! 🎉', 'success');
+            nav('market');
+            location.reload(); // تحديث الصفحة لتفريغ الحقول
+        } catch(e) { showToast('خطأ في الاتصال', 'error'); }
+}
+     
+    
+      
+     
+     
+            
+     
 
+
+
+
+
+
+
+
+
+            
             // Clear form
             document.getElementById('pTitle').value = '';
             document.getElementById('pPrice').value = '';
@@ -1890,6 +1984,43 @@
             document.getElementById('notifDropdown').classList.add('hidden');
         }
     });
+
+
+
+
+
+
+// === دوال نظام الأفيليت ===
+
+    // 1. إظهار حقل النسبة
+    function toggleAffiliateInput() {
+        const isChecked = document.getElementById('pAffiliateEnabled').checked;
+        const section = document.getElementById('affiliateInputSection');
+        if (isChecked) section.classList.remove('hidden');
+        else {
+            section.classList.add('hidden');
+            document.getElementById('pCommission').value = '';
+        }
+    }
+
+    // 2. نسخ رابط المسوق
+    function copyAffiliateLink(id, profit, e) {
+        e.stopPropagation();
+        if (!USER) return showToast('يجب تسجيل الدخول أولاً', 'error');
+        
+        const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
+        
+        navigator.clipboard.writeText(link).then(() => {
+            showToast(`تم نسخ الرابط! 📋\nانشره واربح ${profit} ${APP_SETTINGS.currency} عن كل بيعة`, 'success');
+        }).catch(() => {
+            prompt("انسخ الرابط يدوياً:", link);
+        });
+    }
+
+
+
+
+     
 </script>
 
 
