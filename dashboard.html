@@ -1128,7 +1128,18 @@
         }
     }
 
-    function renderProducts(list) {
+
+
+    
+    
+
+
+
+
+
+
+
+function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) { 
             grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500">لا توجد منتجات حالياً</div>'; 
@@ -1144,7 +1155,7 @@
                 ? `<div class="absolute top-2 left-2 z-10 bg-blue-600/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md"><i class="fas fa-hand-holding-usd"></i> عمولة ${p.commission}%</div>` 
                 : '';
             
-            // زر النسخ يظهر فقط للمسجلين (وليس للبائع نفسه)
+            // زر النسخ (للمسجلين فقط)
             const affiliateBtn = (p.isAffiliate && USER && p.userId !== USER._id) 
                 ? `<button onclick="copyAffiliateLink('${p._id}', '${affiliateProfit}', event)" class="mt-3 w-full flex items-center justify-center gap-2 bg-purple-50 text-purple-700 text-xs font-bold py-2.5 rounded-xl border border-purple-100 hover:bg-purple-100 transition active:scale-95">
                      <i class="fas fa-share-alt"></i> <span>سوق واربح ${affiliateProfit} ${APP_SETTINGS.currency}</span>
@@ -1155,8 +1166,13 @@
             <div class="product-card group cursor-pointer" onclick="window.location.href='/p/${p._id}'">
                 <div class="product-img-container relative overflow-hidden rounded-xl">
                     ${affiliateBadge}
-                    <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img w-full aspect-square object-cover transition duration-500 group-hover:scale-105" loading="lazy">
-                    ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    <img 
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect fill='%23f3f4f6' width='300' height='300'/%3E%3C/svg%3E"
+                        data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" 
+                        class="product-img w-full aspect-square object-cover transition duration-500 group-hover:scale-105" 
+                        loading="lazy"
+                    >
+                    ${discount > 0 ? `<div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">-${discount}%</div>` : ''}
                     <div class="free-shipping-badge"><i class="fas fa-truck"></i> مجاني</div>
                 </div>
                 <div class="product-info p-3">
@@ -1169,9 +1185,31 @@
                 </div>
             </div>`;
         }).join('');
+        
+        // تشغيل التحميل الذكي
         setupLazyLoading();
-    }
+}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    
     // ========== 5. النشر (Publish) - (كاملة مع الأفيليت والصور) ==========
     async function publish() {
         if (!USER) return showAuth(); // حماية إضافية
