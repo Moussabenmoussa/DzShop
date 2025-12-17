@@ -293,8 +293,10 @@ async function deductBalance(userId, amount, description) {
 
 // ============ PAGES ============
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html')));
+app.get('/product.html', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html'))); // <--- هذا هو السطر الجديد
 app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html')));
 app.get('/super-admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
+
 
 // ============ PUBLIC SETTINGS API ============
 app.get('/api/public/settings', async (req, res) => {
