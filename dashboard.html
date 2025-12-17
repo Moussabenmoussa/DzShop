@@ -776,12 +776,26 @@
     
     
 
-                                <div class="grid grid-cols-2 gap-4 mt-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">الألوان المتاحة</label>
-                                        <input id="pColors" type="text" placeholder="أحمر، أزرق، أسود" class="input-field w-full px-4 py-3 rounded-xl">
-                                    </div>
-                                    <div>
+                                <div class="mt-4">
+    <div class="mb-4">
+        <label class="block text-sm font-semibold mb-3">الألوان المتاحة (اضغط لتحديد الألوان)</label>
+        
+        <div id="colorPalette" class="flex flex-wrap gap-3 mb-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+            </div>
+
+        <input type="hidden" id="pColors">
+        
+        <p class="text-xs text-gray-500 mt-1">تم اختيار: <span id="selectedColorsText" class="font-bold text-red-600">لم يتم الاختيار</span></p>
+    </div>
+
+    <div>
+        <label class="block text-sm font-semibold mb-2">المقاسات المتاحة</label>
+        <input id="pSizes" type="text" placeholder="مثال: S, M, L, XL, 38, 40, 42" class="input-field w-full px-4 py-3 rounded-xl">
+    </div>
+</div>
+
+
+                                        
                                         <label class="block text-sm font-semibold mb-2">المقاسات المتاحة</label>
                                         <input id="pSizes" type="text" placeholder="S, M, L, XL" class="input-field w-full px-4 py-3 rounded-xl">
                                     </div>
@@ -1934,103 +1948,168 @@
     }
 </script>
 
-<script>
-    // 1. دالة الرفع (ثابتة)
-    async function uploadToCloudinary(file) {
-        const cloudName = 'dvtuocsxs'; 
-        const uploadPreset = 'DZmarket';
 
+
+
+
+
+    
+<script>
+    // 1. إعدادات Cloudinary (ثابتة)
+    const CLOUD_CONFIG = {
+        name: 'dvtuocsxs',
+        preset: 'DZmarket'
+    };
+
+    // 2. دالة الرفع الموحدة (تُستخدم للكل)
+    async function uploadToCloudinary(file) {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', uploadPreset);
+        formData.append('upload_preset', CLOUD_CONFIG.preset);
 
         try {
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.name}/image/upload`, {
                 method: 'POST',
                 body: formData
             });
             const data = await response.json();
-            if (data.secure_url) {
-                return data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/');
-            }
-            return null;
+            return data.secure_url ? data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/') : null;
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Upload Error:', error);
             return null;
         }
     }
 
+    // 3. تشغيل جميع الوظائف عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', function() {
         
-        // --- أ: منطق الصورة الرئيسية ---
-        const fileInput = document.getElementById('fileInput');
-        const linkInput = document.getElementById('pServiceImage');
-        const loadingMsg = document.getElementById('loadingMsg');
-        const successMsg = document.getElementById('mainSuccessMsg'); // عنصر جديد
+        // === أ. منطق الصورة الرئيسية ===
+        const mainInput = document.getElementById('fileInput');
+        const mainLink = document.getElementById('pServiceImage');
+        const mainLoader = document.getElementById('loadingMsg');
+        const mainSuccess = document.getElementById('mainSuccessMsg');
 
-        if (fileInput) {
-            fileInput.addEventListener('change', async function() {
-                const file = fileInput.files[0];
-                if (file) {
-                    // إخفاء رسالة النجاح القديمة إن وجدت
-                    if(successMsg) successMsg.classList.add('hidden');
-                    loadingMsg.classList.remove('hidden');
-                    fileInput.disabled = true;
-                    
-                    const url = await uploadToCloudinary(file);
-                    
-                    loadingMsg.classList.add('hidden');
-                    fileInput.disabled = false;
+        if (mainInput) {
+            mainInput.addEventListener('change', async () => {
+                const file = mainInput.files[0];
+                if (!file) return;
 
-                    if (url) {
-                        linkInput.value = url; // حفظ الرابط في الخفاء
-                        if(successMsg) successMsg.classList.remove('hidden'); // إظهار رسالة النجاح
-                    }
+                if(mainSuccess) mainSuccess.classList.add('hidden');
+                mainLoader.classList.remove('hidden');
+                mainInput.disabled = true;
+
+                const url = await uploadToCloudinary(file);
+
+                mainLoader.classList.add('hidden');
+                mainInput.disabled = false;
+
+                if (url) {
+                    mainLink.value = url;
+                    if(mainSuccess) mainSuccess.classList.remove('hidden');
+                } else {
+                    alert('فشل رفع الصورة الرئيسية');
                 }
             });
         }
 
-        // --- ب: منطق الصور الإضافية ---
+        // === ب. منطق الصور الإضافية (Gallery) ===
         const extraInput = document.getElementById('extraFilesInput');
         const extraTextarea = document.getElementById('pImages');
-        const extraLoading = document.getElementById('extraLoadingMsg');
-        const extraSuccess = document.getElementById('extraSuccessMsg'); // عنصر جديد
-        const extraCount = document.getElementById('extraCount'); // عداد الصور
+        const extraLoader = document.getElementById('extraLoadingMsg');
+        const extraSuccess = document.getElementById('extraSuccessMsg');
+        const extraCount = document.getElementById('extraCount');
 
         if (extraInput) {
-            extraInput.addEventListener('change', async function() {
+            extraInput.addEventListener('change', async () => {
                 const files = Array.from(extraInput.files);
-                
-                if (files.length > 0) {
-                    if(extraSuccess) extraSuccess.classList.add('hidden');
-                    extraLoading.classList.remove('hidden');
-                    extraInput.disabled = true;
-                    
-                    let newUrls = [];
-                    
-                    for (const file of files) {
-                        const url = await uploadToCloudinary(file);
-                        if (url) newUrls.push(url);
-                    }
-                    
-                    extraLoading.classList.add('hidden');
-                    extraInput.disabled = false;
+                if (files.length === 0) return;
 
-                    if (newUrls.length > 0) {
-                        const currentText = extraTextarea.value.trim();
-                        const separator = currentText ? '\n' : '';
-                        extraTextarea.value = currentText + separator + newUrls.join('\n');
-                        
-                        // تحديث العداد وإظهار الرسالة
-                        if(extraCount) extraCount.innerText = newUrls.length;
-                        if(extraSuccess) extraSuccess.classList.remove('hidden');
-                    }
+                if(extraSuccess) extraSuccess.classList.add('hidden');
+                extraLoader.classList.remove('hidden');
+                extraInput.disabled = true;
+
+                let newUrls = [];
+                for (const file of files) {
+                    const url = await uploadToCloudinary(file);
+                    if (url) newUrls.push(url);
                 }
+
+                extraLoader.classList.add('hidden');
+                extraInput.disabled = false;
+
+                if (newUrls.length > 0) {
+                    const current = extraTextarea.value.trim();
+                    extraTextarea.value = current + (current ? '\n' : '') + newUrls.join('\n');
+                    
+                    if(extraCount) extraCount.innerText = newUrls.length;
+                    if(extraSuccess) extraSuccess.classList.remove('hidden');
+                }
+            });
+        }
+
+        // === ج. منطق نظام الألوان (Color Chips) ===
+        const colorContainer = document.getElementById('colorPalette');
+        const colorInput = document.getElementById('pColors');
+        const colorDisplay = document.getElementById('selectedColorsText');
+        
+        const PRESET_COLORS = [
+            { label: 'أسود', val: 'Black', hex: '#000000', txt: '#fff' },
+            { label: 'أبيض', val: 'White', hex: '#ffffff', txt: '#000', border: true },
+            { label: 'أحمر', val: 'Red', hex: '#ef4444', txt: '#fff' },
+            { label: 'أزرق', val: 'Blue', hex: '#3b82f6', txt: '#fff' },
+            { label: 'أخضر', val: 'Green', hex: '#22c55e', txt: '#fff' },
+            { label: 'أصفر', val: 'Yellow', hex: '#eab308', txt: '#000' },
+            { label: 'وردي', val: 'Pink', hex: '#ec4899', txt: '#fff' },
+            { label: 'بنفسجي', val: 'Purple', hex: '#a855f7', txt: '#fff' },
+            { label: 'برتقالي', val: 'Orange', hex: '#f97316', txt: '#fff' },
+            { label: 'رمادي', val: 'Grey', hex: '#64748b', txt: '#fff' },
+            { label: 'بني', val: 'Brown', hex: '#78350f', txt: '#fff' },
+            { label: 'ذهبي', val: 'Gold', hex: '#FFD700', txt: '#000' },
+            { label: 'بيج', val: 'Beige', hex: '#F5F5DC', txt: '#000', border: true }
+        ];
+
+        if (colorContainer && colorInput) {
+            let selectedColors = [];
+            
+            PRESET_COLORS.forEach(c => {
+                const btn = document.createElement('button');
+                // تنسيق الزر
+                btn.className = 'flex items-center gap-2 px-3 py-2 rounded-lg border transition-all hover:shadow-md';
+                btn.style.backgroundColor = c.hex;
+                btn.style.color = c.txt;
+                btn.style.borderColor = c.border ? '#cbd5e1' : 'transparent';
+                
+                btn.innerHTML = `<span class="font-bold text-sm">${c.label}</span><i class="fas fa-check hidden check-mark"></i>`;
+
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    const icon = btn.querySelector('.check-mark');
+                    
+                    if (selectedColors.includes(c.val)) {
+                        // إزالة اللون
+                        selectedColors = selectedColors.filter(item => item !== c.val);
+                        icon.classList.add('hidden');
+                        btn.style.transform = 'scale(1)';
+                    } else {
+                        // إضافة اللون
+                        selectedColors.push(c.val);
+                        icon.classList.remove('hidden');
+                        btn.style.transform = 'scale(1.05)';
+                    }
+
+                    // الحفظ والتحديث
+                    colorInput.value = selectedColors.join(',');
+                    const arabicNames = selectedColors.map(s => PRESET_COLORS.find(p => p.val === s).label);
+                    colorDisplay.innerText = arabicNames.length ? arabicNames.join('، ') : 'لم يتم الاختيار';
+                    
+                    // تغيير لون النص بناءً على وجود اختيار
+                    colorDisplay.className = arabicNames.length ? "font-bold text-green-600" : "font-bold text-red-600";
+                };
+                colorContainer.appendChild(btn);
             });
         }
     });
 </script>
-    
     
 </body>
 </html>
