@@ -452,26 +452,26 @@
             </div>
 
             <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-               <button onclick="nav('profile')" class="auth-required w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
                     الصفحة الرئيسية
                 </button>
-                <button onclick="nav('messages')" class="auth-required w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
                     الرسائل
                     <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('chat-requests')" class="auth-required w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
                     طلبات المحادثة
                     <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('orders')" class="auth-required w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
                     الطلبات الواردة
                     <span id="ordersBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('add')" class="auth-required w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-purple-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
                     إضافة إعلان
                 </button>
@@ -479,7 +479,7 @@
                     <div class="w-10 h-10 bg-orange-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
                     إعلاناتي
                 </button>
-                <button onclick="nav('wallet')" class="auth-required w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
                     المحفظة والشحن
                 </button>
@@ -877,20 +877,20 @@
                 <i class="fas fa-home text-xl mb-1"></i>
                 <span class="text-[10px] font-semibold">الرئيسية</span>
             </button>
-            <button onclick="nav('messages')" class="auth-required nav-item flex-1 flex flex-col items-center py-2 relative" data-view="messages">
+            <button onclick="nav('messages')" class="nav-item flex-1 flex flex-col items-center py-2 relative" data-view="messages">
                 <i class="fas fa-comments text-xl mb-1"></i>
                 <span class="text-[10px] font-semibold">الرسائل</span>
             </button>
-            <button onclick="nav('add')" class="auth-required nav-item flex-1 flex flex-col items-center py-2" data-view="add">
+            <button onclick="nav('add')" class="nav-item flex-1 flex flex-col items-center py-2" data-view="add">
                 <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center -mt-6 shadow-lg">
                     <i class="fas fa-plus text-white text-xl"></i>
                 </div>
             </button>
-            <button onclick="nav('orders')" class="auth-required nav-item flex-1 flex flex-col items-center py-2 relative" data-view="orders">
+            <button onclick="nav('orders')" class="nav-item flex-1 flex flex-col items-center py-2 relative" data-view="orders">
                 <i class="fas fa-shopping-bag text-xl mb-1"></i>
                 <span class="text-[10px] font-semibold">الطلبات</span>
             </button>
-            <button onclick="nav('wallet')" class="auth-required nav-item flex-1 flex flex-col items-center py-2" data-view="wallet">
+            <button onclick="nav('wallet')" class="nav-item flex-1 flex flex-col items-center py-2" data-view="wallet">
                 <i class="fas fa-wallet text-xl mb-1"></i>
                 <span class="text-[10px] font-semibold">المحفظة</span>
             </button>
@@ -991,21 +991,10 @@
 
     // ========== 2. التهيئة والتحميل (Init) ==========
     window.onload = async () => {
-        const loader = document.getElementById('appLoader');
+        const loader = document.getElementById('loader');
         try {
             await loadAppSettings();
-            await checkAuth();
-        } catch(e) {
-            console.error("Error during initial load:", e);
-            if (loader) loader.classList.add('hidden');
-        }
-    };
-
-    async function checkAuth() {
-        const stored = localStorage.getItem('dz_user');
-        const loader = document.getElementById('appLoader');
-
-        try {
+            const stored = localStorage.getItem('dz_user');
             if (stored) {
                 const u = JSON.parse(stored);
                 const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
@@ -1013,34 +1002,33 @@
                 if (d.success) {
                     USER = d.user;
                     localStorage.setItem('dz_user', JSON.stringify(USER));
-                } else {
-                    USER = null; // تأكيد أن المستخدم غير مسجل
-                }
-            } else {
-                USER = null;
-            }
-            initApp(); // استدعاء initApp دائماً لعرض السوق
-        } catch(e) { 
-            USER = null;
-            initApp(); // استدعاء initApp حتى في حالة فشل الاتصال
-        } 
+                    initApp();
+                } else initGuestMode();
+            } else initGuestMode();
+        } catch(e) { initGuestMode(); } 
         finally { if (loader) loader.classList.add('hidden'); }
-    }
+    };
 
     function initApp() {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         updateUserUI();
         nav('market');
-        if (USER) { // بدء الخدمات التي تتطلب تسجيل الدخول فقط للمستخدمين المسجلين
-            startNotificationPolling();
-        }
+        startNotificationPolling();
         setupLazyLoading();
         
         // تتبع الأفيليت
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
         if (ref) localStorage.setItem('dz_affiliate', ref);
+    }
+
+    function initGuestMode() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('sidebar').style.display = 'none';
+        loadMarket();
+        setupLazyLoading();
     }
 
     async function loadAppSettings() {
@@ -1080,21 +1068,6 @@
     }
 
     function updateUserUI() {
-        if (!USER) {
-            // إخفاء أو مسح عناصر واجهة المستخدم الخاصة بالمستخدم غير المسجل
-            document.getElementById('userBalance').innerText = '0';
-            document.getElementById('wBalance').innerText = '0';
-            document.getElementById('sidebarBalance').innerText = '0';
-            document.getElementById('userName').innerText = 'زائر';
-            document.getElementById('userEmail').innerText = 'غير مسجل';
-            document.getElementById('sidebarInitial').innerText = 'ز';
-            // إخفاء عناصر التنقل الخاصة بالمستخدم المسجل
-            document.querySelectorAll('.auth-required').forEach(el => el.classList.add('hidden'));
-            return;
-        }
-        
-        // تحديث واجهة المستخدم للمستخدم المسجل
-        document.querySelectorAll('.auth-required').forEach(el => el.classList.remove('hidden'));
         document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
         document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
         document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
@@ -1121,7 +1094,7 @@
 
     function copyAffiliateLink(id, profit, e) {
         if(e) e.stopPropagation();
-        if (!USER) return showAuth(); // توجيه المستخدم إلى شاشة تسجيل الدخول
+        if (!USER) return showToast('يجب تسجيل الدخول', 'error');
         
         // تصحيح الرابط ليكون /p/id?ref=...
         const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
@@ -1169,7 +1142,7 @@
                 : '';
 
             return `
-            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+            <div class="product-card cursor-pointer" onclick="USER ? window.location.href='/p/${p._id}' : (event.preventDefault(), showToast('يجب تسجيل الدخول للمتابعة', 'info'), setTimeout(() => showAuth(), 500))">
                 <div class="product-img-container relative">
                     ${affiliateBadge}
                     <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img w-full aspect-square object-cover" loading="lazy">
@@ -1726,11 +1699,6 @@
     function logout() { localStorage.removeItem('dz_user'); location.reload(); }
 
     function nav(view) {
-        const authRequiredViews = ['messages', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'];
-        if (authRequiredViews.includes(view) && !USER) {
-            return showAuth(); // إظهار شاشة تسجيل الدخول إذا كان العرض يتطلب مصادقة والمستخدم غير مسجل
-        }
-
         ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
             const el = document.getElementById('view-' + v);
             if(el) el.classList.add('hidden');
@@ -1741,9 +1709,10 @@
         
         if(view === 'market') loadMarket();
         else if(view === 'mylist') loadMyList();
+        else if(view === 'wallet') loadWallet();
+        else if(view === 'orders') loadOrders();
         else if(view === 'messages') loadChats();
         else if(view === 'chat-requests') loadChatRequests();
-        else if(view === 'orders') loadOrders();
     }
 
     function toggleSidebar(open) {
