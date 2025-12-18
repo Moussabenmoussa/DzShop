@@ -434,62 +434,8 @@
 
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-80 bg-white dark:bg-slate-900 z-[60] shadow-2xl flex flex-col">
-            <div class="p-6 bg-gradient-to-br from-red-600 to-red-800 text-white">
-                <button onclick="toggleSidebar(false)" class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
-                    <div>
-                        <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
-                        <p class="text-sm text-white/70" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c494f594e7c59445d514c5059125f5351">[email&#160;protected]</a></p>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
-                    <i class="fas fa-wallet text-yellow-300"></i>
-                    <span class="font-bold"><span id="sidebarBalance">0</span> <span class="currency-symbol">دج</span></span>
-                </div>
-            </div>
-
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
-                    الصفحة الرئيسية
-                </button>
-                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
-                    الرسائل
-                    <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
-                </button>
-                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
-                    طلبات المحادثة
-                    <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
-                </button>
-                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
-                    الطلبات الواردة
-                    <span id="ordersBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
-                </button>
-                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-purple-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
-                    إضافة إعلان
-                </button>
-                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-orange-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
-                    إعلاناتي
-                </button>
-                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
-                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
-                    المحفظة والشحن
-                </button>
-            </nav>
-
-            <div class="p-4 border-t border-gray-100 dark:border-slate-800">
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-slate-800 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition">
-                    <i class="fas fa-sign-out-alt"></i>
-                    تسجيل الخروج
-                </button>
+            <div id="sidebarContent" class="flex-1 flex flex-col">
+                <!-- المحتوى الديناميكي سيتم حقنه هنا بواسطة JavaScript -->
             </div>
         </aside>
 
@@ -1003,9 +949,9 @@
                     USER = d.user;
                     localStorage.setItem('dz_user', JSON.stringify(USER));
                     initApp();
-                } else showAuth();
-            } else showAuth();
-        } catch(e) { showAuth(); } 
+                } else initApp(); // Show main content even if refresh fails
+            } else initApp(); // Show main content if no stored user
+        } catch(e) { initApp(); } // Show main content even on error
         finally { if (loader) loader.classList.add('hidden'); }
     };
 
@@ -1013,6 +959,8 @@
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         updateUserUI();
+        // Load products even if USER is null
+        loadProducts();
         nav('market');
         startNotificationPolling();
         setupLazyLoading();
@@ -1021,6 +969,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
         if (ref) localStorage.setItem('dz_affiliate', ref);
+    }
+
+    function showAuth() {
+        // لا تفعل شيئًا، لأننا نريد الوصول المفتوح
     }
 
     async function loadAppSettings() {
@@ -1060,12 +1012,124 @@
     }
 
     function updateUserUI() {
-        document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
-        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
-        document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
-        document.getElementById('userName').innerText = USER.name;
-        document.getElementById('userEmail').innerText = USER.email;
-        document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'م';
+        const sidebarContent = document.getElementById('sidebarContent');
+        if (!sidebarContent) return;
+
+        if (USER) {
+            // وضع العضو
+            sidebarContent.innerHTML = getMemberSidebarHTML();
+            
+            // تحديث البيانات الخاصة بالعضو
+            document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
+            document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+            document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
+            document.getElementById('userName').innerText = USER.name;
+            document.getElementById('userEmail').innerText = USER.email;
+            document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'م';
+
+            // تحديث حالة الأزرار
+            document.querySelectorAll('.auth-required').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('.guest-only').forEach(el => el.classList.add('hidden'));
+        } else {
+            // وضع الزائر
+            sidebarContent.innerHTML = getVisitorSidebarHTML();
+
+            // تحديث حالة الأزرار
+            document.querySelectorAll('.auth-required').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.guest-only').forEach(el => el.classList.remove('hidden'));
+        }
+    }
+
+    function getMemberSidebarHTML() {
+        return `
+            <div class="p-6 bg-gradient-to-br from-red-600 to-red-800 text-white">
+                <button onclick="toggleSidebar(false)" class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold" id="sidebarInitial">م</div>
+                    <div>
+                        <h2 class="font-bold text-lg" id="userName">مستخدم</h2>
+                        <p class="text-sm text-white/70" id="userEmail">البريد الإلكتروني</p>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
+                    <i class="fas fa-wallet text-yellow-300"></i>
+                    <span class="font-bold"><span id="sidebarBalance">0</span> <span class="currency-symbol">دج</span></span>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
+                    الصفحة الرئيسية
+                </button>
+                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
+                    الرسائل
+                    <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
+                    طلبات المحادثة
+                    <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
+                    الطلبات الواردة
+                    <span id="ordersBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+                </button>
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
+                    المحفظة والشحن
+                </button>
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-purple-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
+                    إضافة إعلان
+                </button>
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-orange-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
+                    إعلاناتي
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100 dark:border-slate-800">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-slate-800 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                    تسجيل الخروج
+                </button>
+            </div>
+        `;
+    }
+
+    function getVisitorSidebarHTML() {
+        return `
+            <div class="p-6 bg-gradient-to-br from-red-600 to-red-800 text-white">
+                <button onclick="toggleSidebar(false)" class="absolute top-4 left-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="font-bold text-xl mb-1">أهلاً بك في السوق المفتوح!</h2>
+                <p class="text-sm text-white/80">تصفح آلاف المنتجات والخدمات دون تسجيل.</p>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
+                    <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
+                    الصفحة الرئيسية
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100 dark:border-slate-800 space-y-3">
+                <button onclick="showAuth()" class="w-full flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition">
+                    <i class="fas fa-sign-in-alt"></i>
+                    تسجيل الدخول
+                </button>
+                <button onclick="showAuth()" class="w-full flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-3 rounded-xl font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+                    <i class="fas fa-store"></i>
+                    انضم كبائع/مسوق
+                </button>
+            </div>
+        `;
     }
 
     // ========== 3. دوال الأفيليت (Affiliate Logic) ==========
