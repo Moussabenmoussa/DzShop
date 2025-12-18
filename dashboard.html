@@ -991,27 +991,41 @@
 
     // ========== 2. التهيئة والتحميل (Init) ==========
     window.onload = async () => {
-        const loader = document.getElementById('loader');
+        const loader = document.getElementById('appLoader');
         try {
             await loadAppSettings();
-            const stored = localStorage.getItem('dz_user');
+            await checkAuth();
+        } catch(e) {
+            console.error("Error during initial load:", e);
+            if (loader) loader.classList.add('hidden');
+        }
+    };
+
+    async function checkAuth() {
+        const stored = localStorage.getItem('dz_user');
+        const loader = document.getElementById('appLoader');
+
+        try {
             if (stored) {
                 const u = JSON.parse(stored);
                 const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
                 const d = await res.json();
-        if (d.success) {
-            USER = d.user;
-            localStorage.setItem('dz_user', JSON.stringify(USER));
-        } else {
-            USER = null; // تأكيد أن المستخدم غير مسجل
-        }
-        initApp(); // استدعاء initApp دائماً لعرض السوق
-    } catch(e) { 
-        USER = null;
-        initApp(); // استدعاء initApp حتى في حالة فشل الاتصال
-    } 
-    finally { if (loader) loader.classList.add('hidden'); }
-    };
+                if (d.success) {
+                    USER = d.user;
+                    localStorage.setItem('dz_user', JSON.stringify(USER));
+                } else {
+                    USER = null; // تأكيد أن المستخدم غير مسجل
+                }
+            } else {
+                USER = null;
+            }
+            initApp(); // استدعاء initApp دائماً لعرض السوق
+        } catch(e) { 
+            USER = null;
+            initApp(); // استدعاء initApp حتى في حالة فشل الاتصال
+        } 
+        finally { if (loader) loader.classList.add('hidden'); }
+    }
 
     function initApp() {
         document.getElementById('authScreen').classList.add('hidden');
