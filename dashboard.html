@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -452,34 +453,34 @@
             </div>
 
             <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <button onclick="nav('market')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="market">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-red-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-home text-red-600"></i></div>
                     الصفحة الرئيسية
                 </button>
-                <button onclick="nav('messages')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="messages">
+                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-comments text-blue-600"></i></div>
                     الرسائل
                     <span id="sidebarMsgBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('chat-requests')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="chat-requests">
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-user-clock text-amber-600"></i></div>
                     طلبات المحادثة
                     <span id="chatRequestsBadge" class="hidden bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('orders')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="orders">
+                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-green-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-green-600"></i></div>
                     الطلبات الواردة
                     <span id="ordersBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
                 </button>
-                <button onclick="nav('add')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="add">
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-purple-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-purple-600"></i></div>
                     إضافة إعلان
                 </button>
-                <button onclick="nav('mylist')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="mylist">
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-orange-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div>
                     إعلاناتي
                 </button>
-                <button onclick="nav('wallet')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition" data-section="wallet">
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 font-semibold transition">
                     <div class="w-10 h-10 bg-amber-50 dark:bg-slate-800 rounded-xl flex items-center justify-center"><i class="fas fa-wallet text-amber-600"></i></div>
                     المحفظة والشحن
                 </button>
@@ -854,14 +855,9 @@
                         <div class="relative">
                             <div class="text-sm text-white/60 mb-1">رصيدك الحالي</div>
                             <div class="text-5xl font-black mb-6"><span id="wBalance">0</span> <span class="text-2xl text-white/60 currency-symbol">دج</span></div>
-                        <div class="flex gap-2">
-                            <button onclick="openDepositModal()" class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-xl font-bold flex items-center gap-2 flex-1">
+                            <button onclick="openDepositModal()" class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-xl font-bold flex items-center gap-2">
                                 <i class="fas fa-plus-circle"></i> شحن الرصيد
                             </button>
-                            <button onclick="openWithdrawalModal()" class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-3 rounded-xl font-bold flex items-center gap-2 flex-1">
-                                <i class="fas fa-money-bill-wave"></i> طلب سحب
-                            </button>
-                        </div>
                         </div>
                     </div>
 
@@ -923,8 +919,8 @@
                     <input id="depAmount" type="number" placeholder="مثال: 500" class="input-field w-full px-4 py-3 rounded-xl">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-2">صورة الوصل</label>
-                    <input id="depProofFile" type="file" class="input-field w-full px-4 py-3 rounded-xl">
+                    <label class="block text-sm font-semibold mb-2">رابط صورة الوصل</label>
+                    <input id="depProof" type="url" placeholder="https://..." class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
                 </div>
                 <button onclick="submitDeposit()" class="btn-primary w-full text-white font-bold py-4 rounded-xl">تأكيد الإرسال</button>
                 <button onclick="closeDepositModal()" class="w-full text-gray-500 py-2 font-semibold">إلغاء</button>
@@ -959,45 +955,21 @@
                 <button onclick="closeAcceptChatModal()" class="flex-1 py-3 rounded-xl border border-gray-200 font-semibold">إلغاء</button>
                 <button onclick="confirmAcceptChat()" class="flex-1 btn-primary py-3 rounded-xl text-white font-semibold">قبول</button>
             </div>
-        </di    </div>
-
-    <!-- Withdrawal Modal -->
-    <div id="withdrawalModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
-        <div class="modal-content w-full max-w-md rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-money-bill-wave text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-black">طلب سحب</h3>
-                <p class="text-sm text-gray-500 mt-2">سيتم خصم المبلغ من رصيدك</p>
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold mb-2">المبلغ (<span class="currency-symbol">دج</span>)</label>
-                    <input id="withdrawAmount" type="number" placeholder="مثال: 1000" class="input-field w-full px-4 py-3 rounded-xl">
-                    <p class="text-xs text-gray-500 mt-1">الحد الأدنى للسحب: <span id="minWithdrawal">1000</span> <span class="currency-symbol">دج</span></p>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-2">اسم البنك</label>
-                    <input id="bankName" type="text" placeholder="مثال: بنك الجزائر" class="input-field w-full px-4 py-3 rounded-xl">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-2">رقم الحساب البنكي</label>
-                    <input id="accountNumber" type="text" placeholder="مثال: 123456789" class="input-field w-full px-4 py-3 rounded-xl">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-2">اسم صاحب الحساب</label>
-                    <input id="accountHolder" type="text" placeholder="مثال: أحمد محمد" class="input-field w-full px-4 py-3 rounded-xl">
-                </div>
-                <button onclick="submitWithdrawal()" class="btn-primary w-full text-white font-bold py-4 rounded-xl">إرسال الطلب</button>
-                <button onclick="closeWithdrawalModal()" class="w-full text-gray-500 py-2 font-semibold">إلغاء</button>
-            </div>
         </div>
     </div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
+
+
+
+    
+    
+
+
+<div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
     // ========== 1. إعدادات عامة والوضع الليلي ==========
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -1015,7 +987,7 @@
     let pendingAcceptChatId = null;
     let notifInterval = null;
 
-    let APP_SETTINGS = { orderRevealPrice: 50, chatPrice: 50, freeMode: false, currency: 'دج', minWithdrawal: 1000 };
+    let APP_SETTINGS = { orderRevealPrice: 50, chatPrice: 50, freeMode: false, currency: 'دج' };
     const CLOUD_CONFIG = { name: 'dvtuocsxs', preset: 'DZmarket' };
 
     // ========== 2. التهيئة والتحميل (Init) ==========
@@ -1032,9 +1004,9 @@
                     USER = d.user;
                     localStorage.setItem('dz_user', JSON.stringify(USER));
                     initApp();
-                } else initGuestMode();
-            } else initGuestMode();
-        } catch(e) { initGuestMode(); } 
+                } else showAuth();
+            } else showAuth();
+        } catch(e) { showAuth(); } 
         finally { if (loader) loader.classList.add('hidden'); }
     };
 
@@ -1050,14 +1022,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
         if (ref) localStorage.setItem('dz_affiliate', ref);
-    }
-
-    function initGuestMode() {
-        document.getElementById('authScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('sidebar').style.display = 'none';
-        loadMarket();
-        setupLazyLoading();
     }
 
     async function loadAppSettings() {
@@ -1171,7 +1135,7 @@
                 : '';
 
             return `
-            <div class="product-card cursor-pointer" onclick="USER ? window.location.href='/p/${p._id}' : (event.preventDefault(), showToast('يجب تسجيل الدخول للمتابعة', 'info'), setTimeout(() => showAuth(), 500))">
+            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
                 <div class="product-img-container relative">
                     ${affiliateBadge}
                     <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img w-full aspect-square object-cover" loading="lazy">
@@ -1511,84 +1475,18 @@
         } catch(e) {}
     }
 
-    async function openDepositModal() {
-        document.getElementById('depositModal').classList.remove('hidden');
-        document.getElementById('depAmount').value = '';
-        document.getElementById('depProofFile').value = '';
-        
-        try {
-            const res = await fetch('/api/admin/payment-methods');
-            const methods = await res.json();
-            const container = document.getElementById('paymentMethods');
-            
-            if (methods.length === 0) {
-                container.innerHTML = '<p class="text-center py-4 text-gray-500">لا توجد طرق دفع متاحة</p>';
-            } else {
-                container.innerHTML = methods.map(m => `
-                    <button onclick="selectPaymentMethod(this)" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition cursor-pointer" data-method="${m._id}">
-                        <img src="${m.icon}" class="w-10 h-10 rounded-lg object-cover">
-                        <div class="flex-1 text-right">
-                            <div class="font-bold">${m.name}</div>
-                            <div class="text-sm text-gray-500">${m.account}</div>
-                        </div>
-                        <i class="fas fa-check text-blue-500 hidden" data-check></i>
-                    </button>
-                `).join('');
-            }
-        } catch(e) {
-            console.error(e);
-        }
-    }
-
-    function selectPaymentMethod(btn) {
-        document.querySelectorAll('[data-method]').forEach(b => {
-            b.classList.remove('border-blue-500');
-            b.querySelector('[data-check]').classList.add('hidden');
-        });
-        btn.classList.add('border-blue-500');
-        btn.querySelector('[data-check]').classList.remove('hidden');
-        btn.dataset.method = 'selected';
-    }
-    
-    function closeDepositModal() {
-        document.getElementById('depositModal').classList.add('hidden');
-        document.querySelectorAll('[data-method]').forEach(b => {
-            b.classList.remove('border-blue-500');
-            b.querySelector('[data-check]').classList.add('hidden');
-            b.dataset.method = '';
-        });
-    }
+    function openDepositModal() { document.getElementById('depositModal').classList.remove('hidden'); }
+    function closeDepositModal() { document.getElementById('depositModal').classList.add('hidden'); }
 
     async function submitDeposit() {
         const amount = document.getElementById('depAmount').value;
-        const fileInput = document.getElementById('depProofFile');
-        const file = fileInput.files[0];
-        
-        if (!amount) return showToast('املأ المبلغ', 'error');
-        if (!file) return showToast('اختر صورة الوصل', 'error');
-        
+        const proof = document.getElementById('depProof').value;
+        if (!amount || !proof) return showToast('املأ الحقول', 'error');
         try {
-            const formData = new FormData();
-            formData.append('userId', USER._id);
-            formData.append('amount', Number(amount));
-            formData.append('paymentMethod', document.querySelector('[data-method="selected"]')?.dataset.method || '');
-            formData.append('proof', file);
-            
-            const res = await fetch('/api/wallet/deposit', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const d = await res.json();
-            if (d.success) {
-                showToast('تم الإرسال للمراجعة', 'success');
-                closeDepositModal();
-            } else {
-                showToast('خطأ', 'error');
-            }
-        } catch(e) {
-            showToast('خطأ', 'error');
-        }
+            await fetch('/api/wallet/deposit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, amount: Number(amount), proof }) });
+            showToast('تم الإرسال للمراجعة', 'success');
+            closeDepositModal();
+        } catch(e) { showToast('خطأ', 'error'); }
     }
 
     // ========== 9. إعلاناتي (My List) ==========
@@ -1794,145 +1692,25 @@
     function logout() { localStorage.removeItem('dz_user'); location.reload(); }
 
     function nav(view) {
-        // إغلاق القائمة الجانبية
-        toggleSidebar(false);
-        
-        // إخفاء جميع الأقسام
         ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => {
             const el = document.getElementById('view-' + v);
             if(el) el.classList.add('hidden');
         });
+        document.getElementById('view-' + view).classList.remove('hidden');
+        toggleSidebar(false);
+        updatePriceDisplays(); // تحديث الأسعار عند التنقل
         
-        // عرض القسم المطلوب
-        const viewEl = document.getElementById('view-' + view);
-        if(viewEl) {
-            viewEl.classList.remove('hidden');
-            
-            // تحميل البيانات إذا كان القسم يتطلب ذلك
-            if(view === 'market') loadMarket();
-            else if(view === 'mylist' && USER) loadMyList();
-            else if(view === 'wallet' && USER) loadWallet();
-            else if(view === 'orders' && USER) loadOrders();
-            else if(view === 'messages' && USER) loadChats();
-            else if(view === 'chat-requests' && USER) loadChatRequests();
-            
-            updatePriceDisplays(); // تحديث الأسعار عند التنقل
-        }
-    }
-
-    async function loadWallet() {
-        try {
-            const res = await fetch('/api/user/balance/' + USER._id);
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('wBalance').innerText = data.balance;
-                
-                const transRes = await fetch('/api/user/transactions/' + USER._id);
-                const transactions = await transRes.json();
-                const list = document.getElementById('transactionsList');
-                if (!transactions.length) {
-                    list.innerHTML = '<p class="text-center text-gray-500 py-4">لا توجد معاملات</p>';
-                } else {
-                    list.innerHTML = transactions.map(t => `
-                        <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                                    <i class="fas ${t.type === 'deposit' ? 'fa-plus' : 'fa-minus'}"></i>
-                                </div>
-                                <div>
-                                    <div class="font-semibold">${t.description}</div>
-                                    <div class="text-xs text-gray-500">${formatTime(t.date)}</div>
-                                </div>
-                            </div>
-                            <div class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount} ${APP_SETTINGS.currency}</div>
-                        </div>
-                    `).join('');
-                }
-            }
-        } catch(e) {
-            console.error(e);
-        }
+        if(view === 'market') loadMarket();
+        else if(view === 'mylist') loadMyList();
+        else if(view === 'wallet') loadWallet();
+        else if(view === 'orders') loadOrders();
+        else if(view === 'messages') loadChats();
+        else if(view === 'chat-requests') loadChatRequests();
     }
 
     function toggleSidebar(open) {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        
-        if(open) {
-            // فتح القائمة
-            sidebar.classList.add('open');
-            overlay.classList.add('open');
-            
-            // إذا كان الزائر، إخفاء الأقسام التي تتطلب تسجيل
-            if(!USER) {
-                document.querySelectorAll('#sidebar [data-section]').forEach(btn => {
-                    const section = btn.dataset.section;
-                    if(['mylist', 'orders', 'messages', 'chat-requests', 'wallet'].includes(section)) {
-                        btn.classList.add('hidden');
-                    } else {
-                        btn.classList.remove('hidden');
-                    }
-                });
-            }
-        } else {
-            // إغلاق القائمة
-            sidebar.classList.remove('open');
-            overlay.classList.remove('open');
-            
-            // إظهار جميع الأقسام
-            document.querySelectorAll('#sidebar [data-section]').forEach(btn => {
-                btn.classList.remove('hidden');
-            });
-        }
-    }
-
-    function openWithdrawalModal() {
-        document.getElementById('withdrawalModal').classList.remove('hidden');
-        document.getElementById('minWithdrawal').innerText = APP_SETTINGS.minWithdrawal || 1000;
-    }
-
-    function closeWithdrawalModal() {
-        document.getElementById('withdrawalModal').classList.add('hidden');
-        document.getElementById('withdrawAmount').value = '';
-        document.getElementById('bankName').value = '';
-        document.getElementById('accountNumber').value = '';
-        document.getElementById('accountHolder').value = '';
-    }
-
-    async function submitWithdrawal() {
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        const bankName = document.getElementById('bankName').value.trim();
-        const accountNumber = document.getElementById('accountNumber').value.trim();
-        const accountHolder = document.getElementById('accountHolder').value.trim();
-        
-        if (!amount || !bankName || !accountNumber || !accountHolder) {
-            showToast('املأ جميع الحقول', 'error');
-            return;
-        }
-        
-        try {
-            const res = await fetch('/api/wallet/withdrawal/request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: USER._id,
-                    amount,
-                    bankName,
-                    accountNumber,
-                    accountHolder
-                })
-            });
-            const d = await res.json();
-            if (d.success) {
-                showToast(d.msg, 'success');
-                closeWithdrawalModal();
-                loadWallet();
-            } else {
-                showToast(d.msg, 'error');
-            }
-        } catch(e) {
-            showToast('خطأ', 'error');
-        }
+        document.getElementById('sidebar').classList.toggle('open', open);
+        document.getElementById('sidebarOverlay').classList.toggle('open', open);
     }
 
     function showToast(message, type = 'info') {
@@ -2003,6 +1781,5 @@
     
 </body>
 </html>
-
 
 
