@@ -171,6 +171,11 @@
                 <span>طلبات الشحن</span>
                 <span id="pendingBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
             </button>
+            <button onclick="showSection('withdrawals')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="withdrawals">
+                <i class="fas fa-money-bill-wave w-5"></i>
+                <span>طلبات السحب</span>
+                <span id="withdrawalBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full mr-auto">0</span>
+            </button>
             <button onclick="showSection('payments')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl" data-section="payments">
                 <i class="fas fa-wallet w-5"></i>
                 <span>طرق الدفع</span>
@@ -456,6 +461,31 @@
             </div>
 
             <div id="depositsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="col-span-full text-center py-10 text-gray-500">جاري التحميل...</p>
+            </div>
+        </section>
+
+        <!-- Section: Withdrawals -->
+        <section id="section-withdrawals" class="hidden animate-fadeIn">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">طلبات السحب</h2>
+                    <p class="text-sm text-gray-500">إدارة طلبات السحب من المستخدمين</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <div class="flex border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                        <button onclick="filterWithdrawals('pending')" class="tab-btn active" data-filter="pending">معلق</button>
+                        <button onclick="filterWithdrawals('approved')" class="tab-btn" data-filter="approved">مقبول</button>
+                        <button onclick="filterWithdrawals('rejected')" class="tab-btn" data-filter="rejected">مرفوض</button>
+                        <button onclick="filterWithdrawals('all')" class="tab-btn" data-filter="all">الكل</button>
+                    </div>
+                    <button onclick="loadWithdrawals()" class="btn btn-secondary btn-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="withdrawalsGrid" class="grid grid-cols-1 gap-4">
                 <p class="col-span-full text-center py-10 text-gray-500">جاري التحميل...</p>
             </div>
         </section>
@@ -767,8 +797,10 @@
     let allOrders = [];
     let allChats = [];
     let allDeposits = [];
+    let allWithdrawals = [];
     let allPaymentMethods = [];
     let currentDepositFilter = 'pending';
+    let currentWithdrawalFilter = 'pending';
     let confirmCallback = null;
     let APP_CURRENCY = 'دج';
 
@@ -803,6 +835,7 @@
             case 'orders': loadOrders(); break;
             case 'chats': loadChats(); break;
             case 'deposits': loadDeposits(); break;
+            case 'withdrawals': loadWithdrawals(); break;
             case 'payments': loadPaymentMethods(); break;
             case 'settings': loadSettings(); break;
         }
@@ -856,6 +889,16 @@
                     <div class="text-sm font-bold text-green-600">+${d.amount} ${APP_CURRENCY}</div>
                 </div>
             `).join('') : '<p class="text-gray-500 text-sm text-center py-4">لا توجد طلبات ✅</p>';
+
+            const withRes = await fetch('/api/admin/withdrawals?status=pending');
+            const withdrawals = await withRes.json();
+            const wBadge = document.getElementById('withdrawalBadge');
+            if (withdrawals.length > 0) {
+                wBadge.classList.remove('hidden');
+                wBadge.innerText = withdrawals.length;
+            } else {
+                wBadge.classList.add('hidden');
+            }
         } catch (e) { console.error(e); }
     }
 
@@ -1074,6 +1117,83 @@
         }, action === 'approve' ? 'success' : 'danger');
     }
 
+    // ========== WITHDRAWALS ==========
+    async function loadWithdrawals() {
+        try {
+            const res = await fetch(`/api/admin/withdrawals?status=${currentWithdrawalFilter}`);
+            allWithdrawals = await res.json();
+            renderWithdrawals(allWithdrawals);
+            updateWithdrawalBadge();
+        } catch (e) {}
+    }
+
+    function filterWithdrawals(filter) {
+        currentWithdrawalFilter = filter;
+        document.querySelectorAll('#section-withdrawals [data-filter]').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
+        loadWithdrawals();
+    }
+
+    function renderWithdrawals(withdrawals) {
+        if (!withdrawals.length) {
+            document.getElementById('withdrawalsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-inbox text-blue-600 text-3xl"></i></div><h3 class="text-xl font-bold">لا توجد طلبات</h3></div>`;
+            return;
+        }
+        document.getElementById('withdrawalsGrid').innerHTML = withdrawals.map(w => `
+            <div class="data-card rounded-2xl p-5 animate-slideUp">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">${w.userName?.charAt(0) || 'م'}</div>
+                        <div>
+                            <div class="font-bold">${w.userName || 'مستخدم'}</div>
+                            <div class="text-xs text-gray-500">${w.bankName || 'بنك'}</div>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black text-purple-600">-${Number(w.amount).toLocaleString()} ${APP_CURRENCY}</div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 mb-4 text-sm space-y-2">
+                    <div><span class="text-gray-500">رقم الحساب:</span> <span class="font-mono font-bold">${w.accountNumber}</div>
+                    <div><span class="text-gray-500">اسم الحساب:</span> <span class="font-bold">${w.accountHolder}</div>
+                </div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge ${w.status === 'approved' ? 'badge-success' : w.status === 'rejected' ? 'badge-danger' : 'badge-warning'}">${w.status === 'approved' ? 'مقبول' : w.status === 'rejected' ? 'مرفوض' : 'معلق'}</span>
+                    <span class="text-xs text-gray-500">${formatDate(w.date)}</span>
+                </div>
+                ${w.status === 'pending' ? `<div class="flex gap-2"><button onclick="processWithdrawal('${w._id}', 'approve')" class="btn btn-success flex-1"><i class="fas fa-check"></i> موافقة</button><button onclick="processWithdrawal('${w._id}', 'reject')" class="btn btn-danger flex-1"><i class="fas fa-times"></i> رفض</button></div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function processWithdrawal(id, action) {
+        if (action === 'reject') {
+            const notes = prompt('أسباب الرفض:');
+            if (!notes) return;
+            showConfirm('تأكيد الرفض', 'سيتم رفض طلب السحب', async () => {
+                await fetch('/api/admin/withdrawal/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ withdrawalId: id, action, adminNotes: notes }) });
+                showToast('تم الرفض', 'error');
+                loadWithdrawals(); loadDashboard();
+            }, 'danger');
+        } else {
+            showConfirm('تأكيد الموافقة', 'سيتم معالجة طلب السحب', async () => {
+                await fetch('/api/admin/withdrawal/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ withdrawalId: id, action }) });
+                showToast('تمت الموافقة ✅', 'success');
+                loadWithdrawals(); loadDashboard();
+            }, 'success');
+        }
+    }
+
+    function updateWithdrawalBadge() {
+        const pending = (allWithdrawals || []).filter(w => w.status === 'pending').length;
+        const badge = document.getElementById('withdrawalBadge');
+        if (badge) {
+            if (pending > 0) {
+                badge.innerText = pending;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    }
+
     // ========== PAYMENT METHODS ==========
     async function loadPaymentMethods() {
         try {
@@ -1254,4 +1374,5 @@
 </script>
 </body>
 </html>
+
 
