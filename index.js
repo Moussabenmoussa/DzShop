@@ -292,6 +292,19 @@ async function deductBalance(userId, amount, description) {
     return user.balance;
 }
 
+
+app.get('/api/market', async (req, res) => {
+    try {
+        const listings = await Listing.find().sort({ createdAt: -1 });
+        res.json(listings);
+    } catch (e) {
+        res.status(500).json([]);
+    }
+});
+
+
+
+
 // ============ PAGES ============
 // 1. الصفحة الرئيسية (واجهة الزوار الجديدة)
 app.get('/', (req, res) => {
