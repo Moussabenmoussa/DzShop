@@ -146,20 +146,6 @@ const TransSchema = new mongoose.Schema({
 });
 const Trans = mongoose.model('Trans', TransSchema);
 
-const WithdrawalSchema = new mongoose.Schema({
-    userId: String,
-    userName: String,
-    amount: Number,
-    bankName: String,
-    accountNumber: String,
-    accountHolder: String,
-    status: { type: String, default: 'pending' },
-    adminNotes: String,
-    date: { type: Date, default: Date.now },
-    processedAt: Date
-});
-const Withdrawal = mongoose.model('Withdrawal', WithdrawalSchema);
-
 const SettingsSchema = new mongoose.Schema({
     key: { type: String, unique: true },
     value: mongoose.Schema.Types.Mixed
@@ -798,34 +784,6 @@ app.post('/api/wallet/deposit', async (req, res) => {
     }
 });
 
-app.post('/api/wallet/withdrawal/request', async (req, res) => {
-    try {
-        const { userId, amount, bankName, accountNumber, accountHolder } = req.body;
-        const user = await User.findById(userId);
-        if (!user) return res.json({ success: false, msg: 'المستخدم غير موجود' });
-        if (user.balance < amount) return res.json({ success: false, msg: 'رصيدك غير كافٍ' });
-        const minWithdrawal = await getSetting('minWithdrawal', 1000);
-        if (amount < minWithdrawal) return res.json({ success: false, msg: `الحد الأدنى للسحب هو ${minWithdrawal}` });
-        const withdrawal = await Withdrawal.create({ userId, userName: user.name, amount, bankName, accountNumber, accountHolder, status: 'pending' });
-        const adminUsers = await User.find({ isAdmin: true });
-        for (const admin of adminUsers) {
-            await createNotification(admin._id, 'withdrawal', 'طلب سحب جديد! 💸', `${user.name} طلب سحب ${amount} دج`, withdrawal._id);
-        }
-        res.json({ success: true, msg: 'تم إرسال طلب السحب بنجاح' });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ' });
-    }
-});
-
-app.get('/api/wallet/withdrawals/:userId', async (req, res) => {
-    try {
-        const withdrawals = await Withdrawal.find({ userId: req.params.userId }).sort({ date: -1 });
-        res.json(withdrawals);
-    } catch (e) {
-        res.json([]);
-    }
-});
-
 // ============ ADMIN API ============
 
 app.get('/api/admin/stats', async (req, res) => {
@@ -1045,42 +1003,6 @@ app.post('/api/admin/settings', async (req, res) => {
         for (const [key, value] of Object.entries(req.body)) {
             await setSetting(key, value);
         }
-        res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false });
-    }
-});
-
-app.get('/api/admin/withdrawals', async (req, res) => {
-    try {
-        const status = req.query.status;
-        const query = status && status !== 'all' ? { status } : {};
-        const withdrawals = await Withdrawal.find(query).sort({ date: -1 });
-        res.json(withdrawals);
-    } catch (e) {
-        res.json([]);
-    }
-});
-
-app.post('/api/admin/withdrawal/approve', async (req, res) => {
-    try {
-        const { withdrawalId, action, adminNotes } = req.body;
-        const withdrawal = await Withdrawal.findById(withdrawalId);
-        if (!withdrawal) return res.json({ success: false, msg: 'طلب غير موجود' });
-        if (withdrawal.status !== 'pending') return res.json({ success: false, msg: 'تمت معالجة هذا الطلب بالفعل' });
-        if (action === 'approve') {
-            const user = await User.findById(withdrawal.userId);
-            user.balance -= withdrawal.amount;
-            await user.save();
-            withdrawal.status = 'approved';
-            withdrawal.processedAt = new Date();
-            await createNotification(withdrawal.userId, 'withdrawal', 'تم قبول طلب السحب! 💵', `تم سحب ${withdrawal.amount} دج بنجاح`);
-        } else {
-            withdrawal.status = 'rejected';
-            withdrawal.adminNotes = adminNotes || '';
-            await createNotification(withdrawal.userId, 'withdrawal', 'تم رفض طلب السحب', adminNotes || 'يرجى التواصل مع الدعم');
-        }
-        await withdrawal.save();
         res.json({ success: true });
     } catch (e) {
         res.json({ success: false });
