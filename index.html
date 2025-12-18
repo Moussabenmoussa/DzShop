@@ -4,210 +4,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DzMarket | أكبر سوق جزائري مفتوح</title>
+    <title>DzMarket | السوق الجزائري الأول</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         * { font-family: 'Cairo', sans-serif; scroll-behavior: smooth; }
-        body { background-color: #f4f4f4; color: #333; }
+        body { background-color: #f0f2f5; color: #1c1e21; }
         
-        /* تأثيرات البطاقات */
-        .product-card { 
-            background: #fff; border-radius: 12px; transition: all 0.3s ease;
-            display: flex; flex-direction: column; height: 100%; position: relative;
+        /* انيميشن الظهور */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px 12px 0 0; }
+        .reveal { animation: fadeInUp 0.6s ease-out forwards; }
+
+        /* ستايل البطاقات المطور */
+        .product-card { 
+            background: #fff; border-radius: 16px; overflow: hidden; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px rgba(0,0,0,0.1); }
+        .product-img-wrapper { position: relative; overflow: hidden; border-radius: 16px; margin: 8px; }
+        .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .product-img { transform: scale(1.1); }
         
-        /* التنبيهات والأوسمة */
-        .badge-flash { background: linear-gradient(90deg, #ff4757, #ff6b81); color: #fff; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 4px; }
-        .badge-affiliate { background: #2563eb; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 4px; }
-        
-        /* شريط التمرير */
+        /* تدرجات جوميا واليكسبريس */
+        .price-tag { background: linear-gradient(90deg, #ff4757, #ff6b81); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        .btn-gradient { background: linear-gradient(135deg, #e63946 0%, #b91c1c 100%); transition: 0.3s; }
+        .btn-gradient:hover { opacity: 0.9; transform: scale(1.02); }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* قسم الـ Hero */
-        .hero-banner {
-            background: linear-gradient(135deg, #e63946 0%, #b91c1c 100%);
-            border-radius: 20px; color: white; overflow: hidden; position: relative;
-        }
-        
-        /* أيقونات التصنيفات */
-        .cat-item { min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
-        .cat-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.2s; }
-        .cat-item:hover .cat-icon { transform: scale(1.1); background: #fee2e2; }
+        /* تأثير الزجاج (Glassmorphism) للهيدر */
+        header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
 
-    <header class="sticky top-0 z-50 bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <span class="font-black text-2xl text-red-600 tracking-tighter">DZMARKET</span>
+    <div class="bg-slate-900 text-white text-[10px] py-2 overflow-hidden whitespace-nowrap">
+        <div class="inline-block animate-marquee px-4">
+             ⚡ عروض الشتاء: تخفيضات تصل إلى 50% • توصيل لـ 58 ولاية • دفع عند الاستلام • انضم كبائع الآن واربح ⚡
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-50 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2 group cursor-pointer" onclick="location.reload()">
+                <div class="w-10 h-10 bg-red-600 rounded-2xl flex items-center justify-center rotate-3 group-hover:rotate-0 transition">
+                    <i class="fas fa-shopping-cart text-white text-xl"></i>
+                </div>
+                <span class="font-black text-2xl text-red-600 tracking-tighter">DzMarket</span>
             </div>
             
-            <div class="flex-1 max-w-xl mx-8 hidden md:block">
-                <div class="relative">
-                    <input id="searchInput" type="text" placeholder="ابحث عن العروض، المنتجات..." 
-                           class="w-full bg-gray-100 border-none rounded-full py-2.5 pr-12 pl-4 focus:ring-2 focus:ring-red-500/20 outline-none text-sm"
+            <div class="flex-1 max-w-2xl mx-10 hidden lg:block">
+                <div class="relative group">
+                    <input id="searchInput" type="text" placeholder="ما الذي تبحث عنه اليوم؟" 
+                           class="w-full bg-gray-100 border-2 border-transparent rounded-2xl py-3 pr-14 pl-6 focus:bg-white focus:border-red-500/20 transition-all outline-none text-sm font-bold"
                            oninput="filterProducts()">
-                    <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <i class="fas fa-search absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-600 transition"></i>
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <a href="/dashboard" class="text-sm font-bold text-gray-700 hover:text-red-600">لوحة التحكم</a>
-                <a href="/dashboard" class="bg-red-600 text-white px-5 py-2 rounded-full font-black text-xs shadow-lg shadow-red-600/20">سجل الآن</a>
+            <div class="flex items-center gap-3">
+                <a href="/dashboard" class="hidden md:block text-sm font-black text-gray-600 hover:text-red-600 transition">لوحة التحكم</a>
+                <a href="/dashboard" class="btn-gradient text-white px-8 py-3 rounded-2xl font-black text-xs shadow-xl shadow-red-600/20">ابدأ الآن</a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-6">
+    <main class="max-w-7xl mx-auto px-4 py-8">
         
-        <section class="hero-banner p-8 md:p-12 mb-8">
-            <div class="max-w-lg relative z-10">
-                <span class="bg-yellow-400 text-red-900 text-[10px] font-black px-3 py-1 rounded-full uppercase">عروض الشتاء الجزائري</span>
-                <h1 class="text-3xl md:text-5xl font-black mt-4 leading-tight">تسوّق أفضل السلع <br> بأسعار المصنع</h1>
-                <p class="text-sm opacity-90 mt-4 font-bold">توصيل سريع لكل الولايات 🇩🇿 • ضمان الجودة • دفع عند الاستلام</p>
-                <div class="mt-8 flex gap-3">
-                    <button onclick="window.scrollTo(0, 600)" class="bg-white text-red-600 px-8 py-3 rounded-full font-black text-sm shadow-xl">اكتشف الآن</button>
-                    <button onclick="location.href='/dashboard'" class="bg-red-500 text-white border border-red-400 px-8 py-3 rounded-full font-black text-sm">ابدأ البيع</button>
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-12">
+            <div class="lg:col-span-2 relative bg-red-600 rounded-[2.5rem] p-10 md:p-16 text-white overflow-hidden shadow-2xl">
+                <div class="relative z-10">
+                    <span class="bg-white/20 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">فرصة ذهبية للمسوقين</span>
+                    <h1 class="text-4xl md:text-6xl font-black mt-6 leading-tight">تسوّق، سوّق <br> واربح العمولة</h1>
+                    <p class="text-sm opacity-80 mt-6 max-w-sm font-bold">أول منصة في الجزائر تدعم نظام الأفيليت المتكامل. اربح المال من خلال مشاركة روابط المنتجات فقط.</p>
+                    <button onclick="location.href='/dashboard'" class="mt-10 bg-white text-red-600 px-10 py-4 rounded-2xl font-black text-sm shadow-xl hover:shadow-2xl transition">سجل كمسوق الآن</button>
                 </div>
+                <i class="fas fa-rocket absolute -bottom-10 -left-10 text-[250px] opacity-10 -rotate-12"></i>
             </div>
-            <i class="fas fa-shopping-bag absolute -bottom-10 -left-10 text-[200px] opacity-10 -rotate-12"></i>
-        </section>
-
-        <section class="mb-10 overflow-x-auto no-scrollbar py-2">
-            <div class="flex gap-6 justify-between min-w-max">
-                <div class="cat-item" onclick="filterCategory('electronics')">
-                    <div class="cat-icon text-blue-500"><i class="fas fa-mobile-alt text-xl"></i></div>
-                    <span class="text-[11px] font-black">إلكترونيات</span>
+            <div class="hidden lg:flex flex-col gap-4">
+                <div class="flex-1 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                    <h3 class="font-black text-xl leading-tight">شحن آمن لـ<br>كل الولايات</h3>
+                    <p class="text-[10px] mt-2 opacity-70">نضمن وصول سلعك لباب الدار</p>
+                    <i class="fas fa-truck-fast absolute -bottom-4 -left-4 text-8xl opacity-20 group-hover:scale-110 transition"></i>
                 </div>
-                <div class="cat-item" onclick="filterCategory('fashion')">
-                    <div class="cat-icon text-pink-500"><i class="fas fa-tshirt text-xl"></i></div>
-                    <span class="text-[11px] font-black">أزياء</span>
-                </div>
-                <div class="cat-item" onclick="filterCategory('home')">
-                    <div class="cat-icon text-orange-500"><i class="fas fa-couch text-xl"></i></div>
-                    <span class="text-[11px] font-black">منزل</span>
-                </div>
-                <div class="cat-item" onclick="filterCategory('beauty')">
-                    <div class="cat-icon text-purple-500"><i class="fas fa-magic text-xl"></i></div>
-                    <span class="text-[11px] font-black">جمال</span>
-                </div>
-                <div class="cat-item" onclick="filterCategory('sports')">
-                    <div class="cat-icon text-green-500"><i class="fas fa-dumbbell text-xl"></i></div>
-                    <span class="text-[11px] font-black">رياضة</span>
-                </div>
-                <div class="cat-item" onclick="filterCategory('service')">
-                    <div class="cat-icon text-yellow-500"><i class="fas fa-handshake text-xl"></i></div>
-                    <span class="text-[11px] font-black">خدمات</span>
-                </div>
-                <div class="cat-item" onclick="filterCategory('all')">
-                    <div class="cat-icon text-red-600"><i class="fas fa-th-large text-xl"></i></div>
-                    <span class="text-[11px] font-black">الكل</span>
+                <div class="flex-1 bg-gradient-to-br from-amber-400 to-orange-500 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                    <h3 class="font-black text-xl leading-tight">دعم فني<br>24/7</h3>
+                    <p class="text-[10px] mt-2 opacity-70">فريقنا جاهز للرد على استفساراتكم</p>
+                    <i class="fas fa-headset absolute -bottom-4 -left-4 text-8xl opacity-20 group-hover:scale-110 transition"></i>
                 </div>
             </div>
         </section>
 
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-3">
-                <h2 class="text-xl font-black text-gray-800">عروض مختارة لك</h2>
-                <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded">Flash Sale</span>
+        <div class="mb-12">
+            <h2 class="font-black text-lg mb-6 flex items-center gap-2"><i class="fas fa-shapes text-red-600"></i> اكتشف حسب القسم</h2>
+            <div class="flex gap-8 overflow-x-auto no-scrollbar py-2">
+                <div class="flex flex-col items-center gap-3 cursor-pointer min-w-[70px] group" onclick="filterCategory('electronics')">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-2xl group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm"><i class="fas fa-laptop"></i></div>
+                    <span class="text-[11px] font-black opacity-70">إلكترونيات</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 cursor-pointer min-w-[70px] group" onclick="filterCategory('fashion')">
+                    <div class="w-16 h-16 bg-pink-50 text-pink-600 rounded-3xl flex items-center justify-center text-2xl group-hover:bg-pink-600 group-hover:text-white transition-all shadow-sm"><i class="fas fa-tshirt"></i></div>
+                    <span class="text-[11px] font-black opacity-70">أزياء</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 cursor-pointer min-w-[70px] group" onclick="filterCategory('service')">
+                    <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center text-2xl group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm"><i class="fas fa-handshake"></i></div>
+                    <span class="text-[11px] font-black opacity-70">خدمات</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 cursor-pointer min-w-[70px] group" onclick="filterCategory('home')">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm"><i class="fas fa-home"></i></div>
+                    <span class="text-[11px] font-black opacity-70">منزل</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 cursor-pointer min-w-[70px] group" onclick="filterCategory('all')">
+                    <div class="w-16 h-16 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center text-2xl group-hover:bg-red-600 group-hover:text-white transition-all shadow-sm"><i class="fas fa-border-all"></i></div>
+                    <span class="text-[11px] font-black opacity-70">الكل</span>
+                </div>
             </div>
-            <div id="countdown" class="text-xs font-bold text-gray-500">ينتهي العرض خلال 05:12:44</div>
         </div>
 
-        <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            <div class="h-64 bg-white rounded-2xl animate-pulse"></div>
-            <div class="h-64 bg-white rounded-2xl animate-pulse"></div>
-            <div class="h-64 bg-white rounded-2xl animate-pulse"></div>
-            <div class="h-64 bg-white rounded-2xl animate-pulse"></div>
-            <div class="h-64 bg-white rounded-2xl animate-pulse"></div>
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-black text-slate-800">أحدث العروض <span class="text-red-600">اليوم</span></h2>
+            <div id="countdown" class="bg-white px-4 py-2 rounded-xl text-xs font-black shadow-sm text-red-600 border border-red-50">00:00:00</div>
+        </div>
+
+        <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div class="h-80 bg-white rounded-3xl animate-pulse"></div>
+            <div class="h-80 bg-white rounded-3xl animate-pulse"></div>
+            <div class="h-80 bg-white rounded-3xl animate-pulse"></div>
+            <div class="h-80 bg-white rounded-3xl animate-pulse"></div>
+            <div class="h-80 bg-white rounded-3xl animate-pulse"></div>
+        </div>
+
+        <div class="mt-16 text-center">
+            <button onclick="window.scrollTo(0,0)" class="bg-white border-2 border-gray-100 text-gray-400 px-12 py-4 rounded-2xl font-black text-sm hover:border-red-500 hover:text-red-500 transition">العودة للأعلى</button>
         </div>
 
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 md:hidden z-50">
-        <button onclick="location.reload()" class="flex flex-col items-center text-red-600"><i class="fas fa-home text-lg"></i><span class="text-[10px] font-bold">الرئيسية</span></button>
-        <button onclick="filterCategory('product')" class="flex flex-col items-center text-gray-400"><i class="fas fa-box text-lg"></i><span class="text-[10px] font-bold">منتجات</span></button>
-        <button onclick="filterCategory('service')" class="flex flex-col items-center text-gray-400"><i class="fas fa-tools text-lg"></i><span class="text-[10px] font-bold">خدمات</span></button>
-        <button onclick="location.href='/dashboard'" class="flex flex-col items-center text-gray-400"><i class="fas fa-user text-lg"></i><span class="text-[10px] font-bold">دخول</span></button>
-    </nav>
+    <footer class="bg-white border-t mt-20 py-10">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div>
+                <span class="font-black text-2xl text-red-600">DzMarket</span>
+                <p class="text-xs text-gray-400 mt-4 leading-relaxed font-bold">المنصة الجزائرية الأولى التي تجمع بين التسوق الحر ونظام المسوقين بالعمولة. بيئة آمنة للبيع والشراء لكل المواطنين.</p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <h4 class="font-black text-sm mb-2">روابط سريعة</h4>
+                <a href="/dashboard" class="text-xs text-gray-500 font-bold hover:text-red-600">انضم كبائع</a>
+                <a href="/dashboard" class="text-xs text-gray-500 font-bold hover:text-red-600">برنامج المسوقين</a>
+                <a href="/dashboard" class="text-xs text-gray-500 font-bold hover:text-red-600">شحن الرصيد</a>
+            </div>
+            <div class="flex flex-col gap-2">
+                <h4 class="font-black text-sm mb-2">تواصل معنا</h4>
+                <p class="text-xs text-gray-500 font-bold"><i class="fas fa-envelope ml-2"></i> support@dzmarket.dz</p>
+                <div class="flex gap-4 mt-4 text-gray-400">
+                    <i class="fab fa-facebook hover:text-blue-600 cursor-pointer"></i>
+                    <i class="fab fa-instagram hover:text-pink-600 cursor-pointer"></i>
+                    <i class="fab fa-tiktok hover:text-black cursor-pointer"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        let ALL_PRODUCTS = [];
+        let PRODUCTS = [];
 
         window.onload = async () => {
             try {
                 const res = await fetch('/api/market');
-                ALL_PRODUCTS = await res.json();
-                renderProducts(ALL_PRODUCTS);
-                startCountdown();
-            } catch (e) {
-                document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center py-20 text-red-500 font-bold">تعذر تحميل البيانات، يرجى التحقق من الاتصال</p>';
+                PRODUCTS = await res.json();
+                render(PRODUCTS);
+                startTimer();
+            } catch(e) {
+                document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center py-20 font-black opacity-20">فشل في الاتصال بالسيرفر</p>';
             }
         };
 
-        function renderProducts(list) {
+        function render(list) {
             const grid = document.getElementById('marketGrid');
-            if(!list.length) {
-                grid.innerHTML = '<div class="col-span-full text-center py-20"><p class="text-gray-400 font-bold">لا توجد منتجات حالياً في هذا القسم</p></div>';
-                return;
-            }
-
+            if(!list.length) { grid.innerHTML = '<p class="col-span-full text-center py-20">لا توجد منتجات حالياً</p>'; return; }
+            
             grid.innerHTML = list.map(p => {
-                const discount = (p.originalPrice && p.originalPrice > p.price) 
-                    ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
-                
+                const disc = (p.originalPrice && p.originalPrice > p.price) ? Math.round(((p.originalPrice - p.price)/p.originalPrice)*100) : 0;
                 return `
-                <div class="product-card" onclick="window.location.href='/p/${p._id}'">
-                    <div class="relative overflow-hidden">
+                <div class="product-card reveal cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+                    <div class="product-img-wrapper">
                         <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img">
-                        ${discount > 0 ? `<div class="badge-flash absolute top-2 right-2">-${discount}%</div>` : ''}
-                        ${p.isAffiliate ? `<div class="badge-affiliate absolute top-2 left-2"><i class="fas fa-hand-holding-usd mr-1"></i>عمولة</div>` : ''}
+                        ${disc > 0 ? `<div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-lg">-${disc}%</div>` : ''}
+                        ${p.isAffiliate ? `<div class="absolute top-2 left-2 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-lg shadow-lg"><i class="fas fa-dollar-sign ml-1"></i>أفيليت</div>` : ''}
                     </div>
-                    <div class="p-3 flex-1 flex flex-col">
-                        <h3 class="text-[12px] font-bold text-gray-700 line-clamp-2 mb-2 min-h-[32px]">${p.title}</h3>
+                    <div class="p-4 flex flex-col flex-1">
+                        <h3 class="text-[13px] font-bold text-slate-800 line-clamp-2 min-h-[38px] mb-3">${p.title}</h3>
                         <div class="mt-auto">
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-red-600 font-black text-lg">${Number(p.price).toLocaleString()}</span>
-                                <span class="text-[9px] text-red-600 font-bold uppercase tracking-tighter">دج</span>
+                            <div class="flex items-baseline gap-1">
+                                <span class="price-tag text-xl">${Number(p.price).toLocaleString()}</span>
+                                <span class="text-[9px] font-black text-red-600 uppercase tracking-tighter">دج</span>
                             </div>
                             ${p.originalPrice ? `<span class="text-[10px] text-gray-400 line-through">${Number(p.originalPrice).toLocaleString()} دج</span>` : ''}
                             
-                            <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-50">
-                                <span class="text-[9px] text-gray-400 font-bold"><i class="fas fa-map-marker-alt ml-1"></i>الجزائر</span>
-                                <span class="text-[9px] text-green-600 font-black">شحن مجاني</span>
+                            <div class="flex items-center justify-between mt-4">
+                                <span class="text-[9px] font-black text-gray-400 bg-gray-50 px-2 py-1 rounded-md"><i class="fas fa-location-dot ml-1"></i>الجزائر</span>
+                                <span class="text-[9px] font-black text-emerald-600"><i class="fas fa-truck-fast ml-1"></i>توصيل سريع</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                `;
+                </div>`;
             }).join('');
         }
 
         function filterProducts() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            renderProducts(ALL_PRODUCTS.filter(p => p.title.toLowerCase().includes(q)));
+            render(PRODUCTS.filter(p => p.title.toLowerCase().includes(q)));
         }
 
         function filterCategory(cat) {
-            if(cat === 'all') renderProducts(ALL_PRODUCTS);
-            else renderProducts(ALL_PRODUCTS.filter(p => p.category === cat || p.type === cat));
-            window.scrollTo(0, 500);
+            if(cat === 'all') render(PRODUCTS);
+            else render(PRODUCTS.filter(p => p.category === cat || p.type === cat));
         }
 
-        function startCountdown() {
-            let h = 5, m = 12, s = 44;
+        function startTimer() {
+            let h = 8, m = 45, s = 0;
             setInterval(() => {
-                s--;
-                if(s < 0) { s = 59; m--; }
-                if(m < 0) { m = 59; h--; }
-                document.getElementById('countdown').innerText = `ينتهي العرض خلال ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                s--; if(s<0){s=59; m--;} if(m<0){m=59; h--;}
+                document.getElementById('countdown').innerText = `ينتهي العرض: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
             }, 1000);
         }
     </script>
