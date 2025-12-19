@@ -54,16 +54,18 @@
         .chip-btn.active { background-color: black; color: white; border-color: black; font-weight: bold; }
 
         /* ستايل الإشعار العائم (الجديد) */
-        .promo-toast {
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            transform: translateY(-150%);
-            opacity: 0;
-            z-index: 100;
-        }
-        .promo-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        /* ستايل الإشعار العائم المعدل */
+.promo-toast {
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    /* التغيير هنا: علامة السالب (-) تجعله يبدأ من فوق الشاشة */
+    transform: translateY(-150%); 
+    opacity: 0;
+    z-index: 100; /* تأكد أن الرقم عالي ليظهر فوق الهيدر */
+}
+.promo-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
     </style>
 </head>
 <body class="pb-24 relative">
