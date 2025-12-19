@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -51,9 +52,21 @@
         /* ستايل أزرار القائمة الأفقية */
         .chip-btn { transition: all 0.2s; }
         .chip-btn.active { background-color: black; color: white; border-color: black; font-weight: bold; }
+
+        /* ستايل الإشعار العائم (الجديد) */
+        .promo-toast {
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform: translateY(150%);
+            opacity: 0;
+            z-index: 100;
+        }
+        .promo-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-24 relative">
 
     <!-- الهيدر والبحث -->
     <header class="bg-white sticky top-0 z-50 shadow-sm py-2">
@@ -91,7 +104,7 @@
             <div class="text-[10px] text-gray-400 font-bold"><span id="itemsCount">0</span> نتيجة</div>
         </div>
 
-        <!-- 2. القائمة الأفقية المتحركة (تمت إضافتها هنا بوضوح) -->
+        <!-- 2. القائمة الأفقية المتحركة -->
         <div class="bg-white px-2 py-3 mb-3 rounded-b-lg shadow-sm">
             <div class="flex gap-2 overflow-x-auto no-scrollbar w-full">
                 <button onclick="filterCat('all', this)" class="chip-btn active px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">الكل</button>
@@ -124,24 +137,49 @@
 
     </main>
 
+    <!-- الإشعار العائم (Popup Toast) -->
+    <div id="promoToast" class="promo-toast fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-[350px] bg-white rounded-xl shadow-2xl border border-red-100 p-3 flex items-center gap-3">
+        <!-- زر الإغلاق -->
+        <button onclick="closeToast()" class="absolute -top-2 -left-2 bg-gray-200 text-gray-500 w-6 h-6 rounded-full text-xs flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-sm z-10">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- الأيقونة -->
+        <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+            <i class="fas fa-gift text-2xl text-[#fb2e2e] animate-bounce relative z-10"></i>
+            <div class="absolute inset-0 bg-red-100 opacity-50 animate-ping"></div>
+        </div>
+        
+        <!-- النص -->
+        <div class="flex-1">
+            <h4 class="font-black text-sm text-gray-800 mb-0.5">هدية المستخدم الجديد 🎁</h4>
+            <p class="text-[10px] font-bold text-gray-500 leading-tight">سجل الآن واحصل على كوبون خصم وميزات حصرية!</p>
+        </div>
+        
+        <!-- الزر -->
+        <a href="/dashboard" class="bg-[#fb2e2e] text-white text-xs font-black px-4 py-2.5 rounded-full shadow-lg shadow-red-200 hover:scale-105 transition flex-shrink-0">
+            سجل الآن
+        </a>
+    </div>
+
     <script>
         // المتغيرات الأساسية (State)
-        let ALL_DATA = [];           // كل البيانات من السيرفر
-        let FILTERED_DATA = [];      // البيانات بعد الفلترة والبحث
-        let DISPLAY_LIMIT = 4;       // نبدأ بعرض 4 منتجات فقط
-        const ITEMS_PER_PAGE = 4;    // كم نزيد في كل مرة
+        let ALL_DATA = [];           
+        let FILTERED_DATA = [];      
+        let DISPLAY_LIMIT = 4;       
+        const ITEMS_PER_PAGE = 4;    
 
-        // عند تحميل الصفحة
         window.onload = async () => {
+            // تشغيل الإشعار بعد 3 ثواني
+            setTimeout(() => {
+                document.getElementById('promoToast').classList.add('show');
+            }, 3000);
+
             try {
-                // محاكاة جلب البيانات (استخدم الـ API الخاص بك هنا)
+                // جلب البيانات
                 const res = await fetch('/api/market');
                 ALL_DATA = await res.json();
-                
-                // نسخة أولية
                 FILTERED_DATA = [...ALL_DATA];
-                
-                // تحديث العداد والرسم
                 updateCount();
                 renderGrid();
             } catch (e) {
@@ -149,13 +187,17 @@
             }
         };
 
-        // دالة الرسم الرئيسية (تعرض المنتجات بناءً على العدد المسموح)
+        // دالة إغلاق الإشعار
+        function closeToast() {
+            document.getElementById('promoToast').classList.remove('show');
+        }
+
+        // نفس دوال العرض والفلترة السابقة تماماً
         function renderGrid() {
             const grid = document.getElementById('marketGrid');
             const loadMoreBtn = document.getElementById('loadMoreContainer');
             const noRes = document.getElementById('noResults');
 
-            // إذا لا توجد نتائج
             if (FILTERED_DATA.length === 0) {
                 grid.innerHTML = '';
                 loadMoreBtn.classList.add('hidden');
@@ -164,45 +206,34 @@
             }
 
             noRes.classList.add('hidden');
-
-            // قص المصفوفة لعرض العدد المحدد فقط (Pagination Slice)
             const visibleProducts = FILTERED_DATA.slice(0, DISPLAY_LIMIT);
 
             grid.innerHTML = visibleProducts.map(p => {
-                // حساب الخصم
                 const discount = (p.originalPrice && p.originalPrice > p.price) 
                     ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
                     : 0;
-                
-                // صورة افتراضية
                 const img = p.images?.[0] || p.image || 'https://via.placeholder.com/300';
 
                 return `
                 <div class="temu-card group cursor-pointer" onclick="location.href='/p/${p._id}'">
-                    <!-- الصورة -->
                     <div class="relative w-full aspect-square bg-gray-100">
                         <img src="${img}" class="w-full h-full object-cover">
                         ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ffe6e6] text-[#fb2e2e] text-[10px] font-black px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
                         
-                        <!-- زر إضافة للسلة (للتفاعل) -->
                         <div class="absolute bottom-2 right-2 w-8 h-8 bg-white text-[#fb2e2e] rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#fb2e2e] hover:text-white" onclick="event.stopPropagation(); alert('أضيف للسلة: ${p._id}')">
                             <i class="fas fa-plus"></i>
                         </div>
                     </div>
 
-                    <!-- التفاصيل -->
                     <div class="p-2">
                         <h3 class="title-clamp mb-1.5 text-gray-800" title="${p.title}">${p.title}</h3>
-                        
                         <div class="flex items-baseline gap-1">
                             <span class="text-[10px] text-[#fb2e2e] font-bold">DZD</span>
                             <span class="text-xl font-black text-[#fb2e2e] leading-none">${Number(p.price).toLocaleString()}</span>
                         </div>
-                        
                         ${p.originalPrice > p.price ? 
                             `<div class="text-[10px] text-gray-400 line-through mt-0.5">${Number(p.originalPrice).toLocaleString()} دج</div>` 
                             : ''}
-
                         <div class="mt-2 text-[9px] text-gray-500 bg-gray-50 px-1 py-0.5 rounded w-fit border border-gray-100">
                             ${p.isAffiliate ? 'عمولة متوفرة' : 'شحن سريع'}
                         </div>
@@ -210,7 +241,6 @@
                 </div>`;
             }).join('');
 
-            // إظهار زر المزيد إذا بقي منتجات
             if (FILTERED_DATA.length > DISPLAY_LIMIT) {
                 loadMoreBtn.classList.remove('hidden');
             } else {
@@ -218,25 +248,20 @@
             }
         }
 
-        // دالة عرض المزيد (تزيد العداد وتعيد الرسم)
         function loadMore() {
-            DISPLAY_LIMIT += ITEMS_PER_PAGE; // زيادة 4
+            DISPLAY_LIMIT += ITEMS_PER_PAGE;
             renderGrid();
         }
 
-        // دالة البحث الحقيقي
         function searchProducts(text) {
             const term = text.toLowerCase();
             FILTERED_DATA = ALL_DATA.filter(p => p.title.toLowerCase().includes(term));
-            
-            DISPLAY_LIMIT = 4; // إعادة تعيين العداد
+            DISPLAY_LIMIT = 4;
             updateCount();
             renderGrid();
         }
 
-        // دالة الفلتر من القائمة الأفقية
         function filterCat(category, btnElement) {
-            // تحديث ستايل الأزرار
             document.querySelectorAll('.chip-btn').forEach(b => {
                 b.classList.remove('active', 'bg-black', 'text-white', 'border-black');
                 b.classList.add('bg-gray-50');
@@ -244,40 +269,27 @@
             btnElement.classList.remove('bg-gray-50');
             btnElement.classList.add('active', 'bg-black', 'text-white', 'border-black');
 
-            // منطق الفلتر
             if (category === 'all') {
                 FILTERED_DATA = [...ALL_DATA];
             } else {
                 FILTERED_DATA = ALL_DATA.filter(p => p.category === category || p.type === category);
             }
 
-            // إعادة تعيين البحث والعداد
             document.getElementById('searchInput').value = '';
             DISPLAY_LIMIT = 4;
             updateCount();
             renderGrid();
         }
 
-        // دالة الفرز (المقترحة / الطلبات / السعر)
         function sortProducts(type, btnElement) {
-            // تحديث الستايل
             document.querySelectorAll('.sort-text').forEach(b => b.classList.remove('active', 'text-[#fb2e2e]', 'border-b-2'));
             btnElement.classList.add('active', 'text-[#fb2e2e]', 'border-b-2');
 
-            // منطق الفرز
             if (type === 'price') {
                 FILTERED_DATA.sort((a, b) => a.price - b.price);
             } else if (type === 'orders') {
-                // محاكاة فرز بالطلبات (عشوائي لعدم وجود بيانات حقيقية للطلبات في الكائن البسيط)
                 FILTERED_DATA.sort(() => Math.random() - 0.5);
             } else {
-                // المقترحة (الترتيب الأصلي)
-                // لإعادتها للترتيب الأصلي نحتاج للبحث من جديد في البيانات الخام
-                const currentSearch = document.getElementById('searchInput').value.toLowerCase();
-                const activeCatBtn = document.querySelector('.chip-btn.active');
-                
-                // إعادة تطبيق الفلتر الحالي للحصول على الترتيب الأصلي
-                // (تبسيطاً للكود سنقوم فقط بخلط بسيط أو تركها كما هي)
                 FILTERED_DATA.sort((a, b) => (a._id > b._id) ? 1 : -1);
             }
 
