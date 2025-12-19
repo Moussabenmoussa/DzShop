@@ -1,0 +1,540 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
+
+const app = express();
+
+// Security Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+  credentials: true
+}));
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
+
+// Body Parser
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// ============== DATABASE MODELS ==============
+
+// Plans Schema (Subscription Plans)
+const planSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  slug: { type: String, unique: true, required: true },
+  price: { type: Number, required: true },
+  currency: { type: String, default: 'DZD' },
+  billingCycle: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
+  features: [{
+    name: String,
+    limit: Number
+  }],
+  maxStores: { type: Number, default: 1 },
+  maxProducts: { type: Number, default: 100 },
+  customDomain: { type: Boolean, default: false },
+  apiAccess: { type: Boolean, default: false },
+  priority: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Tenants Schema (SaaS Customers)
+const tenantSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  slug: { type: String, unique: true, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: String,
+  logo: String,
+  website: String,
+  description: String,
+  plan: { type: mongoose.Schema.Types.ObjectId, ref: 'Plan', required: true },
+  status: { type: String, enum: ['active', 'inactive', 'suspended'], default: 'active' },
+  customDomain: String,
+  subscription: {
+    startDate: Date,
+    endDate: Date,
+    autoRenew: { type: Boolean, default: true },
+    status: { type: String, enum: ['active', 'expired', 'cancelled'], default: 'active' }
+  },
+  billing: {
+    address: String,
+    city: String,
+    country: String,
+    taxId: String
+  },
+  apiKey: { type: String, unique: true },
+  apiSecret: String,
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Stores Schema (Multi-store per Tenant)
+const storeSchema = new mongoose.Schema({
+  tenant: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: true },
+  name: { type: String, required: true },
+  slug: { type: String, required: true },
+  description: String,
+  logo: String,
+  banner: String,
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+  seo: {
+    metaTitle: String,
+    metaDescription: String,
+    metaKeywords: [String],
+    canonicalUrl: String
+  },
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Products Schema (SEO Optimized)
+const productSchema = new mongoose.Schema({
+  store: { type: mongoose.Schema.Types.ObjectId, ref: 'Store', required: true },
+  name: { type: String, required: true },
+  slug: { type: String, required: true },
+  description: String,
+  price: { type: Number, required: true },
+  originalPrice: Number,
+  currency: { type: String, default: 'DZD' },
+  sku: String,
+  stock: { type: Number, default: 0 },
+  images: [String],
+  category: String,
+  tags: [String],
+  seo: {
+    title: String,
+    description: String,
+    keywords: [String],
+    canonical: String
+  },
+  status: { type: String, enum: ['active', 'inactive', 'draft'], default: 'active' },
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Orders Schema
+const orderSchema = new mongoose.Schema({
+  store: { type: mongoose.Schema.Types.ObjectId, ref: 'Store', required: true },
+  orderNumber: { type: String, unique: true, required: true },
+  customer: {
+    name: String,
+    email: String,
+    phone: String,
+    address: String
+  },
+  items: [{
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    quantity: Number,
+    price: Number
+  }],
+  total: Number,
+  status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },
+  paymentMethod: String,
+  notes: String,
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Invoices Schema
+const invoiceSchema = new mongoose.Schema({
+  tenant: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: true },
+  invoiceNumber: { type: String, unique: true, required: true },
+  amount: Number,
+  currency: { type: String, default: 'DZD' },
+  status: { type: String, enum: ['draft', 'sent', 'paid', 'overdue'], default: 'draft' },
+  dueDate: Date,
+  paidDate: Date,
+  items: [{
+    description: String,
+    quantity: Number,
+    unitPrice: Number,
+    total: Number
+  }],
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Usage Schema (Track API/Feature Usage)
+const usageSchema = new mongoose.Schema({
+  tenant: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: true },
+  metric: String, // 'api_calls', 'storage', 'emails', etc
+  value: Number,
+  period: { type: String, default: 'monthly' },
+  year: Number,
+  month: Number,
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Audit Logs Schema
+const auditLogSchema = new mongoose.Schema({
+  tenant: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant' },
+  user: String,
+  action: String,
+  resource: String,
+  resourceId: String,
+  changes: mongoose.Schema.Types.Mixed,
+  ipAddress: String,
+  userAgent: String,
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+// Create Models
+const Plan = mongoose.model('Plan', planSchema);
+const Tenant = mongoose.model('Tenant', tenantSchema);
+const Store = mongoose.model('Store', storeSchema);
+const Product = mongoose.model('Product', productSchema);
+const Order = mongoose.model('Order', orderSchema);
+const Invoice = mongoose.model('Invoice', invoiceSchema);
+const Usage = mongoose.model('Usage', usageSchema);
+const AuditLog = mongoose.model('AuditLog', auditLogSchema);
+
+// ============== DATABASE CONNECTION ==============
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/dzmarket', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('âœ… MongoDB Connected');
+}).catch(err => {
+  console.error('â‌Œ MongoDB Error:', err);
+});
+
+// ============== MIDDLEWARE ==============
+const authenticate = async (req, res, next) => {
+  try {
+    const apiKey = req.headers['x-api-key'];
+    if (!apiKey) return res.status(401).json({ error: 'API key required' });
+    
+    const tenant = await Tenant.findOne({ apiKey });
+    if (!tenant) return res.status(401).json({ error: 'Invalid API key' });
+    
+    req.tenant = tenant;
+    next();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const logAudit = async (action, resource, resourceId, req) => {
+  try {
+    await AuditLog.create({
+      tenant: req.tenant?._id,
+      user: req.headers['x-user-id'] || 'anonymous',
+      action,
+      resource,
+      resourceId,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent']
+    });
+  } catch (error) {
+    console.error('Audit log error:', error);
+  }
+};
+
+// ============== PUBLIC ROUTES ==============
+
+// Health Check
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'âœ… DzMarket SaaS Platform v3.0.0',
+    status: 'running',
+    timestamp: new Date()
+  });
+});
+
+// Get All Plans
+app.get('/api/public/plans', async (req, res) => {
+  try {
+    const plans = await Plan.find({ }).select('-__v');
+    res.json(plans);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Platform Settings (SEO)
+app.get('/api/public/settings', async (req, res) => {
+  try {
+    res.json({
+      seo: {
+        title: 'DzMarket - ظ…ظ†طµط© ط§ظ„طھط¬ط§ط±ط© ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹط©',
+        description: 'ظ…ظ†طµط© SaaS ظ…طھظƒط§ظ…ظ„ط© ظ„ط¥ظ†ط´ط§ط، ظ…طھط§ط¬ط± ط¥ظ„ظƒطھط±ظˆظ†ظٹط© ط§ط­طھط±ط§ظپظٹط©',
+        keywords: ['SaaS', 'E-commerce', 'Multi-Tenant', 'Subscription']
+      },
+      social: {
+        twitter: '@dzmarket',
+        facebook: 'dzmarket'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============== AUTHENTICATED ROUTES ==============
+
+// Tenant Routes
+app.post('/api/tenants/register', async (req, res) => {
+  try {
+    const { name, email, plan } = req.body;
+    
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    const apiKey = require('crypto').randomBytes(32).toString('hex');
+    
+    const tenant = await Tenant.create({
+      name,
+      slug,
+      email,
+      plan,
+      apiKey
+    });
+    
+    await logAudit('CREATE', 'Tenant', tenant._id, req);
+    res.json({ tenant, apiKey });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/tenants/:id', authenticate, async (req, res) => {
+  try {
+    const tenant = await Tenant.findById(req.params.id).populate('plan');
+    if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
+    res.json(tenant);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/tenants/:id', authenticate, async (req, res) => {
+  try {
+    const tenant = await Tenant.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    await logAudit('UPDATE', 'Tenant', req.params.id, req);
+    res.json(tenant);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Stores Routes
+app.get('/api/stores', authenticate, async (req, res) => {
+  try {
+    const stores = await Store.find({ tenant: req.tenant._id });
+    res.json(stores);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/stores', authenticate, async (req, res) => {
+  try {
+    const store = await Store.create({
+      tenant: req.tenant._id,
+      ...req.body
+    });
+    await logAudit('CREATE', 'Store', store._id, req);
+    res.json(store);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Products Routes (SEO Optimized)
+app.get('/api/stores/:storeId/products', async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 20;
+    const skip = (page - 1) * limit;
+    
+    const products = await Product
+      .find({ store: req.params.storeId, status: 'active' })
+      .select('name slug description price images category seo')
+      .skip(skip)
+      .limit(limit);
+    
+    const total = await Product.countDocuments({ store: req.params.storeId });
+    
+    res.json({
+      products,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/stores/:storeId/products/:slug', async (req, res) => {
+  try {
+    const product = await Product.findOne({
+      store: req.params.storeId,
+      slug: req.params.slug
+    });
+    
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    
+    // Add canonical URL and structured data for SEO
+    res.json({
+      ...product.toObject(),
+      canonical: `${process.env.SITE_URL}/products/${product.slug}`,
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        currency: product.currency
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/stores/:storeId/products', authenticate, async (req, res) => {
+  try {
+    const product = await Product.create({
+      store: req.params.storeId,
+      ...req.body
+    });
+    await logAudit('CREATE', 'Product', product._id, req);
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Orders Routes
+app.get('/api/stores/:storeId/orders', authenticate, async (req, res) => {
+  try {
+    const orders = await Order.find({ store: req.params.storeId })
+      .populate('items.product');
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/stores/:storeId/orders', async (req, res) => {
+  try {
+    const orderNumber = `ORD-${Date.now()}`;
+    const order = await Order.create({
+      store: req.params.storeId,
+      orderNumber,
+      ...req.body
+    });
+    await logAudit('CREATE', 'Order', order._id, req);
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Analytics Routes
+app.get('/api/tenants/:tenantId/analytics', authenticate, async (req, res) => {
+  try {
+    const stores = await Store.find({ tenant: req.params.tenantId });
+    const storeIds = stores.map(s => s._id);
+    
+    const totalOrders = await Order.countDocuments({ store: { $in: storeIds } });
+    const totalRevenue = await Order.aggregate([
+      { $match: { store: { $in: storeIds } } },
+      { $group: { _id: null, total: { $sum: '$total' } } }
+    ]);
+    
+    const topProducts = await Product.aggregate([
+      { $match: { store: { $in: storeIds } } },
+      { $group: { _id: '$_id', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 }
+    ]);
+    
+    res.json({
+      totalOrders,
+      totalRevenue: totalRevenue[0]?.total || 0,
+      topProducts,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Invoices Routes
+app.get('/api/tenants/:tenantId/invoices', authenticate, async (req, res) => {
+  try {
+    const invoices = await Invoice.find({ tenant: req.params.tenantId });
+    res.json(invoices);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API Keys Management
+app.post('/api/tenants/:tenantId/api-keys', authenticate, async (req, res) => {
+  try {
+    const newApiKey = require('crypto').randomBytes(32).toString('hex');
+    await Tenant.findByIdAndUpdate(req.params.tenantId, { apiKey: newApiKey });
+    await logAudit('CREATE', 'APIKey', newApiKey, req);
+    res.json({ apiKey: newApiKey });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Sitemap Route (for SEO)
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const products = await Product.find({ status: 'active' });
+    const stores = await Store.find({ status: 'active' });
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    // Add static URLs
+    xml += '<url><loc>' + process.env.SITE_URL + '</loc></url>\n';
+    
+    // Add store URLs
+    stores.forEach(store => {
+      xml += `<url><loc>${process.env.SITE_URL}/stores/${store.slug}</loc></url>\n`;
+    });
+    
+    // Add product URLs
+    products.forEach(product => {
+      xml += `<url><loc>${process.env.SITE_URL}/products/${product.slug}</loc></url>\n`;
+    });
+    
+    xml += '</urlset>';
+    
+    res.type('application/xml').send(xml);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Error Handling
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// Start Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`ًںڑ€ DzMarket SaaS Server running on port ${PORT}`);
+  console.log(`ًں“‌ API Documentation: http://localhost:${PORT}/api/docs`);
+});
