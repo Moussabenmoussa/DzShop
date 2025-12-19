@@ -813,6 +813,59 @@ app.post('/api/wallet/deposit', async (req, res) => {
     }
 });
 
+
+
+
+// إضافة طلب سحب جديد
+app.post('/api/wallet/withdraw', async (req, res) => {
+    try {
+        const { userId, amount, method, accountDetails } = req.body;
+        
+        // 1. التحقق من وجود المستخدم ورصيده
+        const user = await User.findById(userId);
+        if (!user) return res.json({ success: false, msg: 'المستخدم غير موجود' });
+        
+        // يجب أن يكون المبلغ رقم موجب
+        if (!amount || amount <= 0) return res.json({ success: false, msg: 'مبلغ غير صالح' });
+        
+        // التحقق مما إذا كان الرصيد يكفي
+        if (user.balance < amount) {
+            return res.json({ success: false, msg: 'رصيدك غير كافٍ للسحب' });
+        }
+
+        // 2. خصم الرصيد فوراً (لحجز المبلغ)
+        user.balance -= amount;
+        await user.save();
+
+        // 3. تسجيل المعاملة في السجل (Trans)
+        // نوعها withdraw، وحالتها pending (بانتظار موافقة الأدمن)
+        await Trans.create({
+            userId,
+            userName: user.name,
+            type: 'withdraw',
+            amount,
+            proof: '', // لا يوجد إثبات لأن هذا سحب
+            paymentMethod: method, // طريقة السحب (BaridiMob, PayPal...)
+            description: `طلب سحب أرباح إلى: ${accountDetails}`,
+            status: 'pending' // بانتظار الموافقة
+        });
+
+        // 4. إشعار للمستخدم
+        await createNotification(userId, 'withdraw', 'تم استلام طلب السحب ⏳', `طلبك لسحب ${amount} دج قيد المراجعة.`);
+
+        res.json({ success: true, newBalance: user.balance });
+    } catch (e) {
+        console.error(e);
+        res.json({ success: false, msg: 'حدث خطأ في السيرفر' });
+    }
+});
+
+
+
+
+
+
+
 // ============ ADMIN API ============
 
 app.get('/api/admin/stats', async (req, res) => {
@@ -950,13 +1003,30 @@ app.get('/api/admin/chats', async (req, res) => {
     res.json(chats);
 });
 
+
+
+
 app.get('/api/admin/deposits', async (req, res) => {
     const status = req.query.status;
     const limit = parseInt(req.query.limit) || 1000;
-    const query = status && status !== 'all' ? { status, type: 'deposit' } : { type: 'deposit' };
+    
+    // التعديل هنا: السماح بجلب 'deposit' و 'withdraw'
+    let query = {};
+    if (status && status !== 'all') {
+        query.status = status;
+        query.type = { $in: ['deposit', 'withdraw'] };
+    } else {
+        query.type = { $in: ['deposit', 'withdraw'] };
+    }
+    
     const deposits = await Trans.find(query).sort({ date: -1 }).limit(limit);
     res.json(deposits);
 });
+
+
+
+
+
 
 app.post('/api/admin/approve-deposit', async (req, res) => {
     try {
@@ -967,21 +1037,49 @@ app.post('/api/admin/approve-deposit', async (req, res) => {
             return res.json({ success: false, msg: 'الطلب غير موجود أو تمت معالجته' });
         }
 
-        if (action === 'approve') {
-            await User.findByIdAndUpdate(trans.userId, { $inc: { balance: trans.amount } });
-            trans.status = 'approved';
-            await createNotification(trans.userId, 'deposit', 'تم شحن رصيدك! 💰', `تم إضافة ${trans.amount} لرصيدك`);
-        } else {
-            trans.status = 'rejected';
-            await createNotification(trans.userId, 'deposit', 'تم رفض طلب الشحن', 'يرجى التواصل مع الدعم');
+        const user = await User.findById(trans.userId);
+        if (!user) return res.json({ success: false, msg: 'المستخدم غير موجود' });
+
+        if (trans.type === 'deposit') {
+            // === حالة الشحن (إيداع) ===
+            if (action === 'approve') {
+                user.balance += trans.amount;
+                await user.save();
+                trans.status = 'approved';
+                await createNotification(trans.userId, 'deposit', 'تم شحن رصيدك! 💰', `تم إضافة ${trans.amount} لرصيدك`);
+            } else {
+                trans.status = 'rejected';
+                await createNotification(trans.userId, 'deposit', 'تم رفض طلب الشحن', 'يرجى التواصل مع الدعم');
+            }
+        } else if (trans.type === 'withdraw') {
+            // === حالة السحب ===
+            if (action === 'approve') {
+                // الرصيد خُصم مسبقاً عند الطلب، لذا فقط نغير الحالة
+                trans.status = 'approved';
+                await createNotification(trans.userId, 'withdraw', 'تم تنفيذ السحب ✅', `تم إرسال ${trans.amount} دج إلى حسابك.`);
+            } else {
+                // في حالة الرفض، يجب إعادة الرصيد للمستخدم
+                user.balance += trans.amount;
+                await user.save();
+                trans.status = 'rejected';
+                await createNotification(trans.userId, 'withdraw', 'تم رفض طلب السحب ❌', 'تم إعادة المبلغ إلى محفظتك.');
+            }
         }
 
         await trans.save();
         res.json({ success: true });
     } catch (e) {
+        console.error(e);
         res.json({ success: false });
     }
 });
+
+
+
+
+
+
+
 
 app.get('/api/admin/payment-methods', async (req, res) => {
     const methods = await PaymentMethod.find().sort({ order: 1 });
