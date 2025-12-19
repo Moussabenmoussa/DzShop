@@ -100,32 +100,38 @@
     </header>
 
     <main class="max-w-[1400px] mx-auto px-2 py-3">
-
-        <!-- السلايدر المتطابق (تم توحيد التصميم مع تغيير الألوان) -->
-        <div class="slider-container mb-4 shadow-md bg-white">
+       
+        <!-- السلايدر المتحرك (نسخة الإصلاح الجذري) -->
+        <div class="slider-container mb-4 shadow-md bg-white rounded-xl overflow-hidden relative h-40 md:h-48">
             
-            <!-- Slide 1: عروض الشتاء (النسخة الأصلية - أحمر/برتقالي) -->
-            <div class="slide active w-full h-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center px-6 text-white relative overflow-hidden">
-                <div class="z-10">
-                    <span class="bg-white text-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block">Flash Sale ⚡</span>
-                    <h2 class="text-2xl font-black mb-1">عروض الشتاء</h2>
-                    <p class="text-xs opacity-90 mb-3">تخفيضات تصل إلى 70%</p>
-                    <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="bg-black text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg hover:scale-105 transition">تسوق الآن</button>
+            <!-- البطاقة الأولى: عروض الشتاء (تعمل جيداً) -->
+            <div class="slide active w-full h-full flex items-center px-6 text-white relative absolute inset-0 transition-opacity duration-700" 
+                 style="background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);">
+                
+                <div class="z-10 relative">
+                    <span class="bg-white text-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block shadow-sm">Flash Sale ⚡</span>
+                    <h2 class="text-2xl md:text-3xl font-black mb-1 leading-tight">عروض الشتاء</h2>
+                    <p class="text-xs md:text-sm opacity-90 mb-3 font-medium">تخفيضات تصل إلى 70%</p>
+                    <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="bg-black text-white text-xs font-bold px-5 py-2 rounded-full shadow-lg hover:scale-105 transition">تسوق الآن</button>
                 </div>
-                <!-- صورة الخلفية (شعار باهت) -->
-                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-20px] bottom-[-20px] w-32 h-32 opacity-20 rotate-12">
+                <!-- صورة خلفية خفيفة -->
+                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-10px] bottom-[-20px] w-32 h-32 opacity-20 rotate-12">
             </div>
 
-            <!-- Slide 2: عالم التقنية (نسخة طبق الأصل - أزرق/بنفسجي) -->
-            <div class="slide w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center px-6 text-white relative overflow-hidden">
-                <div class="z-10">
-                    <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block animate-pulse">جديد 2025 🚀</span>
-                    <h2 class="text-2xl font-black mb-1">عالم التقنية</h2>
-                    <p class="text-xs opacity-90 mb-3">أفضل الإلكترونيات والملحقات</p>
-                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-600 text-xs font-bold px-4 py-2 rounded-full shadow-lg hover:scale-105 transition">تصفح القسم</button>
+            <!-- البطاقة الثانية: عالم التقنية (تم إجبار الألوان بالكود المباشر) -->
+            <div class="slide w-full h-full flex items-center px-6 text-white relative absolute inset-0 transition-opacity duration-700 opacity-0" 
+                 style="background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);">
+                
+                <div class="z-10 relative">
+                    <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block animate-pulse shadow-sm">جديد 2025 🚀</span>
+                    <h2 class="text-2xl md:text-3xl font-black mb-1 leading-tight">عالم التقنية</h2>
+                    <p class="text-xs md:text-sm opacity-90 mb-3 font-medium">أحدث الأجهزة والملحقات</p>
+                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-600 text-xs font-bold px-5 py-2 rounded-full shadow-lg hover:scale-105 transition">تصفح القسم</button>
                 </div>
-                <!-- صورة الخلفية (سماعة/ساعة باهتة بنفس ستايل البطاقة الأولى) -->
-                <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=60" class="absolute right-[-20px] bottom-[-30px] w-36 h-36 opacity-30 rotate-[-12deg] mix-blend-overlay">
+                
+                <!-- صورة خلفية تعبيرية -->
+                <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60" 
+                     class="absolute right-[-20px] bottom-[-20px] w-40 h-40 opacity-30 rotate-[-12deg] mix-blend-overlay object-contain">
             </div>
 
         </div>
