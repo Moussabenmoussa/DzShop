@@ -1,209 +1,241 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <!-- ============== كود التوجيه الفوري (الحماية) ============== -->
+    <script>
+        (function() {
+            const user = localStorage.getItem('dz_user');
+            if (user) {
+                try {
+                    const u = JSON.parse(user);
+                    if (u && u._id) window.location.replace('/dashboard');
+                } catch(e) { localStorage.removeItem('dz_user'); }
+            }
+        })();
+    </script>
+    <!-- ========================================================== -->
 
-<script>
-    // كود التحقق والتوجيه الفوري
-    (function() {
-        const user = localStorage.getItem('dz_user');
-        if (user) {
-            // إذا وُجدت بيانات المستخدم، توجه فوراً للوحة التحكم
-            window.location.replace('/dashboard');
-        }
-    })();
-</script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket | السوق العالمي</title>
+    <title>DzMarket | عروض وتخفيضات هائلة</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            --brand-red: #fb2e2e;
-            --bg-color: #f6f6f6;
-        }
-        * { font-family: 'Cairo', sans-serif; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: #333; }
+        :root { --brand-red: #fb2e2e; --bg-color: #f6f6f6; }
+        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: #333; overflow-x: hidden; }
 
-        /* إخفاء شريط التمرير */
+        /* إخفاء السكرول بار */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* كارد المنتج */
-        .temu-card {
-            background: white; border-radius: 8px; overflow: hidden; position: relative;
-            border: 1px solid transparent; transition: all 0.2s;
+        /* أنيميشن النبض (للفت الانتباه) */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(251, 46, 46, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(251, 46, 46, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 46, 46, 0); }
         }
-        .temu-card:hover {
-            border-color: var(--brand-red); transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10;
-        }
+        .animate-pulse-red { animation: pulse-red 2s infinite; }
 
-        /* النصوص */
-        .title-clamp {
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-            overflow: hidden; font-size: 0.75rem; line-height: 1.3; height: 2.6em;
-        }
+        /* شريط الأخبار المتحرك (Ticker) */
+        .ticker-wrap { overflow: hidden; white-space: nowrap; background: #fff8f8; border-bottom: 1px solid #ffdcdc; height: 30px; }
+        .ticker { display: inline-block; animation: ticker 30s linear infinite; padding-left: 100%; }
+        .ticker-item { display: inline-block; padding: 0 20px; font-size: 11px; font-weight: bold; color: #555; }
+        .ticker-item span { color: #fb2e2e; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(100%, 0, 0); } }
 
-        /* زر عرض المزيد */
-        .load-more-btn {
-            background: white; border: 1px solid #ddd; color: #333;
-            font-weight: bold; width: 100%; padding: 12px; border-radius: 99px;
-            margin-top: 20px; transition: all 0.3s;
-        }
-        .load-more-btn:hover { border-color: var(--brand-red); color: var(--brand-red); }
+        /* تصميم الكارت (Temu Style) */
+        .temu-card { background: white; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid transparent; transition: all 0.2s; }
+        .temu-card:active { transform: scale(0.98); }
+        .title-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.75rem; line-height: 1.3; height: 2.6em; }
 
-        /* الأزرار النشطة */
-        .sort-text.active { color: var(--brand-red); font-weight: 800; border-bottom: 2px solid var(--brand-red); }
-        .chip-btn { transition: all 0.2s; }
-        .chip-btn.active { background-color: black; color: white; border-color: black; font-weight: bold; }
+        /* السلايدر */
+        .slider-container { position: relative; overflow: hidden; border-radius: 12px; height: 160px; }
+        .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        .slide.active { opacity: 1; }
+        
+        /* تأثير اللمعان (Shimmer) */
+        .shimmer { position: relative; overflow: hidden; }
+        .shimmer::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: translateX(-100%); animation: shimmer 2s infinite; }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
 
-        /* ستايل الإشعار العائم (في الأعلى) */
-        .promo-toast {
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            /* يبدأ مختفياً للأعلى */
-            transform: translateY(-150%); 
-            opacity: 0;
-            z-index: 100;
-        }
-        .promo-toast.show {
-            /* ينزل للظهور */
-            transform: translateY(0);
-            opacity: 1;
-        }
+        .chip-btn.active { background: black; color: white; border-color: black; }
+        .load-more-btn { background: white; border: 1px solid #ddd; width: 100%; padding: 12px; border-radius: 99px; font-weight: bold; }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-24">
 
-    <!-- الهيدر والبحث -->
+    <!-- شريط الأخبار المتحرك (يعطي حياة للموقع) -->
+    <div class="ticker-wrap flex items-center">
+        <div class="ticker">
+            <div class="ticker-item"><i class="fas fa-check-circle text-green-500"></i> محمد اشترى <span>ساعة ذكية</span> منذ دقيقتين</div>
+            <div class="ticker-item"><i class="fas fa-check-circle text-green-500"></i> أمين اشترى <span>سماعات بلوتوث</span> منذ 5 دقائق</div>
+            <div class="ticker-item"><i class="fas fa-fire text-orange-500"></i> 150 شخص يتصفحون الموقع الآن</div>
+            <div class="ticker-item"><i class="fas fa-truck text-blue-500"></i> تم توصيل طلب إلى <span>الجزائر العاصمة</span></div>
+        </div>
+    </div>
+
+    <!-- الهيدر -->
     <header class="bg-white sticky top-0 z-50 shadow-sm py-2">
         <div class="max-w-[1400px] mx-auto px-3">
             <div class="flex items-center gap-3">
-                <!-- اللوجو -->
                 <div class="flex-shrink-0 cursor-pointer" onclick="location.reload()">
                     <span class="font-black text-2xl text-[#fb2e2e] tracking-tighter">DZ</span>
                 </div>
-                <!-- البحث -->
-                <div class="flex-1 h-10 relative bg-white border-2 border-[#fb2e2e] rounded-full overflow-hidden flex">
-                    <input type="text" id="searchInput" onkeyup="searchProducts(this.value)" class="flex-1 px-4 text-sm outline-none placeholder-gray-400" placeholder="بحث...">
+                <div class="flex-1 h-10 relative bg-white border-2 border-[#fb2e2e] rounded-full overflow-hidden flex animate-pulse-red">
+                    <input type="text" id="searchInput" onkeyup="searchProducts(this.value)" class="flex-1 px-4 text-sm outline-none placeholder-gray-400" placeholder="ابحث عن...">
                     <button class="bg-[#fb2e2e] text-white px-5 font-bold text-sm h-full"><i class="fas fa-search"></i></button>
                 </div>
-                <!-- أيقونة المتجر -->
                 <div class="flex-shrink-0">
                     <a href="/dashboard" class="flex flex-col items-center px-1 text-gray-600 hover:text-[#fb2e2e]">
-                        <i class="fas fa-store text-lg"></i>
-                        <span class="text-[9px] font-bold mt-1">متجري</span>
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <span class="text-[9px] font-bold">دخول</span>
                     </a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي (تمت إضافة مسافة علوية لضمان ظهور القوائم) -->
-    <main class="max-w-[1400px] mx-auto px-2 py-3 relative z-0">
+    <main class="max-w-[1400px] mx-auto px-2 py-3">
 
-        <!-- 1. شريط الفرز (Sorting) -->
-        <!-- تأكدنا من ظهوره عبر وضعه في حاوية واضحة -->
-        <div class="bg-white px-4 py-3 rounded-t-lg border-b border-gray-100 flex items-center justify-between mb-0">
-            <div class="flex gap-6 text-xs font-bold text-gray-500">
-                <button onclick="sortProducts('default', this)" class="sort-text active pb-1">المقترحة</button>
-                <button onclick="sortProducts('orders', this)" class="sort-text pb-1 hover:text-[#fb2e2e]">الطلبات</button>
-                <button onclick="sortProducts('price', this)" class="sort-text pb-1 hover:text-[#fb2e2e]">السعر</button>
+        <!-- السلايدر المتحرك (بدل الصورة الثابتة) -->
+        <div class="slider-container mb-4 shadow-md bg-gray-200">
+            <!-- Slide 1 -->
+            <div class="slide active w-full h-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center px-6 text-white relative">
+                <div class="z-10">
+                    <span class="bg-white text-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block">Flash Sale ⚡</span>
+                    <h2 class="text-2xl font-black mb-1">عروض الشتاء</h2>
+                    <p class="text-xs opacity-90 mb-3">تخفيضات تصل إلى 70%</p>
+                    <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="bg-black text-white text-xs font-bold px-4 py-2 rounded-full">تسوق الآن</button>
+                </div>
+                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-20px] bottom-[-20px] w-32 h-32 opacity-20 rotate-12">
+            </div>
+            <!-- Slide 2 -->
+            <div class="slide w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center px-6 text-white relative">
+                <div class="z-10">
+                    <h2 class="text-2xl font-black mb-1">إلكترونيات</h2>
+                    <p class="text-xs opacity-90 mb-3">أحدث الهواتف والساعات</p>
+                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-600 text-xs font-bold px-4 py-2 rounded-full">استكشف</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- شريط الفرز والعداد -->
+        <div class="bg-white px-4 py-2 rounded-t-lg border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500">ينتهي العرض في:</span>
+                <div class="flex gap-1 text-[10px] font-mono font-bold text-white">
+                    <span class="bg-black px-1 rounded" id="h">02</span>:
+                    <span class="bg-black px-1 rounded" id="m">45</span>:
+                    <span class="bg-[#fb2e2e] px-1 rounded animate-pulse" id="s">12</span>
+                </div>
             </div>
             <div class="text-[10px] text-gray-400 font-bold"><span id="itemsCount">0</span> نتيجة</div>
         </div>
 
-        <!-- 2. القائمة الأفقية المتحركة -->
-        <div class="bg-white px-2 py-3 mb-3 rounded-b-lg shadow-sm w-full">
+        <!-- القائمة الأفقية -->
+        <div class="bg-white px-2 py-3 mb-3 rounded-b-lg shadow-sm">
             <div class="flex gap-2 overflow-x-auto no-scrollbar w-full">
                 <button onclick="filterCat('all', this)" class="chip-btn active px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">الكل</button>
-                <button onclick="filterCat('electronics', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap hover:border-[#fb2e2e]">إلكترونيات</button>
-                <button onclick="filterCat('fashion', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap hover:border-[#fb2e2e]">أزياء</button>
-                <button onclick="filterCat('home', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap hover:border-[#fb2e2e]">منزل</button>
-                <button onclick="filterCat('beauty', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap hover:border-[#fb2e2e]">تجميل</button>
-                <button onclick="filterCat('toys', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap hover:border-[#fb2e2e]">ألعاب</button>
+                <button id="btn-elec" onclick="filterCat('electronics', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">إلكترونيات</button>
+                <button onclick="filterCat('fashion', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">أزياء</button>
+                <button onclick="filterCat('home', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">منزل</button>
+                <button onclick="filterCat('service', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">خدمات</button>
             </div>
         </div>
 
-        <!-- 3. شبكة المنتجات -->
+        <!-- شبكة المنتجات -->
         <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
-            <!-- المنتجات ستظهر هنا -->
+            <!-- Loading Skeleton -->
+            <div class="col-span-full py-10 flex justify-center">
+                <i class="fas fa-circle-notch fa-spin text-[#fb2e2e] text-3xl"></i>
+            </div>
         </div>
 
-        <!-- 4. زر عرض المزيد -->
-        <div id="loadMoreContainer" class="hidden px-4 pb-10">
-            <button onclick="loadMore()" class="load-more-btn">
-                عرض المزيد من المنتجات <i class="fas fa-chevron-down mr-1"></i>
+        <!-- زر عرض المزيد -->
+        <div id="loadMoreContainer" class="hidden px-4 pb-10 mt-4">
+            <button onclick="loadMore()" class="load-more-btn text-gray-600 hover:text-[#fb2e2e] hover:border-[#fb2e2e] transition">
+                عرض المزيد <i class="fas fa-chevron-down mr-1"></i>
             </button>
         </div>
 
-        <!-- رسالة عدم وجود نتائج -->
+        <!-- رسالة لا توجد نتائج -->
         <div id="noResults" class="hidden text-center py-12 text-gray-400">
-            <i class="fas fa-box-open text-4xl mb-3"></i>
-            <p>لا توجد منتجات مطابقة</p>
+            <i class="fas fa-search text-4xl mb-3 opacity-30"></i>
+            <p>لم نجد منتجات مطابقة</p>
         </div>
 
     </main>
 
-    <!-- الإشعار العائم (يظهر في الأعلى) -->
-    <!-- top-16 تعني أنه سيظهر تحت الهيدر مباشرة -->
-    <div id="promoToast" class="promo-toast fixed top-16 left-2 right-2 md:left-auto md:right-8 md:w-[350px] bg-white rounded-xl shadow-2xl border border-red-100 p-3 flex items-center gap-3 z-[60]">
-        
-        <!-- زر الإغلاق -->
-        <button onclick="closeToast()" class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-500 w-6 h-6 rounded-full text-xs flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-sm z-10">
+    <!-- إشعار عائم في الأعلى (هدية) -->
+    <div id="promoToast" class="fixed top-[-100px] left-2 right-2 md:left-auto md:right-8 md:w-[350px] bg-white rounded-xl shadow-2xl border border-red-100 p-3 flex items-center gap-3 z-[100] transition-all duration-500">
+        <button onclick="closeToast()" class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gray-100 text-gray-400 w-6 h-6 rounded-full text-xs flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-sm border border-gray-200">
             <i class="fas fa-times"></i>
         </button>
-        
-        <!-- الأيقونة -->
-        <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-            <i class="fas fa-gift text-xl text-[#fb2e2e] animate-bounce relative z-10"></i>
+        <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-gift text-xl text-[#fb2e2e] animate-bounce"></i>
         </div>
-        
-        <!-- النص -->
         <div class="flex-1">
-            <h4 class="font-black text-xs text-gray-800 mb-0.5">سجل الآن واربح! 🎁</h4>
-            <p class="text-[9px] font-bold text-gray-500 leading-tight">احصل على لوحة تحكم مجانية وخصومات.</p>
+            <h4 class="font-black text-xs text-gray-800">هدية الترحيب 🎁</h4>
+            <p class="text-[9px] font-bold text-gray-500">سجل الآن واحصل على حساب بائع مجاناً</p>
         </div>
-        
-        <!-- الزر -->
-        <a href="/dashboard" class="bg-[#fb2e2e] text-white text-[10px] font-black px-4 py-2 rounded-full shadow-md hover:scale-105 transition flex-shrink-0">
-            ابدأ الآن
+        <a href="/dashboard" class="bg-[#fb2e2e] text-white text-[10px] font-black px-4 py-2 rounded-full shadow-md hover:scale-105 transition shimmer">
+            سجل الآن
         </a>
     </div>
 
-    <script>
-        let ALL_DATA = [];           
-        let FILTERED_DATA = [];      
-        let DISPLAY_LIMIT = 4;       
-        const ITEMS_PER_PAGE = 4;    
+    <!-- شريط تنقل سفلي للموبايل (مثل التطبيق) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex justify-around items-center h-14 pb-safe">
+        <a href="#" class="flex flex-col items-center gap-0.5 text-[#fb2e2e]">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-[9px] font-bold">الرئيسية</span>
+        </a>
+        <a href="/dashboard" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-800">
+            <i class="fas fa-bolt text-lg"></i>
+            <span class="text-[9px] font-bold">عروض</span>
+        </a>
+        <a href="/dashboard" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-800">
+            <i class="fas fa-shopping-cart text-lg"></i>
+            <span class="text-[9px] font-bold">السلة</span>
+        </a>
+        <a href="/dashboard" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-800">
+            <i class="fas fa-user text-lg"></i>
+            <span class="text-[9px] font-bold">حسابي</span>
+        </a>
+    </nav>
 
+    <script>
+        let ALL_DATA = [];
+        let FILTERED_DATA = [];
+        let DISPLAY_LIMIT = 6; // البدء بـ 6 منتجات
+        const ITEMS_PER_PAGE = 6;
+
+        // عند التحميل
         window.onload = async () => {
-            // إظهار الإشعار بعد 2 ثانية
-            setTimeout(() => {
-                document.getElementById('promoToast').classList.add('show');
-            }, 2000);
+            // 1. تشغيل السلايدر
+            initSlider();
+            // 2. تشغيل العداد
+            startTimer();
+            // 3. إظهار التوست بعد 3 ثواني
+            setTimeout(() => document.getElementById('promoToast').style.top = '70px', 3000);
 
             try {
-                // استخدام البيانات الافتراضية للتجربة في حال فشل الاتصال
+                // 4. جلب البيانات الحقيقية
                 const res = await fetch('/api/market');
                 ALL_DATA = await res.json();
                 FILTERED_DATA = [...ALL_DATA];
                 updateCount();
                 renderGrid();
             } catch (e) {
-                console.log("Using Fallback Data (For Demo)");
+                console.error("خطأ في جلب البيانات");
+                document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center text-red-500 py-10">حدث خطأ في الاتصال</p>';
             }
         };
 
-        function closeToast() {
-            document.getElementById('promoToast').classList.remove('show');
-        }
-
+        // دالة عرض المنتجات (مع البيانات الحقيقية)
         function renderGrid() {
             const grid = document.getElementById('marketGrid');
             const loadMoreBtn = document.getElementById('loadMoreContainer');
@@ -220,33 +252,46 @@
             const visibleProducts = FILTERED_DATA.slice(0, DISPLAY_LIMIT);
 
             grid.innerHTML = visibleProducts.map(p => {
+                // حساب الخصم الحقيقي
                 const discount = (p.originalPrice && p.originalPrice > p.price) 
                     ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
                     : 0;
-                const img = p.images?.[0] || p.image || 'https://via.placeholder.com/300';
+                
+                // الصورة (مع fallback)
+                const imgUrl = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
 
                 return `
-                <div class="temu-card group cursor-pointer" onclick="location.href='/p/${p._id}'">
-                    <div class="relative w-full aspect-square bg-gray-100">
-                        <img src="${img}" class="w-full h-full object-cover">
-                        ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ffe6e6] text-[#fb2e2e] text-[10px] font-black px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
+                <div class="temu-card group cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+                    <!-- الصورة -->
+                    <div class="relative w-full aspect-square bg-gray-100 overflow-hidden">
+                        <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
                         
-                        <div class="absolute bottom-2 right-2 w-8 h-8 bg-white text-[#fb2e2e] rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#fb2e2e] hover:text-white" onclick="event.stopPropagation(); alert('تم الإضافة للسلة')">
-                            <i class="fas fa-plus"></i>
+                        ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ffe6e6] text-[#fb2e2e] text-[10px] font-black px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
+                        ${p.isAffiliate ? `<div class="absolute top-2 left-2 bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-sm">Choice</div>` : ''}
+                        
+                        <!-- زر سلة عائم يظهر عند الهوفر (فقط ديسكتوب) -->
+                        <div class="hidden md:flex absolute bottom-2 right-2 w-8 h-8 bg-white text-[#fb2e2e] rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-[#fb2e2e] hover:text-white transform translate-y-2 group-hover:translate-y-0">
+                            <i class="fas fa-shopping-cart text-xs"></i>
                         </div>
                     </div>
 
+                    <!-- التفاصيل -->
                     <div class="p-2">
-                        <h3 class="title-clamp mb-1.5 text-gray-800" title="${p.title}">${p.title}</h3>
+                        <h3 class="title-clamp mb-1.5 text-gray-800 font-medium" title="${p.title}">${p.title}</h3>
+                        
                         <div class="flex items-baseline gap-1">
-                            <span class="text-[10px] text-[#fb2e2e] font-bold">DZD</span>
-                            <span class="text-xl font-black text-[#fb2e2e] leading-none">${Number(p.price).toLocaleString()}</span>
+                            <span class="text-[10px] text-[#fb2e2e] font-bold">DA</span>
+                            <span class="text-lg font-black text-[#fb2e2e] leading-none">${Number(p.price).toLocaleString()}</span>
                         </div>
+                        
                         ${p.originalPrice > p.price ? 
-                            `<div class="text-[10px] text-gray-400 line-through mt-0.5">${Number(p.originalPrice).toLocaleString()} دج</div>` 
+                            `<div class="text-[10px] text-gray-400 line-through mt-0.5">${Number(p.originalPrice).toLocaleString()}</div>` 
                             : ''}
-                        <div class="mt-2 text-[9px] text-gray-500 bg-gray-50 px-1 py-0.5 rounded w-fit border border-gray-100">
-                            ${p.isAffiliate ? 'شحن سريع' : 'متوفر حالياً'}
+
+                        <!-- شارة إضافية حية -->
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="text-[9px] text-green-600 bg-green-50 px-1 rounded font-bold">توصيل متوفر</span>
+                            ${p.rating ? `<span class="text-[9px] text-orange-500"><i class="fas fa-star"></i> ${p.rating}</span>` : ''}
                         </div>
                     </div>
                 </div>`;
@@ -259,6 +304,32 @@
             }
         }
 
+        // منطق السلايدر
+        function initSlider() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 4000);
+        }
+
+        // منطق العداد التنازلي
+        function startTimer() {
+            let time = 7200 + 1500 + 12; // وقت عشوائي (2 ساعة و 25 دقيقة)
+            setInterval(() => {
+                time--;
+                if(time < 0) time = 7200;
+                const h = Math.floor(time / 3600);
+                const m = Math.floor((time % 3600) / 60);
+                const s = time % 60;
+                document.getElementById('h').innerText = h.toString().padStart(2, '0');
+                document.getElementById('m').innerText = m.toString().padStart(2, '0');
+                document.getElementById('s').innerText = s.toString().padStart(2, '0');
+            }, 1000);
+        }
+
         function loadMore() {
             DISPLAY_LIMIT += ITEMS_PER_PAGE;
             renderGrid();
@@ -267,48 +338,35 @@
         function searchProducts(text) {
             const term = text.toLowerCase();
             FILTERED_DATA = ALL_DATA.filter(p => p.title.toLowerCase().includes(term));
-            DISPLAY_LIMIT = 4;
+            DISPLAY_LIMIT = 6;
             updateCount();
             renderGrid();
         }
 
-        function filterCat(category, btnElement) {
+        function filterCat(cat, btn) {
             document.querySelectorAll('.chip-btn').forEach(b => {
-                b.classList.remove('active', 'bg-black', 'text-white', 'border-black');
+                b.classList.remove('active');
                 b.classList.add('bg-gray-50');
             });
-            btnElement.classList.remove('bg-gray-50');
-            btnElement.classList.add('active', 'bg-black', 'text-white', 'border-black');
+            btn.classList.remove('bg-gray-50');
+            btn.classList.add('active');
 
-            if (category === 'all') {
+            if (cat === 'all') {
                 FILTERED_DATA = [...ALL_DATA];
             } else {
-                FILTERED_DATA = ALL_DATA.filter(p => p.category === category || p.type === category);
+                FILTERED_DATA = ALL_DATA.filter(p => p.category === cat || p.type === cat);
             }
-
-            document.getElementById('searchInput').value = '';
-            DISPLAY_LIMIT = 4;
+            DISPLAY_LIMIT = 6;
             updateCount();
-            renderGrid();
-        }
-
-        function sortProducts(type, btnElement) {
-            document.querySelectorAll('.sort-text').forEach(b => b.classList.remove('active', 'text-[#fb2e2e]', 'border-b-2'));
-            btnElement.classList.add('active', 'text-[#fb2e2e]', 'border-b-2');
-
-            if (type === 'price') {
-                FILTERED_DATA.sort((a, b) => a.price - b.price);
-            } else if (type === 'orders') {
-                FILTERED_DATA.sort(() => Math.random() - 0.5);
-            } else {
-                FILTERED_DATA.sort((a, b) => (a._id > b._id) ? 1 : -1);
-            }
-            DISPLAY_LIMIT = 4;
             renderGrid();
         }
 
         function updateCount() {
             document.getElementById('itemsCount').innerText = FILTERED_DATA.length;
+        }
+
+        function closeToast() {
+            document.getElementById('promoToast').style.top = '-200px';
         }
     </script>
 </body>
