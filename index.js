@@ -819,38 +819,39 @@ app.post('/api/wallet/deposit', async (req, res) => {
 // إضافة طلب سحب جديد
 app.post('/api/wallet/withdraw', async (req, res) => {
     try {
+        // نستقبل البيانات بأسماء واضحة
         const { userId, amount, method, accountDetails } = req.body;
         
-        // 1. التحقق من وجود المستخدم ورصيده
         const user = await User.findById(userId);
         if (!user) return res.json({ success: false, msg: 'المستخدم غير موجود' });
         
-        // يجب أن يكون المبلغ رقم موجب
         if (!amount || amount <= 0) return res.json({ success: false, msg: 'مبلغ غير صالح' });
         
-        // التحقق مما إذا كان الرصيد يكفي
         if (user.balance < amount) {
             return res.json({ success: false, msg: 'رصيدك غير كافٍ للسحب' });
         }
 
-        // 2. خصم الرصيد فوراً (لحجز المبلغ)
+        // خصم الرصيد
         user.balance -= amount;
         await user.save();
 
-        // 3. تسجيل المعاملة في السجل (Trans)
-        // نوعها withdraw، وحالتها pending (بانتظار موافقة الأدمن)
+        // === هنا الحل للمشكلة ===
+        // نقوم بصياغة وصف واضح جداً ليظهر للأدمن
+        const fullDescription = `طلب سحب - الطريقة: ${method} - الحساب: ${accountDetails}`;
+
         await Trans.create({
             userId,
             userName: user.name,
             type: 'withdraw',
             amount,
-            proof: '', // لا يوجد إثبات لأن هذا سحب
-            paymentMethod: method, // طريقة السحب (BaridiMob, PayPal...)
-            description: `طلب سحب أرباح إلى: ${accountDetails}`,
-            status: 'pending' // بانتظار الموافقة
+            // نضع رقم الحساب في حقل proof أيضاً لأن الأدمن قد ينظر إليه
+            proof: accountDetails, 
+            paymentMethod: method,
+            description: fullDescription, // هذا ما سيقرأه الأدمن
+            status: 'pending'
         });
 
-        // 4. إشعار للمستخدم
+        // إشعار للمستخدم
         await createNotification(userId, 'withdraw', 'تم استلام طلب السحب ⏳', `طلبك لسحب ${amount} دج قيد المراجعة.`);
 
         res.json({ success: true, newBalance: user.balance });
