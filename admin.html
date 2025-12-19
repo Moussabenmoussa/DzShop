@@ -1041,30 +1041,111 @@
     }
 
     function renderDeposits(deposits) {
-        if (!deposits.length) {
-            document.getElementById('depositsGrid').innerHTML = `<div class="col-span-full data-card rounded-2xl p-12 text-center"><div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check-circle text-green-600 text-3xl"></i></div><h3 class="text-xl font-bold">لا توجد طلبات</h3></div>`;
+        const grid = document.getElementById('depositsGrid');
+
+        if (!deposits || deposits.length === 0) {
+            grid.innerHTML = '<div class="col-span-full data-card rounded-2xl p-12 text-center text-gray-500">لا توجد طلبات حالياً</div>';
             return;
         }
-        document.getElementById('depositsGrid').innerHTML = deposits.map(d => `
-            <div class="data-card rounded-2xl p-5 animate-slideUp">
+
+        grid.innerHTML = deposits.map(d => {
+            // 1. فحص هل الطلب سحب أم شحن
+            const isWithdraw = d.type === 'withdraw';
+
+            // 2. تغيير الألوان والعناوين بناءً على النوع
+            const typeLabel = isWithdraw ? 'طلب سحب أرباح' : 'طلب شحن رصيد';
+            const typeClass = isWithdraw ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700';
+            const amountColor = isWithdraw ? 'text-red-600' : 'text-green-600';
+            const amountSign = isWithdraw ? '-' : '+';
+            const btnText = isWithdraw ? 'تأكيد التحويل' : 'موافقة وشحن';
+
+            // 3. تحديد المحتوى (إما نص رقم الحساب أو صورة الوصل)
+            let displayContent;
+            
+            if (isWithdraw) {
+                // --- تصميم السحب (نص) ---
+                // نستخدم d.proof لأنه يحتوي على رقم الحساب حسب تعديلنا للسيرفر
+                const accountInfo = d.proof || d.description; 
+                displayContent = `
+                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 mb-4 relative">
+                        <p class="text-xs text-gray-500 mb-1 font-bold">معلومات التحويل:</p>
+                        <p class="font-mono text-lg font-bold text-gray-800 dark:text-gray-200 select-all" dir="ltr">${accountInfo}</p>
+                        <button onclick="navigator.clipboard.writeText('${accountInfo}'); showToast('تم نسخ الرقم', 'success')" 
+                                class="absolute top-2 left-2 text-gray-400 hover:text-blue-600 p-2" title="نسخ">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                // --- تصميم الشحن (صورة) ---
+                displayContent = `
+                    <div class="h-40 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden cursor-pointer mb-4 relative group" onclick="showImage('${d.proof}')">
+                        <img src="${d.proof}" class="w-full h-full object-cover transition group-hover:scale-105" 
+                             onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+                        <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <span class="text-white font-bold"><i class="fas fa-search-plus"></i> تكبير</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 4. تجهيز الأزرار (تظهر فقط إذا كان الطلب معلقاً)
+            const actionButtons = d.status === 'pending' ? `
+                <div class="flex gap-3 border-t border-gray-100 dark:border-gray-700 pt-4">
+                    <button onclick="processDeposit('${d._id}', 'approve')" class="flex-1 btn btn-success justify-center shadow-lg shadow-green-500/20">
+                        <i class="fas fa-check"></i> ${btnText}
+                    </button>
+                    <button onclick="processDeposit('${d._id}', 'reject')" class="flex-1 btn btn-danger justify-center">
+                        <i class="fas fa-times"></i> رفض
+                    </button>
+                </div>
+            ` : '';
+
+            // 5. شارة الحالة
+            const statusBadge = d.status === 'approved' 
+                ? '<span class="badge badge-success">مقبول</span>' 
+                : d.status === 'rejected' 
+                    ? '<span class="badge badge-danger">مرفوض</span>' 
+                    : '<span class="badge badge-warning">معلق</span>';
+
+            return `
+            <div class="data-card rounded-2xl p-5 animate-slideUp border-t-4 ${isWithdraw ? 'border-t-orange-500' : 'border-t-green-500'}">
+                <!-- الرأس: الاسم والمبلغ -->
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold">${d.userName?.charAt(0) || 'م'}</div>
-                        <div><div class="font-bold">${d.userName || 'مستخدم'}</div></div>
+                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-xl font-bold text-gray-600">
+                            ${d.userName?.charAt(0) || 'م'}
+                        </div>
+                        <div>
+                            <div class="font-bold">${d.userName || 'مستخدم'}</div>
+                            <span class="text-[10px] px-2 py-0.5 rounded ${typeClass} font-bold mt-1 inline-block">${typeLabel}</span>
+                        </div>
                     </div>
-                    <div class="text-xl font-black text-green-600">+${Number(d.amount).toLocaleString()} ${APP_CURRENCY}</div>
+                    <div class="text-xl font-black ${amountColor}" dir="ltr">${amountSign}${Number(d.amount).toLocaleString()} ${APP_CURRENCY}</div>
                 </div>
-                <div class="h-40 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden cursor-pointer mb-4" onclick="showImage('${d.proof}')">
-                    <img src="${d.proof}" class="w-full h-full object-cover">
+
+                <!-- المحتوى (صورة أو نص) -->
+                ${displayContent}
+
+                <!-- التاريخ والحالة -->
+                <div class="flex items-center justify-between mb-2">
+                    ${statusBadge}
+                    <span class="text-xs text-gray-500 font-mono">${formatDate(d.date)}</span>
                 </div>
-                <div class="flex items-center justify-between mb-3">
-                    <span class="badge ${d.status === 'approved' ? 'badge-success' : d.status === 'rejected' ? 'badge-danger' : 'badge-warning'}">${d.status === 'approved' ? 'مقبول' : d.status === 'rejected' ? 'مرفوض' : 'معلق'}</span>
-                    <span class="text-xs text-gray-500">${formatDate(d.date)}</span>
-                </div>
-                ${d.status === 'pending' ? `<div class="flex gap-2"><button onclick="processDeposit('${d._id}', 'approve')" class="btn btn-success flex-1"><i class="fas fa-check"></i> موافقة</button><button onclick="processDeposit('${d._id}', 'reject')" class="btn btn-danger flex-1"><i class="fas fa-times"></i> رفض</button></div>` : ''}
+
+                <!-- الوصف المختصر -->
+                <p class="text-xs text-gray-400 mb-2 truncate">${d.description || ''}</p>
+
+                <!-- الأزرار -->
+                ${actionButtons}
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
+
+
+
+    
 
     function processDeposit(id, action) {
         showConfirm(action === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض', action === 'approve' ? 'سيتم إضافة الرصيد' : 'سيتم رفض الطلب', async () => {
