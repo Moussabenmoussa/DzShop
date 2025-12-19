@@ -102,36 +102,41 @@
     <main class="max-w-[1400px] mx-auto px-2 py-3">
        
         <!-- السلايدر المتحرك (نسخة الإصلاح الجذري) -->
-        <div class="slider-container mb-4 shadow-md bg-white rounded-xl overflow-hidden relative h-40 md:h-48">
+        <!-- السلايدر المطور (Refactored Slider) -->
+        <div class="relative w-full h-40 md:h-48 rounded-xl overflow-hidden shadow-lg mb-4 bg-gray-100">
             
-            <!-- البطاقة الأولى: عروض الشتاء (تعمل جيداً) -->
-            <div class="slide active w-full h-full flex items-center px-6 text-white relative absolute inset-0 transition-opacity duration-700" 
-                 style="background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);">
+            <!-- الشريحة 1: عروض الشتاء (حمراء) - تظهر افتراضياً opacity-100 -->
+            <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-100"
+                 style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); z-index: 1;">
                 
-                <div class="z-10 relative">
+                <div class="relative z-10 w-2/3">
                     <span class="bg-white text-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block shadow-sm">Flash Sale ⚡</span>
-                    <h2 class="text-2xl md:text-3xl font-black mb-1 leading-tight">عروض الشتاء</h2>
-                    <p class="text-xs md:text-sm opacity-90 mb-3 font-medium">تخفيضات تصل إلى 70%</p>
-                    <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="bg-black text-white text-xs font-bold px-5 py-2 rounded-full shadow-lg hover:scale-105 transition">تسوق الآن</button>
+                    <h2 class="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">تخفيضات كبرى</h2>
+                    <p class="text-white/90 text-xs md:text-sm font-bold mb-3">خصم حتى 70% لفترة محدودة</p>
+                    <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="bg-black text-white text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">
+                        تسوق الآن
+                    </button>
                 </div>
-                <!-- صورة خلفية خفيفة -->
-                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-10px] bottom-[-20px] w-32 h-32 opacity-20 rotate-12">
+                <!-- صورة خلفية -->
+                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" 
+                     class="absolute right-[-10px] bottom-[-20px] w-32 h-32 md:w-40 md:h-40 object-cover opacity-20 rotate-12 pointer-events-none">
             </div>
 
-            <!-- البطاقة الثانية: عالم التقنية (تم إجبار الألوان بالكود المباشر) -->
-            <div class="slide w-full h-full flex items-center px-6 text-white relative absolute inset-0 transition-opacity duration-700 opacity-0" 
-                 style="background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);">
+            <!-- الشريحة 2: التكنولوجيا (زرقاء) - مخفية افتراضياً opacity-0 -->
+            <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-0"
+                 style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); z-index: 1;">
                 
-                <div class="z-10 relative">
-                    <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block animate-pulse shadow-sm">جديد 2025 🚀</span>
-                    <h2 class="text-2xl md:text-3xl font-black mb-1 leading-tight">عالم التقنية</h2>
-                    <p class="text-xs md:text-sm opacity-90 mb-3 font-medium">أحدث الأجهزة والملحقات</p>
-                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-600 text-xs font-bold px-5 py-2 rounded-full shadow-lg hover:scale-105 transition">تصفح القسم</button>
+                <div class="relative z-10 w-2/3">
+                    <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block animate-pulse">جديد 2025 🚀</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">عالم التقنية</h2>
+                    <p class="text-white/90 text-xs md:text-sm font-bold mb-3">أحدث الهواتف والساعات الذكية</p>
+                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-700 text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">
+                        تصفح القسم
+                    </button>
                 </div>
-                
-                <!-- صورة خلفية تعبيرية -->
+                <!-- صورة خلفية -->
                 <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60" 
-                     class="absolute right-[-20px] bottom-[-20px] w-40 h-40 opacity-30 rotate-[-12deg] mix-blend-overlay object-contain">
+                     class="absolute right-[-20px] bottom-[-20px] w-40 h-40 object-contain opacity-40 rotate-[-12deg] mix-blend-overlay pointer-events-none">
             </div>
 
         </div>
@@ -325,15 +330,29 @@
         }
 
         // منطق السلايدر
+        // منطق السلايدر المطور (Refactored Logic)
         function initSlider() {
+            const slides = document.querySelectorAll('.slider-slide');
+            if (slides.length === 0) return;
+            
             let currentSlide = 0;
-            const slides = document.querySelectorAll('.slide');
+            
             setInterval(() => {
-                slides[currentSlide].classList.remove('active');
+                // إخفاء الشريحة الحالية
+                slides[currentSlide].classList.remove('opacity-100');
+                slides[currentSlide].classList.add('opacity-0');
+                
+                // الانتقال للشريحة التالية
                 currentSlide = (currentSlide + 1) % slides.length;
-                slides[currentSlide].classList.add('active');
-            }, 4000);
+                
+                // إظهار الشريحة الجديدة
+                slides[currentSlide].classList.remove('opacity-0');
+                slides[currentSlide].classList.add('opacity-100');
+            }, 4000); // التبديل كل 4 ثواني
         }
+
+
+        
 
         // منطق العداد التنازلي
         function startTimer() {
