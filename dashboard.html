@@ -1867,20 +1867,25 @@
     }
 
     async function submitWithdraw() {
-        const amount = Number(document.getElementById('wdAmount').value);
-        const account = document.getElementById('wdAccount').value;
-        const method = document.getElementById('wdMethod').value;
+        const amountInput = document.getElementById('wdAmount');
+        const accountInput = document.getElementById('wdAccount');
+        const methodInput = document.getElementById('wdMethod');
+        
+        const amount = Number(amountInput.value);
+        const account = accountInput.value;
+        // نأخذ النص الظاهر (مثل BaridiMob) وليس القيمة فقط، ليكون أوضح للأدمن
+        const method = methodInput.options[methodInput.selectedIndex].text;
 
-        // التحقق من صحة المدخلات
         if (!amount || !account) return showToast('يرجى ملء جميع الحقول', 'error');
         if (amount <= 0) return showToast('مبلغ السحب غير صحيح', 'error');
-        
-        // التحقق من الرصيد محلياً قبل الإرسال
-        if (amount > (USER.balance || 0)) {
-            return showToast('رصيدك غير كافٍ لهذا السحب', 'error');
-        }
+        if (amount > (USER.balance || 0)) return showToast('رصيدك غير كافٍ', 'error');
 
-        // إرسال الطلب للسيرفر
+        // تغيير الزر لوضع التحميل
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+        btn.disabled = true;
+
         try {
             const res = await fetch('/api/wallet/withdraw', {
                 method: 'POST',
@@ -1888,8 +1893,9 @@
                 body: JSON.stringify({
                     userId: USER._id,
                     amount: amount,
-                    method: method,
-                    accountDetails: account
+                    // نرسل المفاتيح كما ينتظرها السيرفر بالضبط
+                    method: method,          
+                    accountDetails: account  
                 })
             });
 
@@ -1897,15 +1903,30 @@
 
             if (data.success) {
                 showToast('تم إرسال طلب السحب بنجاح! 💸', 'success');
-               
-                // إعادة تحميل بيانات المحفظة لتحديث المعاملات
-                loadWallet(); 
                 closeWithdrawModal();
+                loadWallet(); 
+                
+                // تحديث الرصيد في الواجهة
+                const uRes = await fetch('/api/user/refresh', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify({id: USER._id}) 
+                });
+                const uData = await uRes.json();
+                if(uData.success) { 
+                    USER = uData.user; 
+                    updateUserUI(); 
+                }
             } else {
                 showToast(data.msg || 'فشلت العملية', 'error');
             }
         } catch (e) {
+            console.error(e);
             showToast('خطأ في الاتصال بالسيرفر', 'error');
+        } finally {
+            // إعادة الزر لحالته الطبيعية
+            btn.innerText = originalText;
+            btn.disabled = false;
         }
     }
 
