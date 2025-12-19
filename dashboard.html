@@ -826,14 +826,23 @@
             <!-- View: Wallet -->
             <div id="view-wallet" class="hidden animate-slideUp">
                 <div class="max-w-xl mx-auto">
+
+                    
                     <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden mb-6">
                         <div class="absolute top-0 left-0 w-40 h-40 bg-red-500/20 rounded-full blur-3xl"></div>
                         <div class="relative">
                             <div class="text-sm text-white/60 mb-1">رصيدك الحالي</div>
                             <div class="text-5xl font-black mb-6"><span id="wBalance">0</span> <span class="text-2xl text-white/60 currency-symbol">دج</span></div>
-                            <button onclick="openDepositModal()" class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-xl font-bold flex items-center gap-2">
-                                <i class="fas fa-plus-circle"></i> شحن الرصيد
-                            </button>
+                            
+                            <!-- التعديل هنا: جعلنا الأزرار بجانب بعضها -->
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="openDepositModal()" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-105 transition">
+                                    <i class="fas fa-plus-circle"></i> شحن الرصيد
+                                </button>
+                                <button onclick="openWithdrawModal()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-105 transition">
+                                    <i class="fas fa-money-bill-wave"></i> سحب الأرباح
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -872,6 +881,54 @@
         </nav>
     </div>
     <!-- Deposit Modal -->
+
+
+<!-- Withdraw Modal (New) -->
+    <div id="withdrawModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content w-full max-w-md rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-hand-holding-usd text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-black">سحب الأرباح</h3>
+                <p class="text-sm text-gray-500 mt-1">الرصيد المتاح: <span id="wdAvailBalance" class="font-bold text-green-600">0</span> <span class="currency-symbol">دج</span></p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- اختيار الطريقة -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2">طريقة السحب</label>
+                    <select id="wdMethod" class="input-field w-full px-4 py-3 rounded-xl" onchange="updateWdFields()">
+                        <option value="baridimob">BaridiMob (بريدي موب)</option>
+                        <option value="paypal">PayPal (باي بال)</option>
+                        <option value="redotpay">RedotPay (ريدوت باي)</option>
+                    </select>
+                </div>
+
+                <!-- معلومات الحساب (يتغير النص حسب الاختيار) -->
+                <div>
+                    <label id="wdAccountLabel" class="block text-sm font-semibold mb-2">رقم الـ RIP (20 رقم)</label>
+                    <input id="wdAccount" type="text" placeholder="00799999..." class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
+                </div>
+
+                <!-- المبلغ -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2">المبلغ المراد سحبه (<span class="currency-symbol">دج</span>)</label>
+                    <input id="wdAmount" type="number" placeholder="مثال: 2000" class="input-field w-full px-4 py-3 rounded-xl">
+                </div>
+
+                <button onclick="submitWithdraw()" class="bg-gradient-to-r from-orange-500 to-red-600 text-white w-full font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                    تأكيد طلب السحب
+                </button>
+                <button onclick="closeWithdrawModal()" class="w-full text-gray-500 py-2 font-semibold hover:text-gray-700">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    
     <div id="depositModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-md rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
             <div class="text-center mb-6">
@@ -1767,7 +1824,96 @@
             document.getElementById('notifDropdown').classList.add('hidden');
         }
     });
+
+
+
+
+// ==========================================
+    // كود سحب الرصيد (Withdraw Logic)
+    // ==========================================
+
+    function openWithdrawModal() {
+        // تحديث عرض الرصيد المتاح داخل المودال
+        document.getElementById('wdAvailBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('withdrawModal').classList.remove('hidden');
+        updateWdFields(); // لضبط النصوص الافتراضية
+    }
+
+    function closeWithdrawModal() {
+        document.getElementById('withdrawModal').classList.add('hidden');
+        // تفريغ الحقول
+        document.getElementById('wdAmount').value = '';
+        document.getElementById('wdAccount').value = '';
+    }
+
+    function updateWdFields() {
+        const method = document.getElementById('wdMethod').value;
+        const label = document.getElementById('wdAccountLabel');
+        const input = document.getElementById('wdAccount');
+
+        if (method === 'baridimob') {
+            label.innerText = 'رقم الـ RIP (يتكون من 20 رقم)';
+            input.placeholder = '007xxxxxxxxxxxxxxxxxx';
+            input.type = 'number';
+        } else if (method === 'paypal') {
+            label.innerText = 'البريد الإلكتروني (PayPal Email)';
+            input.placeholder = 'email@example.com';
+            input.type = 'email';
+        } else if (method === 'redotpay') {
+            label.innerText = 'معرف الحساب (RedotPay ID / Email)';
+            input.placeholder = 'ID or Email';
+            input.type = 'text';
+        }
+    }
+
+    async function submitWithdraw() {
+        const amount = Number(document.getElementById('wdAmount').value);
+        const account = document.getElementById('wdAccount').value;
+        const method = document.getElementById('wdMethod').value;
+
+        // التحقق من صحة المدخلات
+        if (!amount || !account) return showToast('يرجى ملء جميع الحقول', 'error');
+        if (amount <= 0) return showToast('مبلغ السحب غير صحيح', 'error');
+        
+        // التحقق من الرصيد محلياً قبل الإرسال
+        if (amount > (USER.balance || 0)) {
+            return showToast('رصيدك غير كافٍ لهذا السحب', 'error');
+        }
+
+        // إرسال الطلب للسيرفر
+        try {
+            const res = await fetch('/api/wallet/withdraw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: USER._id,
+                    amount: amount,
+                    method: method,
+                    accountDetails: account
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                showToast('تم إرسال طلب السحب بنجاح! 💸', 'success');
+               
+                // إعادة تحميل بيانات المحفظة لتحديث المعاملات
+                loadWallet(); 
+                closeWithdrawModal();
+            } else {
+                showToast(data.msg || 'فشلت العملية', 'error');
+            }
+        } catch (e) {
+            showToast('خطأ في الاتصال بالسيرفر', 'error');
+        }
+    }
+
+
 </script>
+
+
+    
 </body>
 </html>
 
