@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <!-- ============== كود التوجيه الفوري (الحماية) ============== -->
+    <!-- ============== 1. كود التوجيه الفوري (الحماية) ============== -->
     <script>
         (function() {
+            // فحص سريع قبل تحميل الصفحة لتوجيه الأعضاء
             const user = localStorage.getItem('dz_user');
             if (user) {
                 try {
@@ -13,68 +15,102 @@
             }
         })();
     </script>
-    <!-- ========================================================== -->
 
+    <!-- ============== 2. إعدادات SEO المتقدمة ============== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket | عروض وتخفيضات هائلة</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
+    <!-- العنوان والوصف (أهم شيء لجوجل) -->
+    <title>DzMarket | السوق الجزائري الأول - تسوق بذكاء وتوفير</title>
+    <meta name="description" content="أكبر منصة للتسوق الإلكتروني في الجزائر DzMarket. تخفيضات يومية على الإلكترونيات، الهواتف، الملابس، والمنتجات المحلية. توصيل سريع لـ 58 ولاية والدفع عند الاستلام.">
+    <meta name="keywords" content="تسوق الجزائر, DzMarket, شراء اونلاين, بيع وشراء, marketplace algeria, ecommerce dz, أسعار الهواتف الجزائر, ملابس العيد, تخفيضات, توصيل 58 ولاية">
+    <meta name="author" content="DzMarket Algeria">
+    <meta name="robots" content="index, follow"> <!-- السماح لمحركات البحث بالأرشفة -->
+    <meta name="theme-color" content="#fb2e2e">
+
+    <!-- Social Media Tags (Facebook/WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dzshop.onrender.com/">
+    <meta property="og:title" content="DzMarket | عروض وتخفيضات هائلة في الجزائر">
+    <meta property="og:description" content="سوقك الشامل في جيبك. تخفيضات تصل لـ 70%، شحن سريع، وضمان استرجاع الأموال.">
+    <meta property="og:image" content="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp">
+    <link rel="canonical" href="https://dzshop.onrender.com/">
+
+    <!-- المكتبات والخطوط (Performance Optimized) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Schema.org (لغة التفاهم مع جوجل) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      "name": "DzMarket",
+      "url": "https://dzshop.onrender.com/",
+      "logo": "https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp",
+      "description": "منصة التجارة الإلكترونية الرائدة في الجزائر.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://dzshop.onrender.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <style>
         :root { --brand-red: #fb2e2e; --bg-color: #f6f6f6; }
         * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: #333; overflow-x: hidden; }
 
-        /* إخفاء السكرول بار */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* أنيميشن النبض (للفت الانتباه) */
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(251, 46, 46, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(251, 46, 46, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(251, 46, 46, 0); }
-        }
+        /* Animations */
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(251, 46, 46, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(251, 46, 46, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 46, 46, 0); } }
         .animate-pulse-red { animation: pulse-red 2s infinite; }
-
-        /* شريط الأخبار المتحرك (Ticker) */
+        
+        /* News Ticker */
         .ticker-wrap { overflow: hidden; white-space: nowrap; background: #fff8f8; border-bottom: 1px solid #ffdcdc; height: 30px; }
-        .ticker { display: inline-block; animation: ticker 30s linear infinite; padding-left: 100%; }
+        .ticker { display: inline-block; animation: ticker 40s linear infinite; padding-left: 100%; }
         .ticker-item { display: inline-block; padding: 0 20px; font-size: 11px; font-weight: bold; color: #555; }
         .ticker-item span { color: #fb2e2e; }
         @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(100%, 0, 0); } }
 
-        /* تصميم الكارت (Temu Style) */
+        /* Card Design */
         .temu-card { background: white; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid transparent; transition: all 0.2s; }
+        .temu-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #fb2e2e; }
         .temu-card:active { transform: scale(0.98); }
         .title-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.75rem; line-height: 1.3; height: 2.6em; }
 
-        /* السلايدر */
+        /* Slider */
         .slider-container { position: relative; overflow: hidden; border-radius: 12px; height: 160px; }
-        .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease-in-out; }
-        .slide.active { opacity: 1; }
+        .slider-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease-in-out; }
+        .slider-slide.active { opacity: 1; }
         
-        /* تأثير اللمعان (Shimmer) */
+        /* UI Elements */
+        .chip-btn.active { background: black; color: white; border-color: black; }
+        .load-more-btn { background: white; border: 1px solid #ddd; width: 100%; padding: 12px; border-radius: 99px; font-weight: bold; }
         .shimmer { position: relative; overflow: hidden; }
         .shimmer::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: translateX(-100%); animation: shimmer 2s infinite; }
         @keyframes shimmer { 100% { transform: translateX(100%); } }
-
-        .chip-btn.active { background: black; color: white; border-color: black; }
-        .load-more-btn { background: white; border: 1px solid #ddd; width: 100%; padding: 12px; border-radius: 99px; font-weight: bold; }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- شريط الأخبار المتحرك (يعطي حياة للموقع) -->
+    <!-- شريط الأخبار المتحرك -->
     <div class="ticker-wrap flex items-center">
         <div class="ticker">
-            <div class="ticker-item"><i class="fas fa-check-circle text-green-500"></i> محمد اشترى <span>ساعة ذكية</span> منذ دقيقتين</div>
-            <div class="ticker-item"><i class="fas fa-check-circle text-green-500"></i> أمين اشترى <span>سماعات بلوتوث</span> منذ 5 دقائق</div>
+            <div class="ticker-item"><i class="fas fa-check-circle text-green-500"></i> محمد من وهران اشترى <span>ساعة ذكية</span> الآن</div>
+            <div class="ticker-item"><i class="fas fa-check-circle text-green-500"></i> سارة من العاصمة طلبت <span>حقيبة يد</span></div>
             <div class="ticker-item"><i class="fas fa-fire text-orange-500"></i> 150 شخص يتصفحون الموقع الآن</div>
-            <div class="ticker-item"><i class="fas fa-truck text-blue-500"></i> تم توصيل طلب إلى <span>الجزائر العاصمة</span></div>
+            <div class="ticker-item"><i class="fas fa-truck text-blue-500"></i> شحن مجاني للطلبات فوق 5000 دج</div>
         </div>
     </div>
 
@@ -82,13 +118,16 @@
     <header class="bg-white sticky top-0 z-50 shadow-sm py-2">
         <div class="max-w-[1400px] mx-auto px-3">
             <div class="flex items-center gap-3">
+                <!-- اللوجو (H1 للسيو) -->
                 <div class="flex-shrink-0 cursor-pointer" onclick="location.reload()">
-                    <span class="font-black text-2xl text-[#fb2e2e] tracking-tighter">DZ</span>
+                    <h1 class="font-black text-2xl text-[#fb2e2e] tracking-tighter" title="DzMarket الصفحة الرئيسية">DZ</h1>
                 </div>
+                <!-- البحث -->
                 <div class="flex-1 h-10 relative bg-white border-2 border-[#fb2e2e] rounded-full overflow-hidden flex animate-pulse-red">
-                    <input type="text" id="searchInput" onkeyup="searchProducts(this.value)" class="flex-1 px-4 text-sm outline-none placeholder-gray-400" placeholder="ابحث عن...">
-                    <button class="bg-[#fb2e2e] text-white px-5 font-bold text-sm h-full"><i class="fas fa-search"></i></button>
+                    <input type="text" id="searchInput" onkeyup="searchProducts(this.value)" class="flex-1 px-4 text-sm outline-none placeholder-gray-400" placeholder="ابحث عن منتج...">
+                    <button class="bg-[#fb2e2e] text-white px-5 font-bold text-sm h-full" aria-label="بحث"><i class="fas fa-search"></i></button>
                 </div>
+                <!-- زر الدخول -->
                 <div class="flex-shrink-0">
                     <a href="/dashboard" class="flex flex-col items-center px-1 text-gray-600 hover:text-[#fb2e2e]">
                         <i class="fas fa-user-circle text-xl"></i>
@@ -100,11 +139,11 @@
     </header>
 
     <main class="max-w-[1400px] mx-auto px-2 py-3">
-       
-        <!-- السلايدر الاحترافي المتكامل (5 بطاقات) -->
+
+        <!-- السلايدر الاحترافي (5 بطاقات) -->
         <div class="slider-container relative w-full h-40 md:h-48 rounded-xl overflow-hidden shadow-lg mb-4 bg-white">
             
-            <!-- 1. عروض الشتاء (Active افتراضياً) -->
+            <!-- 1. عروض الشتاء -->
             <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-100"
                  style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); z-index: 1;">
                 <div class="relative z-10 w-2/3">
@@ -113,7 +152,7 @@
                     <p class="text-white/90 text-xs md:text-sm font-bold mb-3">تخفيضات تصل إلى 70%</p>
                     <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="bg-black text-white text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">تسوق الآن</button>
                 </div>
-                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-10px] bottom-[-20px] w-32 h-32 md:w-40 md:h-40 object-cover opacity-20 rotate-12 pointer-events-none">
+                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-10px] bottom-[-20px] w-32 h-32 md:w-40 md:h-40 object-cover opacity-20 rotate-12 pointer-events-none" alt="DzMarket Logo">
             </div>
 
             <!-- 2. عالم التقنية -->
@@ -125,7 +164,7 @@
                     <p class="text-white/90 text-xs md:text-sm font-bold mb-3">أحدث الهواتف والساعات</p>
                     <button onclick="filterCat('electronics', this)" class="bg-white text-blue-700 text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">تصفح القسم</button>
                 </div>
-                <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60" class="absolute right-[-20px] bottom-[-20px] w-40 h-40 object-contain opacity-40 rotate-[-12deg] mix-blend-overlay pointer-events-none">
+                <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60" class="absolute right-[-20px] bottom-[-20px] w-40 h-40 object-contain opacity-40 rotate-[-12deg] mix-blend-overlay pointer-events-none" alt="Technology">
             </div>
 
             <!-- 3. الموضة والأزياء -->
@@ -137,7 +176,7 @@
                     <p class="text-white/90 text-xs md:text-sm font-bold mb-3">أحدث صيحات الموضة</p>
                     <button onclick="filterCat('fashion', this)" class="bg-white text-pink-700 text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">اكتشف الأزياء</button>
                 </div>
-                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60" class="absolute right-[-20px] bottom-[-20px] w-40 h-40 object-contain opacity-40 rotate-[-15deg] mix-blend-overlay pointer-events-none">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60" class="absolute right-[-20px] bottom-[-20px] w-40 h-40 object-contain opacity-40 rotate-[-15deg] mix-blend-overlay pointer-events-none" alt="Fashion">
             </div>
 
             <!-- 4. عالم الجيمينج -->
@@ -149,7 +188,7 @@
                     <p class="text-white/90 text-xs md:text-sm font-bold mb-3">إكسسوارات ووحدات تحكم</p>
                     <button onclick="filterCat('toys', this)" class="bg-green-500 text-black text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg border border-green-400">ابدأ اللعب</button>
                 </div>
-                <img src="https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=500&auto=format&fit=crop&q=60" class="absolute right-[-30px] bottom-[-30px] w-48 h-48 object-contain opacity-30 rotate-[10deg] mix-blend-screen pointer-events-none">
+                <img src="https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=500&auto=format&fit=crop&q=60" class="absolute right-[-30px] bottom-[-30px] w-48 h-48 object-contain opacity-30 rotate-[10deg] mix-blend-screen pointer-events-none" alt="Gaming">
             </div>
 
             <!-- 5. منتج بلادي -->
@@ -166,13 +205,6 @@
 
         </div>
 
-
-             
-
-                
-            
-        
-
         <!-- شريط الفرز والعداد -->
         <div class="bg-white px-4 py-2 rounded-t-lg border-b border-gray-100 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -186,20 +218,26 @@
             <div class="text-[10px] text-gray-400 font-bold"><span id="itemsCount">0</span> نتيجة</div>
         </div>
 
-        <!-- القائمة الأفقية -->
+        <!-- القائمة الأفقية (متطابقة تماماً مع Dashboard) -->
         <div class="bg-white px-2 py-3 mb-3 rounded-b-lg shadow-sm">
             <div class="flex gap-2 overflow-x-auto no-scrollbar w-full">
                 <button onclick="filterCat('all', this)" class="chip-btn active px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">الكل</button>
-                <button id="btn-elec" onclick="filterCat('electronics', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">إلكترونيات</button>
+                <button onclick="filterCat('product', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">منتجات</button>
+                <button onclick="filterCat('service', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">خدمات</button>
+                <button onclick="filterCat('electronics', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">إلكترونيات</button>
                 <button onclick="filterCat('fashion', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">أزياء</button>
                 <button onclick="filterCat('home', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">منزل</button>
-                <button onclick="filterCat('service', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">خدمات</button>
+                <button onclick="filterCat('beauty', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">جمال</button>
+                <button onclick="filterCat('sports', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">رياضة</button>
+                <button onclick="filterCat('toys', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">ألعاب</button>
+                <button onclick="filterCat('books', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">كتب</button>
+                <button onclick="filterCat('automotive', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">سيارات</button>
+                <button onclick="filterCat('food', this)" class="chip-btn px-4 py-1.5 rounded-full text-[11px] border border-gray-200 bg-gray-50 whitespace-nowrap">طعام</button>
             </div>
         </div>
 
         <!-- شبكة المنتجات -->
         <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
-            <!-- Loading Skeleton -->
             <div class="col-span-full py-10 flex justify-center">
                 <i class="fas fa-circle-notch fa-spin text-[#fb2e2e] text-3xl"></i>
             </div>
@@ -220,7 +258,7 @@
 
     </main>
 
-    <!-- إشعار عائم في الأعلى (هدية) -->
+    <!-- إشعار الهدية العائم -->
     <div id="promoToast" class="fixed top-[-100px] left-2 right-2 md:left-auto md:right-8 md:w-[350px] bg-white rounded-xl shadow-2xl border border-red-100 p-3 flex items-center gap-3 z-[100] transition-all duration-500">
         <button onclick="closeToast()" class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gray-100 text-gray-400 w-6 h-6 rounded-full text-xs flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-sm border border-gray-200">
             <i class="fas fa-times"></i>
@@ -237,7 +275,7 @@
         </a>
     </div>
 
-    <!-- شريط تنقل سفلي للموبايل (مثل التطبيق) -->
+    <!-- شريط التنقل السفلي -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex justify-around items-center h-14 pb-safe">
         <a href="#" class="flex flex-col items-center gap-0.5 text-[#fb2e2e]">
             <i class="fas fa-home text-lg"></i>
@@ -260,32 +298,26 @@
     <script>
         let ALL_DATA = [];
         let FILTERED_DATA = [];
-        let DISPLAY_LIMIT = 6; // البدء بـ 6 منتجات
+        let DISPLAY_LIMIT = 6;
         const ITEMS_PER_PAGE = 6;
 
-        // عند التحميل
         window.onload = async () => {
-            // 1. تشغيل السلايدر
             initSlider();
-            // 2. تشغيل العداد
             startTimer();
-            // 3. إظهار التوست بعد 3 ثواني
             setTimeout(() => document.getElementById('promoToast').style.top = '70px', 3000);
 
             try {
-                // 4. جلب البيانات الحقيقية
                 const res = await fetch('/api/market');
                 ALL_DATA = await res.json();
                 FILTERED_DATA = [...ALL_DATA];
                 updateCount();
                 renderGrid();
             } catch (e) {
-                console.error("خطأ في جلب البيانات");
+                console.error("Error");
                 document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center text-red-500 py-10">حدث خطأ في الاتصال</p>';
             }
         };
 
-        // دالة عرض المنتجات (مع البيانات الحقيقية)
         function renderGrid() {
             const grid = document.getElementById('marketGrid');
             const loadMoreBtn = document.getElementById('loadMoreContainer');
@@ -302,30 +334,26 @@
             const visibleProducts = FILTERED_DATA.slice(0, DISPLAY_LIMIT);
 
             grid.innerHTML = visibleProducts.map(p => {
-                // حساب الخصم الحقيقي
                 const discount = (p.originalPrice && p.originalPrice > p.price) 
                     ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
                     : 0;
                 
-                // الصورة (مع fallback)
+                // SEO-Optimized Image Tag (with alt)
                 const imgUrl = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
 
                 return `
                 <div class="temu-card group cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-                    <!-- الصورة -->
                     <div class="relative w-full aspect-square bg-gray-100 overflow-hidden">
-                        <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                        <img src="${imgUrl}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
                         
                         ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ffe6e6] text-[#fb2e2e] text-[10px] font-black px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
                         ${p.isAffiliate ? `<div class="absolute top-2 left-2 bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-sm">Choice</div>` : ''}
                         
-                        <!-- زر سلة عائم يظهر عند الهوفر (فقط ديسكتوب) -->
                         <div class="hidden md:flex absolute bottom-2 right-2 w-8 h-8 bg-white text-[#fb2e2e] rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-[#fb2e2e] hover:text-white transform translate-y-2 group-hover:translate-y-0">
                             <i class="fas fa-shopping-cart text-xs"></i>
                         </div>
                     </div>
 
-                    <!-- التفاصيل -->
                     <div class="p-2">
                         <h3 class="title-clamp mb-1.5 text-gray-800 font-medium" title="${p.title}">${p.title}</h3>
                         
@@ -338,7 +366,6 @@
                             `<div class="text-[10px] text-gray-400 line-through mt-0.5">${Number(p.originalPrice).toLocaleString()}</div>` 
                             : ''}
 
-                        <!-- شارة إضافية حية -->
                         <div class="mt-2 flex items-center gap-1">
                             <span class="text-[9px] text-green-600 bg-green-50 px-1 rounded font-bold">توصيل متوفر</span>
                             ${p.rating ? `<span class="text-[9px] text-orange-500"><i class="fas fa-star"></i> ${p.rating}</span>` : ''}
@@ -354,34 +381,21 @@
             }
         }
 
-        // منطق السلايدر
-        // منطق السلايدر المطور (Refactored Logic)
         function initSlider() {
             const slides = document.querySelectorAll('.slider-slide');
             if (slides.length === 0) return;
-            
             let currentSlide = 0;
-            
             setInterval(() => {
-                // إخفاء الشريحة الحالية
                 slides[currentSlide].classList.remove('opacity-100');
                 slides[currentSlide].classList.add('opacity-0');
-                
-                // الانتقال للشريحة التالية
                 currentSlide = (currentSlide + 1) % slides.length;
-                
-                // إظهار الشريحة الجديدة
                 slides[currentSlide].classList.remove('opacity-0');
                 slides[currentSlide].classList.add('opacity-100');
-            }, 4000); // التبديل كل 4 ثواني
+            }, 4000);
         }
 
-
-        
-
-        // منطق العداد التنازلي
         function startTimer() {
-            let time = 7200 + 1500 + 12; // وقت عشوائي (2 ساعة و 25 دقيقة)
+            let time = 7200 + 1500 + 12;
             setInterval(() => {
                 time--;
                 if(time < 0) time = 7200;
@@ -394,10 +408,7 @@
             }, 1000);
         }
 
-        function loadMore() {
-            DISPLAY_LIMIT += ITEMS_PER_PAGE;
-            renderGrid();
-        }
+        function loadMore() { DISPLAY_LIMIT += ITEMS_PER_PAGE; renderGrid(); }
 
         function searchProducts(text) {
             const term = text.toLowerCase();
@@ -415,23 +426,16 @@
             btn.classList.remove('bg-gray-50');
             btn.classList.add('active');
 
-            if (cat === 'all') {
-                FILTERED_DATA = [...ALL_DATA];
-            } else {
-                FILTERED_DATA = ALL_DATA.filter(p => p.category === cat || p.type === cat);
-            }
+            if (cat === 'all') FILTERED_DATA = [...ALL_DATA];
+            else FILTERED_DATA = ALL_DATA.filter(p => p.category === cat || p.type === cat);
+            
             DISPLAY_LIMIT = 6;
             updateCount();
             renderGrid();
         }
 
-        function updateCount() {
-            document.getElementById('itemsCount').innerText = FILTERED_DATA.length;
-        }
-
-        function closeToast() {
-            document.getElementById('promoToast').style.top = '-200px';
-        }
+        function updateCount() { document.getElementById('itemsCount').innerText = FILTERED_DATA.length; }
+        function closeToast() { document.getElementById('promoToast').style.top = '-200px'; }
     </script>
 </body>
 </html>
