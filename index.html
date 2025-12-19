@@ -1,458 +1,556 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DzMarket | تسوق كثيف مثل المتاجر العالمية</title>
-
-  <script>tailwind={theme:{extend:{boxShadow:{soft:"0 20px 60px rgba(15,23,42,.10)",crisp:"0 12px 30px rgba(2,6,23,.12)"}}}}</script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>DzMarket | تسوق كثيف وسريع</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
-    *{font-family:"Cairo",system-ui,-apple-system,Segoe UI,sans-serif}
-    :root{
-      --bg:#0b1220; --card:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.10);
-      --text:#e5e7eb; --muted:rgba(229,231,235,.62);
-      --brand:#ff2d55; --brand2:#ffb703;
-    }
+    *{font-family:"Cairo",system-ui,-apple-system,Segoe UI,sans-serif; box-sizing:border-box}
+    html,body{width:100%; overflow-x:hidden}
     body{
+      margin:0;
+      background:#f5f6f8;
+      color:#111827;
       min-height:100vh;
-      background:
-        radial-gradient(1200px 600px at 20% -10%, rgba(255,45,85,0.30), transparent 60%),
-        radial-gradient(900px 500px at 90% 20%, rgba(255,183,3,0.22), transparent 60%),
-        radial-gradient(700px 420px at 50% 110%, rgba(56,189,248,0.16), transparent 60%),
-        var(--bg);
-      color:var(--text);
-      padding-bottom: 84px; /* space for bottom nav */
+      min-height:100dvh;
+      padding-bottom: 74px; /* مساحة للـ bottom nav */
     }
-    .glass{background:var(--card);border:1px solid var(--stroke);backdrop-filter:blur(14px)}
-    .muted{color:var(--muted)}
-    .no-scrollbar::-webkit-scrollbar{display:none}
-    .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
-    .clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .ring-brand:focus{outline:none;box-shadow:0 0 0 4px rgba(255,45,85,.25)}
-    .chip-active{background:rgba(255,45,85,.20)!important;border-color:rgba(255,45,85,.30)!important}
-    .skeleton{
-      background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.06) 63%);
-      background-size: 400% 100%;
-      animation: shimmer 1.2s ease-in-out infinite;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    @keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
 
-    /* Drawer */
-    .drawer-backdrop{display:none}
-    .drawer-open .drawer-backdrop{display:block}
-    .drawer{transform:translateX(120%)}
-    .drawer-open .drawer{transform:translateX(0)}
+    :root{
+      --brand:#ff2d55;
+      --brand2:#ffb703;
+      --line:#e5e7eb;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --bg:#f5f6f8;
+    }
+
+    /* Layout */
+    .container{width:100%; padding:0 10px}
+    @media (min-width: 640px){ .container{padding:0 12px} }
+    @media (min-width: 768px){ .container{max-width:1100px; margin:0 auto; padding:0 16px} body{padding-bottom:0} }
+    @media (min-width: 1280px){ .container{max-width:1240px} }
+
+    /* Header */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      background:#fff;
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 0;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width: 150px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .brand img{width:42px; height:42px; border-radius:12px; object-fit:cover}
+    .brand b{display:block; font-size:18px; letter-spacing:.2px}
+    .brand small{display:block; font-size:11px; color:var(--muted); margin-top:2px}
+
+    .search{
+      flex:1;
+      display:flex; align-items:center; gap:8px;
+      background:#f3f4f6;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:8px 10px;
+    }
+    .search input{
+      flex:1; border:0; background:transparent; outline:none;
+      font-size:14px;
+    }
+    .btn{
+      border:0; cursor:pointer;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+    }
+    .btn-primary{background:var(--brand); color:#fff}
+    .btn-ghost{background:#fff; border:1px solid var(--line); color:#111827}
+    .btn:active{transform:scale(.98)}
+
+    .actions{display:none; gap:8px; align-items:center}
+    @media (min-width: 768px){ .actions{display:flex} }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      background:#fff7ed; border:1px solid #fed7aa; color:#9a3412;
+      font-size:12px; font-weight:900;
+      white-space:nowrap;
+    }
+
+    /* Category chips row */
+    .chips{
+      display:flex; gap:8px;
+      overflow:auto; padding:10px 0 12px;
+      -ms-overflow-style:none; scrollbar-width:none;
+    }
+    .chips::-webkit-scrollbar{display:none}
+    .chip{
+      flex:0 0 auto;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .chip.active{border-color:rgba(255,45,85,.45); background:rgba(255,45,85,.08); color:#9f1239}
+
+    /* Dense homepage */
+    .grid-layout{display:grid; grid-template-columns: 1fr; gap:12px; padding:12px 0 18px}
+    @media (min-width: 1024px){ .grid-layout{grid-template-columns: 280px 1fr; gap:14px} }
+
+    /* Sidebar */
+    .side{
+      display:none;
+      background:#fff; border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      height: fit-content;
+      position:sticky; top:88px;
+    }
+    @media (min-width: 1024px){ .side{display:block} }
+    .side h3{
+      margin:0; padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      font-size:14px; font-weight:900;
+      background:#fafafa;
+    }
+    .side .side-list{padding:8px}
+    .side .side-btn{
+      width:100%;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid transparent;
+      background:#fff;
+      cursor:pointer;
+      font-weight:900; font-size:13px;
+    }
+    .side .side-btn:hover{background:#f9fafb; border-color:#eef2f7}
+    .side .side-btn.active{border-color:rgba(255,45,85,.35); background:rgba(255,45,85,.06); color:#9f1239}
+
+    /* Modules */
+    .module{
+      background:#fff; border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+    }
+    .module-head{
+      display:flex; justify-content:space-between; align-items:flex-end; gap:10px
+    }
+    .module-head h2{margin:0; font-size:16px; font-weight:900}
+    .module-head .meta{font-size:12px; color:var(--muted); font-weight:800}
+
+    /* Promo row */
+    .promo{
+      display:grid; gap:10px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 768px){ .promo{grid-template-columns: 2fr 1fr} }
+    .promo .banner{
+      border-radius:14px;
+      padding:14px;
+      background: linear-gradient(135deg, #fff 0%, #fff 60%, #fff0f3 100%);
+      border:1px solid var(--line);
+    }
+    .banner .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px; font-weight:900;
+      background:#111827; color:#fff;
+      padding:6px 10px; border-radius:999px;
+    }
+    .banner h1{margin:10px 0 6px; font-size:22px; font-weight:900; line-height:1.25}
+    .banner p{margin:0; color:var(--muted); font-size:13px; line-height:1.7}
+
+    .stat{
+      border-radius:14px;
+      padding:14px;
+      border:1px dashed #d1d5db;
+      background:#fafafa;
+    }
+    .stat b{display:block; font-size:22px}
+    .stat small{display:block; color:var(--muted); font-weight:800; margin-top:4px}
+
+    /* Flash row */
+    .hscroll{
+      display:flex; gap:10px; overflow:auto; padding:10px 2px 2px;
+      -ms-overflow-style:none; scrollbar-width:none;
+    }
+    .hscroll::-webkit-scrollbar{display:none}
+
+    .mini-card{
+      width:160px; flex:0 0 auto;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      overflow:hidden;
+      cursor:pointer;
+    }
+    .mini-card img{width:100%; aspect-ratio:1; object-fit:cover; background:#f3f4f6}
+    .mini-card .mc{padding:8px}
+    .mini-card .t{font-size:12px; font-weight:900; line-height:1.4; height:34px; overflow:hidden}
+    .mini-card .p{margin-top:6px; display:flex; justify-content:space-between; align-items:center}
+    .mini-card .p b{color:#b45309}
+    .badge{
+      font-size:11px; font-weight:900;
+      padding:4px 8px; border-radius:999px;
+      background:#ffe4e6; color:#9f1239;
+      border:1px solid #fecdd3;
+    }
+
+    /* Product grid (dense) */
+    .products{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      margin-top:12px;
+    }
+    @media (min-width: 768px){ .products{grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px} }
+    @media (min-width: 1024px){ .products{grid-template-columns: repeat(4, minmax(0,1fr));} }
+    @media (min-width: 1280px){ .products{grid-template-columns: repeat(5, minmax(0,1fr));} }
+
+    .card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      overflow:hidden;
+      cursor:pointer;
+      display:flex; flex-direction:column;
+      /* تحسين قوائم طويلة: لا نرسم خارج الشاشة إلا عند الحاجة */
+      content-visibility: auto;
+      contain-intrinsic-size: 320px 420px;
+    }
+    .card img{
+      width:100%;
+      aspect-ratio:1;
+      object-fit:cover;
+      background:#f3f4f6;
+    }
+    .card .c{padding:10px}
+    .card .title{font-size:13px; font-weight:900; line-height:1.5; height:40px; overflow:hidden}
+    .card .row{margin-top:8px; display:flex; justify-content:space-between; align-items:center; gap:8px}
+    .price{font-weight:900; font-size:16px; color:#b45309}
+    .muted-t{font-size:11px; color:var(--muted); font-weight:800}
+    .corner{
+      position:absolute; top:8px; right:8px;
+      background:#dc2626; color:#fff;
+      padding:4px 8px; border-radius:10px;
+      font-size:11px; font-weight:900;
+    }
+    .corner2{
+      position:absolute; top:8px; left:8px;
+      background:#2563eb; color:#fff;
+      padding:4px 8px; border-radius:10px;
+      font-size:11px; font-weight:900;
+    }
+
+    .card-wrap{position:relative}
+
+    /* Load more */
+    .loadmore{
+      margin-top:14px;
+      display:flex; justify-content:center;
+    }
 
     /* Mobile bottom nav */
-    @media (min-width: 768px){ body{padding-bottom:0} }
+    .bottom-nav{
+      position:fixed; left:0; right:0; bottom:0; z-index:60;
+      background:#fff;
+      border-top:1px solid var(--line);
+      padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+      display:flex; justify-content:space-around;
+    }
+    @media (min-width: 768px){ .bottom-nav{display:none} }
+    .bn-item{
+      width:20%; text-align:center;
+      color:#111827; text-decoration:none;
+      font-size:11px; font-weight:900;
+    }
+    .bn-item span{display:block; margin-top:5px; color:var(--muted); font-weight:800}
+    .bn-item .dot{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:40px; height:40px; border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+
+    /* Mobile drawer */
+    .drawer-backdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100}
+    .drawer{
+      position:fixed; top:0; right:0; height:100%; width:min(88%, 360px);
+      background:#fff; z-index:110;
+      border-left:1px solid var(--line);
+      transform:translateX(110%);
+      transition:transform .25s ease;
+      overflow:auto;
+    }
+    body.drawer-open .drawer-backdrop{display:block}
+    body.drawer-open .drawer{transform:translateX(0)}
+    .drawer .dh{
+      padding:12px; border-bottom:1px solid var(--line);
+      display:flex; justify-content:space-between; align-items:center;
+      position:sticky; top:0; background:#fff;
+    }
+    .drawer h3{margin:0; font-size:14px}
+    .drawer .sec{padding:12px}
+    .drawer .grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+    .drawer input, .drawer select{
+      width:100%; padding:10px 10px; border-radius:12px;
+      border:1px solid var(--line); outline:none;
+      background:#f9fafb;
+      font-weight:800;
+    }
+    .toggle{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 0; font-weight:900; font-size:13px;
+    }
   </style>
 </head>
 
 <body>
-  <!-- Sticky header -->
-  <header class="sticky top-0 z-50 glass border-b">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-      <button onclick="location.href='/'" class="flex items-center gap-3 shrink-0">
-        <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp"
-             class="w-10 h-10 rounded-2xl shadow-crisp" alt="DzMarket"/>
-        <div class="hidden sm:block text-right leading-tight">
-          <div class="font-black">DZMARKET</div>
-          <div class="text-[11px] muted">عروض كثيفة + أقسام كثيرة</div>
+
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand" onclick="location.href='/'">
+          <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp" alt="DzMarket">
+          <div>
+            <b>DZMARKET</b>
+            <small>ستايل كثيف + سريع</small>
+          </div>
         </div>
-      </button>
 
-      <!-- Search -->
-      <div class="flex-1">
-        <div class="glass rounded-2xl px-3 py-2 flex items-center gap-2">
-          <i class="fa-solid fa-magnifying-glass muted"></i>
-          <input id="q" class="w-full bg-transparent outline-none text-sm ring-brand"
-                 placeholder="ابحث عن أي شيء… (مثال: سماعات، جينز، صيانة، قطع غيار)" autocomplete="off">
-          <button id="searchBtn" class="px-4 py-2 rounded-xl font-black text-sm"
-                  style="background:linear-gradient(135deg,var(--brand),#ff5f7a);color:white">بحث</button>
+        <div class="search">
+          <span style="color:var(--muted);font-weight:900">بحث</span>
+          <input id="q" placeholder="مثال: هاتف، سماعات، أحذية، صيانة..." autocomplete="off" />
+          <button id="searchBtn" class="btn btn-primary">بحث</button>
         </div>
-      </div>
 
-      <!-- Actions -->
-      <div class="hidden md:flex items-center gap-2">
-        <button id="openMega" class="glass px-4 py-3 rounded-2xl font-black ring-brand">
-          <i class="fa-solid fa-layer-group ml-2"></i>كل الأقسام
-        </button>
-        <a href="/dashboard" class="glass px-4 py-3 rounded-2xl font-black">لوحة التحكم</a>
-        <a href="/dashboard" class="px-4 py-3 rounded-2xl font-black text-sm"
-           style="background:linear-gradient(135deg,var(--brand2),#ffd166);color:#2b1b00">ابدأ البيع</a>
-      </div>
-
-      <div class="flex md:hidden items-center gap-2">
-        <button id="openDrawer" class="glass px-3 py-3 rounded-2xl ring-brand"><i class="fa-solid fa-sliders"></i></button>
-      </div>
-    </div>
-
-    <!-- Offer bar -->
-    <div class="max-w-7xl mx-auto px-4 pb-3">
-      <div class="glass rounded-2xl px-4 py-2 text-[12px] flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-3">
-          <span class="font-black" style="color:var(--brand2)"><i class="fa-solid fa-bolt ml-2"></i>Flash Deals</span>
-          <span class="muted">تخفيضات سريعة + عروض أفيليت</span>
-        </div>
-        <div class="flex items-center gap-2 muted">
-          <span><i class="fa-solid fa-truck-fast ml-2"></i>توصيل 58 ولاية</span>
-          <span class="hidden sm:inline">•</span>
-          <span class="hidden sm:inline"><i class="fa-solid fa-shield-halved ml-2"></i>ثقة/سياسات واضحة</span>
+        <div class="actions">
+          <span class="pill">Flash Deals • تخفيضات</span>
+          <a href="/dashboard" class="btn btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center">لوحة التحكم</a>
+          <a href="/dashboard" class="btn" style="background:var(--brand2); color:#2b1b00; text-decoration:none; display:inline-flex;align-items:center">ابدأ البيع</a>
+          <button id="openDrawerBtn" class="btn btn-ghost">فلترة</button>
         </div>
       </div>
+
+      <div class="chips" id="chips"></div>
     </div>
   </header>
 
-  <!-- Drawer (mobile filters + categories) -->
-  <div class="drawer-backdrop fixed inset-0 z-50 bg-black/40" id="drawerBackdrop"></div>
-  <aside class="drawer fixed top-0 right-0 z-50 w-[88%] max-w-sm h-full glass shadow-soft transition-transform duration-300" id="drawer">
-    <div class="p-4 border-b" style="border-color:var(--stroke)">
-      <div class="flex items-center justify-between">
-        <div class="font-black text-lg">الأقسام + فلترة</div>
-        <button id="closeDrawer" class="glass px-3 py-2 rounded-xl">إغلاق</button>
-      </div>
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer">
+    <div class="dh">
+      <h3 style="font-weight:900">فلترة + فرز</h3>
+      <button class="btn btn-ghost" id="closeDrawerBtn">إغلاق</button>
     </div>
-    <div class="p-4 space-y-4">
-      <div class="glass rounded-2xl p-4">
-        <div class="font-black mb-3">الأقسام</div>
-        <div id="catListMobile" class="grid grid-cols-2 gap-2"></div>
+
+    <div class="sec">
+      <div style="font-weight:900; margin-bottom:8px">السعر</div>
+      <div class="grid2">
+        <input id="minPrice" placeholder="أدنى سعر" inputmode="numeric">
+        <input id="maxPrice" placeholder="أقصى سعر" inputmode="numeric">
       </div>
-      <div class="glass rounded-2xl p-4">
-        <div class="font-black mb-3">فلترة</div>
-        <div class="grid grid-cols-2 gap-3">
-          <input id="minPrice" class="glass rounded-xl px-3 py-3 outline-none text-sm ring-brand" placeholder="أدنى سعر" inputmode="numeric">
-          <input id="maxPrice" class="glass rounded-xl px-3 py-3 outline-none text-sm ring-brand" placeholder="أقصى سعر" inputmode="numeric">
-        </div>
-        <label class="flex items-center justify-between mt-3">
-          <span class="text-sm">أفيليت فقط</span>
-          <input id="onlyAffiliate" type="checkbox" class="accent-pink-500">
-        </label>
-        <label class="flex items-center justify-between mt-2">
-          <span class="text-sm">تخفيض فقط</span>
-          <input id="onlyDeals" type="checkbox" class="accent-pink-500">
-        </label>
 
-        <select id="sortBy" class="w-full mt-3 glass rounded-xl px-3 py-3 outline-none text-sm ring-brand">
-          <option value="new">الأحدث</option>
-          <option value="priceAsc">السعر: من الأقل</option>
-          <option value="priceDesc">السعر: من الأعلى</option>
-          <option value="discountDesc">الأكبر تخفيضًا</option>
-        </select>
+      <div class="toggle">
+        <span>أفيليت فقط</span>
+        <input id="onlyAffiliate" type="checkbox" style="width:18px;height:18px">
+      </div>
+      <div class="toggle">
+        <span>تخفيض فقط</span>
+        <input id="onlyDeals" type="checkbox" style="width:18px;height:18px">
+      </div>
 
-        <div class="flex gap-2 mt-3">
-          <button id="applyFilters" class="flex-1 px-4 py-3 rounded-2xl font-black"
-                  style="background:linear-gradient(135deg,var(--brand),#ff5f7a);color:white">تطبيق</button>
-          <button id="resetFilters" class="flex-1 glass px-4 py-3 rounded-2xl font-black">إعادة</button>
-        </div>
+      <div style="font-weight:900; margin:10px 0 8px">الفرز</div>
+      <select id="sortBy">
+        <option value="new">الأحدث</option>
+        <option value="priceAsc">السعر: من الأقل</option>
+        <option value="priceDesc">السعر: من الأعلى</option>
+        <option value="discountDesc">الأكبر تخفيضًا</option>
+      </select>
+
+      <div style="display:flex; gap:8px; margin-top:12px">
+        <button class="btn btn-primary" id="applyFilters" style="flex:1">تطبيق</button>
+        <button class="btn btn-ghost" id="resetFilters" style="flex:1">إعادة</button>
       </div>
     </div>
   </aside>
 
-  <!-- Dense homepage -->
-  <main class="max-w-7xl mx-auto px-4 py-6">
-    <section class="grid lg:grid-cols-12 gap-5">
-      <!-- Desktop sidebar categories (AliExpress style) -->
-      <aside class="hidden lg:block lg:col-span-3 glass rounded-[2rem] p-4 sticky top-[110px] h-fit">
-        <div class="flex items-center justify-between">
-          <div class="font-black">كل الأقسام</div>
-          <div class="text-[11px] muted">تصفح سريع</div>
-        </div>
-        <div id="catListDesktop" class="mt-3 space-y-2"></div>
-
-        <div class="mt-4 glass rounded-2xl p-4">
-          <div class="font-black">كوبونات</div>
-          <div class="mt-2 grid gap-2">
-            <button class="glass rounded-2xl px-4 py-3 text-sm font-black text-right">
-              <span style="color:var(--brand2)">-500 دج</span> عند الشراء فوق 5000 دج
-              <div class="text-[11px] muted mt-1">انسخ: DZ500</div>
-            </button>
-            <button class="glass rounded-2xl px-4 py-3 text-sm font-black text-right">
-              <span style="color:var(--brand2)">شحن مخفّض</span> لعروض مختارة
-              <div class="text-[11px] muted mt-1">حسب البائع</div>
-            </button>
+  <main class="container">
+    <section class="grid-layout">
+      <aside class="side">
+        <h3>كل الأقسام</h3>
+        <div class="side-list" id="sideCats"></div>
+        <div style="padding:12px; border-top:1px solid var(--line); background:#fafafa">
+          <div style="font-weight:900">كوبونات</div>
+          <div style="color:var(--muted); font-size:12px; margin-top:6px">
+            DZ500 • خصم تجريبي (يمكن ربطه لاحقًا)
           </div>
         </div>
       </aside>
 
-      <!-- Main content -->
-      <div class="lg:col-span-9 space-y-5">
-        <!-- Promo carousel -->
-        <section class="glass rounded-[2rem] p-4 md:p-6 overflow-hidden relative">
-          <div class="grid md:grid-cols-3 gap-4 items-stretch">
-            <div class="md:col-span-2 glass rounded-[1.6rem] p-5 relative overflow-hidden">
-              <div class="absolute -top-20 -left-20 w-72 h-72 rounded-full opacity-25"
-                   style="background:radial-gradient(circle, var(--brand), transparent 70%)"></div>
-              <div class="relative">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black"
-                     style="background:rgba(255,183,3,0.18);border:1px solid rgba(255,183,3,0.25);color:#ffe6a6">
-                  <i class="fa-solid fa-fire"></i> عروض يومية
-                </div>
-                <h1 class="mt-3 text-2xl md:text-4xl font-black leading-tight">
-                  تسوق كثيف مثل AliExpress<br><span style="color:var(--brand2)">أقسام + عروض + تخفيضات</span>
-                </h1>
-                <p class="mt-2 muted text-sm leading-relaxed">
-                  ابحث ثم صفّي النتائج، وشاهد Flash Deals، وخزّن مفضلاتك.
-                </p>
-                <div class="mt-4 flex gap-2 flex-wrap">
-                  <button onclick="document.getElementById('flash').scrollIntoView({behavior:'smooth'})"
-                          class="px-5 py-3 rounded-2xl font-black"
-                          style="background:linear-gradient(135deg,var(--brand),#ff5f7a);color:white">
-                    Flash Deals
-                  </button>
-                  <button onclick="document.getElementById('floors').scrollIntoView({behavior:'smooth'})"
-                          class="glass px-5 py-3 rounded-2xl font-black">
-                    أقسام اليوم
-                  </button>
-                </div>
+      <div style="display:flex; flex-direction:column; gap:12px">
+        <section class="module">
+          <div class="promo">
+            <div class="banner">
+              <span class="tag">عروض كثيفة اليوم</span>
+              <h1>واجهة سريعة بدون زجاج + منتجات كثيرة</h1>
+              <p>التصميم “AliExpress كثيف” لكن خفيف: بطاقات مضغوطة + عرض تدريجي للمنتجات.</p>
+              <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="document.getElementById('flash').scrollIntoView({behavior:'smooth'})">Flash Deals</button>
+                <button class="btn btn-ghost" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">المنتجات</button>
               </div>
             </div>
-
-            <div class="grid gap-4">
-              <div class="glass rounded-[1.6rem] p-5">
-                <div class="font-black">مؤشر السرعة</div>
-                <div class="muted text-[12px] mt-1">صور Lazy + بطاقات مضغوطة</div>
-                <div class="mt-4 flex items-center justify-between">
-                  <div class="text-3xl font-black" style="color:var(--brand2)" id="countAll">—</div>
-                  <div class="muted text-sm">منتج</div>
-                </div>
-              </div>
-              <div class="glass rounded-[1.6rem] p-5">
-                <div class="font-black">أفيليت</div>
-                <div class="muted text-[12px] mt-1">منتجات تربح منها عمولة</div>
-                <button class="mt-3 w-full px-4 py-3 rounded-2xl font-black"
-                        style="background:linear-gradient(135deg,#38bdf8,#60a5fa);color:#02111d"
-                        data-chip="affiliate">
-                  استعراض الأفيليت
-                </button>
-              </div>
+            <div class="stat">
+              <b id="allCount">—</b>
+              <small>عدد المنتجات</small>
+              <div style="height:10px"></div>
+              <b id="filteredCount">—</b>
+              <small>بعد الفلترة</small>
             </div>
           </div>
         </section>
 
-        <!-- Flash Deals row -->
-        <section id="flash" class="glass rounded-[2rem] p-4 md:p-6">
-          <div class="flex items-center justify-between">
-            <div class="font-black text-lg"><i class="fa-solid fa-bolt ml-2" style="color:var(--brand2)"></i>Flash Deals</div>
-            <div class="muted text-[12px]">أقوى التخفيضات</div>
+        <section class="module" id="flash">
+          <div class="module-head">
+            <h2>Flash Deals</h2>
+            <div class="meta">أقوى التخفيضات</div>
           </div>
-          <div id="flashRow" class="mt-4 flex gap-3 overflow-x-auto no-scrollbar pb-2"></div>
+          <div class="hscroll" id="flashRow"></div>
         </section>
 
-        <!-- Dense listing (like “Just for you”) -->
-        <section class="glass rounded-[2rem] p-4 md:p-6">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <div class="font-black text-lg">مقترحة لك</div>
-              <div class="muted text-[12px]"><span id="resultCount">—</span> نتيجة بعد الفلترة</div>
-            </div>
-            <div class="hidden md:flex items-center gap-2">
-              <select id="sortByDesktop" class="glass rounded-2xl px-4 py-3 outline-none text-sm ring-brand">
-                <option value="new">الأحدث</option>
-                <option value="priceAsc">السعر: من الأقل</option>
-                <option value="priceDesc">السعر: من الأعلى</option>
-                <option value="discountDesc">الأكبر تخفيضًا</option>
-              </select>
-              <button id="openDrawer2" class="glass px-4 py-3 rounded-2xl font-black ring-brand">
-                <i class="fa-solid fa-sliders ml-2"></i>فلترة
-              </button>
-            </div>
+        <section class="module" id="products">
+          <div class="module-head">
+            <h2>مقترحة لك</h2>
+            <div class="meta">عرض تدريجي لتقليل الثقل</div>
           </div>
 
-          <div id="grid" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"></div>
-        </section>
+          <div class="products" id="grid"></div>
 
-        <!-- Category floors -->
-        <section id="floors" class="space-y-5"></section>
+          <div class="loadmore">
+            <button id="loadMore" class="btn btn-ghost" style="padding:12px 16px">تحميل المزيد</button>
+          </div>
+        </section>
       </div>
     </section>
   </main>
 
-  <!-- Mobile bottom nav (AliExpress vibe) -->
-  <nav class="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[94%] glass rounded-[1.8rem] px-3 py-3 z-50">
-    <div class="flex items-center justify-between text-[11px]">
-      <button onclick="scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center gap-1 w-1/5">
-        <i class="fa-solid fa-house text-lg"></i><span class="muted">الرئيسية</span>
-      </button>
-      <button id="openDrawer3" class="flex flex-col items-center gap-1 w-1/5">
-        <i class="fa-solid fa-layer-group text-lg"></i><span class="muted">الأقسام</span>
-      </button>
-      <button onclick="document.getElementById('flash').scrollIntoView({behavior:'smooth'})" class="flex flex-col items-center gap-1 w-1/5">
-        <i class="fa-solid fa-bolt text-lg" style="color:var(--brand2)"></i><span class="muted">العروض</span>
-      </button>
-      <button id="wishBtn" class="flex flex-col items-center gap-1 w-1/5">
-        <i class="fa-regular fa-heart text-lg"></i><span class="muted">مفضلة</span>
-      </button>
-      <button id="cartBtn" class="flex flex-col items-center gap-1 w-1/5">
-        <i class="fa-solid fa-bag-shopping text-lg"></i><span class="muted">سلة</span>
-      </button>
-    </div>
+  <nav class="bottom-nav">
+    <a class="bn-item" href="javascript:void(0)" onclick="scrollTo({top:0,behavior:'smooth'})">
+      <span class="dot">🏠</span><span>الرئيسية</span>
+    </a>
+    <a class="bn-item" href="javascript:void(0)" onclick="document.getElementById('flash').scrollIntoView({behavior:'smooth'})">
+      <span class="dot">⚡</span><span>العروض</span>
+    </a>
+    <a class="bn-item" href="javascript:void(0)" onclick="openDrawer()">
+      <span class="dot">🎛️</span><span>فلترة</span>
+    </a>
+    <a class="bn-item" href="/dashboard">
+      <span class="dot">📦</span><span>البيع</span>
+    </a>
+    <a class="bn-item" href="/dashboard">
+      <span class="dot">👤</span><span>حسابي</span>
+    </a>
   </nav>
 
   <script>
-    // ---------------- Data + State ----------------
+    // --------- State ----------
     let ALL = [];
+    let FILTERED = [];
+    let visibleCount = 30;
+
     const CATS = [
-      {key:"all", name:"الكل", icon:"fa-border-all"},
-      {key:"electronics", name:"إلكترونيات", icon:"fa-laptop"},
-      {key:"fashion", name:"أزياء", icon:"fa-shirt"},
-      {key:"home", name:"منزل", icon:"fa-house"},
-      {key:"service", name:"خدمات", icon:"fa-handshake"},
-      {key:"affiliate", name:"أفيليت", icon:"fa-dollar-sign"},
-      {key:"deals", name:"تخفيضات", icon:"fa-tags"},
+      {key:"all", name:"الكل"},
+      {key:"electronics", name:"إلكترونيات"},
+      {key:"fashion", name:"أزياء"},
+      {key:"home", name:"منزل"},
+      {key:"service", name:"خدمات"},
+      {key:"affiliate", name:"أفيليت"},
+      {key:"deals", name:"تخفيضات"},
     ];
 
-    let state = {
-      cat:"all", q:"",
-      minPrice:"", maxPrice:"",
-      onlyAffiliate:false, onlyDeals:false,
-      sortBy:"new"
+    const state = {
+      cat: "all",
+      q: "",
+      minPrice: "",
+      maxPrice: "",
+      onlyAffiliate: false,
+      onlyDeals: false,
+      sortBy: "new",
     };
 
     const $ = (id)=>document.getElementById(id);
     const money = (n)=>Number(n||0).toLocaleString("ar-DZ");
-    const disc = (p)=>{
+    const discountPct = (p)=>{
       const op = Number(p.originalPrice||0), pr = Number(p.price||0);
       return (op>pr && op>0) ? Math.round(((op-pr)/op)*100) : 0;
     };
 
-    // ---------------- Drawer ----------------
-    function openDrawer(){ document.body.classList.add("drawer-open"); $("drawerBackdrop").style.display="block"; }
-    function closeDrawer(){ document.body.classList.remove("drawer-open"); $("drawerBackdrop").style.display="none"; }
+    // --------- Drawer ----------
+    function openDrawer(){ document.body.classList.add("drawer-open"); }
+    function closeDrawer(){ document.body.classList.remove("drawer-open"); }
 
-    // ---------------- Rendering ----------------
+    // --------- Render UI ----------
     function renderCats(){
-      // Desktop list
-      $("catListDesktop").innerHTML = CATS.map(c=>`
-        <button class="catBtn w-full glass rounded-2xl px-4 py-3 flex items-center justify-between text-sm font-black hover:opacity-95 transition"
-                data-cat="${c.key}">
-          <span class="flex items-center gap-2"><i class="fa-solid ${c.icon}"></i>${c.name}</span>
-          <i class="fa-solid fa-chevron-left muted"></i>
+      $("chips").innerHTML = CATS.map(c=>`
+        <button class="chip ${c.key==="all" ? "active":""}" data-cat="${c.key}">${c.name}</button>
+      `).join("");
+
+      $("sideCats").innerHTML = CATS.map(c=>`
+        <button class="side-btn ${c.key==="all" ? "active":""}" data-cat="${c.key}">
+          <span>${c.name}</span>
+          <span style="color:var(--muted)">‹</span>
         </button>
       `).join("");
 
-      // Mobile grid
-      $("catListMobile").innerHTML = CATS.map(c=>`
-        <button class="catBtn glass rounded-2xl px-3 py-3 text-sm font-black flex items-center justify-center gap-2"
-                data-cat="${c.key}">
-          <i class="fa-solid ${c.icon}"></i>${c.name}
-        </button>
-      `).join("");
-
-      document.querySelectorAll(".catBtn").forEach(btn=>{
+      document.querySelectorAll("[data-cat]").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           state.cat = btn.getAttribute("data-cat");
-          closeDrawer();
-          filterAndRender();
-        });
-      });
-
-      // small shortcut button
-      document.querySelectorAll("[data-chip='affiliate']").forEach(b=>{
-        b.addEventListener("click", ()=>{
-          state.cat="affiliate"; filterAndRender();
+          visibleCount = 30;
+          syncActiveCats();
+          applyAndRender();
         });
       });
     }
 
-    function renderGrid(list){
-      $("resultCount").textContent = list.length;
-
-      $("grid").innerHTML = list.map(p=>{
-        const img = (p.images && p.images[0]) || p.image || "https://via.placeholder.com/600";
-        const d = disc(p);
-        return `
-          <article class="glass rounded-[1.6rem] p-3 hover:opacity-[0.98] transition border" style="border-color:var(--stroke)">
-            <a href="/p/${p._id}" class="block">
-              <div class="relative rounded-[1.2rem] overflow-hidden border" style="border-color:var(--stroke)">
-                <img src="${img}" class="w-full aspect-square object-cover" loading="lazy" decoding="async" alt="">
-                ${d>0 ? `<div class="absolute top-2 right-2 px-2 py-1 rounded-xl text-[11px] font-black"
-                               style="background:rgba(255,45,85,.18);border:1px solid rgba(255,45,85,.25)">-${d}%</div>` : ""}
-                ${p.isAffiliate ? `<div class="absolute top-2 left-2 px-2 py-1 rounded-xl text-[11px] font-black"
-                               style="background:rgba(56,189,248,.16);border:1px solid rgba(56,189,248,.22)">
-                               <i class="fa-solid fa-dollar-sign ml-1"></i>أفيليت</div>` : ""}
-              </div>
-              <h3 class="mt-2 text-sm font-bold clamp-2 leading-6">${p.title || "منتج"}</h3>
-              <div class="mt-2 flex items-center justify-between">
-                <div class="text-lg font-black" style="color:var(--brand2)">${money(p.price)} <span class="text-[11px] muted">دج</span></div>
-                <div class="text-[11px] muted"><i class="fa-solid fa-location-dot ml-1"></i>${p.city || "الجزائر"}</div>
-              </div>
-            </a>
-          </article>
-        `;
-      }).join("");
+    function syncActiveCats(){
+      document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active", x.dataset.cat===state.cat));
+      document.querySelectorAll(".side-btn").forEach(x=>x.classList.toggle("active", x.dataset.cat===state.cat));
     }
 
-    function renderFlash(list){
-      const deals = list.filter(p=>disc(p)>0).sort((a,b)=>disc(b)-disc(a)).slice(0,12);
+    function renderFlash(){
+      const deals = ALL
+        .filter(p=>discountPct(p)>0)
+        .sort((a,b)=>discountPct(b)-discountPct(a))
+        .slice(0, 12);
+
       $("flashRow").innerHTML = deals.length ? deals.map(p=>{
         const img = (p.images && p.images[0]) || p.image || "https://via.placeholder.com/300";
         return `
-          <a href="/p/${p._id}" class="glass rounded-[1.6rem] p-3 w-[160px] shrink-0 border hover:opacity-95 transition"
-             style="border-color:var(--stroke)">
-            <img src="${img}" class="w-full aspect-square rounded-[1.2rem] object-cover" loading="lazy" decoding="async" alt="">
-            <div class="mt-2 text-[12px] font-bold clamp-2">${p.title || "منتج"}</div>
-            <div class="mt-2 flex items-center justify-between">
-              <span class="font-black" style="color:var(--brand2)">${money(p.price)} دج</span>
-              <span class="text-[11px] font-black" style="color:var(--brand)">-${disc(p)}%</span>
+          <div class="mini-card" onclick="location.href='/p/${p._id}'">
+            <img src="${img}" alt="" loading="lazy" decoding="async">
+            <div class="mc">
+              <div class="t">${p.title || "منتج"}</div>
+              <div class="p">
+                <b>${money(p.price)} دج</b>
+                <span class="badge">-${discountPct(p)}%</span>
+              </div>
             </div>
-          </a>
+          </div>
         `;
-      }).join("") : `<div class="muted text-sm">لا توجد تخفيضات حالياً.</div>`;
-    }
-
-    function renderFloors(baseList){
-      const floors = [
-        {key:"electronics", title:"إلكترونيات اليوم"},
-        {key:"fashion", title:"أزياء رائجة"},
-        {key:"home", title:"منزل وديكور"},
-        {key:"service", title:"خدمات قريبة منك"},
-      ];
-
-      const wrap = floors.map(f=>{
-        const items = ALL.filter(p => (p.category===f.key || p.type===f.key)).slice(0,10);
-        if(!items.length) return "";
-
-        const row = items.map(p=>{
-          const img = (p.images && p.images[0]) || p.image || "https://via.placeholder.com/240";
-          return `
-            <a href="/p/${p._id}" class="glass rounded-2xl p-3 w-[180px] shrink-0 border hover:opacity-95 transition"
-               style="border-color:var(--stroke)">
-              <img src="${img}" class="w-full aspect-square rounded-xl object-cover" loading="lazy" decoding="async" alt="">
-              <div class="mt-2 text-[12px] font-bold clamp-2">${p.title || "منتج"}</div>
-              <div class="mt-2 font-black" style="color:var(--brand2)">${money(p.price)} دج</div>
-            </a>
-          `;
-        }).join("");
-
-        return `
-          <section class="glass rounded-[2rem] p-4 md:p-6">
-            <div class="flex items-center justify-between">
-              <div class="font-black text-lg">${f.title}</div>
-              <button class="glass px-4 py-2 rounded-2xl text-[12px] font-black" onclick="setCat('${f.key}')">
-                المزيد <i class="fa-solid fa-chevron-left mr-2"></i>
-              </button>
-            </div>
-            <div class="mt-4 flex gap-3 overflow-x-auto no-scrollbar pb-2">${row}</div>
-          </section>
-        `;
-      }).join("");
-
-      $("floors").innerHTML = wrap || "";
-    }
-
-    function setCat(cat){
-      state.cat = cat;
-      filterAndRender();
-      document.querySelector("header")?.scrollIntoView({behavior:"smooth"});
+      }).join("") : `<div style="color:var(--muted);font-weight:900">لا توجد تخفيضات حالياً.</div>`;
     }
 
     function sortList(list){
@@ -460,16 +558,16 @@
       const arr = [...list];
       if (s==="priceAsc") arr.sort((a,b)=>Number(a.price||0)-Number(b.price||0));
       if (s==="priceDesc") arr.sort((a,b)=>Number(b.price||0)-Number(a.price||0));
-      if (s==="discountDesc") arr.sort((a,b)=>disc(b)-disc(a));
-      return arr; // "new" يبقى كما وصل من السيرفر
+      if (s==="discountDesc") arr.sort((a,b)=>discountPct(b)-discountPct(a));
+      return arr; // "new" يبقى كما يأتي من السيرفر
     }
 
-    function filterAndRender(){
+    function applyFilters(){
       let list = [...ALL];
 
       // category
       if (state.cat==="affiliate") list = list.filter(p=>!!p.isAffiliate);
-      else if (state.cat==="deals") list = list.filter(p=>disc(p)>0);
+      else if (state.cat==="deals") list = list.filter(p=>discountPct(p)>0);
       else if (state.cat!=="all") list = list.filter(p => (p.category===state.cat) || (p.type===state.cat));
 
       // query
@@ -477,102 +575,140 @@
       if (q) list = list.filter(p => String(p.title||"").toLowerCase().includes(q));
 
       // price
-      const minP = Number(state.minPrice||0), maxP = Number(state.maxPrice||0);
-      if (minP) list = list.filter(p=>Number(p.price||0)>=minP);
-      if (maxP) list = list.filter(p=>Number(p.price||0)<=maxP);
+      const minP = Number(state.minPrice||0);
+      const maxP = Number(state.maxPrice||0);
+      if (minP) list = list.filter(p => Number(p.price||0) >= minP);
+      if (maxP) list = list.filter(p => Number(p.price||0) <= maxP);
 
-      // toggles
       if (state.onlyAffiliate) list = list.filter(p=>!!p.isAffiliate);
-      if (state.onlyDeals) list = list.filter(p=>disc(p)>0);
+      if (state.onlyDeals) list = list.filter(p=>discountPct(p)>0);
 
-      list = sortList(list);
-
-      renderFlash(ALL);       // flash من الكل
-      renderGrid(list);       // المقترحة حسب الفلترة
-      renderFloors(ALL);      // floors حسب الأقسام
+      return sortList(list);
     }
 
-    function renderSkeleton(){
-      $("grid").innerHTML = Array.from({length:8}).map(()=>`
-        <div class="glass rounded-[1.6rem] p-3">
-          <div class="skeleton rounded-[1.2rem] aspect-square w-full"></div>
-          <div class="mt-3 skeleton rounded-xl h-4 w-[92%]"></div>
-          <div class="mt-2 skeleton rounded-xl h-4 w-[70%]"></div>
-        </div>
-      `).join("");
-      $("flashRow").innerHTML = Array.from({length:6}).map(()=>`
-        <div class="glass rounded-[1.6rem] p-3 w-[160px] shrink-0">
-          <div class="skeleton rounded-[1.2rem] aspect-square w-full"></div>
-          <div class="mt-2 skeleton rounded-xl h-4 w-[92%]"></div>
-        </div>
-      `).join("");
+    function renderGridIncremental(){
+      const slice = FILTERED.slice(0, visibleCount);
+      $("filteredCount").textContent = FILTERED.length;
+
+      $("grid").innerHTML = slice.map(p=>{
+        const img = (p.images && p.images[0]) || p.image || "https://via.placeholder.com/600";
+        const d = discountPct(p);
+        const affiliate = !!p.isAffiliate;
+        return `
+          <div class="card" onclick="location.href='/p/${p._id}'">
+            <div class="card-wrap">
+              <img src="${img}" alt="" loading="lazy" decoding="async">
+              ${d>0 ? `<div class="corner">-${d}%</div>` : ``}
+              ${affiliate ? `<div class="corner2">أفيليت</div>` : ``}
+            </div>
+            <div class="c">
+              <div class="title">${p.title || "منتج"}</div>
+              <div class="row">
+                <div class="price">${money(p.price)} <span class="muted-t">دج</span></div>
+                <div class="muted-t">${p.city || "الجزائر"}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // زر المزيد
+      $("loadMore").style.display = (visibleCount < FILTERED.length) ? "inline-flex" : "none";
     }
 
-    // ---------------- Events ----------------
+    function applyAndRender(){
+      FILTERED = applyFilters();
+      renderFlash();
+      renderGridIncremental();
+    }
+
+    // --------- Events ----------
     function bindEvents(){
-      // drawer
-      $("openDrawer").addEventListener("click", openDrawer);
-      $("openDrawer2").addEventListener("click", openDrawer);
-      $("openDrawer3").addEventListener("click", openDrawer);
-      $("drawerBackdrop").addEventListener("click", closeDrawer);
-      $("closeDrawer").addEventListener("click", closeDrawer);
-
-      // search
       $("searchBtn").addEventListener("click", ()=>{
         state.q = $("q").value;
-        filterAndRender();
+        visibleCount = 30;
+        applyAndRender();
       });
       $("q").addEventListener("keydown", (e)=>{
         if(e.key==="Enter"){
           state.q = $("q").value;
-          filterAndRender();
+          visibleCount = 30;
+          applyAndRender();
         }
       });
 
-      // filters
+      $("loadMore").addEventListener("click", ()=>{
+        visibleCount += 30;
+        renderGridIncremental();
+      });
+
+      // drawer
+      $("drawerBackdrop").addEventListener("click", closeDrawer);
+      $("closeDrawerBtn").addEventListener("click", closeDrawer);
+      $("openDrawerBtn")?.addEventListener("click", openDrawer);
+
       $("applyFilters").addEventListener("click", ()=>{
         state.minPrice = $("minPrice").value.trim();
         state.maxPrice = $("maxPrice").value.trim();
         state.onlyAffiliate = $("onlyAffiliate").checked;
         state.onlyDeals = $("onlyDeals").checked;
         state.sortBy = $("sortBy").value;
-        const d = $("sortByDesktop"); if(d) d.value = state.sortBy;
+        visibleCount = 30;
         closeDrawer();
-        filterAndRender();
+        applyAndRender();
       });
 
       $("resetFilters").addEventListener("click", ()=>{
         $("minPrice").value=""; $("maxPrice").value="";
         $("onlyAffiliate").checked=false; $("onlyDeals").checked=false;
         $("sortBy").value="new";
-        const d = $("sortByDesktop"); if(d) d.value = "new";
         state.minPrice=""; state.maxPrice=""; state.onlyAffiliate=false; state.onlyDeals=false; state.sortBy="new";
-        filterAndRender();
-      });
-
-      // desktop sort
-      $("sortByDesktop")?.addEventListener("change", (e)=>{
-        state.sortBy = e.target.value;
-        $("sortBy").value = state.sortBy;
-        filterAndRender();
+        visibleCount = 30;
+        applyAndRender();
       });
     }
 
-    // ---------------- Load ----------------
+    function renderSkeletons(){
+      $("flashRow").innerHTML = Array.from({length:6}).map(()=>`
+        <div class="mini-card">
+          <div style="width:100%;aspect-ratio:1;background:#f3f4f6"></div>
+          <div class="mc">
+            <div style="height:12px;background:#f3f4f6;border-radius:8px"></div>
+            <div style="height:12px;background:#f3f4f6;border-radius:8px;margin-top:8px;width:70%"></div>
+          </div>
+        </div>
+      `).join("");
+
+      $("grid").innerHTML = Array.from({length:8}).map(()=>`
+        <div class="card">
+          <div style="width:100%;aspect-ratio:1;background:#f3f4f6"></div>
+          <div class="c">
+            <div style="height:12px;background:#f3f4f6;border-radius:8px"></div>
+            <div style="height:12px;background:#f3f4f6;border-radius:8px;margin-top:8px;width:65%"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // --------- Init ----------
     async function init(){
-      renderSkeleton();
       renderCats();
       bindEvents();
+      renderSkeletons();
 
       try{
         const res = await fetch("/api/market");
         ALL = await res.json();
-      }catch(e){ ALL = []; }
+      }catch(e){
+        ALL = [];
+      }
 
-      $("countAll").textContent = ALL.length || "0";
-      filterAndRender();
+      $("allCount").textContent = ALL.length || "0";
+      syncActiveCats();
+      applyAndRender();
     }
     init();
   </script>
 </body>
 </html>
+
