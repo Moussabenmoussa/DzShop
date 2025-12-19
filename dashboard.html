@@ -891,8 +891,38 @@
                     <input id="depAmount" type="number" placeholder="مثال: 500" class="input-field w-full px-4 py-3 rounded-xl">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-2">رابط صورة الوصل</label>
-                    <input id="depProof" type="url" placeholder="https://..." class="input-field w-full px-4 py-3 rounded-xl text-left" dir="ltr">
+                    <div>
+    <label class="block text-sm font-semibold mb-2">صورة الوصل (إثبات الدفع)</label>
+    
+    <!-- زر اختيار الملف -->
+    <div class="flex items-center gap-2 mb-2">
+        <input type="file" id="depFileInput" accept="image/*" class="block w-full text-sm text-slate-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-xl file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100
+        "/>
+    </div>
+
+    <!-- رسالة جاري التحميل -->
+    <div id="depLoadingMsg" class="hidden mb-2">
+        <p class="text-blue-600 text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-spinner fa-spin"></i> جاري رفع الوصل...
+        </p>
+    </div>
+
+    <!-- رسالة النجاح -->
+    <div id="depSuccessMsg" class="hidden mb-2 p-3 bg-green-50 border border-green-200 rounded-xl">
+        <p class="text-green-700 text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-check-circle"></i> تم إرفاق الوصل بنجاح!
+        </p>
+    </div>
+
+    <!-- الحقل المخفي الذي سيخزن الرابط لإرساله للسيرفر -->
+    <!-- احتفظنا بنفس الـ ID القديم (depProof) لكي لا نعدل دالة الإرسال -->
+    <input id="depProof" type="hidden">
+</div>
                 </div>
                 <button onclick="submitDeposit()" class="btn-primary w-full text-white font-bold py-4 rounded-xl">تأكيد الإرسال</button>
                 <button onclick="closeDepositModal()" class="w-full text-gray-500 py-2 font-semibold">إلغاء</button>
@@ -1565,6 +1595,37 @@
                 document.getElementById('extraSuccessMsg').classList.remove('hidden');
             }
         });
+
+
+
+// ==========================================
+        // كود جديد: رفع صورة الوصل في المحفظة
+        // ==========================================
+        const depInput = document.getElementById('depFileInput');
+        if(depInput) depInput.addEventListener('change', async () => {
+            // إظهار التحميل وإخفاء النجاح
+            document.getElementById('depLoadingMsg').classList.remove('hidden');
+            document.getElementById('depSuccessMsg').classList.add('hidden');
+            
+            // استخدام دالة الرفع الموجودة مسبقاً
+            const url = await uploadToCloudinary(depInput.files[0]);
+            
+            // إخفاء التحميل
+            document.getElementById('depLoadingMsg').classList.add('hidden');
+            
+            if(url) {
+                // وضع الرابط في الحقل المخفي
+                document.getElementById('depProof').value = url;
+                // إظهار رسالة النجاح
+                document.getElementById('depSuccessMsg').classList.remove('hidden');
+            } else {
+                showToast('فشل رفع الصورة، حاول مرة أخرى', 'error');
+            }
+        });
+
+
+
+        
 
         // Colors
         const colors = [
