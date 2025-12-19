@@ -1,262 +1,280 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket | عروض وتخفيضات</title>
+    <title>DzMarket | السوق العالمي</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* إعدادات ألوان AliExpress & Temu */
         :root {
-            --brand-red: #fb2e2e; /* أحمر تيمو */
+            --brand-red: #fb2e2e;
             --brand-orange: #ff6600;
-            --price-color: #fb2e2e;
             --bg-color: #f6f6f6;
         }
 
         * { font-family: 'Cairo', sans-serif; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: #333; }
 
-        /* إخفاء السكرول بار */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* --- تصميم الكارت "المضغوط" (High Density Card) --- */
+        /* كارد المنتج - Temu Style */
         .temu-card {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            position: relative;
-            /* لا يوجد ظل في الحالة العادية لتقليل التشويش البصري مثل تيمو */
-            border: 1px solid transparent; 
+            background: white; border-radius: 0.5rem; overflow: hidden; position: relative;
+            border: 1px solid transparent; transition: all 0.2s;
         }
-        
-        /* عند التحويم، يظهر إطار أحمر خفيف */
         .temu-card:hover {
-            border-color: var(--brand-red);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            z-index: 10;
+            border-color: var(--brand-red); transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10;
         }
 
-        /* تنسيق السعر الضخم */
-        .price-tag {
-            color: var(--price-color);
-            font-weight: 800;
-            line-height: 1;
-        }
-        
-        /* تقطيع العنوان لسطرين فقط */
         .title-clamp {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            font-size: 0.75rem; /* خط صغير جداً 12px */
-            line-height: 1.3;
-            color: #444;
-            height: 2.6em;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden; font-size: 0.75rem; line-height: 1.3; height: 2.6em;
         }
 
-        /* زر "أضف" الدائري فوق الصورة */
-        .add-btn-overlay {
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--brand-red);
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.2s;
+        /* زر التحميل المزيد */
+        .load-more-btn {
+            background: white; border: 1px solid #ddd; color: #333;
+            font-weight: bold; width: 100%; padding: 12px; border-radius: 99px;
+            transition: all 0.3s;
         }
-        .temu-card:hover .add-btn-overlay {
-            background: var(--brand-red);
-            color: white;
-        }
+        .load-more-btn:hover { border-color: var(--brand-red); color: var(--brand-red); }
 
-        /* شريط التصنيفات المتحرك (Pills) */
-        .cat-pill.active {
-            background-color: black;
-            color: white;
-            font-weight: bold;
-        }
-        
-        /* زر البحث مثل التطبيقات */
-        .search-input-wrapper {
-            border: 2px solid var(--brand-red);
-            border-radius: 99px;
-        }
+        /* التبويبات النشطة */
+        .sort-btn.active { color: var(--brand-red); font-weight: 800; border-bottom: 2px solid var(--brand-red); }
+        .chip-btn.active { background-color: black; color: white; border-color: black; }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-20">
 
-    <!-- الهيدر: مضغوط، تجاري، بدون فراغات زائدة -->
+    <!-- الهيدر -->
     <header class="bg-white sticky top-0 z-50 shadow-sm pt-2 pb-2">
         <div class="max-w-[1400px] mx-auto px-3">
-            
-            <!-- الصف العلوي: اللوجو + البحث + الروابط -->
             <div class="flex items-center gap-3 mb-2">
-                <!-- اللوجو (نص فقط لتوفير المساحة أو صورة صغيرة) -->
                 <div class="flex-shrink-0 cursor-pointer" onclick="location.reload()">
                     <span class="font-black text-2xl text-[#fb2e2e] tracking-tighter">DZ</span>
                 </div>
 
-                <!-- شريط البحث (مسيطر على المساحة) -->
-                <div class="flex-1 search-input-wrapper flex h-9 md:h-10 relative bg-white overflow-hidden">
-                    <input type="text" class="w-full h-full px-4 text-xs md:text-sm outline-none placeholder-gray-400" placeholder="ابحث عن منتج...">
-                    <button class="bg-[#fb2e2e] text-white px-4 md:px-6 font-bold text-sm h-full flex items-center justify-center">
+                <!-- البحث الحقيقي -->
+                <div class="flex-1 flex h-10 relative bg-white border-2 border-[#fb2e2e] rounded-full overflow-hidden">
+                    <input type="text" id="searchInput" onkeyup="searchProducts(this.value)" class="w-full h-full px-4 text-sm outline-none placeholder-gray-400" placeholder="ابحث عن منتج...">
+                    <button class="bg-[#fb2e2e] text-white px-4 md:px-6 font-bold text-sm h-full">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
 
-                <!-- أزرار التحكم (Backend Links) -->
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <a href="/dashboard" class="flex flex-col items-center justify-center text-gray-600 hover:text-[#fb2e2e] px-1">
-                        <i class="fas fa-store text-lg"></i>
-                        <span class="text-[9px] font-bold mt-0.5 hidden md:block">المتجر</span>
-                    </a>
-                    <a href="/dashboard" class="flex flex-col items-center justify-center text-gray-600 hover:text-[#fb2e2e] px-1">
-                        <i class="fas fa-user text-lg"></i>
-                        <span class="text-[9px] font-bold mt-0.5 hidden md:block">حسابي</span>
+                    <a href="/dashboard" class="flex flex-col items-center px-2 hover:text-[#fb2e2e]">
+                        <i class="fas fa-store"></i>
+                        <span class="text-[9px] font-bold">متجري</span>
                     </a>
                 </div>
-            </div>
-
-            <!-- الصف السفلي: الفئات (شريط تمرير أفقي مثل التطبيقات) -->
-            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                <button onclick="filterCat('all')" class="cat-pill active px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap bg-gray-100 text-gray-700 transition">الكل</button>
-                <button onclick="filterCat('electronics')" class="cat-pill px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200 transition">إلكترونيات</button>
-                <button onclick="filterCat('fashion')" class="cat-pill px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200 transition">ملابس وأزياء</button>
-                <button onclick="filterCat('home')" class="cat-pill px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200 transition">المنزل</button>
-                <button onclick="filterCat('service')" class="cat-pill px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200 transition">خدمات</button>
             </div>
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي -->
     <main class="max-w-[1400px] mx-auto px-2 py-3">
 
-        <!-- بانر إعلاني بسيط (اختياري، يمكن حذفه إذا أردت فقط المنتجات) -->
-        <div class="mb-3 rounded-lg overflow-hidden relative h-32 md:h-48 bg-gradient-to-r from-[#fb2e2e] to-[#ff6600]">
-            <div class="absolute inset-0 flex flex-col justify-center px-6 text-white">
-                <h2 class="text-2xl md:text-4xl font-black mb-1">Big Sale</h2>
-                <p class="text-xs md:text-sm font-bold opacity-90">خصومات تصل حتى 70%</p>
-                <button onclick="document.getElementById('marketGrid').scrollIntoView()" class="mt-3 bg-white text-[#fb2e2e] text-xs font-black px-4 py-2 rounded-full w-fit shadow-md">تسوق الآن</button>
+        <!-- شريط الفرز (Sorting) -->
+        <div class="bg-white px-4 py-2 rounded-t-lg border-b border-gray-100 flex items-center justify-between">
+            <div class="flex gap-6 text-xs font-bold text-gray-500">
+                <button onclick="sortProducts('default')" class="sort-btn active pb-1">المقترحة</button>
+                <button onclick="sortProducts('new')" class="sort-btn pb-1 hover:text-[#fb2e2e]">الأحدث</button>
+                <button onclick="sortProducts('price')" class="sort-btn pb-1 hover:text-[#fb2e2e]">السعر</button>
             </div>
-            <!-- زخرفة بسيطة -->
-            <div class="absolute right-[-20px] bottom-[-20px] w-32 h-32 bg-white opacity-10 rounded-full"></div>
+            <div class="text-[10px] text-gray-400 font-bold"><span id="itemsCount">0</span> نتيجة</div>
         </div>
 
-        <!-- شريط الفرز (Sorting) - محاكاة لـ AliExpress -->
-        <div class="bg-white p-2 rounded-md mb-3 flex items-center justify-between shadow-sm border border-gray-100">
-            <div class="flex gap-4 text-xs font-bold text-gray-500">
-                <span class="text-black border-b-2 border-black pb-0.5">المقترحة</span>
-                <span class="hover:text-[#fb2e2e] cursor-pointer">الطلبات</span>
-                <span class="hover:text-[#fb2e2e] cursor-pointer">السعر</span>
-            </div>
-            <div class="text-[10px] text-gray-400">items found</div>
+        <!-- القائمة الأفقية المتحركة الجديدة (تحت الفرز مباشرة) -->
+        <div class="bg-white px-2 py-3 mb-3 rounded-b-lg shadow-sm overflow-x-auto no-scrollbar flex gap-2">
+            <button onclick="filterCat('all')" class="chip-btn active px-4 py-1.5 rounded-full text-[11px] font-bold border border-gray-200 bg-gray-50 whitespace-nowrap transition">الكل</button>
+            <button onclick="filterCat('electronics')" class="chip-btn px-4 py-1.5 rounded-full text-[11px] font-bold border border-gray-200 bg-gray-50 whitespace-nowrap transition hover:border-[#fb2e2e]">إلكترونيات</button>
+            <button onclick="filterCat('fashion')" class="chip-btn px-4 py-1.5 rounded-full text-[11px] font-bold border border-gray-200 bg-gray-50 whitespace-nowrap transition hover:border-[#fb2e2e]">أزياء</button>
+            <button onclick="filterCat('home')" class="chip-btn px-4 py-1.5 rounded-full text-[11px] font-bold border border-gray-200 bg-gray-50 whitespace-nowrap transition hover:border-[#fb2e2e]">منزل</button>
+            <button onclick="filterCat('service')" class="chip-btn px-4 py-1.5 rounded-full text-[11px] font-bold border border-gray-200 bg-gray-50 whitespace-nowrap transition hover:border-[#fb2e2e]">خدمات</button>
+            <button onclick="filterCat('beauty')" class="chip-btn px-4 py-1.5 rounded-full text-[11px] font-bold border border-gray-200 bg-gray-50 whitespace-nowrap transition hover:border-[#fb2e2e]">تجميل</button>
         </div>
 
-        <!-- شبكة المنتجات (Waterfall Grid) -->
-        <!-- الموبايل: عمودين بمسافة صغيرة جداً (gap-2) -->
-        <!-- الديسكتوب: 5 أو 6 أعمدة -->
-        <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-3">
-            <!-- سيتم ملؤها بالجافاسكربت -->
+        <!-- شبكة المنتجات -->
+        <div id="marketGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3 mb-6">
+            <!-- المنتجات ستظهر هنا -->
+        </div>
+
+        <!-- زر عرض المزيد -->
+        <div id="loadMoreContainer" class="text-center px-4 hidden">
+            <button onclick="loadMore()" class="load-more-btn">
+                عرض المزيد <i class="fas fa-chevron-down mr-1"></i>
+            </button>
+        </div>
+
+        <!-- رسالة عند عدم وجود نتائج -->
+        <div id="noResults" class="hidden text-center py-10 text-gray-400">
+            <i class="fas fa-search text-3xl mb-2"></i>
+            <p>لا توجد نتائج مطابقة</p>
         </div>
 
     </main>
 
-    <!-- الجافاسكربت: نفس الكود الأصلي تماماً، التغيير فقط في الـ HTML داخل الـ render -->
     <script>
-        let ALL_DATA = [];
+        // المتغيرات العامة لإدارة الحالة (State Management)
+        let ALL_DATA = [];           // البيانات الخام من السيرفر
+        let CURRENT_FILTERED = [];   // البيانات بعد الفلترة والبحث
+        let DISPLAY_COUNT = 4;       // عدد المنتجات المعروضة حالياً (تبدأ بـ 4)
+        const INCREMENT = 4;         // عدد المنتجات المضافة عند ضغط "المزيد"
 
+        // 1. الجلب الأولي للبيانات
         window.onload = async () => {
             try {
                 const res = await fetch('/api/market');
                 ALL_DATA = await res.json();
-                render(ALL_DATA);
+                
+                // في البداية، القائمة المفلترة هي كل البيانات
+                CURRENT_FILTERED = [...ALL_DATA];
+                
+                // تحديث العداد
+                document.getElementById('itemsCount').innerText = ALL_DATA.length;
+                
+                // رسم المنتجات
+                renderGrid();
             } catch (e) {
                 console.error("Fetch error");
+                document.getElementById('marketGrid').innerHTML = '<p class="text-center col-span-full text-red-500">خطأ في التحميل</p>';
             }
         };
 
-        function render(list) {
+        // 2. دالة الرسم الرئيسية (تعتمد على DISPLAY_COUNT)
+        function renderGrid() {
             const grid = document.getElementById('marketGrid');
-            
-            grid.innerHTML = list.map(p => {
-                // حساب نسبة الخصم
+            const noResults = document.getElementById('noResults');
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            const countLabel = document.getElementById('itemsCount');
+
+            // تحديث عدد النتائج
+            countLabel.innerText = CURRENT_FILTERED.length;
+
+            if (CURRENT_FILTERED.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                loadMoreContainer.classList.add('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+
+            // أخذ جزء من المصفوفة بناءً على العدد المسموح بعرضه (Pagination Slice)
+            const productsToShow = CURRENT_FILTERED.slice(0, DISPLAY_COUNT);
+
+            grid.innerHTML = productsToShow.map(p => {
                 const discount = (p.originalPrice && p.originalPrice > p.price) ? Math.round(((p.originalPrice - p.price)/p.originalPrice)*100) : 0;
                 
-                // هذا التصميم هو سر مظهر AliExpress/Temu:
-                // 1. لا هوامش داخلية كبيرة (p-2).
-                // 2. السعر هو البطل.
-                // 3. الصورة تأخذ المساحة الكاملة.
                 return `
                 <div class="temu-card group cursor-pointer" onclick="location.href='/p/${p._id}'">
-                    
-                    <!-- الصورة -->
                     <div class="relative w-full aspect-square">
                         <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover">
+                        ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ffe6e6] text-[#fb2e2e] text-[10px] font-black px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
                         
-                        <!-- زر إضافة للسلة يظهر فوق الصورة (ستايل Temu) -->
-                        <div class="absolute bottom-2 right-2 w-7 h-7 add-btn-overlay flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <i class="fas fa-plus text-xs"></i>
+                        <!-- زر إضافة حقيقي (يمكن ربطه بالكارت) -->
+                        <div class="absolute bottom-2 right-2 w-8 h-8 bg-white/90 text-[#fb2e2e] rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#fb2e2e] hover:text-white" onclick="event.stopPropagation(); addToCart('${p._id}')">
+                            <i class="fas fa-plus"></i>
                         </div>
-
-                        <!-- شارة خصم صفراء/حمراء في الزاوية -->
-                        ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ffede5] text-[#fb2e2e] text-[9px] font-black px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
                     </div>
 
-                    <!-- المعلومات -->
-                    <div class="p-2 pt-1.5">
-                        <!-- العنوان (صغير ومضغوط) -->
-                        <h3 class="title-clamp mb-1" title="${p.title}">${p.title}</h3>
+                    <div class="p-2 pt-2">
+                        <h3 class="title-clamp mb-1.5" title="${p.title}">${p.title}</h3>
                         
-                        <!-- شارات "وهمية" تعتمد على البيانات الحقيقية (للزينة فقط) -->
-                        <div class="mb-1 h-3.5">
-                            ${p.isAffiliate ? 
-                                `<span class="bg-black text-white text-[8px] px-1 rounded font-bold inline-block leading-3">Choice</span>` 
-                                : '<span class="bg-[#ffe6e6] text-[#fb2e2e] text-[8px] px-1 rounded font-bold inline-block leading-3">Extra Deal</span>'}
-                        </div>
-
-                        <!-- السعر (كبير وأحمر) -->
                         <div class="flex items-baseline flex-wrap gap-1">
-                            <span class="text-[10px] text-[#fb2e2e] font-bold">DA</span>
-                            <span class="text-lg font-black text-[#fb2e2e] leading-none">${Number(p.price).toLocaleString()}</span>
-                            
-                            <!-- السعر القديم صغير جداً ورمادي -->
-                            ${p.originalPrice && p.originalPrice > p.price ? 
-                                `<span class="text-[9px] text-gray-400 line-through decoration-gray-400">${Number(p.originalPrice).toLocaleString()}</span>` 
-                                : ''}
+                            <span class="text-[10px] text-[#fb2e2e] font-bold">DZD</span>
+                            <span class="text-xl font-black text-[#fb2e2e] leading-none">${Number(p.price).toLocaleString()}</span>
                         </div>
-
-                        <!-- تقييم ومبيعات (نص رمادي صغير جداً) -->
-                        <div class="mt-1 flex items-center gap-1">
-                            <div class="flex text-[8px] text-[#ffb800]">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <span class="text-[9px] text-gray-400">(4.8)</span>
+                        
+                        ${p.originalPrice && p.originalPrice > p.price ? 
+                            `<div class="text-[10px] text-gray-400 line-through mt-0.5">${Number(p.originalPrice).toLocaleString()} دج</div>` 
+                            : ''}
+                            
+                        <div class="mt-2 text-[9px] text-gray-500 bg-gray-50 px-1 py-0.5 rounded w-fit">
+                            ${p.isAffiliate ? '<i class="fas fa-coins text-yellow-500"></i> عمولة متوفرة' : 'بيع مباشر'}
                         </div>
                     </div>
                 </div>`;
             }).join('');
+
+            // التحكم في ظهور زر "عرض المزيد"
+            if (CURRENT_FILTERED.length > DISPLAY_COUNT) {
+                loadMoreContainer.classList.remove('hidden');
+            } else {
+                loadMoreContainer.classList.add('hidden');
+            }
         }
 
-        // دالة الفلتر (لم تتغير، فقط الشكل النشط للأزرار يتغير عبر CSS)
-        function filterCat(cat) {
-            // تحديث الشكل البصري للأزرار
-            document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active', 'bg-black', 'text-white'));
-            document.querySelectorAll('.cat-pill').forEach(btn => {
-                if(!btn.classList.contains('active')) { btn.classList.add('bg-gray-100', 'text-gray-700'); }
-            });
-            event.target.classList.remove('bg-gray-100', 'text-gray-700');
-            event.target.classList.add('active');
+        // 3. دالة عرض المزيد (Real Pagination)
+        function loadMore() {
+            DISPLAY_COUNT += INCREMENT; // زيادة 4 منتجات
+            renderGrid(); // إعادة الرسم
+        }
 
-            // منطق الفلتر الأصلي
-            if(cat === 'all') render(ALL_DATA);
-            else render(ALL_DATA.filter(p => p.category === cat || p.type === cat));
+        // 4. دالة البحث الحقيقية (Real Search)
+        function searchProducts(query) {
+            const lowerQuery = query.toLowerCase();
+            CURRENT_FILTERED = ALL_DATA.filter(p => p.title.toLowerCase().includes(lowerQuery));
+            DISPLAY_COUNT = 4; // إعادة تعيين العداد عند البحث
+            renderGrid();
+        }
+
+        // 5. دالة الفلتر بالتصنيف (Real Filter)
+        function filterCat(cat) {
+            // تحديث ستايل الأزرار
+            document.querySelectorAll('.chip-btn').forEach(btn => btn.classList.remove('active', 'bg-black', 'text-white', 'border-black'));
+            document.querySelectorAll('.chip-btn').forEach(btn => {
+                if(!btn.classList.contains('active')) btn.classList.add('bg-gray-50', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-50', 'text-gray-700');
+            event.target.classList.add('active', 'bg-black', 'text-white', 'border-black');
+
+            // المنطق
+            if (cat === 'all') {
+                CURRENT_FILTERED = [...ALL_DATA];
+            } else {
+                CURRENT_FILTERED = ALL_DATA.filter(p => p.category === cat || p.type === cat);
+            }
+            
+            DISPLAY_COUNT = 4; // إعادة تعيين العداد
+            // مسح حقل البحث إذا كان المستخدم يستخدم الفلتر
+            document.getElementById('searchInput').value = '';
+            renderGrid();
+        }
+
+        // 6. دالة الترتيب (Real Sorting)
+        function sortProducts(type) {
+            // تحديث الستايل
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active', 'text-[#fb2e2e]', 'border-b-2'));
+            event.target.classList.add('active', 'text-[#fb2e2e]', 'border-b-2');
+
+            // المنطق
+            if (type === 'price') {
+                CURRENT_FILTERED.sort((a, b) => a.price - b.price);
+            } else if (type === 'new') {
+                // افتراض أن الترتيب العكسي هو الأحدث إذا لم يوجد تاريخ
+                CURRENT_FILTERED.reverse(); 
+            } else {
+                // إعادة الترتيب الافتراضي (عشوائي أو حسب الـ ID)
+                // هنا سنقوم بإعادة تحميل البيانات المفلترة الأصلية لترتيبها الافتراضي
+                // لتبسيط الأمر سنقوم بخلط بسيط أو الاعتماد على البحث الأخير
+                 // (في تطبيق حقيقي قد تحتاج لإعادة الفرز حسب التاريخ الأصلي)
+                 searchProducts(document.getElementById('searchInput').value); // خدعة لإعادة الفلتر الحالي
+            }
+            
+            DISPLAY_COUNT = 4;
+            renderGrid();
+        }
+
+        // دالة وهمية لإضافة للسلة (يمكنك استبدالها بالكود الخاص بك)
+        function addToCart(id) {
+            alert('تمت إضافة المنتج ' + id + ' للسلة (هذا زر حقيقي ينتظر كود الباك اند الخاص بك)');
         }
     </script>
 </body>
