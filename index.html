@@ -113,13 +113,39 @@
                 </div>
                 <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/v1765973958/my8crq9sx9aezvda0wrd.webp" class="absolute right-[-20px] bottom-[-20px] w-32 h-32 opacity-20 rotate-12">
             </div>
-            <!-- Slide 2 -->
-            <div class="slide w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center px-6 text-white relative">
-                <div class="z-10">
-                    <h2 class="text-2xl font-black mb-1">إلكترونيات</h2>
-                    <p class="text-xs opacity-90 mb-3">أحدث الهواتف والساعات</p>
-                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-600 text-xs font-bold px-4 py-2 rounded-full">استكشف</button>
+            <!-- Slide 2: إلكترونيات -->
+            <div class="slide w-full h-full bg-gradient-to-r from-blue-800 to-indigo-900 flex items-center px-6 text-white relative overflow-hidden">
+                <div class="z-10 relative">
+                    <span class="bg-yellow-400 text-black text-[10px] font-black px-2 py-1 rounded mb-2 inline-block animate-pulse">جديد 2025</span>
+                    <h2 class="text-2xl font-black mb-1">عالم التقنية</h2>
+                    <p class="text-xs opacity-80 mb-3 max-w-[150px]">ساعات ذكية، سماعات، والمزيد بأسعار خيالية.</p>
+                    <button onclick="filterCat('electronics', document.getElementById('btn-elec'))" class="bg-white text-blue-900 text-xs font-bold px-5 py-2 rounded-full shadow-lg hover:scale-105 transition">تصفح الآن</button>
                 </div>
+                <!-- دائرة خلفية للزينة -->
+                <div class="absolute right-[-20px] top-[-20px] w-40 h-40 bg-blue-600 rounded-full blur-3xl opacity-50"></div>
+                <!-- صورة (استخدمت صورة ساعة ذكية كمثال) -->
+                <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=60" 
+                     class="absolute right-[-10px] bottom-0 w-32 h-32 object-contain drop-shadow-2xl rotate-[-10deg] hover:rotate-0 transition duration-700">
+            </div>
+
+
+             <!-- Slide 3: هدية ترحيب -->
+            <div class="slide w-full h-full bg-gradient-to-br from-gray-900 to-black flex items-center px-6 text-white relative overflow-hidden">
+                <div class="z-10">
+                    <h2 class="text-2xl font-black mb-1 text-yellow-400">هدية ترحيب</h2>
+                    <p class="text-sm font-bold mb-1">كوبون بقيمة <span class="text-yellow-400 text-lg">500 دج</span></p>
+                    <p class="text-[10px] text-gray-400 mb-3">عند تسجيل أول حساب لك معنا</p>
+                    <a href="/dashboard" class="bg-yellow-400 text-black text-xs font-black px-6 py-2 rounded-full shadow-lg hover:bg-yellow-300 transition">سجل واحصل عليها</a>
+                </div>
+                <!-- أيقونة هدية عائمة -->
+                <div class="absolute right-2 bottom-4 animate-bounce">
+                    <i class="fas fa-gift text-6xl text-yellow-500 drop-shadow-lg"></i>
+                </div>
+                <!-- زينة خلفية -->
+                <div class="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+            </div>
+
+                
             </div>
         </div>
 
