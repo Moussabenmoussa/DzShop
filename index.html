@@ -104,6 +104,51 @@
         <!-- السلايدر المتحرك (نسخة الإصلاح الجذري) -->
         <!-- السلايدر المطور (Refactored Slider) -->
         <div class="relative w-full h-40 md:h-48 rounded-xl overflow-hidden shadow-lg mb-4 bg-gray-100">
+
+
+<!-- الشريحة 5: منتج بلادي -->
+            <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-0"
+                 style="background: linear-gradient(135deg, #15803d 0%, #ca8a04 100%); z-index: 1;">
+                
+                <div class="relative z-10 w-2/3">
+                    <span class="bg-white text-green-700 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block shadow-sm">صنع في الجزائر 🇩🇿</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">جودة محلية</h2>
+                    <p class="text-white/90 text-xs md:text-sm font-bold mb-3">أفضل المنتجات الحرفية والوطنية</p>
+                    <button onclick="filterCat('all', this)" class="bg-white text-green-800 text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">
+                        دعم المنتوج
+                    </button>
+                </div>
+                <!-- صورة فخار أو منتج تقليدي (رمز) -->
+                <i class="fas fa-hand-holding-heart absolute right-2 bottom-2 text-8xl text-white/20 -rotate-12 pointer-events-none"></i>
+            </div>
+
+
+
+            
+<!-- الشريحة 4: ألعاب (Gaming) -->
+            <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-0"
+                 style="background: linear-gradient(135deg, #111827 0%, #059669 100%); z-index: 1;">
+                
+                <div class="relative z-10 w-2/3">
+                    <span class="bg-green-500 text-black text-[10px] font-black px-2 py-1 rounded mb-2 inline-block shadow-sm animate-pulse">Level Up 🎮</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">منطقة اللاعبين</h2>
+                    <p class="text-white/90 text-xs md:text-sm font-bold mb-3">إكسسوارات، وحدات تحكم والمزيد</p>
+                    <button onclick="filterCat('toys', this)" class="bg-green-500 text-black text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg border border-green-400">
+                        ابدأ اللعب
+                    </button>
+                </div>
+                <!-- صورة ذراع تحكم -->
+                <img src="https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=500&auto=format&fit=crop&q=60" 
+                     class="absolute right-[-30px] bottom-[-30px] w-48 h-48 object-contain opacity-30 rotate-[10deg] mix-blend-screen pointer-events-none">
+            </div>
+
+
+
+
+
+
+
+
             
             <!-- الشريحة 1: عروض الشتاء (حمراء) - تظهر افتراضياً opacity-100 -->
             <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-100"
@@ -122,6 +167,27 @@
                      class="absolute right-[-10px] bottom-[-20px] w-32 h-32 md:w-40 md:h-40 object-cover opacity-20 rotate-12 pointer-events-none">
             </div>
 
+<!-- الشريحة 3: الموضة والأزياء -->
+            <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-0"
+                 style="background: linear-gradient(135deg, #be185d 0%, #8b5cf6 100%); z-index: 1;">
+                
+                <div class="relative z-10 w-2/3">
+                    <span class="bg-white text-pink-700 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block shadow-sm">New Style ✨</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">أناقة وتوفير</h2>
+                    <p class="text-white/90 text-xs md:text-sm font-bold mb-3">أحدث صيحات الموضة 2025</p>
+                    <button onclick="filterCat('fashion', this)" class="bg-white text-pink-700 text-[10px] md:text-xs font-black px-5 py-2 rounded-full hover:scale-105 transition shadow-lg">
+                        اكتشف الأزياء
+                    </button>
+                </div>
+                <!-- صورة حذاء رياضي عصري -->
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60" 
+                     class="absolute right-[-20px] bottom-[-20px] w-40 h-40 object-contain opacity-40 rotate-[-15deg] mix-blend-overlay pointer-events-none">
+            </div>
+
+
+
+
+            
             <!-- الشريحة 2: التكنولوجيا (زرقاء) - مخفية افتراضياً opacity-0 -->
             <div class="slider-slide absolute inset-0 w-full h-full flex items-center px-6 transition-opacity duration-1000 ease-in-out opacity-0"
                  style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); z-index: 1;">
