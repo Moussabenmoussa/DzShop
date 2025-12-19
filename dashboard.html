@@ -1475,27 +1475,103 @@
 
     // ========== 8. المحفظة (Wallet) ==========
     async function loadWallet() {
+        // تحديث الرصيد في الواجهة
         document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        
+        // تحميل طرق الدفع (للمودال)
         loadPaymentMethods();
+
         try {
             const res = await fetch('/api/transactions/' + USER._id);
             const trans = await res.json();
             const list = document.getElementById('transactionsList');
-            if(!trans.length) { list.innerHTML = '<p class="text-center py-4">لا توجد معاملات</p>'; return; }
-            list.innerHTML = trans.slice(0, 10).map(t => `
-                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                        <i class="fas fa-${t.type === 'deposit' ? 'arrow-down' : 'arrow-up'}"></i>
+
+            if (!trans.length) { 
+                list.innerHTML = '<p class="text-center py-4 text-gray-500">لا توجد معاملات</p>'; 
+                return; 
+            }
+
+            list.innerHTML = trans.slice(0, 15).map(t => {
+                // إعداد المتغيرات الافتراضية
+                let icon = 'arrow-down';
+                let colorClass = 'bg-green-100 text-green-600';
+                let amountColor = 'text-green-600';
+                let sign = '+';
+                let title = t.description; // النص الافتراضي
+                let statusBadge = '';
+
+                // ============ تخصيص العرض بناءً على النوع والحالة ============
+                
+                if (t.type === 'withdraw') {
+                    // --- حالة السحب ---
+                    icon = 'hand-holding-usd';
+                    colorClass = 'bg-red-100 text-red-600';
+                    amountColor = 'text-red-600';
+                    sign = '-';
+                    title = 'سحب أرباح';
+
+                    // تغيير النص والأيقونة بناءً على الحالة (pending, approved, rejected)
+                    if (t.status === 'pending') {
+                        statusBadge = '<span class="text-xs font-bold text-amber-600 flex items-center gap-1"><i class="fas fa-clock"></i> مراجعة الدفعة</span>';
+                    } else if (t.status === 'approved') {
+                        statusBadge = '<span class="text-xs font-bold text-green-600 flex items-center gap-1"><i class="fas fa-check-circle"></i> تم الدفع</span>';
+                    } else if (t.status === 'rejected') {
+                        statusBadge = '<span class="text-xs font-bold text-red-600 flex items-center gap-1"><i class="fas fa-times-circle"></i> مرفوض</span>';
+                    } else {
+                        // حالة افتراضية (جاري الإرسال)
+                        statusBadge = '<span class="text-xs font-bold text-blue-600 flex items-center gap-1"><i class="fas fa-spinner fa-spin"></i> جاري الإرسال</span>';
+                    }
+
+                } else if (t.type === 'deposit') {
+                    // --- حالة الشحن ---
+                    title = 'شحن رصيد';
+                    if (t.status === 'pending') {
+                        statusBadge = '<span class="text-xs text-amber-600">قيد المراجعة</span>';
+                    } else if (t.status === 'approved') {
+                        statusBadge = '<span class="text-xs text-green-600">تم الشحن</span>';
+                    }
+                } else if (t.type === 'deduct') {
+                     // --- خصم خدمات ---
+                     icon = 'arrow-up';
+                     colorClass = 'bg-gray-100 text-gray-600';
+                     amountColor = 'text-red-600';
+                     sign = '-';
+                     // نعرض الوصف كما هو (مثلاً: كشف طلب، فتح محادثة)
+                }
+
+                return `
+                <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-md transition">
+                    <!-- الأيقونة -->
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center ${colorClass} text-lg">
+                        <i class="fas fa-${icon}"></i>
                     </div>
+                    
+                    <!-- التفاصيل -->
                     <div class="flex-1">
-                        <div class="font-semibold">${t.description || (t.type === 'deposit' ? 'شحن' : 'خصم')}</div>
-                        <div class="text-xs text-gray-500">${formatTime(t.date)}</div>
+                        <div class="font-bold text-sm text-gray-800 dark:text-gray-200">${title}</div>
+                        
+                        <!-- هنا يظهر النص الذي طلبته (مراجعة الدفعة / تم الدفع) -->
+                        <div class="mt-0.5">${statusBadge}</div>
+                        
+                        <div class="text-[10px] text-gray-400 mt-1">${formatTime(t.date)}</div>
                     </div>
-                    <span class="font-bold ${t.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">${t.type === 'deposit' ? '+' : '-'}${t.amount}</span>
+                    
+                    <!-- المبلغ -->
+                    <div class="text-right">
+                        <span class="font-black text-lg ${amountColor}" style="direction: ltr;">${sign}${Number(t.amount).toLocaleString()}</span>
+                        <div class="text-[10px] text-gray-400 font-bold">${APP_SETTINGS.currency}</div>
+                    </div>
                 </div>
-            `).join('');
-        } catch(e) {}
+                `;
+            }).join('');
+        } catch(e) {
+            console.error(e);
+        }
     }
+
+
+
+    
 
     async function loadPaymentMethods() {
         try {
