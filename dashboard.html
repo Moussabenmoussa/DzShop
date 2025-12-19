@@ -2,25 +2,14 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
-
-    
-
-    
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
-
-
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DzMarket - السوق الجزائري</title>
-    
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp">
 <link rel="apple-touch-icon" href="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp">
-
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
@@ -33,26 +22,22 @@
         .dark { --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; }
         body { background: var(--bg-secondary); color: var(--text-primary); }
         .hidden { display: none !important; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         .animate-slideUp { animation: slideUp 0.4s ease-out; }
         .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
         .animate-shake { animation: shake 0.5s ease-in-out; }
         .animate-pulse { animation: pulse 2s infinite; }
-
         /* Sidebar */
         #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
         #sidebar.open { transform: translateX(0); }
         .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .overlay.open { opacity: 1; pointer-events: auto; }
-
         /* Product Card - AliExpress Style */
         .product-card { 
             background: var(--bg-card); 
@@ -797,9 +782,6 @@
         <textarea id="pImages" class="hidden"></textarea>
     </div>
 
-    
-    
-
                                 <div class="mt-4">
     <div class="mb-4">
         <label class="block text-sm font-semibold mb-3">الألوان المتاحة (اضغط لتحديد الألوان)</label>
@@ -815,13 +797,7 @@
     <div>
         <label class="block text-sm font-semibold mb-2">المقاسات المتاحة</label>
         <input id="pSizes" type="text" placeholder="مثال: S, M, L, XL, 38, 40, 42" class="input-field w-full px-4 py-3 rounded-xl">
-    </div>
-</div>
-
-
-                                        
-                                        
-
+    </div>                          </div>                                   
                                 <div class="mt-4">
                                     <label class="block text-sm font-semibold mb-2">مدة العرض (ساعات)</label>
                                     <input id="pOfferTime" type="number" placeholder="24" class="input-field w-full px-4 py-3 rounded-xl">
@@ -869,9 +845,7 @@
                     </div>
                 </div>
             </div>
-
         </main>
-
         <!-- Bottom Navigation -->
         <nav class="bottom-nav md:hidden fixed bottom-0 left-0 right-0 flex justify-around py-2 z-40">
             <button onclick="nav('market')" class="nav-item active flex-1 flex flex-col items-center py-2" data-view="market">
@@ -897,7 +871,6 @@
             </button>
         </nav>
     </div>
-
     <!-- Deposit Modal -->
     <div id="depositModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-md rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
@@ -907,7 +880,6 @@
                 </div>
                 <h3 class="text-xl font-black">شحن الرصيد</h3>
             </div>
-
             <!-- Payment Methods -->
             <div id="paymentMethods" class="space-y-3 mb-6">
                 <!-- Will be loaded dynamically -->
@@ -927,7 +899,6 @@
             </div>
         </div>
     </div>
-
     <!-- Reveal Order Modal -->
     <div id="revealOrderModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-sm rounded-2xl p-6 text-center">
@@ -942,7 +913,6 @@
             </div>
         </div>
     </div>
-
     <!-- Accept Chat Modal -->
     <div id="acceptChatModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content w-full max-w-sm rounded-2xl p-6 text-center">
@@ -957,18 +927,9 @@
             </div>
         </div>
     </div>
-
     <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
-
-
-
-    
-    
-
-
 <div id="toastContainer" class="fixed top-24 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[200] space-y-2"></div>
-
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
     // ========== 1. إعدادات عامة والوضع الليلي ==========
@@ -1107,11 +1068,6 @@
             document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ في التحميل</p>';
         }
     }
-
-
-
-
-    
     function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) { 
@@ -1155,14 +1111,6 @@
         }).join('');
         setupLazyLoading();
     }
-
-
-
-
-
-
-
-    
     function filterProducts() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q))));
@@ -1759,7 +1707,8 @@
         }
     });
 </script>
-
+</body>
+</html>
 
 
 
@@ -1779,7 +1728,6 @@
 
 
     
-</body>
-</html>
+
 
 
