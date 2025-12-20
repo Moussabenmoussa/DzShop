@@ -297,26 +297,7 @@
 
 
 
-.ticker-wrap { width: 100%; }
-.ticker {
-    display: inline-block;
-    animation: ticker-move 30s linear infinite;
-    padding-right: 100%;
-}
-.ticker-item { 
-    display: inline-flex !important; 
-    align-items: center; 
-    px-8; 
-    font-size: 10px; 
-    font-weight: bold; 
-    color: #64748b; 
-}
-.ticker-item span { color: #e63946; font-weight: 800; margin: 0 4px; }
 
-@keyframes ticker-move {
-    0% { transform: translate3d(100%, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
-}
 
 
 
@@ -336,13 +317,7 @@
 </head>
 
 
-<div class="ticker-wrap flex items-center bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 h-8 overflow-hidden relative z-30">
-    <div id="liveTicker" class="ticker whitespace-nowrap">
-        <div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
-            <i class="fas fa-sync fa-spin ml-1"></i> جاري تحديث النشاطات المباشرة...
-        </div>
-    </div>
-</div>
+
 
     
 <body class="min-h-screen pb-20 md:pb-0">
@@ -2140,23 +2115,7 @@ function renderProductSlider(list) {
 
 
 
-function updateLiveTicker() {
-    const tickerContainer = document.getElementById('liveTicker');
-    if (!tickerContainer || !USER) return;
 
-    let items = [
-        `<i class="fas fa-wallet text-amber-500"></i> رصيدك: <span>${USER.balance.toLocaleString()} ${APP_SETTINGS.currency}</span>`,
-        `<i class="fas fa-bullhorn text-blue-500"></i> شارك روابط الأفيليت واربح عمولات فورية!`,
-        `<i class="fas fa-shield-alt text-green-500"></i> جميع تعاملاتك في DzMarket محمية ومؤمنة.`
-    ];
-
-    if (window.ORDERS && ORDERS.length > 0) {
-        items.push(`<i class="fas fa-shopping-cart text-red-500"></i> آخر طلب: <span>${ORDERS[0].listingTitle}</span>`);
-    }
-
-    const content = items.map(text => `<div class="ticker-item">${text}</div>`).join('');
-    tickerContainer.innerHTML = content + content + content; // تكرار لضمان الحركة المستمرة
-}
     
 
 
