@@ -295,16 +295,35 @@
 
 
 
-.ticker-wrap { width: 100%; }
+/* تنسيقات شريط الأخبار - تأكد من وجودها */
+.ticker-wrap { 
+    width: 100%; 
+    overflow: hidden; 
+}
+
 .ticker {
     display: inline-block;
-    animation: ticker 30s linear infinite;
+    white-space: nowrap;
     padding-right: 100%;
+    /* هذه الحركة هي التي تجعل النص يظهر ويتحرك */
+    animation: ticker-move 30s linear infinite; 
 }
-.ticker-item { display: inline-block; }
-.ticker-item span { color: #e63946; font-weight: 800; }
 
-@keyframes ticker {
+.ticker-item { 
+    display: inline-flex !important; 
+    align-items: center; 
+    padding: 0 2rem;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.ticker-item span { 
+    color: #e63946; 
+    margin: 0 4px;
+}
+
+/* تعريف حركة الأنميشن */
+@keyframes ticker-move {
     0% { transform: translate3d(100%, 0, 0); }
     100% { transform: translate3d(-100%, 0, 0); }
 }
@@ -1115,6 +1134,12 @@
         nav('market');
         startNotificationPolling();
         setupLazyLoading();
+await loadOrders(); // تأكد من تحميل الطلبات أولاً
+    updateLiveTicker(); // ثم شغل الشريط
+}
+
+
+        
         
         // تتبع الأفيليت
         const urlParams = new URLSearchParams(window.location.search);
@@ -2113,29 +2138,30 @@ function renderProductSlider(list) {
 
 function updateLiveTicker() {
     const tickerContainer = document.getElementById('liveTicker');
-    if (!tickerContainer || !USER) return;
+    if (!tickerContainer) return;
 
-    let tickerHTML = '';
-    
-    // خبر الرصيد
-    tickerHTML += `<div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
-        <i class="fas fa-wallet text-amber-500 ml-1"></i> رصيدك الحالي: <span>${USER.balance.toLocaleString()} ${APP_SETTINGS.currency}</span>
-    </div>`;
+    // التأكد من وجود بيانات المستخدم، إذا لم تكن موجودة نضع نصاً مؤقتاً
+    const userName = (typeof USER !== 'undefined' && USER.name) ? USER.name : 'أهلاً بك';
+    const balance = (typeof USER !== 'undefined' && USER.balance) ? USER.balance : 0;
 
-    // خبر الطلبات (إذا كانت المصفوفة ORDERS محملة)
+    let items = [
+        `<i class="fas fa-user-circle text-blue-500"></i> مرحباً بك <span>${userName}</span> في DzMarket`,
+        `<i class="fas fa-wallet text-amber-500"></i> رصيدك الحالي هو: <span>${balance.toLocaleString()} دج</span>`,
+        `<i class="fas fa-bullhorn text-red-500"></i> شارك منتجاتك واربح عمولات حقيقية الآن!`,
+        `<i class="fas fa-shield-alt text-green-500"></i> جميع تعاملاتك في المنصة مؤمنة ومحمية.`
+    ];
+
+    // إضافة آخر طلب إذا كان موجوداً
     if (window.ORDERS && ORDERS.length > 0) {
-        tickerHTML += `<div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
-            <i class="fas fa-shopping-cart text-green-500 ml-1"></i> آخر طلب: <span>${ORDERS[0].listingTitle}</span> من <span>${ORDERS[0].buyerName}</span>
-        </div>`;
+        items.push(`<i class="fas fa-shopping-basket text-purple-500"></i> آخر نشاط: طلب جديد على <span>${ORDERS[0].listingTitle}</span>`);
     }
 
-    tickerHTML += `<div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
-        <i class="fas fa-bullhorn text-blue-500 ml-1"></i> نصيحة: <span>شارك رابط الأفيليت لزيادة أرباحك!</span>
-    </div>`;
-
-    tickerContainer.innerHTML = tickerHTML + tickerHTML; 
+    // بناء النص النهائي
+    const tickerContent = items.map(item => `<div class="ticker-item inline-block px-8 text-[10px] font-bold text-gray-500">${item}</div>`).join('');
+    
+    // تكرار المحتوى 3 مرات لضمان عدم وجود فراغ أثناء الحركة الدائرية
+    tickerContainer.innerHTML = tickerContent + tickerContent + tickerContent;
 }
-
     
     
 
