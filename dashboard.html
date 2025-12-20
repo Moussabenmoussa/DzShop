@@ -536,6 +536,24 @@
                     </button>
                 </div>
 
+
+<div class="mb-6 animate-fadeIn">
+    <div class="flex items-center justify-between px-2 mb-3">
+        <h2 class="text-md font-black flex items-center gap-2">
+            <i class="fas fa-bolt text-red-600 animate-pulse"></i> عروض اليوم
+        </h2>
+        <button onclick="nav('market')" class="text-[10px] text-gray-500 font-bold">عرض الكل</button>
+    </div>
+
+    <div id="productSlider" class="flex gap-3 overflow-x-auto no-scrollbar px-2 pb-4 snap-x">
+        </div>
+</div>
+
+
+
+
+
+                
                 <!-- Products Grid -->
                 <div id="marketGrid" class="products-grid">
                     <p class="text-gray-500 col-span-full text-center py-10">جاري التحميل...</p>
@@ -2006,6 +2024,34 @@
         }
     }
 
+
+
+function renderProductSlider(list) {
+    const slider = document.getElementById('productSlider');
+    if (!slider) return;
+
+    // سنأخذ أول 8 منتجات فقط للسلايدر
+    const sliderItems = list.slice(0, 8);
+
+    slider.innerHTML = sliderItems.map(p => {
+        const discount = calculateDiscount(p.originalPrice, p.price);
+        return `
+        <div class="min-w-[140px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 snap-start overflow-hidden cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+            <div class="relative aspect-square">
+                <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/200'}" class="w-full h-full object-cover">
+                ${discount > 0 ? `<div class="absolute bottom-0 right-0 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-tl-lg">-${discount}%</div>` : ''}
+            </div>
+            <div class="p-2">
+                <div class="text-[10px] font-bold text-gray-800 dark:text-gray-200 truncate">${p.title}</div>
+                <div class="text-sm font-black text-red-600 mt-1">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+
+
+    
 
 </script>
 
