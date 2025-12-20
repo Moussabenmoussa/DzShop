@@ -297,30 +297,24 @@
 
 
 
-/* تنسيقات شريط الأخبار */
+
 .ticker-wrap { width: 100%; overflow: hidden; }
 .ticker {
     display: inline-block;
     white-space: nowrap;
     animation: ticker-move 35s linear infinite;
-    padding-right: 100%;
 }
 .ticker-item { 
     display: inline-flex !important; 
     align-items: center; 
     padding: 0 40px; 
     font-size: 11px; 
-    font-weight: 700; 
-    color: #64748b; 
+    font-weight: 700;
 }
-.ticker-item span { color: #e63946; font-weight: 800; margin: 0 5px; }
 @keyframes ticker-move {
-    0% { transform: translate3d(100%, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
 }
-
-
-
 
 
 
@@ -339,9 +333,7 @@
 
 
 <div class="ticker-wrap flex items-center bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 h-9 overflow-hidden relative z-30">
-    <div id="liveTicker" class="ticker">
-        <div class="ticker-item"><i class="fas fa-sync fa-spin ml-2"></i> جاري تحديث البيانات...</div>
-    </div>
+    <div id="liveTicker" class="ticker"></div>
 </div>
 
     
@@ -1133,6 +1125,7 @@
 
 
 
+// يجب أن تبدأ بـ async لكي يعمل await بالداخل
 async function initApp() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
@@ -1141,19 +1134,19 @@ async function initApp() {
     startNotificationPolling();
     setupLazyLoading();
 
-    // تشغيل شريط الأخبار بعد جلب البيانات
+    // تشغيل شريط الأخبار بعد جلب البيانات بأمان
     try {
-        await loadOrders(); // ننتظر تحميل الطلبات
-        updateLiveTicker(); // نشغل الشريط
+        await loadOrders(); // الانتظار لجلب الطلبات الحقيقية
+        updateLiveTicker(); // تحديث الشريط بالبيانات
     } catch (e) {
-        updateLiveTicker(); // نشغل الشريط حتى لو فشل تحميل الطلبات
+        console.log("Ticker Error:", e);
+        updateLiveTicker(); // تشغيله حتى لو فشل جلب الطلبات
     }
 
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref');
     if (ref) localStorage.setItem('dz_affiliate', ref);
 }
-
         
         
         
