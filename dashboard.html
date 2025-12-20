@@ -537,15 +537,15 @@
                 </div>
 
 
-<div class="mb-6 animate-fadeIn">
-    <div class="flex items-center justify-between px-2 mb-3">
-        <h2 class="text-md font-black flex items-center gap-2">
-            <i class="fas fa-bolt text-red-600 animate-pulse"></i> عروض اليوم
+<div class="mb-8 animate-fadeIn">
+    <div class="flex items-center justify-between px-2 mb-4">
+        <h2 class="text-lg font-black flex items-center gap-2 text-blue-700">
+            <i class="fas fa-hand-holding-usd animate-bounce"></i> سوق واربح (عمولة)
         </h2>
-        <button onclick="nav('market')" class="text-[10px] text-gray-500 font-bold">عرض الكل</button>
+        <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">عروض حصرية للمسوقين</span>
     </div>
 
-    <div id="productSlider" class="flex gap-3 overflow-x-auto no-scrollbar px-2 pb-4 snap-x">
+    <div id="productSlider" class="flex gap-4 overflow-x-auto no-scrollbar px-2 pb-4 snap-x scroll-smooth">
         </div>
 </div>
 
@@ -2035,20 +2035,36 @@ function renderProductSlider(list) {
     const slider = document.getElementById('productSlider');
     if (!slider) return;
 
-    // سنأخذ أول 8 منتجات فقط للسلايدر
-    const sliderItems = list.slice(0, 8);
+    // تصفية المنتجات التي تدعم العمولة فقط
+    const affiliateProducts = list.filter(p => p.isAffiliate === true);
 
-    slider.innerHTML = sliderItems.map(p => {
+    if (affiliateProducts.length === 0) {
+        // إذا لم توجد منتجات عمولة، يمكن إخفاء القسم أو عرض رسالة
+        slider.parentElement.classList.add('hidden');
+        return;
+    } else {
+        slider.parentElement.classList.remove('hidden');
+    }
+
+    slider.innerHTML = affiliateProducts.map(p => {
         const discount = calculateDiscount(p.originalPrice, p.price);
+        // حساب مبلغ الربح للمسوق
+        const profit = Math.floor((p.price * p.commission) / 100);
+
         return `
-        <div class="min-w-[140px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 snap-start overflow-hidden cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-            <div class="relative aspect-square">
-                <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/200'}" class="w-full h-full object-cover">
-                ${discount > 0 ? `<div class="absolute bottom-0 right-0 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-tl-lg">-${discount}%</div>` : ''}
+        <div class="min-w-[160px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-blue-100 dark:border-slate-700 snap-start overflow-hidden flex-shrink-0 relative group" onclick="window.location.href='/p/${p._id}'">
+            <div class="absolute top-2 right-2 z-10 bg-blue-600 text-white text-[9px] font-black px-2 py-1 rounded-lg shadow-md">
+                اربح ${profit} ${APP_SETTINGS.currency}
             </div>
-            <div class="p-2">
-                <div class="text-[10px] font-bold text-gray-800 dark:text-gray-200 truncate">${p.title}</div>
-                <div class="text-sm font-black text-red-600 mt-1">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</div>
+            
+            <div class="relative aspect-square">
+                <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/200'}" class="w-full h-full object-cover" loading="lazy">
+                ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-tr-lg">-${discount}%</div>` : ''}
+            </div>
+            <div class="p-3">
+                <div class="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate mb-1">${p.title}</div>
+                <div class="text-sm font-black text-blue-600">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</div>
+                <div class="text-[9px] text-gray-400 mt-1 font-bold">عمولة التسويق: ${p.commission}%</div>
             </div>
         </div>`;
     }).join('');
