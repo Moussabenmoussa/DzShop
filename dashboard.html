@@ -44,68 +44,141 @@
 
 
 
-
-        /* Product Card - AliExpress Style (Simplified & Flat) */
-        .product-card { 
-            background: #ffffff; 
-            border-radius: 4px; /* زوايا حادة قليلاً مثل AliExpress */
-            overflow: hidden; 
-            transition: border-color 0.2s; 
-            box-shadow: none; /* حذف كل الظلال */
-            border: 1px solid #f1f5f9; /* إطار خفيف جداً */
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        /* إزالة التأثيرات الثقيلة عند مرور الماوس */
-        .product-card:hover { 
-            border-color: #ff4757; /* تغيير لون الإطار فقط */
-            transform: none; 
-            box-shadow: none;
-        }
-
-        .product-img { 
-            width: 100%; 
-            aspect-ratio: 1; 
-            object-fit: cover; 
-            background: #f8fafc;
-        }
-
-        /* شارات بسيطة بدون ظلال */
-        .discount-badge {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: #ff4757;
-            color: white;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-weight: 800;
-            border-radius: 0 0 8px 0;
-            z-index: 2;
-        }
-
-        .product-info {
-            padding: 8px; /* تقليل الهوامش */
-            flex: 1;
-        }
-
-        .product-title {
-            font-size: 12px;
-            line-height: 1.3;
-            color: #333;
-            height: 32px;
-            margin-bottom: 4px;
-            font-weight: 400;
-        }
-
-        .current-price {
-            color: #e63946;
-            font-size: 16px;
-            font-weight: 700;
-        }
+/* Product Card - AliExpress Style */
+        .product-card { 
+            background: var(--bg-card); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
+            border: 1px solid var(--border-color); 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .product-card:hover { 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .product-card:active { transform: scale(0.98); }
+        .product-img { 
+            width: 100%; 
+            aspect-ratio: 1; 
+            object-fit: cover; 
+            background: #f1f5f9;
+            will-change: opacity;
+        }
+        .product-img-container {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);
+        }
+        .product-img-skeleton {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #f0f4f8 25%, #e8ecf1 50%, #f0f4f8 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+            color: white;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+            z-index: 2;
+        }
+        .free-shipping-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
+        }
+        .offer-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ff4757;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            animation: pulse 2s infinite;
+            z-index: 2;
+        }
+        .product-info {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-title {
+            font-size: 13px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 34px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .price-container {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .current-price {
+            color: #ff4757;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .original-price {
+            color: #94a3b8;
+            font-size: 12px;
+            text-decoration: line-through;
+        }
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #ffa502;
+            margin-top: auto;
+        }
+        .rating-stars {
+            display: flex;
+            gap: 1px;
+        }
+        .rating-count {
+            color: #94a3b8;
+            margin-right: 4px;
+            font-size: 10px;
+        }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 
 
@@ -1170,58 +1243,15 @@
 
 
     
-    function renderProducts(list) {
-    const grid = document.getElementById('marketGrid');
-    if (!list.length) { 
-        grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
-        return; 
-    }
-    
-    grid.innerHTML = list.map(p => {
-        const discount = calculateDiscount(p.originalPrice, p.price);
-        // اختيار رابط الصورة الصحيح
-        const imgUrl = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/200');
-
-        return `
-        <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-            <div class="relative aspect-square bg-[#f8fafc]">
-                <img data-src="${imgUrl}" 
-                     class="w-full h-full object-cover" 
-                     loading="lazy"
-                     onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
-                
-                ${discount > 0 ? `
-                    <div class="absolute top-0 left-0 bg-[#ff4757] text-white text-[10px] font-black px-1.5 py-0.5 rounded-br-md">
-                        -${discount}%
-                    </div>
-                ` : ''}
-            </div>
-
-            <div class="p-2 flex flex-col flex-1">
-                <h3 class="text-[12px] text-gray-800 leading-snug line-clamp-2 mb-1 h-8 font-medium">
-                    ${p.title}
-                </h3>
-                
-                <div class="mt-auto">
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-[#e63946] font-bold text-base">${Number(p.price).toLocaleString()}</span>
-                        <span class="text-[#e63946] font-bold text-[10px] uppercase">${APP_SETTINGS.currency}</span>
-                    </div>
-                    
-                    ${p.originalPrice ? `
-                        <div class="text-[10px] text-gray-400 line-through">
-                            ${Number(p.originalPrice).toLocaleString()}
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        </div>`;
-    }).join('');
-
-    // تفعيل التحميل الكسول للصور الجديدة
-    setupLazyLoading();
-}
-
+       function renderProducts(list) {
+        const grid = document.getElementById('marketGrid');
+        if (!list.length) { 
+            grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
+            return; 
+        }
+        
+        grid.innerHTML = list.map(p => {
+            const discount = calculateDiscount(p.originalPrice, p.price);
 
 
 
@@ -2068,60 +2098,51 @@
     }
 
 
+   
+
 function renderProductSlider(list) {
-    const slider = document.getElementById('productSlider');
-    if (!slider) return;
+    const slider = document.getElementById('productSlider');
+    if (!slider) return;
 
-    // تصفية المنتجات التي تدعم العمولة فقط
-    const affiliateProducts = list.filter(p => p.isAffiliate === true);
+    // تصفية المنتجات التي تدعم العمولة فقط
+    const affiliateProducts = list.filter(p => p.isAffiliate === true);
 
-    if (affiliateProducts.length === 0) {
-        slider.parentElement.classList.add('hidden');
-        return;
-    } else {
-        slider.parentElement.classList.remove('hidden');
-    }
+    if (affiliateProducts.length === 0) {
+        slider.parentElement.classList.add('hidden');
+        return;
+    } else {
+        slider.parentElement.classList.remove('hidden');
+    }
 
-    // تنسيق الحاوية: إزالة الفجوات الكبيرة والاعتماد على تصميم مسطح
-    slider.className = "flex flex-nowrap gap-2 overflow-x-auto no-scrollbar px-2 pb-4 snap-x scroll-smooth";
+    // إضافة فئة flex-nowrap برمجياً لضمان العرض الأفقي
+    slider.className = "flex flex-nowrap gap-4 overflow-x-auto no-scrollbar px-2 pb-4 snap-x scroll-smooth";
 
-    slider.innerHTML = affiliateProducts.map(p => {
-        const discount = calculateDiscount(p.originalPrice, p.price);
-        const profit = Math.floor((p.price * (p.commission || 0)) / 100);
-        const imageUrl = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/200');
+    slider.innerHTML = affiliateProducts.map(p => {
+        const discount = calculateDiscount(p.originalPrice, p.price);
+        const profit = Math.floor((p.price * (p.commission || 0)) / 100);
+        
+        // حل مشكلة الصورة: تجربة الحقل الجديد ثم القديم
+        const imageUrl = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/200');
 
-        return `
-        <div class="min-w-[140px] max-w-[140px] bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 snap-start overflow-hidden flex-shrink-0 relative rounded-md" onclick="window.location.href='/p/${p._id}'">
-            <div class="absolute top-0 right-0 z-10 bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md shadow-sm">
-                اربح ${profit} ${APP_SETTINGS.currency}
-            </div>
-            
-            <div class="relative aspect-square bg-[#f8fafc]">
-                <img src="${imageUrl}" class="w-full h-full object-cover" 
-                     onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
-                
-                ${discount > 0 ? `
-                    <div class="absolute top-0 left-0 bg-[#ff4757] text-white text-[9px] font-black px-1.5 py-0.5 rounded-br-md">
-                        -${discount}%
-                    </div>
-                ` : ''}
-            </div>
-
-            <div class="p-2 flex flex-col justify-between">
-                <div class="text-[11px] text-gray-700 dark:text-gray-300 leading-tight line-clamp-2 h-7 mb-1">
-                    ${p.title}
-                </div>
-                <div>
-                    <div class="text-[14px] font-bold text-blue-600">
-                        ${Number(p.price).toLocaleString()} <span class="text-[10px] uppercase">${APP_SETTINGS.currency}</span>
-                    </div>
-                    <div class="text-[8px] text-gray-400 font-medium">عمولة: ${p.commission}%</div>
-                </div>
-            </div>
-        </div>`;
-    }).join('');
+        return `
+        <div class="min-w-[160px] max-w-[160px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-blue-100 dark:border-slate-700 snap-start overflow-hidden flex-shrink-0 relative" onclick="window.location.href='/p/${p._id}'">
+            <div class="absolute top-2 right-2 z-10 bg-blue-600 text-white text-[9px] font-black px-2 py-1 rounded-lg shadow-md">
+                اربح ${profit} ${APP_SETTINGS.currency}
+            </div>
+            
+            <div class="relative aspect-square bg-gray-100">
+                <img src="${imageUrl}" class="w-full h-full object-cover" 
+                     onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
+                ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-tr-lg">-${discount}%</div>` : ''}
+            </div>
+            <div class="p-3">
+                <div class="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate mb-1">${p.title}</div>
+                <div class="text-sm font-black text-blue-600">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</div>
+                <div class="text-[9px] text-gray-400 mt-1 font-bold">عمولة: ${p.commission}%</div>
+            </div>
+        </div>`;
+    }).join('');
 }
-
 
 
 
