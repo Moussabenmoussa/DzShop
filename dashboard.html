@@ -1133,26 +1133,13 @@
 
 
 
-async function initApp() {
-    document.getElementById('authScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
-    updateUserUI();
-    nav('market');
-    startNotificationPolling();
-    setupLazyLoading();
-    
-    // جلب البيانات ثم تشغيل شريط الأخبار
-    try {
-        await loadOrders(); 
-        updateLiveTicker(); 
-    } catch(e) {
-        updateLiveTicker(); // تشغيله بالبيانات الأساسية في حال فشل جلب الطلبات
-    }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get('ref');
-    if (ref) localStorage.setItem('dz_affiliate', ref);
-}
+function initApp() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        updateUserUI();
+        nav('market');
+        startNotificationPolling();
+        setupLazyLoading();
 
 
         
