@@ -1127,15 +1127,25 @@
         finally { if (loader) loader.classList.add('hidden'); }
     };
 
-    function initApp() {
-        document.getElementById('authScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        updateUserUI();
-        nav('market');
-        startNotificationPolling();
-        setupLazyLoading();
-await loadOrders(); // تأكد من تحميل الطلبات أولاً
-    updateLiveTicker(); // ثم شغل الشريط
+    // أضفنا async هنا ليعمل الـ await بالأسفل
+async function initApp() {
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    updateUserUI();
+    nav('market');
+    startNotificationPolling();
+    setupLazyLoading();
+    
+    try {
+        // ننتظر تحميل الطلبات لكي يظهر النشاط الحقيقي في شريط الأخبار
+        await loadOrders();
+        // الآن نشغل الشريط بعد أن أصبحت البيانات جاهزة
+        updateLiveTicker();
+    } catch (e) {
+        console.error("خطأ في تشغيل شريط الأخبار:", e);
+        // نشغل الشريط حتى لو فشل تحميل الطلبات ليعرض الرصيد على الأقل
+        updateLiveTicker();
+    }
 }
 
 
