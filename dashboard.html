@@ -2073,6 +2073,7 @@
 
 
 
+
 function renderProductSlider(list) {
     if (!list || !Array.isArray(list)) return;
 
@@ -2100,13 +2101,18 @@ function renderProductSlider(list) {
             return `
             <div class="slider-card min-w-[130px] max-w-[130px] snap-start flex flex-col cursor-pointer bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden relative" 
                  onclick="window.location.href='/p/${p._id}'"> 
-                
-                <!-- هذا التعديل (onclick مباشر) يضمن عمل الرابط 100% -->
 
                 <div class="relative w-full aspect-square bg-gray-50 dark:bg-slate-700">
-                    <div class="absolute top-0 right-0 bg-[#fde047] text-black text-[9px] font-black px-1.5 py-0.5 rounded-bl-md z-10">
+                    <!-- شارة الربح (يمين) -->
+                    <div class="absolute top-0 right-0 bg-[#fde047] text-black text-[9px] font-black px-1.5 py-0.5 rounded-bl-md z-10 shadow-sm">
                         ربح ${profit}
                     </div>
+
+                    <!-- زر نسخ الرابط (يسار) - جديد -->
+                    <button onclick="copySliderLink('${p._id}', '${profit}', event)" 
+                            class="absolute top-1 left-1 z-20 w-6 h-6 bg-white/90 dark:bg-slate-800/90 rounded-full flex items-center justify-center shadow-md text-blue-600 hover:bg-blue-50 transition active:scale-90">
+                        <i class="fas fa-link text-[10px]"></i>
+                    </button>
                     
                     <img src="${imgSrc}" class="w-full h-full object-cover block" alt="${p.title}">
                     
@@ -2133,6 +2139,47 @@ function renderProductSlider(list) {
         console.error("Slider Error:", error);
         slider.parentElement.classList.add('hidden');
     }
+}
+
+
+
+
+
+    
+
+// دالة خاصة لنسخ الرابط من السلايدر
+function copySliderLink(id, profit, e) {
+    // 1. منع انتشار الحدث: هذا السطر يمنع البطاقة من الفتح عند ضغط الزر
+    if(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    // 2. التحقق من تسجيل الدخول
+    if (!USER) {
+        showToast('يجب تسجيل الدخول لنسخ رابط الإحالة', 'error');
+        return;
+    }
+    
+    // 3. تكوين الرابط
+    const link = `${window.location.origin}/p/${id}?ref=${USER._id}`;
+    
+    // 4. عملية النسخ
+    navigator.clipboard.writeText(link).then(() => {
+        // تغيير أيقونة الزر مؤقتاً لتأكيد النسخ
+        const btnIcon = e.target.closest('button').querySelector('i');
+        const originalClass = btnIcon.className;
+        
+        btnIcon.className = "fas fa-check text-green-600";
+        showToast(`تم نسخ الرابط! 📋\nاربح ${profit} ${APP_SETTINGS.currency}`, 'success');
+        
+        setTimeout(() => {
+            btnIcon.className = originalClass;
+        }, 2000);
+
+    }).catch(() => {
+        prompt("انسخ الرابط يدوياً:", link);
+    });
 }
     
 
