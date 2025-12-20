@@ -40,158 +40,124 @@
         #sidebar.open { transform: translateX(0); }
         .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .overlay.open { opacity: 1; pointer-events: auto; }
-        /* Product Card - AliExpress Style */
-        .product-card { 
+
+
+        
+        
+        
+            /* ========================================= */
+        /* تصيميم البطاقات الجديد (AliExpress Flat Style) */
+        /* ========================================= */
+        
+        /* توحيد تصميم السلايدر والشبكة */
+        .product-card, .slider-card { 
             background: var(--bg-card); 
-            border-radius: 8px; 
+            border-radius: 8px; /* حواف ناعمة */
             overflow: hidden; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
-            border: 1px solid var(--border-color); 
+            /* إلغاء الظلال تماماً للخفة */
+            box-shadow: none !important; 
+            /* حدود رفيعة جداً بدلاً من الظل */
+            border: 1px solid #e5e7eb; 
             position: relative;
             display: flex;
             flex-direction: column;
             height: 100%;
+            transition: transform 0.1s ease;
         }
-        .product-card:hover { 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
+
+        /* تنسيق الوضع الليلي */
+        .dark .product-card, .dark .slider-card {
+            border-color: #334155;
+            background: #1e293b;
         }
-        .product-card:active { transform: scale(0.98); }
-        .product-img { 
-            width: 100%; 
-            aspect-ratio: 1; 
-            object-fit: cover; 
-            background: #f1f5f9;
-            will-change: opacity;
+
+        /* تصغير خفيف جداً عند الضغط */
+        .product-card:active, .slider-card:active { 
+            transform: scale(0.98);
+            opacity: 0.95;
         }
-        .product-img-container {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);
+
+        /* إلغاء تأثيرات الـ Hover الثقيلة */
+        .product-card:hover, .slider-card:hover { 
+            transform: none;
+            box-shadow: none;
+            border-color: #d1d5db;
         }
-        .product-img-skeleton {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, #f0f4f8 25%, #e8ecf1 50%, #f0f4f8 75%);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
+
+        /* تنسيق السعر (كبير وأحمر) */
+        .ae-price {
+            color: #ff4747;
+            font-weight: 800;
+            line-height: 1;
         }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .discount-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
-            color: white;
-            padding: 6px 10px;
-            font-size: 12px;
-            font-weight: 900;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
-            z-index: 2;
-        }
-        .free-shipping-badge {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(34, 197, 94, 0.95);
-            color: white;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            z-index: 2;
-        }
-        .offer-badge {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: #ff4757;
-            color: white;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: 4px;
-            animation: pulse 2s infinite;
-            z-index: 2;
-        }
-        .product-info {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .product-title {
-            font-size: 13px;
-            line-height: 1.4;
+
+        /* تنسيق العنوان (صغير ومحدود بسطرين) */
+        .ae-title {
             color: var(--text-primary);
+            font-size: 11px;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            min-height: 34px;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-        .price-container {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-        .current-price {
-            color: #ff4757;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-        }
-        .original-price {
-            color: #94a3b8;
-            font-size: 12px;
-            text-decoration: line-through;
-        }
-        .rating-container {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: #ffa502;
             margin-top: auto;
         }
-        .rating-stars {
-            display: flex;
-            gap: 1px;
-        }
-        .rating-count {
-            color: #94a3b8;
-            margin-right: 4px;
-            font-size: 10px;
-        }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .dark .ae-title { color: #e2e8f0; }
 
-        /* Grid Layout - AliExpress Style */
+        /* زر نسخ الرابط العائم */
+        .copy-btn {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 26px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* ظل خفيف جداً للزر فقط */
+            z-index: 20;
+            cursor: pointer;
+            border: 1px solid #f3f4f6;
+        }
+        .dark .copy-btn { 
+            background: rgba(30, 41, 59, 0.9); 
+            border-color: #475569;
+        }
+        .copy-btn:active { transform: scale(0.9); }
+
+
+
+        
+        /* Grid Layout - AliExpress Style (Updated) */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 8px;
+            /* 
+               تغيير 160px إلى 145px:
+               هذا يضمن ظهور منتجين بجانب بعضهما حتى على الهواتف الضيقة.
+            */
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            
+            /* مسافة صغيرة بين المنتجات لاستغلال الشاشة */
+            gap: 8px; 
+            
             width: 100%;
+            padding-bottom: 20px;
         }
+
+        /* للأجهزة اللوحية (Tablets) */
         @media (min-width: 768px) {
             .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
                 gap: 12px;
             }
         }
+
+        /* للشاشات الكبيرة (Desktop) */
         @media (min-width: 1024px) {
             .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
                 gap: 16px;
             }
         }
@@ -1220,15 +1186,78 @@
         console.error("Error loading market data");
     }
 }
+
+
+
+    
     function renderProducts(list) {
-        const grid = document.getElementById('marketGrid');
-        if (!list.length) { 
-            grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
-            return; 
-        }
-        
-        grid.innerHTML = list.map(p => {
-            const discount = calculateDiscount(p.originalPrice, p.price);
+    const grid = document.getElementById('marketGrid');
+    if (!grid) return;
+
+    if (!list || list.length === 0) { 
+        grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
+        return; 
+    }
+    
+    grid.innerHTML = list.map(p => {
+        const discount = calculateDiscount(p.originalPrice, p.price);
+        // محاكاة رقم المبيعات بشكل عشوائي ليبدو مثل AliExpress
+        const soldCount = p.reviews ? p.reviews * 12 : Math.floor(Math.random() * 900) + 50; 
+        const profit = Math.floor((p.price * (p.commission || 0)) / 100);
+
+        // التعامل مع الصور
+        const img = (p.images && p.images.length) ? p.images[0] : (p.image || '');
+        const imgSrc = img || 'https://via.placeholder.com/300';
+
+        // زر النسخ (يظهر فقط إذا كان هناك عمولة)
+        const copyBtn = (p.isAffiliate && USER) 
+            ? `<button onclick="copySliderLink('${p._id}', '${profit}', event)" class="copy-btn text-blue-600 hover:text-blue-700">
+                 <i class="fas fa-link text-[10px]"></i>
+               </button>`
+            : '';
+
+        return `
+        <div class="product-card cursor-pointer h-full" onclick="window.location.href='/p/${p._id}'">
+            
+            <!-- قسم الصورة -->
+            <div class="relative w-full aspect-square bg-gray-50 dark:bg-slate-700">
+                ${copyBtn}
+                
+                ${p.isAffiliate ? `<div class="absolute top-0 right-0 bg-[#fde047] text-black text-[9px] font-black px-2 py-1 rounded-bl-lg z-10">عمولة ${p.commission}%</div>` : ''}
+                
+                <img src="${imgSrc}" class="w-full h-full object-cover block" alt="${p.title}">
+                
+                ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ff4747] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tr-lg">-${discount}%</div>` : ''}
+            </div>
+            
+            <!-- قسم المعلومات -->
+            <div class="p-3 flex flex-col flex-1">
+                
+                <!-- 1. السعر (كبير وواضح) -->
+                <div class="ae-price text-lg mb-1">
+                    <span class="text-xs font-semibold text-[#ff4747]">${APP_SETTINGS.currency}</span>${Number(p.price).toLocaleString()}
+                </div>
+
+                <!-- 2. المبيعات والتقييم (خط صغير رمادي) -->
+                <div class="text-[10px] text-gray-500 mb-2 flex items-center gap-2">
+                    <span class="bg-gray-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300 font-medium">${soldCount}+ بيعت</span>
+                    ${p.rating ? `<span class="flex items-center gap-0.5 text-orange-400"><i class="fas fa-star text-[9px]"></i> ${p.rating}</span>` : ''}
+                </div>
+
+                <!-- 3. العنوان (في الأسفل) -->
+                <div class="ae-title">
+                    ${p.title}
+                </div>
+
+                ${p.offerEndTime ? '<div class="mt-2 text-[9px] text-red-600 bg-red-50 px-2 py-1 rounded w-max font-bold">عرض محدود</div>' : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+
+
+
             
             // حساب الأفيليت
             const affiliateProfit = p.isAffiliate ? Math.floor((p.price * p.commission) / 100) : 0;
