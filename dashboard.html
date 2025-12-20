@@ -295,38 +295,7 @@
 
 
 
-/* تنسيقات شريط الأخبار - تأكد من وجودها */
-.ticker-wrap { 
-    width: 100%; 
-    overflow: hidden; 
-}
 
-.ticker {
-    display: inline-block;
-    white-space: nowrap;
-    padding-right: 100%;
-    /* هذه الحركة هي التي تجعل النص يظهر ويتحرك */
-    animation: ticker-move 30s linear infinite; 
-}
-
-.ticker-item { 
-    display: inline-flex !important; 
-    align-items: center; 
-    padding: 0 2rem;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.ticker-item span { 
-    color: #e63946; 
-    margin: 0 4px;
-}
-
-/* تعريف حركة الأنميشن */
-@keyframes ticker-move {
-    0% { transform: translate3d(100%, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
-}
 
 
 
