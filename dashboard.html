@@ -2074,14 +2074,13 @@
 
 
 function renderProductSlider(list) {
-    // حماية: إذا لم تكن القائمة موجودة، لا تكمل التنفيذ
+    // حماية من الأخطاء
     if (!list || !Array.isArray(list)) return;
 
     const slider = document.getElementById('productSlider');
     if (!slider) return;
 
     try {
-        // تصفية المنتجات التي تدعم العمولة فقط
         const affiliateProducts = list.filter(p => p.isAffiliate === true);
 
         if (affiliateProducts.length === 0) {
@@ -2091,41 +2090,37 @@ function renderProductSlider(list) {
         
         slider.parentElement.classList.remove('hidden');
 
-        // تعيين كلاسات الحاوية
+        // تنسيق الحاوية
         slider.className = "flex gap-2 overflow-x-auto no-scrollbar px-2 pb-2 snap-x scroll-smooth items-stretch";
 
-        // بناء HTML
         slider.innerHTML = affiliateProducts.map(p => {
             const discount = calculateDiscount(p.originalPrice, p.price);
             const profit = Math.floor((p.price * (p.commission || 0)) / 100);
             
-            // التعامل مع الصور بأمان
+            // تجهيز رابط الصورة
             const img = (p.images && p.images.length) ? p.images[0] : (p.image || '');
             const imgSrc = img || 'https://via.placeholder.com/150';
 
             return `
-            <div class="slider-card min-w-[130px] max-w-[130px] snap-start flex flex-col cursor-pointer" onclick="navToProduct('${p._id}')">
+            <div class="slider-card min-w-[130px] max-w-[130px] snap-start flex flex-col cursor-pointer bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden" onclick="navToProduct('${p._id}')">
                 
-                <!-- صورة المنتج -->
                 <div class="relative w-full aspect-square bg-gray-50 dark:bg-slate-700">
-                    <!-- شارة الربح -->
                     <div class="absolute top-0 right-0 bg-[#fde047] text-black text-[9px] font-black px-1.5 py-0.5 rounded-bl-md z-10">
                         ربح ${profit}
                     </div>
                     
                     <!-- 
-                        تعديل هام هنا:
-                        1. غيرنا src إلى data-src 
-                        2. أبقينا loading="lazy" لكي يعمل مع دالة التحميل
+                        تعديل الحل:
+                        1. استخدمنا src مباشرة
+                        2. حذفنا loading="lazy" لكي لا يقوم الـ CSS بإخفاء الصورة
                     -->
-                    <img data-src="${imgSrc}" class="w-full h-full object-cover block" loading="lazy" alt="Product">
+                    <img src="${imgSrc}" class="w-full h-full object-cover block" alt="${p.title}">
                     
                     ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ff4747] text-white text-[9px] font-bold px-1 rounded-tr-md">-${discount}%</div>` : ''}
                 </div>
 
-                <!-- التفاصيل -->
                 <div class="p-2 flex flex-col flex-1 gap-1">
-                    <div class="ae-price text-sm">
+                    <div class="ae-price text-sm text-[#ff4747] font-black leading-none">
                         <span class="text-[10px] font-semibold">${APP_SETTINGS.currency}</span>${Number(p.price).toLocaleString()}
                     </div>
 
@@ -2133,25 +2128,18 @@ function renderProductSlider(list) {
                         <span class="bg-green-50 text-green-700 px-1 rounded border border-green-100">ع: ${p.commission}%</span>
                     </div>
 
-                    <div class="ae-title mt-auto">
+                    <div class="ae-title mt-auto text-[10px] text-gray-800 dark:text-gray-200 leading-snug" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                         ${p.title}
                     </div>
                 </div>
             </div>`;
         }).join('');
 
-        // هام جداً: استدعاء دالة تشغيل الصور
-        if (typeof setupLazyLoading === 'function') {
-            setupLazyLoading();
-        }
-
     } catch (error) {
-        console.error("خطأ في عرض السلايدر:", error);
+        console.error("Slider Error:", error);
         slider.parentElement.classList.add('hidden');
     }
 }
-
-
     
 
 
