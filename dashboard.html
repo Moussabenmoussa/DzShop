@@ -2115,33 +2115,7 @@ function renderProductSlider(list) {
 
 
 
-function updateLiveTicker() {
-    const tickerContainer = document.getElementById('liveTicker');
-    if (!tickerContainer) return;
 
-    // التأكد من وجود بيانات المستخدم، إذا لم تكن موجودة نضع نصاً مؤقتاً
-    const userName = (typeof USER !== 'undefined' && USER.name) ? USER.name : 'أهلاً بك';
-    const balance = (typeof USER !== 'undefined' && USER.balance) ? USER.balance : 0;
-
-    let items = [
-        `<i class="fas fa-user-circle text-blue-500"></i> مرحباً بك <span>${userName}</span> في DzMarket`,
-        `<i class="fas fa-wallet text-amber-500"></i> رصيدك الحالي هو: <span>${balance.toLocaleString()} دج</span>`,
-        `<i class="fas fa-bullhorn text-red-500"></i> شارك منتجاتك واربح عمولات حقيقية الآن!`,
-        `<i class="fas fa-shield-alt text-green-500"></i> جميع تعاملاتك في المنصة مؤمنة ومحمية.`
-    ];
-
-    // إضافة آخر طلب إذا كان موجوداً
-    if (window.ORDERS && ORDERS.length > 0) {
-        items.push(`<i class="fas fa-shopping-basket text-purple-500"></i> آخر نشاط: طلب جديد على <span>${ORDERS[0].listingTitle}</span>`);
-    }
-
-    // بناء النص النهائي
-    const tickerContent = items.map(item => `<div class="ticker-item inline-block px-8 text-[10px] font-bold text-gray-500">${item}</div>`).join('');
-    
-    // تكرار المحتوى 3 مرات لضمان عدم وجود فراغ أثناء الحركة الدائرية
-    tickerContainer.innerHTML = tickerContent + tickerContent + tickerContent;
-}
-    
     
 
 </script>
