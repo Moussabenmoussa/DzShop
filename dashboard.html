@@ -292,8 +292,40 @@
         img[loading="lazy"].loaded {
             opacity: 1;
         }
+
+
+
+.ticker-wrap { width: 100%; }
+.ticker {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+    padding-right: 100%;
+}
+.ticker-item { display: inline-block; }
+.ticker-item span { color: #e63946; font-weight: 800; }
+
+@keyframes ticker {
+    0% { transform: translate3d(100%, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
+}
+
+
+
+
+        
     </style>
 </head>
+
+
+<div class="ticker-wrap flex items-center bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 h-8 overflow-hidden relative z-30">
+    <div id="liveTicker" class="ticker whitespace-nowrap">
+        <div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
+            <i class="fas fa-sync fa-spin ml-1"></i> جاري تحديث النشاطات المباشرة...
+        </div>
+    </div>
+</div>
+
+    
 <body class="min-h-screen pb-20 md:pb-0">
 
 
@@ -2077,6 +2109,34 @@ function renderProductSlider(list) {
 
 
 
+
+
+function updateLiveTicker() {
+    const tickerContainer = document.getElementById('liveTicker');
+    if (!tickerContainer || !USER) return;
+
+    let tickerHTML = '';
+    
+    // خبر الرصيد
+    tickerHTML += `<div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
+        <i class="fas fa-wallet text-amber-500 ml-1"></i> رصيدك الحالي: <span>${USER.balance.toLocaleString()} ${APP_SETTINGS.currency}</span>
+    </div>`;
+
+    // خبر الطلبات (إذا كانت المصفوفة ORDERS محملة)
+    if (window.ORDERS && ORDERS.length > 0) {
+        tickerHTML += `<div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
+            <i class="fas fa-shopping-cart text-green-500 ml-1"></i> آخر طلب: <span>${ORDERS[0].listingTitle}</span> من <span>${ORDERS[0].buyerName}</span>
+        </div>`;
+    }
+
+    tickerHTML += `<div class="ticker-item inline-block px-4 text-[10px] font-bold text-gray-500">
+        <i class="fas fa-bullhorn text-blue-500 ml-1"></i> نصيحة: <span>شارك رابط الأفيليت لزيادة أرباحك!</span>
+    </div>`;
+
+    tickerContainer.innerHTML = tickerHTML + tickerHTML; 
+}
+
+    
     
 
 </script>
