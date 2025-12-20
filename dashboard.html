@@ -1165,14 +1165,19 @@
 
     // ========== 4. السوق والمنتجات (Market) ==========
     async function loadMarket() {
-        try {
-            const res = await fetch('/api/market');
-            ALL_LISTINGS = await res.json();
-            renderProducts(ALL_LISTINGS);
-        } catch(e) {
-            document.getElementById('marketGrid').innerHTML = '<p class="col-span-full text-center py-10 text-red-500">خطأ في التحميل</p>';
+    try {
+        const res = await fetch('/api/market'); // جلب البيانات من السيرفر
+        ALL_LISTINGS = await res.json(); 
+        
+        if (ALL_LISTINGS && ALL_LISTINGS.length > 0) {
+            // تأكد من استدعاء السلايدر بعد التأكد من وصول البيانات
+            renderProductSlider(ALL_LISTINGS); 
+            renderProducts(ALL_LISTINGS); // عرض الشبكة الرئيسية
         }
+    } catch(e) {
+        console.error("Error loading market data");
     }
+}
     function renderProducts(list) {
         const grid = document.getElementById('marketGrid');
         if (!list.length) { 
