@@ -37,24 +37,21 @@
             background: var(--bg-card); 
             border-radius: 8px; 
             overflow: hidden; 
-            /* إلغاء الظلال */
             box-shadow: none !important; 
-            /* حدود رفيعة */
             border: 1px solid #e5e7eb; 
             position: relative;
             display: flex;
             flex-direction: column;
-            height: 100%; /* تمدد كامل */
+            height: 100%;
             transition: transform 0.1s ease;
         }
         .dark .product-card, .dark .slider-card { border-color: #334155; background: #1e293b; }
-        
         .product-card:active, .slider-card:active { transform: scale(0.98); opacity: 0.95; }
 
         /* حاوية الصورة المربعة (1:1) */
         .square-image-container {
             width: 100%;
-            padding-top: 100%; /* النسبة 1:1 */
+            padding-top: 100%;
             position: relative;
             background-color: #f3f4f6;
         }
@@ -100,7 +97,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 20; color: #333;
         }
 
-        /* باقي الستايلات الأصلية (للحفاظ على الميزات) */
+        /* باقي الستايلات الأصلية */
         .input-field { background: var(--bg-secondary); border: 2px solid var(--border-color); color: var(--text-primary); transition: all 0.2s; }
         .input-field:focus { border-color: var(--primary); outline: none; }
         .btn-primary { background: linear-gradient(135deg, #e63946 0%, #c1121f 100%); }
@@ -114,12 +111,18 @@
         .chat-item.unread { background: rgba(230, 57, 70, 0.05); border-right: 3px solid var(--primary); }
         .chat-bubble.sent { background: var(--primary); color: white; margin-left: auto; border-bottom-left-radius: 4px; }
         .chat-bubble.received { background: var(--bg-secondary); border-bottom-right-radius: 4px; }
-        .category-pill.active { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); border-color: #ff4757; color: white; }
+        
+        /* Categories Scroll */
+        .categories-container { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .categories-container::-webkit-scrollbar { display: none; }
+        .category-pill { background: white; border: 1px solid #e5e7eb; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+        .category-pill.active { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); border-color: #ff4757; color: white; box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3); }
+        .category-pill:active { transform: scale(0.95); }
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .notif-dropdown { max-height: 400px; overflow-y: auto; }
         .pending-chat { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
         .dark .pending-chat { background: linear-gradient(135deg, #78350f, #92400e); }
-        /* Sidebar */
         #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
         #sidebar.open { transform: translateX(0); }
         .overlay { transition: opacity 0.3s; opacity: 0; pointer-events: none; }
@@ -227,7 +230,7 @@
                 <div class="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3"><i class="fas fa-wallet text-yellow-300"></i><span class="font-bold"><span id="sidebarBalance">0</span> دج</span></div>
             </div>
             <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold"><i class="fas fa-home"></i> الرئيسية</button>
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold"><i class="fas fa-home text-red-500"></i> الرئيسية</button>
                 <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold"><i class="fas fa-comments"></i> الرسائل</button>
                 <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold"><i class="fas fa-shopping-bag"></i> الطلبات</button>
                 <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold"><i class="fas fa-plus-circle"></i> إضافة إعلان</button>
@@ -246,11 +249,19 @@
                     <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input id="searchInput" type="text" placeholder="بحث..." class="input-field w-full pr-12 pl-4 py-3 rounded-full text-sm" oninput="filterProducts()">
                 </div>
-                <div class="categories-container mb-4 hide-scrollbar flex gap-2 overflow-x-auto">
-                    <button onclick="filterCategory('all')" class="category-pill active">الكل</button>
-                    <button onclick="filterCategory('electronics')" class="category-pill">إلكترونيات</button>
-                    <button onclick="filterCategory('fashion')" class="category-pill">أزياء</button>
-                    <button onclick="filterCategory('home')" class="category-pill">منزل</button>
+                
+                <!-- تم استرجاع كافة الأقسام هنا -->
+                <div class="categories-container mb-4">
+                    <button onclick="filterCategory('all')" class="category-pill active" data-cat="all"><i class="fas fa-th-large"></i> الكل</button>
+                    <button onclick="filterCategory('product')" class="category-pill" data-cat="product"><i class="fas fa-box"></i> منتجات</button>
+                    <button onclick="filterCategory('service')" class="category-pill" data-cat="service"><i class="fas fa-tools"></i> خدمات</button>
+                    <button onclick="filterCategory('electronics')" class="category-pill" data-cat="electronics"><i class="fas fa-laptop"></i> إلكترونيات</button>
+                    <button onclick="filterCategory('fashion')" class="category-pill" data-cat="fashion"><i class="fas fa-tshirt"></i> أزياء</button>
+                    <button onclick="filterCategory('home')" class="category-pill" data-cat="home"><i class="fas fa-home"></i> منزل</button>
+                    <button onclick="filterCategory('beauty')" class="category-pill" data-cat="beauty"><i class="fas fa-spa"></i> جمال</button>
+                    <button onclick="filterCategory('sports')" class="category-pill" data-cat="sports"><i class="fas fa-running"></i> رياضة</button>
+                    <button onclick="filterCategory('toys')" class="category-pill" data-cat="toys"><i class="fas fa-gamepad"></i> ألعاب</button>
+                    <button onclick="filterCategory('books')" class="category-pill" data-cat="books"><i class="fas fa-book"></i> كتب</button>
                 </div>
 
                 <!-- Slider -->
@@ -276,7 +287,20 @@
                             <div><label class="block text-sm font-bold mb-1">النوع</label><select id="pType" class="input-field w-full p-3 rounded-xl" onchange="toggleProductOptions()"><option value="product">منتج</option><option value="service">خدمة</option></select></div>
                             <div><label class="block text-sm font-bold mb-1">السعر</label><input id="pPrice" type="number" class="input-field w-full p-3 rounded-xl"></div>
                         </div>
-                        <div><label class="block text-sm font-bold mb-1">القسم</label><select id="pCategory" class="input-field w-full p-3 rounded-xl"><option value="electronics">إلكترونيات</option><option value="fashion">أزياء</option><option value="home">منزل</option><option value="other">أخرى</option></select></div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">القسم</label>
+                            <select id="pCategory" class="input-field w-full p-3 rounded-xl">
+                                <option value="">اختر القسم...</option>
+                                <option value="electronics">إلكترونيات</option>
+                                <option value="fashion">أزياء</option>
+                                <option value="home">منزل</option>
+                                <option value="beauty">جمال</option>
+                                <option value="sports">رياضة</option>
+                                <option value="toys">ألعاب</option>
+                                <option value="books">كتب</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
                         <input id="pTitle" placeholder="العنوان" class="input-field w-full p-3 rounded-xl">
                         <textarea id="pDesc" placeholder="الوصف" class="input-field w-full p-3 rounded-xl"></textarea>
                         
@@ -505,7 +529,7 @@
         function renderProducts(list) {
             const grid = document.getElementById('marketGrid');
             if(!grid) return;
-            if(!list || !list.length) { grid.innerHTML = '<p class="text-center col-span-full py-10">لا توجد منتجات</p>'; return; }
+            if(!list || !list.length) { grid.innerHTML = '<p class="text-center col-span-full py-10 text-gray-400">لا توجد منتجات</p>'; return; }
             grid.innerHTML = list.map(p => {
                 const img = p.images?.[0] || p.image || 'https://via.placeholder.com/300';
                 const profit = p.isAffiliate ? Math.floor(p.price * (p.commission/100)) : 0;
@@ -616,7 +640,15 @@
         async function loadNotifications() { try { const res = await fetch('/api/notifications/' + USER._id); NOTIFICATIONS = await res.json(); const unread = NOTIFICATIONS.filter(n => !n.read).length; const b = document.getElementById('notifBadge'); if(unread>0) { b.classList.remove('hidden'); b.innerText = unread; } else b.classList.add('hidden'); document.getElementById('notifList').innerHTML = NOTIFICATIONS.map(n => `<div class="p-3 border-b text-sm">${n.message}</div>`).join(''); } catch(e){} }
         function toggleNotifications() { document.getElementById('notifDropdown').classList.toggle('hidden'); }
         async function markAllRead() { await fetch('/api/notifications/read-all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) }); loadNotifications(); }
-        function filterCategory(cat) { loadMarket(); }
+        
+        // --- Fixed Filtering Logic ---
+        function filterCategory(cat) {
+            document.querySelectorAll('.category-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+            if (cat === 'all') renderProducts(ALL_LISTINGS);
+            else if (cat === 'product' || cat === 'service') renderProducts(ALL_LISTINGS.filter(p => p.type === cat));
+            else renderProducts(ALL_LISTINGS.filter(p => p.category === cat));
+        }
+        
         function filterProducts() { const q = document.getElementById('searchInput').value.toLowerCase(); renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q))); }
     </script>
 </body>
