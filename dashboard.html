@@ -1259,39 +1259,13 @@
 
 
             
-            // حساب الأفيليت
-            const affiliateProfit = p.isAffiliate ? Math.floor((p.price * p.commission) / 100) : 0;
-            const affiliateBadge = p.isAffiliate 
-                ? `<div class="absolute top-2 left-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md animate-pulse"><i class="fas fa-hand-holding-usd"></i> عمولة ${p.commission}%</div>` 
-                : '';
             
-            const affiliateBtn = (p.isAffiliate && USER && p.userId !== USER._id) 
-                ? `<button onclick="copyAffiliateLink('${p._id}', '${affiliateProfit}', event)" class="mt-3 w-full flex items-center justify-center gap-2 bg-purple-50 text-purple-700 text-xs font-bold py-2 rounded-lg border border-purple-200 hover:bg-purple-100 transition active:scale-95">
-                     <i class="fas fa-link"></i> <span>سوق واربح ${affiliateProfit} ${APP_SETTINGS.currency}</span>
-                   </button>` 
-                : '';
 
-            return `
-            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
-                <div class="product-img-container relative">
-                    ${affiliateBadge}
-                    <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img w-full aspect-square object-cover" loading="lazy">
-                    ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
-                    <div class="free-shipping-badge"><i class="fas fa-truck"></i> مجاني</div>
-                    ${p.offerEndTime ? '<div class="offer-badge">عرض محدود</div>' : ''}
-                </div>
-                <div class="product-info p-3">
-                    <h3 class="product-title font-bold text-sm mb-1 truncate">${p.title}</h3>
-                    <div class="price-container flex gap-2 items-baseline">
-                        <span class="current-price text-red-600 font-bold text-lg">${Number(p.price).toLocaleString()} ${APP_SETTINGS.currency}</span>
-                        ${p.originalPrice ? `<span class="original-price text-xs text-gray-400 line-through">${Number(p.originalPrice).toLocaleString()}</span>` : ''}
-                    </div>
-                    ${affiliateBtn}
-                </div>
-            </div>`;
-        }).join('');
-        setupLazyLoading();
-    }
+
+
+
+
+    
     function filterProducts() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         renderProducts(ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q))));
