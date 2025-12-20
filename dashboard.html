@@ -317,10 +317,8 @@
 </head>
 
 
-<div class="ticker-wrap flex items-center bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 h-9 overflow-hidden relative z-30">
-    <div id="liveTicker" class="ticker"></div>
-</div>
 
+    
     
 <body class="min-h-screen pb-20 md:pb-0">
 
@@ -1107,31 +1105,15 @@
     
     
     
+function initApp() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        updateUserUI();
+        nav('market');
+        startNotificationPolling();
+        setupLazyLoading();
 
 
-
-// يجب أن تبدأ بـ async لكي يعمل await بالداخل
-async function initApp() {
-    document.getElementById('authScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
-    updateUserUI();
-    nav('market');
-    startNotificationPolling();
-    setupLazyLoading();
-
-    // تشغيل شريط الأخبار بعد جلب البيانات بأمان
-    try {
-        await loadOrders(); // الانتظار لجلب الطلبات الحقيقية
-        updateLiveTicker(); // تحديث الشريط بالبيانات
-    } catch (e) {
-        console.log("Ticker Error:", e);
-        updateLiveTicker(); // تشغيله حتى لو فشل جلب الطلبات
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get('ref');
-    if (ref) localStorage.setItem('dz_affiliate', ref);
-}
         
         
         
@@ -1179,24 +1161,6 @@ async function initApp() {
 
 
 
-function updateLiveTicker() {
-    const tickerContainer = document.getElementById('liveTicker');
-    if (!tickerContainer || !USER) return;
-
-    let items = [
-        `<i class="fas fa-wallet text-amber-500 ml-1"></i> رصيدك الحالي: <span>${Number(USER.balance).toLocaleString()} دج</span>`,
-        `<i class="fas fa-bullhorn text-blue-500 ml-1"></i> نصيحة: <span>سوق لمنتجات الأفيليت واربح عمولة فورية!</span>`,
-        `<i class="fas fa-check-circle text-green-500 ml-1"></i> منصة <span>DzMarket</span> تضمن حقوق البائع والمشتري.`
-    ];
-
-    if (window.ORDERS && ORDERS.length > 0) {
-        items.push(`<i class="fas fa-shopping-basket text-red-500 ml-1"></i> آخر طلب مستلم: <span>${ORDERS[0].listingTitle}</span>`);
-    }
-
-    const fullContent = items.map(text => `<div class="ticker-item">${text}</div>`).join('');
-    // تكرار المحتوى لضمان عدم وجود فراغ في الحركة
-    tickerContainer.innerHTML = fullContent + fullContent + fullContent;
-}
 
 
 
