@@ -42,147 +42,112 @@
 
 
 
+/* Product Card - Simplified (AliExpress Style) */
+        .product-card { 
+            background: var(--bg-card); 
+            border-radius: 12px; /* زوايا دائرية أكثر نعومة */
+            overflow: hidden; 
+            /* إزالة الظل تماماً لتحسين الأداء والمظهر المسطح */
+            box-shadow: none !important; 
+            /* الاعتماد على حدود رفيعة جداً للفصل */
+            border: 1px solid var(--border-color); 
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+        
+        /* تأثير خفيف جداً عند الضغط بدلاً من الظلال الثقيلة */
+        .product-card:active { 
+            opacity: 0.9;
+            transform: scale(0.98); 
+        }
 
+        .product-img-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 1;
+            background: #f3f4f6; /* خلفية رمادية فاتحة للصورة */
+        }
 
-/* Product Card - AliExpress Style */
-        .product-card { 
-            background: var(--bg-card); 
-            border-radius: 8px; 
-            overflow: hidden; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
-            border: 1px solid var(--border-color); 
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .product-card:hover { 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
-        }
-        .product-card:active { transform: scale(0.98); }
-        .product-img { 
-            width: 100%; 
-            aspect-ratio: 1; 
-            object-fit: cover; 
-            background: #f1f5f9;
-            will-change: opacity;
-        }
-        .product-img-container {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);
-        }
-        .product-img-skeleton {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, #f0f4f8 25%, #e8ecf1 50%, #f0f4f8 75%);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .discount-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
-            color: white;
-            padding: 6px 10px;
-            font-size: 12px;
-            font-weight: 900;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
-            z-index: 2;
-        }
-        .free-shipping-badge {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(34, 197, 94, 0.95);
-            color: white;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            z-index: 2;
-        }
-        .offer-badge {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: #ff4757;
-            color: white;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: 4px;
-            animation: pulse 2s infinite;
-            z-index: 2;
-        }
-        .product-info {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .product-title {
-            font-size: 13px;
-            line-height: 1.4;
-            color: var(--text-primary);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            min-height: 34px;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-        .price-container {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-        .current-price {
-            color: #ff4757;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-        }
-        .original-price {
-            color: #94a3b8;
-            font-size: 12px;
-            text-decoration: line-through;
-        }
-        .rating-container {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: #ffa502;
-            margin-top: auto;
-        }
-        .rating-stars {
-            display: flex;
-            gap: 1px;
-        }
-        .rating-count {
-            color: #94a3b8;
-            margin-right: 4px;
-            font-size: 10px;
-        }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: block;
+            transition: opacity 0.3s;
+        }
 
+        /* شارات أبسط (Flat Badges) */
+        .discount-badge {
+            position: absolute;
+            bottom: 6px; /* نقلناها للأسفل مثل علي إكسبرس */
+            left: 6px;
+            background: #ff4747;
+            color: white;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            z-index: 2;
+        }
 
+        .product-info {
+            padding: 8px 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
+        /* السعر هو العنصر الأبرز */
+        .price-container {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 2px;
+            flex-wrap: wrap;
+        }
 
+        .current-price {
+            color: #ff4747; /* اللون الأحمر القياسي لعلي إكسبرس */
+            font-size: 18px;
+            font-weight: 800; /* خط سميك جداً */
+            line-height: 1;
+        }
+        
+        .currency-symbol {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .original-price {
+            color: #9ca3af;
+            font-size: 11px;
+            text-decoration: line-through;
+        }
+
+        /* سطر المبيعات والتقييم */
+        .stats-line {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .product-title {
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-weight: 400; /* خط عادي وليس غليظ للعنوان */
+            margin-top: auto; /* دفع العنوان للأسفل إذا كان هناك فراغ */
+        }
 
 
         
@@ -1244,17 +1209,65 @@
 
     
        function renderProducts(list) {
-        const grid = document.getElementById('marketGrid');
-        if (!list.length) { 
-            grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
-            return; 
-        }
-        
-        grid.innerHTML = list.map(p => {
-            const discount = calculateDiscount(p.originalPrice, p.price);
+        const grid = document.getElementById('marketGrid');
+        if (!list.length) { 
+            grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">لا توجد منتجات</p></div>'; 
+            return; 
+        }
+        
+        grid.innerHTML = list.map(p => {
+            const discount = calculateDiscount(p.originalPrice, p.price);
+            // محاكاة عدد المبيعات بشكل عشوائي إذا لم يكن موجوداً لتشبه الصورة
+            const soldCount = p.reviews ? p.reviews * 5 : Math.floor(Math.random() * 500) + 50; 
+            
+            // زر العمولة المبسط
+            const affiliateBtn = (p.isAffiliate && USER && p.userId !== USER._id) 
+                ? `<div class="mt-2 text-[10px] text-purple-600 bg-purple-50 border border-purple-100 p-1 rounded text-center cursor-pointer" onclick="copyAffiliateLink('${p._id}', '${Math.floor((p.price * p.commission) / 100)}', event)">
+                     <i class="fas fa-share-alt"></i> سوق واربح
+                   </div>` 
+                : '';
+
+            return `
+            <div class="product-card cursor-pointer" onclick="window.location.href='/p/${p._id}'">
+                <div class="product-img-container">
+                    <img data-src="${p.images?.[0] || p.image || 'https://via.placeholder.com/300'}" class="product-img" loading="lazy" alt="${p.title}">
+                    ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    ${p.isAffiliate ? `<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-bold px-2 py-1 rounded-bl-lg">Choice</div>` : ''}
+                </div>
+                
+                <div class="product-info">
+                    <!-- 1. السعر (الأكبر والأهم) -->
+                    <div class="price-container">
+                        <span class="current-price">
+                            <span class="currency-symbol">${APP_SETTINGS.currency}</span>${Number(p.price).toLocaleString()}
+                        </span>
+                        ${p.originalPrice ? `<span class="original-price">${Number(p.originalPrice).toLocaleString()}</span>` : ''}
+                    </div>
+
+                    <!-- 2. إحصائيات المبيعات والتقييم -->
+                    <div class="stats-line">
+                        <span class="bg-gray-100 dark:bg-slate-700 px-1.5 rounded text-[9px] text-gray-600 dark:text-gray-300">${soldCount} بيعت</span>
+                        <i class="fas fa-star text-yellow-400 text-[9px]"></i>
+                        <span>${p.rating || '4.5'}</span>
+                    </div>
+
+                    <!-- 3. العنوان (في الأسفل وبخط عادي) -->
+                    <h3 class="product-title">${p.title}</h3>
+                    
+                    ${affiliateBtn}
+                </div>
+            </div>`;
+        }).join('');
+        setupLazyLoading();
+    }
 
 
 
+
+
+
+
+            
             
             // حساب الأفيليت
             const affiliateProfit = p.isAffiliate ? Math.floor((p.price * p.commission) / 100) : 0;
