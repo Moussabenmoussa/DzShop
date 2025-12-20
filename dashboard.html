@@ -2074,7 +2074,7 @@
 
 
 function renderProductSlider(list) {
-    // حماية: إذا لم تكن القائمة موجودة، لا تكمل التنفيذ (يمنع التجمد)
+    // حماية: إذا لم تكن القائمة موجودة، لا تكمل التنفيذ
     if (!list || !Array.isArray(list)) return;
 
     const slider = document.getElementById('productSlider');
@@ -2084,7 +2084,6 @@ function renderProductSlider(list) {
         // تصفية المنتجات التي تدعم العمولة فقط
         const affiliateProducts = list.filter(p => p.isAffiliate === true);
 
-        // إخفاء القسم إذا لم تكن هناك منتجات
         if (affiliateProducts.length === 0) {
             slider.parentElement.classList.add('hidden');
             return;
@@ -2092,7 +2091,7 @@ function renderProductSlider(list) {
         
         slider.parentElement.classList.remove('hidden');
 
-        // تعيين كلاسات الحاوية (Flexbox)
+        // تعيين كلاسات الحاوية
         slider.className = "flex gap-2 overflow-x-auto no-scrollbar px-2 pb-2 snap-x scroll-smooth items-stretch";
 
         // بناء HTML
@@ -2109,29 +2108,31 @@ function renderProductSlider(list) {
                 
                 <!-- صورة المنتج -->
                 <div class="relative w-full aspect-square bg-gray-50 dark:bg-slate-700">
-                    <!-- شارة الربح الصفراء -->
+                    <!-- شارة الربح -->
                     <div class="absolute top-0 right-0 bg-[#fde047] text-black text-[9px] font-black px-1.5 py-0.5 rounded-bl-md z-10">
                         ربح ${profit}
                     </div>
                     
-                    <img src="${imgSrc}" class="w-full h-full object-cover block" loading="lazy" alt="Product">
+                    <!-- 
+                        تعديل هام هنا:
+                        1. غيرنا src إلى data-src 
+                        2. أبقينا loading="lazy" لكي يعمل مع دالة التحميل
+                    -->
+                    <img data-src="${imgSrc}" class="w-full h-full object-cover block" loading="lazy" alt="Product">
                     
                     ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#ff4747] text-white text-[9px] font-bold px-1 rounded-tr-md">-${discount}%</div>` : ''}
                 </div>
 
                 <!-- التفاصيل -->
                 <div class="p-2 flex flex-col flex-1 gap-1">
-                    <!-- السعر أولاً (الأهم) -->
                     <div class="ae-price text-sm">
                         <span class="text-[10px] font-semibold">${APP_SETTINGS.currency}</span>${Number(p.price).toLocaleString()}
                     </div>
 
-                    <!-- نسبة العمولة -->
                     <div class="text-[9px] text-gray-500 flex items-center gap-1">
                         <span class="bg-green-50 text-green-700 px-1 rounded border border-green-100">ع: ${p.commission}%</span>
                     </div>
 
-                    <!-- العنوان -->
                     <div class="ae-title mt-auto">
                         ${p.title}
                     </div>
@@ -2139,21 +2140,16 @@ function renderProductSlider(list) {
             </div>`;
         }).join('');
 
+        // هام جداً: استدعاء دالة تشغيل الصور
+        if (typeof setupLazyLoading === 'function') {
+            setupLazyLoading();
+        }
+
     } catch (error) {
         console.error("خطأ في عرض السلايدر:", error);
-        // في حال حدوث خطأ، نخفي القسم بدلاً من تجميد الموقع
         slider.parentElement.classList.add('hidden');
     }
 }
-
-// دالة مساعدة للانتقال (لتجنب أخطاء الروابط)
-function navToProduct(id) {
-    window.location.href = '/p/' + id;
-}
-
-
-
-
 
 
     
