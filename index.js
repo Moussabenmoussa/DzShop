@@ -1163,6 +1163,65 @@ app.post('/api/admin/orders/clear-old', async (req, res) => {
     }
 });
 
+
+// ============ REVIEWS SCHEMA ============
+const ReviewSchema = new mongoose.Schema({
+    listingId: { type: String, required: true },
+    userName: String,
+    rating: { type: Number, required: true }, // 1 to 5
+    comment: String,
+    images: [{ type: String }], // روابط الصور
+    date: { type: Date, default: Date.now }
+});
+const Review = mongoose.model('Review', ReviewSchema);
+
+// ============ REVIEWS API ============
+
+// إضافة مراجعة جديدة
+app.post('/api/review/add', async (req, res) => {
+    try {
+        const { listingId, userName, rating, comment, images } = req.body;
+        
+        // 1. حفظ المراجعة
+        await Review.create({
+            listingId,
+            userName: userName || 'مشتري',
+            rating: Number(rating),
+            comment,
+            images
+        });
+
+        // 2. تحديث تقييم المنتج الكلي
+        const reviews = await Review.find({ listingId });
+        const totalRating = reviews.reduce((acc, r) => acc + r.rating, 0);
+        const avgRating = (totalRating / reviews.length).toFixed(1);
+
+        await Listing.findByIdAndUpdate(listingId, {
+            rating: Number(avgRating),
+            reviews: reviews.length
+        });
+
+        res.json({ success: true });
+    } catch (e) {
+        console.error(e);
+        res.json({ success: false, msg: 'حدث خطأ أثناء إضافة المراجعة' });
+    }
+});
+
+// جلب مراجعات منتج معين
+app.get('/api/public/reviews/:listingId', async (req, res) => {
+    try {
+        const reviews = await Review.find({ listingId: req.params.listingId }).sort({ date: -1 });
+        res.json(reviews);
+    } catch (e) {
+        res.json([]);
+    }
+});
+
+
+
+
+
 // ============ START SERVER ============
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
