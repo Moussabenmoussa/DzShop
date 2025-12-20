@@ -667,9 +667,17 @@
             try {
                 const res = await fetch('/api/market');
                 ALL_LISTINGS = await res.json();
+                
+                // عرض المنتجات
                 renderProductSlider(ALL_LISTINGS);
                 renderProducts(ALL_LISTINGS);
-            } catch(e) {}
+                
+                // ✅ إضافة هذا السطر هو الحل لإظهار الصور إذا تركت الـ CSS كما هو
+                setupLazyLoading(); 
+                
+            } catch(e) { 
+                console.error("Market Load Error", e);
+            }
         }
 
         function renderProductSlider(list) {
