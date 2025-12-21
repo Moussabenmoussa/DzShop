@@ -1,5 +1,4 @@
 
-
 require('dotenv').config();
 
 const express = require('express');
@@ -307,10 +306,6 @@ app.get('/api/market', async (req, res) => {
         .limit(100);
     res.json(list);
 });
-
-
-
-
 // ============ PAGES ============
 // 1. الصفحة الرئيسية (واجهة الزوار الجديدة)
 app.get('/', (req, res) => {
@@ -331,9 +326,6 @@ app.get('/p/:id', (req, res) => {
 app.get('/super-admin', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'admin.html'));
 });
-
-
-
 // ============ PUBLIC SETTINGS API ============
 app.get('/api/public/settings', async (req, res) => {
     try {
@@ -520,15 +512,6 @@ app.post('/api/order/reveal', async (req, res) => {
         res.json({ success: false, msg: 'حدث خطأ غير متوقع' });
     }
 });
-
-
-
-
-
-
-
-
-
 // ============ CHAT API (UPDATED FOR TEASER SYSTEM) ============
 // التحقق من وجود محادثة
 app.post('/api/chat/check', async (req, res) => {
@@ -708,13 +691,6 @@ app.post('/api/chat/delete', async (req, res) => {
         } else { res.json({ success: false }); }
     } catch (e) { res.json({ success: false }); }
 });
-
-
-
-
-
-
-
 // ============ NOTIFICATIONS API ============
 app.get('/api/notifications/:userId', async (req, res) => {
     const notifs = await Notification.find({ userId: req.params.userId }).sort({ date: -1 }).limit(50);
@@ -741,7 +717,7 @@ app.get('/api/unread-counts/:userId', async (req, res) => {
 
     let messages = 0;
     chats.forEach(c => {
-        messages += c.sellerId === userId ? (c.sellerUnread || 0) : (c.buyerUnread || 0);
+        messages += c.sellerId === userId ? (c.sellerUnread | (c.buyerUnread || 0);
     });
 
     const pendingChats = await Chat.countDocuments({ sellerId: userId, isPaid: false });
@@ -781,10 +757,6 @@ app.post('/api/wallet/deposit', async (req, res) => {
         res.json({ success: false });
     }
 });
-
-
-
-
 // إضافة طلب سحب جديد
 app.post('/api/wallet/withdraw', async (req, res) => {
     try {
@@ -829,13 +801,6 @@ app.post('/api/wallet/withdraw', async (req, res) => {
         res.json({ success: false, msg: 'حدث خطأ في السيرفر' });
     }
 });
-
-
-
-
-
-
-
 // ============ ADMIN API ============
 
 app.get('/api/admin/stats', async (req, res) => {
@@ -972,10 +937,6 @@ app.get('/api/admin/chats', async (req, res) => {
     const chats = await Chat.find({ isPaid: true }).sort({ createdAt: -1 });
     res.json(chats);
 });
-
-
-
-
 app.get('/api/admin/deposits', async (req, res) => {
     const status = req.query.status;
     const limit = parseInt(req.query.limit) || 1000;
@@ -992,12 +953,6 @@ app.get('/api/admin/deposits', async (req, res) => {
     const deposits = await Trans.find(query).sort({ date: -1 }).limit(limit);
     res.json(deposits);
 });
-
-
-
-
-
-
 app.post('/api/admin/approve-deposit', async (req, res) => {
     try {
         const { transId, action } = req.body;
@@ -1043,14 +998,6 @@ app.post('/api/admin/approve-deposit', async (req, res) => {
         res.json({ success: false });
     }
 });
-
-
-
-
-
-
-
-
 app.get('/api/admin/payment-methods', async (req, res) => {
     const methods = await PaymentMethod.find().sort({ order: 1 });
     res.json(methods);
@@ -1131,8 +1078,6 @@ app.post('/api/admin/orders/clear-old', async (req, res) => {
         res.json({ success: false });
     }
 });
-
-
 // ============ REVIEWS SCHEMA ============
 const ReviewSchema = new mongoose.Schema({
     listingId: { type: String, required: true },
@@ -1186,8 +1131,6 @@ app.get('/api/public/reviews/:listingId', async (req, res) => {
         res.json([]);
     }
 });
-
-
 // ============ DELETE APIs (New) ============
 
 // 1. حذف إشعار
@@ -1237,9 +1180,6 @@ app.post('/api/chat/delete', async (req, res) => {
         res.json({ success: false });
     }
 });
-
-
-
 // 4. حذف إعلان (للمستخدم صاحب الإعلان حصراً)
 app.post('/api/user/listing/delete', async (req, res) => {
     try {
@@ -1260,7 +1200,6 @@ app.post('/api/user/listing/delete', async (req, res) => {
         res.json({ success: false });
     }
 });
-
 // 5. حذف طلب (للبائع حصراً)
 app.post('/api/user/order/delete', async (req, res) => {
     try {
@@ -1278,9 +1217,6 @@ app.post('/api/user/order/delete', async (req, res) => {
         res.json({ success: false });
     }
 });
-
-
-
 // شراء خدمة الترويج (Boost)
 app.post('/api/user/listing/boost', async (req, res) => {
     try {
@@ -1315,14 +1251,6 @@ app.post('/api/user/listing/boost', async (req, res) => {
         res.json({ success: false, msg: 'حدث خطأ في السيرفر' });
     }
 });
-
-
-
-
-
-
-
-
 // ============ START SERVER ============
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
