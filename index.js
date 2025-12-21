@@ -1270,6 +1270,52 @@ app.post('/api/chat/delete', async (req, res) => {
 });
 
 
+
+// 4. حذف إعلان (للمستخدم صاحب الإعلان حصراً)
+app.post('/api/user/listing/delete', async (req, res) => {
+    try {
+        const { id, userId } = req.body;
+        // نتحقق أولاً أن الإعلان يملكه هذا المستخدم
+        const listing = await Listing.findOne({ _id: id, userId: userId });
+        
+        if (listing) {
+            await Listing.findByIdAndDelete(id);
+            // اختياري: حذف الطلبات والمحادثات المرتبطة به لتنظيف القاعدة
+            // await Order.deleteMany({ listingId: id });
+            // await Chat.deleteMany({ listingId: id });
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, msg: 'غير مصرح لك بحذف هذا الإعلان' });
+        }
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// 5. حذف طلب (للبائع حصراً)
+app.post('/api/user/order/delete', async (req, res) => {
+    try {
+        const { id, userId } = req.body; // userId هنا هو البائع (Seller)
+        // نتحقق أن الطلب تابع لهذا البائع
+        const order = await Order.findOne({ _id: id, sellerId: userId });
+        
+        if (order) {
+            await Order.findByIdAndDelete(id);
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, msg: 'غير مصرح' });
+        }
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+
+
+
+
+
+
 // ============ START SERVER ============
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
