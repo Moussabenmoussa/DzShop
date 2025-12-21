@@ -1067,76 +1067,119 @@
 
     function renderBatch(list) {
         const grid = document.getElementById('marketGrid');
-        const now = new Date(); 
+        const now = new Date();
 
         const html = list.map(p => {
-            const discount = (p.originalPrice && p.originalPrice > p.price) ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
-            const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
-            const soldCount = p.reviews ? p.reviews * 10 : 0;
-
-            // === التحقق من الترويج ===
-            const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
-            
-            // 1. تصميم البطاقة
-            // ذهبي حقيقي (#FFD700) + خلفية كريمية فاتحة جداً (#FFFDF5) لتمييزها عن الأبيض
-            const cardClass = isBoosted 
-                ? 'ae-card cursor-pointer flex flex-col h-full border-2 border-[#FFD700] bg-[#FFFDF5]' 
-                : 'ae-card cursor-pointer flex flex-col h-full border border-gray-200';
-
-            // 2. تصميم التاج (لمسة ذهبية حقيقية)
-            // نستخدم style مباشر لعمل تدرج (Gradient) يبدو كمعدن الذهب
-            const crownBadge = isBoosted 
-                ? `<div class="absolute top-0 right-0 z-20 text-[#5a3a00] text-[10px] font-black px-2 py-0.5 rounded-bl shadow-sm flex items-center gap-1"
-                       style="background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);">
-                     <i class="fas fa-crown text-[9px]"></i> مميز
-                   </div>`
-                : '';
-
-            // 3. شارة العمولة
-            let affiliateBadge = '';
-            if (p.isAffiliate) {
-                affiliateBadge = `<span class="badge-affiliate absolute bottom-1 right-1 z-10 text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded">عمولة ${p.commission}%</span>`;
-            }
-            
-            return `
-            <div class="${cardClass}" onclick="window.location.href='/p/${p._id}'">
+            // حساب الخصم
+            const discount = (p.originalPrice && p.originalPrice > p.price) 
+                ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
+                : 0;
                 
-                <!-- المنطقة 1: الصورة -->
-                <div class="img-wrapper relative">
-                    <!-- التاج الذهبي يظهر هنا -->
-                    ${crownBadge}
-                    
-                    <!-- الصورة بتقنية التحميل السريع -->
-                    <img src="${img}" loading="lazy" decoding="async" class="product-img" alt="${p.title}">
-                    
-                    ${affiliateBadge}
-                    
-                    ${discount > 0 ? `<div class="absolute top-0 left-0 bg-[#ff3333] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-sm z-10">-${discount}%</div>` : ''}
-                </div>
+            // معالجة الصور (وضع افتراضي في حال عدم وجود صورة)
+            const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
+            
+            // محاكاة أرقام المبيعات لتبدو مثل علي اكسبرس (مثلاً: 100+ sold)
+            const soldCount = p.reviews ? (p.reviews > 100 ? '+100' : p.reviews * 10) : 5; 
 
-                <!-- المنطقة 2: المعلومات -->
-                <div class="p-2 flex flex-col flex-1">
+            // === فحص هل المنتج مروج (مدفوع)؟ ===
+            // إذا كان التاريخ موجوداً وأكبر من اليوم = مروج
+            const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
+
+            // ============================================
+            // 🌟 النوع 1: الإعلان المميز (التاج الذهبي)
+            // ============================================
+            if (isBoosted) {
+                return `
+                <div class="ae-card flex flex-col h-full cursor-pointer relative animate-fadeIn" 
+                     style="background: #fffdf5; border: 2px solid #FFD700; border-radius: 8px; overflow: hidden;"
+                     onclick="window.location.href='/p/${p._id}'">
                     
-                    <!-- السعر (باللون الأحمر كما في علي اكسبرس) -->
-                    <div class="ae-price mt-1 text-[#ff3333] font-black text-sm">
-                        <span>${Number(p.price).toLocaleString()}</span>
-                        <small class="text-black text-[9px] mx-0.5">${APP_SETTINGS.currency}</small>
+                    <!-- شريط التاج الذهبي -->
+                    <div class="absolute top-0 right-0 z-20 px-2 py-0.5 rounded-bl-lg shadow-sm flex items-center gap-1"
+                         style="background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #422a00; font-weight: 800; font-size: 10px;">
+                        <i class="fas fa-crown text-[9px]"></i> Top Ad
                     </div>
 
-                    <!-- العنوان -->
-                    <div class="text-[11px] text-gray-700 mt-0.5 leading-tight line-clamp-2 font-medium h-8 overflow-hidden">
-                        ${p.title}
+                    <!-- الصورة -->
+                    <div class="img-wrapper relative aspect-square bg-gray-50">
+                        <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover">
                     </div>
+
+                    <!-- المحتوى -->
+                    <div class="p-2 flex flex-col flex-1">
+                        <div class="text-[#ff3333] font-black text-lg leading-none mb-1">
+                            ${APP_SETTINGS.currency} <span class="text-xl">${Number(p.price).toLocaleString()}</span>
+                        </div>
+                        <div class="text-xs text-gray-800 font-bold line-clamp-2 leading-tight">
+                            ${p.title}
+                        </div>
+                        <div class="mt-auto pt-2 flex items-center gap-1">
+                            <span class="text-[9px] bg-[#FFD700] text-black px-1.5 rounded font-bold">Premium</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // ============================================
+            // 🛒 النوع 2: ستايل AliExpress الأصلي (المسطح)
+            // كما في الصورة: Choice بالأصفر، السعر بالأحمر، الخلفية بيضاء
+            // ============================================
+            else {
+                // منطق الشارات (Badges Logic)
+                let badgesHTML = '';
+                
+                // شارة Choice (للإعلانات التي تدعم العمولة Affiliate)
+                if (p.isAffiliate) {
+                    badgesHTML += `<span style="background:#FBD913; color:#000; padding:1px 4px; font-weight:800; font-size:10px; border-radius:3px; margin-right:4px;">Choice</span>`;
+                }
+                
+                // شارة Welcome Deal (إذا كان الخصم كبير)
+                if (discount > 20) {
+                    badgesHTML += `<span style="background:#FFD1DC; color:#FF0036; padding:1px 4px; font-weight:700; font-size:10px; border-radius:3px;">Welcome deal</span>`;
+                }
+
+                return `
+                <div class="bg-white flex flex-col h-full cursor-pointer relative" 
+                     style="border-radius: 8px; border: 1px solid #eaeaea; overflow: hidden;" 
+                     onclick="window.location.href='/p/${p._id}'">
                     
-                    <!-- المباع -->
-                    <div class="flex items-center justify-between mt-1">
-                        <span class="text-[9px] text-gray-500 bg-gray-50 px-1 rounded border">${soldCount} مباع</span>
-                        ${isBoosted ? '<i class="fas fa-bolt text-[#FFD700] text-[10px]"></i>' : ''}
+                    <!-- الصورة -->
+                    <div class="relative aspect-square w-full bg-[#f9f9f9]">
+                        <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover">
+                        ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#FF0036] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
                     </div>
-                </div>
-            </div>`;
+
+                    <!-- المحتوى -->
+                    <div class="p-2 flex flex-col flex-1">
+                        
+                        <!-- وصف (عنوان) مختصر -->
+                        <div class="text-[12px] text-[#222] leading-tight line-clamp-2 mb-1 h-8 overflow-hidden font-normal" style="font-family: sans-serif;">
+                            ${p.title}
+                        </div>
+
+                        <!-- الصف: مبيعات + نجوم (أسفل العنوان مباشرة) -->
+                        <div class="flex items-center gap-1 text-[10px] text-[#666] mb-1.5">
+                            ${p.rating ? `<i class="fas fa-star text-[9px] text-black"></i> <span class="text-black font-bold mr-1">${p.rating}</span>` : ''}
+                            <span>${soldCount} sold</span>
+                        </div>
+
+                        <!-- الشارات (Choice / Deals) -->
+                        <div class="flex items-center flex-wrap gap-1 mb-1.5">
+                            ${badgesHTML}
+                        </div>
+
+                        <!-- السعر (الأحمر الكبير) + السعر القديم -->
+                        <div class="mt-auto">
+                            <div class="flex items-baseline gap-1">
+                                <span style="color:#FF0036; font-size:16px; font-weight:800;">${APP_SETTINGS.currency}${Number(p.price).toLocaleString()}</span>
+                            </div>
+                            ${p.originalPrice ? `<div class="text-[10px] text-[#999] line-through">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }
         }).join('');
-        
+
         grid.insertAdjacentHTML('beforeend', html);
     }
 
