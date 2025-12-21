@@ -50,6 +50,12 @@ const ListingSchema = new mongoose.Schema({
     colors: [{ type: String }],
     sizes: [{ type: String }],
     offerEndTime: { type: Number },
+
+
+rating: { type: Number, default: 0 }, 
+    reviews: { type: Number, default: 0 },
+
+    
     active: { type: Boolean, default: true },
     views: { type: Number, default: 0 },
     isAffiliate: { type: Boolean, default: false },
