@@ -522,235 +522,185 @@ app.post('/api/order/reveal', async (req, res) => {
 
 
 
-// ============ CHAT API ============
 
-// التحقق من وجود محادثة (بدون إرسال إشعار)
+// ============ CHAT API (UPDATED FOR TEASER SYSTEM) ============
+// التحقق من وجود محادثة
 app.post('/api/chat/check', async (req, res) => {
     try {
         const { listingId, fingerprint } = req.body;
-
-        const listing = await Listing.findById(listingId);
-        if (!listing) return res.json({ success: false, msg: 'الخدمة غير موجودة' });
-
-        if (listing.type !== 'service') return res.json({ success: false, msg: 'هذا ليس خدمة' });
-
         const chat = await Chat.findOne({ listingId, buyerFingerprint: fingerprint });
-
-        if (chat) {
-            return res.json({ success: true, chatId: chat._id, isPaid: chat.isPaid, exists: true });
-        }
-
+        if (chat) return res.json({ success: true, chatId: chat._id, isPaid: chat.isPaid, exists: true });
         return res.json({ success: true, exists: false });
-    } catch(e) {
-        res.json({ success: false, msg: 'خطأ' });
-    }
+    } catch(e) { res.json({ success: false }); }
 });
 
-// طلب محادثة من المشتري (عند الضغط على زر اتصال بالبائع)
+// طلب محادثة (إنشاء محادثة جديدة)
 app.post('/api/chat/request', async (req, res) => {
     try {
         const { listingId, fingerprint, buyerName } = req.body;
-
         const listing = await Listing.findById(listingId);
-        if (!listing) return res.json({ success: false, msg: 'الخدمة غير موجودة' });
-
-        if (listing.type !== 'service') return res.json({ success: false, msg: 'هذا ليس خدمة' });
-
+        
+        // البحث عن محادثة سابقة
         let chat = await Chat.findOne({ listingId, buyerFingerprint: fingerprint });
+        if (chat) return res.json({ success: true, chatId: chat._id, isPaid: chat.isPaid });
 
-        if (chat) {
-            return res.json({ success: true, chatId: chat._id, isPaid: chat.isPaid });
-        }
-
+        // إنشاء محادثة جديدة (غير مدفوعة)
         chat = await Chat.create({
-            listingId,
-            listingTitle: listing.title,
-            sellerId: listing.userId,
+            listingId, 
+            listingTitle: listing.title, 
+            sellerId: listing.userId, 
             sellerName: listing.userName,
-            buyerName: buyerName || 'مشتري',
-            buyerFingerprint: fingerprint,
+            buyerName: buyerName || 'مشتري', 
+            buyerFingerprint: fingerprint, 
             isPaid: false
         });
 
+        // إشعار للبائع بطلب جديد
         await createNotification(listing.userId, 'chat_request', 'طلب محادثة جديد! 💬', `${buyerName || 'مشتري'} يريد التواصل معك حول "${listing.title}"`, chat._id);
-
-        return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'تم إرسال طلب المحادثة للبائع' });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ' });
-    }
+        
+        res.json({ success: true, chatId: chat._id, isPaid: false });
+    } catch (e) { res.json({ success: false }); }
 });
 
-// البائع يقبل المحادثة ويدفع
+// قبول المحادثة (الدفع)
 app.post('/api/chat/accept', async (req, res) => {
     try {
         const { chatId, sellerId } = req.body;
-
         const chat = await Chat.findById(chatId);
-        if (!chat) return res.json({ success: false, msg: 'المحادثة غير موجودة' });
+        
+        if (!chat || chat.sellerId !== sellerId) return res.json({ success: false });
+        if (chat.isPaid) return res.json({ success: true }); // مدفوعة مسبقاً
 
-        if (chat.sellerId !== sellerId) return res.json({ success: false, msg: 'غير مصرح' });
-
-        if (chat.isPaid) return res.json({ success: true, msg: 'المحادثة مفتوحة بالفعل' });
-
-        const seller = await User.findById(sellerId);
-        if (!seller) return res.json({ success: false, msg: 'البائع غير موجود' });
-
+        // خصم الرصيد
         const freeMode = await getSetting('freeMode', false);
-
         if (!freeMode) {
             const chatPrice = await getSetting('chatPrice', 50);
-
-            if (seller.balance < chatPrice) {
-                return res.json({ success: false, msg: `رصيدك غير كافٍ. تحتاج ${chatPrice} لفتح المحادثة` });
-            }
-
             const newBalance = await deductBalance(sellerId, chatPrice, `فتح محادثة: ${chat.listingTitle}`);
             if (newBalance === false) return res.json({ success: false, msg: 'رصيد غير كافٍ' });
         }
-
-        chat.isPaid = true;
+        
+        chat.isPaid = true; 
         await chat.save();
 
-        if (chat.buyerId) {
-            await createNotification(chat.buyerId, 'message', 'تم قبول طلبك! ✅', `${chat.sellerName} قبل طلب المحادثة حول "${chat.listingTitle}"`, chatId);
-        }
+        // إشعار للمشتري أن البائع قبل
+        await createNotification(chat.buyerId, 'message', 'وافق البائع! ✅', `يمكنك الآن الدردشة بحرية مع ${chat.sellerName}`, chatId);
+        
+        // رسالة نظام داخل الشات
+        await Message.create({ chatId, senderId: 'system', content: '✅ قام البائع بقبول المحادثة.', fromBuyer: false });
 
-        return res.json({ success: true, msg: 'تم فتح المحادثة بنجاح' });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ' });
-    }
+        res.json({ success: true });
+    } catch (e) { res.json({ success: false }); }
 });
 
+// جلب المحادثات المعلقة للبائع
 app.get('/api/chat/pending/:sellerId', async (req, res) => {
     try {
         const chats = await Chat.find({ sellerId: req.params.sellerId, isPaid: false }).sort({ createdAt: -1 });
         res.json(chats);
-    } catch (e) {
-        res.json([]);
-    }
+    } catch (e) { res.json([]); }
 });
 
-app.post('/api/chat/start', async (req, res) => {
-    try {
-        const { listingId, fingerprint, userId, userName } = req.body;
-
-        const listing = await Listing.findById(listingId);
-        if (!listing) return res.json({ success: false, msg: 'الخدمة غير موجودة' });
-
-        if (listing.type !== 'service') return res.json({ success: false, msg: 'هذا ليس خدمة' });
-
-        let chat = await Chat.findOne({ listingId, buyerFingerprint: fingerprint });
-
-        if (chat && chat.isPaid) {
-            return res.json({ success: true, chatId: chat._id, isPaid: true });
-        }
-
-        if (chat && !chat.isPaid) {
-            return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'طلب المحادثة قيد الانتظار. البائع لم يقبل بعد.' });
-        }
-
-        // إنشاء محادثة جديدة (غير مدفوعة) - المشتري يطلب والبائع يجب أن يدفع ليقبل
-        chat = await Chat.create({
-            listingId,
-            listingTitle: listing.title,
-            sellerId: listing.userId,
-            sellerName: listing.userName,
-            buyerId: userId,
-            buyerName: userName,
-            buyerFingerprint: fingerprint,
-            isPaid: false
-        });
-
-        await createNotification(listing.userId, 'chat_request', 'طلب محادثة جديد! 💬', `${userName || 'مشتري'} يريد التواصل معك حول "${listing.title}"`, chat._id);
-
-        return res.json({ success: true, chatId: chat._id, isPaid: false, msg: 'تم إرسال طلب المحادثة للبائع. انتظر قبوله.' });
-    } catch (e) {
-        res.json({ success: false, msg: 'خطأ' });
-    }
-});
-
+// جلب بيانات محادثة واحدة
 app.get('/api/chat/:chatId', async (req, res) => {
     const chat = await Chat.findById(req.params.chatId);
     res.json(chat || {});
 });
 
+// جلب قائمة المحادثات (للمشتري والبائع) - فقط المدفوعة تظهر في القائمة الرئيسية
 app.get('/api/chats/:userId', async (req, res) => {
     const userId = req.params.userId;
-    const chats = await Chat.find({
-        $or: [{ sellerId: userId }, { buyerId: userId }],
-        isPaid: true
+    // نظهر المحادثات المدفوعة + المحادثات التي أنا فيها كمشتري (حتى لو لم تُدفع بعد لكي أرى رسائلي)
+    const chats = await Chat.find({ 
+        $or: [
+            { sellerId: userId, isPaid: true }, // البائع يرى فقط المدفوعة هنا
+            { buyerId: userId } // المشتري يرى كل محادثاته
+        ]
     }).sort({ lastMessageDate: -1 });
-
-    const result = chats.map(c => ({
-        ...c.toObject(),
-        unreadCount: c.sellerId === userId ? c.sellerUnread : c.buyerUnread
-    }));
-
-    res.json(result);
+    
+    res.json(chats.map(c => ({ ...c.toObject(), unreadCount: c.sellerId === userId ? c.sellerUnread : c.buyerUnread })));
 });
 
+// جلب الرسائل
 app.get('/api/chat/messages/:chatId', async (req, res) => {
     const messages = await Message.find({ chatId: req.params.chatId }).sort({ date: 1 });
     res.json(messages);
 });
 
+// إرسال رسالة (التعديل الجوهري هنا)
 app.post('/api/chat/send', async (req, res) => {
     try {
         const { chatId, senderId, content, fromBuyer } = req.body;
-
         const chat = await Chat.findById(chatId);
         if (!chat) return res.json({ success: false });
 
-        if (!chat.isPaid) return res.json({ success: false, msg: 'المحادثة غير مفتوحة بعد' });
+        // === منطق الحظر ===
+        // إذا كان المرسل هو البائع (ليس مشتري) والمحادثة غير مدفوعة -> نمنعه
+        if (!fromBuyer && !chat.isPaid) {
+            return res.json({ success: false, msg: 'يجب قبول المحادثة أولاً' });
+        }
 
-        const sender = await User.findById(senderId);
-
-        await Message.create({
-            chatId,
-            senderId,
-            senderName: sender?.name || 'مستخدم',
-            content,
-            fromBuyer: fromBuyer !== false
-        });
-
-        chat.lastMessage = content;
+        // حفظ الرسالة
+        await Message.create({ chatId, senderId, content, fromBuyer: fromBuyer !== false });
+        
+        chat.lastMessage = content; 
         chat.lastMessageDate = new Date();
-
+        
         if (fromBuyer !== false) {
+            // رسالة من المشتري
             chat.sellerUnread = (chat.sellerUnread || 0) + 1;
-            await createNotification(chat.sellerId, 'message', 'رسالة جديدة 💬', content.substring(0, 50), chatId);
+            
+            // إشعار للبائع (ليتحمس ويفتح الرسالة)
+            await createNotification(chat.sellerId, 'chat_request', 'رسالة من مشتري 💬', content.substring(0, 50), chatId);
+
+            // === الرد الآلي (BOT) ===
+            // إذا كانت الدردشة غير مدفوعة، نرسل رد آلي للمشتري
+            if (!chat.isPaid) {
+                // نتحقق لكي لا نكرر الرد الآلي كثيراً (مثلاً مرة واحدة)
+                const botMsgs = await Message.countDocuments({ chatId, senderId: 'system' });
+                if (botMsgs === 0) {
+                    const botText = "مرحباً! 👋\nوصلت رسالتك للبائع. سيقوم بالرد عليك قريباً.";
+                    await Message.create({ chatId, senderId: 'system', content: botText, fromBuyer: false });
+                }
+            }
+
         } else {
+            // رسالة من البائع
             chat.buyerUnread = (chat.buyerUnread || 0) + 1;
             if (chat.buyerId) {
-                await createNotification(chat.buyerId, 'message', 'رسالة جديدة 💬', content.substring(0, 50), chatId);
+                await createNotification(chat.buyerId, 'message', 'رد جديد 💬', content.substring(0, 50), chatId);
             }
         }
 
         await chat.save();
         res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false });
-    }
+    } catch (e) { res.json({ success: false }); }
 });
 
+// قراءة الرسائل
 app.post('/api/chat/read', async (req, res) => {
     try {
         const { chatId, userId } = req.body;
         const chat = await Chat.findById(chatId);
-        if (!chat) return res.json({ success: false });
-
-        if (chat.sellerId === userId) {
-            chat.sellerUnread = 0;
-        } else {
-            chat.buyerUnread = 0;
+        if (chat) {
+            if (chat.sellerId === userId) chat.sellerUnread = 0; else chat.buyerUnread = 0;
+            await chat.save();
+            await Message.updateMany({ chatId, isRead: false }, { isRead: true });
         }
-
-        await chat.save();
-        await Message.updateMany({ chatId, isRead: false }, { isRead: true });
         res.json({ success: true });
-    } catch (e) {
-        res.json({ success: false });
-    }
+    } catch (e) { res.json({ success: false }); }
+});
+
+// حذف محادثة
+app.post('/api/chat/delete', async (req, res) => {
+    try {
+        const { id, userId } = req.body;
+        const chat = await Chat.findOne({ _id: id, $or: [{ sellerId: userId }, { buyerId: userId }] });
+        if (chat) {
+            await Chat.findByIdAndDelete(id);
+            await Message.deleteMany({ chatId: id });
+            res.json({ success: true });
+        } else { res.json({ success: false }); }
+    } catch (e) { res.json({ success: false }); }
 });
 
 
