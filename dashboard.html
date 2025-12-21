@@ -1065,43 +1065,49 @@
         }, 500);
     }
 
+
+
+
+
+
+
+    
+    
     function renderBatch(list) {
         const grid = document.getElementById('marketGrid');
         const now = new Date();
 
         const html = list.map(p => {
-            // حساب الخصم
+            // منطق الخصم والصورة
             const discount = (p.originalPrice && p.originalPrice > p.price) 
                 ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
                 : 0;
-                
-            // معالجة الصور (وضع افتراضي في حال عدم وجود صورة)
             const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
             
-            // محاكاة أرقام المبيعات لتبدو مثل علي اكسبرس (مثلاً: 100+ sold)
-            const soldCount = p.reviews ? (p.reviews > 100 ? '+100' : p.reviews * 10) : 5; 
-
-            // === فحص هل المنتج مروج (مدفوع)؟ ===
-            // إذا كان التاريخ موجوداً وأكبر من اليوم = مروج
+            // بيانات حقيقية
+            // (soldCount) يعرض المبيعات الحقيقية أو "New" إذا كان 0
+            const soldCount = p.reviews ? `${p.reviews} sold` : 'New'; 
+            
+            // التحقق من الترويج
             const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
 
-            // ============================================
-            // 🌟 النوع 1: الإعلان المميز (التاج الذهبي)
-            // ============================================
+            // =========================================================
+            // النوع 1: الإعلان المروج (ذهبي)
+            // =========================================================
             if (isBoosted) {
                 return `
-                <div class="ae-card flex flex-col h-full cursor-pointer relative animate-fadeIn" 
-                     style="background: #fffdf5; border: 2px solid #FFD700; border-radius: 8px; overflow: hidden;"
+                <div class="ae-card flex flex-col h-full cursor-pointer relative" 
+                     style="background: #ffffff; border: 2px solid #FFD700; border-radius: 6px; box-shadow: none !important;"
                      onclick="window.location.href='/p/${p._id}'">
                     
-                    <!-- شريط التاج الذهبي -->
-                    <div class="absolute top-0 right-0 z-20 px-2 py-0.5 rounded-bl-lg shadow-sm flex items-center gap-1"
+                    <!-- شريط التاج -->
+                    <div class="absolute top-0 right-0 z-20 px-2 py-0.5 rounded-bl-md flex items-center gap-1"
                          style="background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #422a00; font-weight: 800; font-size: 10px;">
-                        <i class="fas fa-crown text-[9px]"></i> Top Ad
+                        <i class="fas fa-crown text-[9px]"></i> مميز
                     </div>
 
-                    <!-- الصورة -->
-                    <div class="img-wrapper relative aspect-square bg-gray-50">
+                    <!-- الصورة (على خلفية بيضاء) -->
+                    <div class="img-wrapper relative aspect-square" style="background: #ffffff;">
                         <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover">
                     </div>
 
@@ -1110,70 +1116,64 @@
                         <div class="text-[#ff3333] font-black text-lg leading-none mb-1">
                             ${APP_SETTINGS.currency} <span class="text-xl">${Number(p.price).toLocaleString()}</span>
                         </div>
-                        <div class="text-xs text-gray-800 font-bold line-clamp-2 leading-tight">
+                        <div class="text-xs text-gray-900 font-bold line-clamp-2 leading-tight">
                             ${p.title}
                         </div>
-                        <div class="mt-auto pt-2 flex items-center gap-1">
-                            <span class="text-[9px] bg-[#FFD700] text-black px-1.5 rounded font-bold">Premium</span>
+                        <div class="mt-auto pt-2 flex items-center gap-2 text-[10px]">
+                            <span class="bg-[#FFD700] text-black px-1 rounded font-bold">${soldCount}</span>
                         </div>
                     </div>
                 </div>`;
             }
 
-            // ============================================
-            // 🛒 النوع 2: ستايل AliExpress الأصلي (المسطح)
-            // كما في الصورة: Choice بالأصفر، السعر بالأحمر، الخلفية بيضاء
-            // ============================================
+            // =========================================================
+            // النوع 2: البطاقة العادية (AliExpress White Flat)
+            // =========================================================
             else {
-                // منطق الشارات (Badges Logic)
+                // الشارات
                 let badgesHTML = '';
-                
-                // شارة Choice (للإعلانات التي تدعم العمولة Affiliate)
-                if (p.isAffiliate) {
-                    badgesHTML += `<span style="background:#FBD913; color:#000; padding:1px 4px; font-weight:800; font-size:10px; border-radius:3px; margin-right:4px;">Choice</span>`;
-                }
-                
-                // شارة Welcome Deal (إذا كان الخصم كبير)
-                if (discount > 20) {
-                    badgesHTML += `<span style="background:#FFD1DC; color:#FF0036; padding:1px 4px; font-weight:700; font-size:10px; border-radius:3px;">Welcome deal</span>`;
-                }
+                if (p.isAffiliate) badgesHTML += `<span style="background:#FBD913; color:#000; padding:1px 4px; font-weight:800; font-size:10px; border-radius:2px; margin-right:3px;">Choice</span>`;
+                if (discount > 20) badgesHTML += `<span style="background:#FFE6E6; color:#FF0036; padding:1px 4px; font-weight:700; font-size:10px; border-radius:2px;">- ${discount}%</span>`;
 
                 return `
-                <div class="bg-white flex flex-col h-full cursor-pointer relative" 
-                     style="border-radius: 8px; border: 1px solid #eaeaea; overflow: hidden;" 
+                <div class="flex flex-col h-full cursor-pointer relative" 
+                     style="background: #ffffff; border-radius: 6px; border: 1px solid #f2f2f2; box-shadow: none !important;" 
                      onclick="window.location.href='/p/${p._id}'">
                     
                     <!-- الصورة -->
-                    <div class="relative aspect-square w-full bg-[#f9f9f9]">
-                        <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover">
-                        ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#FF0036] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tr-md">-${discount}%</div>` : ''}
+                    <div class="relative aspect-square w-full" style="background: #ffffff;">
+                        <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover" 
+                             style="mix-blend-mode: multiply;"> 
+                             <!-- mix-blend-mode: multiply هي خدعة ذكية تجعل خلفية الصورة (إذا كانت بيضاء) تندمج تماماً مع البطاقة -->
                     </div>
 
                     <!-- المحتوى -->
                     <div class="p-2 flex flex-col flex-1">
                         
-                        <!-- وصف (عنوان) مختصر -->
-                        <div class="text-[12px] text-[#222] leading-tight line-clamp-2 mb-1 h-8 overflow-hidden font-normal" style="font-family: sans-serif;">
+                        <!-- العنوان (بسيط وأسود) -->
+                        <div class="text-[12px] text-[#222] leading-snug line-clamp-2 mb-1 h-8 overflow-hidden font-normal">
                             ${p.title}
                         </div>
 
-                        <!-- الصف: مبيعات + نجوم (أسفل العنوان مباشرة) -->
-                        <div class="flex items-center gap-1 text-[10px] text-[#666] mb-1.5">
+                        <!-- التقييم والمبيعات (رمادي فاتح) -->
+                        <div class="flex items-center gap-1 text-[10px] text-[#767676] mb-1.5">
                             ${p.rating ? `<i class="fas fa-star text-[9px] text-black"></i> <span class="text-black font-bold mr-1">${p.rating}</span>` : ''}
                             <span>${soldCount} sold</span>
                         </div>
 
-                        <!-- الشارات (Choice / Deals) -->
-                        <div class="flex items-center flex-wrap gap-1 mb-1.5">
+                        <!-- الشارات -->
+                        <div class="flex items-center flex-wrap gap-1 mb-1">
                             ${badgesHTML}
                         </div>
 
-                        <!-- السعر (الأحمر الكبير) + السعر القديم -->
+                        <!-- السعر -->
                         <div class="mt-auto">
                             <div class="flex items-baseline gap-1">
-                                <span style="color:#FF0036; font-size:16px; font-weight:800;">${APP_SETTINGS.currency}${Number(p.price).toLocaleString()}</span>
+                                <span style="color:#FF0036; font-size:11px; font-weight:700;">${APP_SETTINGS.currency}</span>
+                                <span style="color:#FF0036; font-size:17px; font-black;">${Number(p.price).toLocaleString()}</span>
                             </div>
-                            ${p.originalPrice ? `<div class="text-[10px] text-[#999] line-through">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : ''}
+                            <!-- السعر القديم يظهر فقط إذا كان هناك خصم -->
+                            ${p.originalPrice && discount > 0 ? `<div class="text-[10px] text-[#999] line-through decoration-gray-400">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : '<div class="h-4"></div>'}
                         </div>
                     </div>
                 </div>`;
@@ -1182,6 +1182,14 @@
 
         grid.insertAdjacentHTML('beforeend', html);
     }
+
+
+
+
+
+
+
+    
 
     function filterProducts() {
         const q = document.getElementById('searchInput').value.toLowerCase();
