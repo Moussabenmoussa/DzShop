@@ -162,6 +162,14 @@
         <section id="section-settings" class="hidden animate-fadeIn">
             <h2 class="text-2xl font-bold mb-6">إعدادات النظام</h2>
             <div class="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-color)] max-w-2xl">
+
+
+<div>
+    <label class="block text-sm font-bold mb-2">🚀 سعر ترويج الإعلان (لليوم الواحد)</label>
+    <input type="number" id="settingBoostPrice" class="input-field" placeholder="200">
+</div>
+
+
                 
                 <!-- Free Mode -->
                 <div class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/10 rounded-xl mb-6 border border-green-100 dark:border-green-900/30">
@@ -395,25 +403,30 @@
             document.getElementById('settingOrderRevealPrice').value = s.orderRevealPrice || 50;
             document.getElementById('settingChatPrice').value = s.chatPrice || 50;
             document.getElementById('settingMinDeposit').value = s.minDeposit || 100;
-            
-            // Checkbox for Free Mode
             document.getElementById('settingFreeMode').checked = s.freeMode === true;
-            
-            // Select for Currency
             document.getElementById('settingCurrency').value = s.currency || 'دج';
+            
+            // 🔥 هذا هو السطر الجديد (تمت إضافته)
+            document.getElementById('settingBoostPrice').value = s.boostPricePerDay || 200;
+
             APP_CURRENCY = s.currency || 'دج';
             updateCurrencySymbols();
         } catch(e) {}
     }
+            
+            
 
     async function saveSettings() {
         const data = {
+            // القيم القديمة
             orderRevealPrice: Number(document.getElementById('settingOrderRevealPrice').value),
             chatPrice: Number(document.getElementById('settingChatPrice').value),
             minDeposit: Number(document.getElementById('settingMinDeposit').value),
-            // إرسال قيمة البوليان الصحيحة
             freeMode: document.getElementById('settingFreeMode').checked,
-            currency: document.getElementById('settingCurrency').value
+            currency: document.getElementById('settingCurrency').value,
+
+            // 🔥 هذا هو السطر الجديد (تمت إضافته مع الفاصلة قبله)
+            boostPricePerDay: Number(document.getElementById('settingBoostPrice').value)
         };
 
         try {
