@@ -313,14 +313,26 @@
                     </div>
                 </div>
 
-                <!-- Slider -->
-                <div id="sliderContainer" class="hidden pl-3 py-3 bg-[var(--bg-card)] mb-2 overflow-x-auto no-scrollbar border-y border-[var(--border)]">
-                    <div class="flex items-center gap-2 mb-2 pr-3">
-                        <span class="badge-choice animate-pulse-badge"><i class="fas fa-star text-[9px] text-white"></i> Choice</span>
-                        <h2 class="text-sm font-black" data-lang="affiliate_offers">عروض المسوقين</h2>
-                    </div>
-                    <div id="productSlider" class="flex gap-3 pr-3"></div>
-                </div>
+                <!-- Slider Section Corrected -->
+<div id="sliderContainer" class="hidden bg-[var(--bg-card)] mb-2 border-y border-[var(--border)] pt-3 pb-1">
+    
+    <!-- 1. العنوان الثابت (لن يتحرك) -->
+    <div class="flex items-center gap-2 mb-2 px-3">
+        <span class="badge-choice animate-pulse-badge">
+            <i class="fas fa-star text-[9px] text-white"></i> Choice
+        </span>
+        <h2 class="text-sm font-black text-gray-800 dark:text-gray-200" data-lang="affiliate_offers">
+            Marketing
+        </h2>
+    </div>
+
+    <!-- 2. شريط البطاقات المتحرك (فقط هذا يتحرك) -->
+    <div id="productSlider" class="flex gap-3 overflow-x-auto no-scrollbar px-3 pb-3">
+        <!-- البطاقات تظهر هنا -->
+    </div>
+
+</div>
+    
 
                 <!-- Grid -->
                 <div class="px-2">
