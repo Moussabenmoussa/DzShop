@@ -1076,8 +1076,8 @@
     
     
                         
-     
-    function renderBatch(list) {
+
+     function renderBatch(list) {
         const grid = document.getElementById('marketGrid');
         const now = new Date();
 
@@ -1086,16 +1086,26 @@
                 ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
                 : 0;
             const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
-            const soldCount = p.reviews ? `${p.reviews} sold` : 'New'; 
+            
+            // ============ 1. حساب المبيعات (حسب منطق الكود الأصلي) ============
+            // نأخذ عدد المراجعات ونضربه في 10
+            const calculatedSold = p.reviews ? p.reviews * 10 : 0;
+            const soldDisplay = calculatedSold > 0 ? `sold +${calculatedSold}` : 'New';
+
+            // ============ 2. التقييم الحقيقي ============
+            const ratingHTML = p.rating 
+                ? `<span class="font-bold text-black flex items-center gap-0.5">${p.rating} <i class="fas fa-star text-[8px] mt-0.5"></i></span>` 
+                : '';
+
             const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
 
             // ============================================
-            // 🌟 الإعلان المروج (الإطار الذهبي)
+            // 🌟 البطاقة الذهبية (المميزة)
             // ============================================
             if (isBoosted) {
                 return `
                 <div class="flex flex-col h-full cursor-pointer relative" 
-                     style="background: #ffffff; border: 2px solid #FFD700; overflow: hidden;"
+                     style="background: #ffffff; border: 2px solid #FFD700; overflow: hidden; margin-bottom: 2px;"
                      onclick="window.location.href='/p/${p._id}'">
                     
                     <div class="absolute top-0 right-0 z-20 px-2 py-0.5 rounded-bl shadow-sm flex items-center gap-1"
@@ -1108,25 +1118,22 @@
                     </div>
 
                     <div class="p-2 flex flex-col flex-1" style="background: #ffffff;">
-                        <!-- السعر (نفس الستايل بالضبط) -->
                         <div class="text-[#ff3333] font-black text-lg leading-none mb-1">
                             ${APP_SETTINGS.currency} <span class="text-xl">${Number(p.price).toLocaleString()}</span>
                         </div>
-                        
-                        <!-- العنوان (نفس الستايل بالضبط) -->
                         <div class="text-xs text-gray-900 font-bold line-clamp-2 leading-tight h-8 overflow-hidden">
                             ${p.title}
                         </div>
-                        
-                        <div class="mt-auto pt-2">
-                            <span class="bg-[#FFD700] text-black text-[9px] px-1.5 rounded font-bold">Premium</span>
+                        <div class="mt-auto pt-2 flex justify-between items-center text-[10px]">
+                            <span class="text-gray-500 font-medium">${soldDisplay}</span>
+                            <span class="bg-[#FFD700] text-black px-1 rounded font-bold">Premium</span>
                         </div>
                     </div>
                 </div>`;
             }
 
             // ============================================
-            // ⬜ البطاقة العادية (نسخنا خطوط البطاقة الذهبية هنا)
+            // ⬜ البطاقة العادية (AliExpress Flat Style)
             // ============================================
             else {
                 let badgesHTML = '';
@@ -1146,27 +1153,31 @@
                     <!-- المعلومات -->
                     <div class="p-1 flex flex-col flex-1" style="background-color: #ffffff;">
                         
-                        <!-- 1. السعر: (نسخ مطابق لكود الإعلان) -->
+                        <!-- 1. السعر (كبير وأحمر) -->
                         <div class="text-[#ff3333] font-black text-lg leading-none mb-1 mt-1">
                             ${APP_SETTINGS.currency} <span class="text-xl">${Number(p.price).toLocaleString()}</span>
                         </div>
 
-                        <!-- 2. العنوان: (نسخ مطابق لكود الإعلان: نص عريض وأسود غامق) -->
-                        <div class="text-xs text-gray-900 font-bold line-clamp-2 leading-tight h-8 overflow-hidden">
+                        <!-- 2. العنوان (عريض وأسود) -->
+                        <div class="text-xs text-[#000] font-bold line-clamp-2 leading-tight h-8 overflow-hidden">
                             ${p.title}
                         </div>
 
-                        <!-- الشارات والمبيعات -->
+                        <!-- 3. الشارات -->
                         <div class="flex items-center flex-wrap gap-1 mt-1 mb-1">
                             ${badgesHTML}
                         </div>
 
-                        <div class="flex items-center gap-1 text-[10px] text-[#999]">
-                            <span>${soldCount}</span>
-                            ${p.rating ? `<span class="text-black font-bold">★ ${p.rating}</span>` : ''}
+                        <!-- 4. سطر التقييم والمبيعات (Style: 4.5⭐  sold +100) -->
+                        <div class="flex items-center gap-2 text-[10px] mt-auto">
+                            <!-- التقييم -->
+                            ${ratingHTML}
+                            
+                            <!-- المبيعات -->
+                            <span class="text-[#757575] font-medium">${soldDisplay}</span>
                         </div>
                         
-                        ${p.originalPrice && discount > 0 ? `<div class="text-[10px] text-[#ccc] line-through mt-1">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : ''}
+                        ${p.originalPrice && discount > 0 ? `<div class="text-[10px] text-[#ccc] line-through mt-0.5">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : ''}
                     </div>
                 </div>`;
             }
