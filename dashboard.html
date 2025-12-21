@@ -10,10 +10,9 @@
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp">
 <link rel="apple-touch-icon" href="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        /* إعدادات الألوان الصارخة (AliExpress Colors) */
         tailwind.config = { 
             darkMode: 'class', 
             theme: { 
@@ -21,30 +20,25 @@
                     fontFamily: { cairo: ['Cairo', 'sans-serif'], roboto: ['Roboto', 'sans-serif'] },
                     colors: {
                         aliRed: '#ff3333', 
-                        aliOrange: '#ff9900',
-                        aliDark: '#222222',
-                        aliBg: '#f2f2f2'
-                    } 
+                        aliOrange: '#ff9900'
+                    }
                 } 
             } 
         }
     </script>
     <style>
-        /* === تصميم خشن (Raw) للأداء العالي === */
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        /* === تصميم خشن (Raw) للأداء العالي Lite === */
         
-        /* إيقاف أي أنيميشن ثقيل */
-        .no-anim * { transition: none !important; animation: none !important; }
-
-        body { font-family: 'Cairo', sans-serif; background: #f2f2f2; color: #222; overscroll-behavior-y: none; }
+        body { font-family: 'Cairo', sans-serif; background: #f5f5f5; color: #222; overscroll-behavior-y: none; }
         html[lang="fr"] body { font-family: 'Roboto', sans-serif; }
 
         :root { 
-            --bg-body: #f2f2f2; 
+            --bg-body: #f5f5f5; 
             --bg-card: #ffffff; 
             --text-main: #222222; 
             --text-sub: #555555; 
-            --border: #e0e0e0; 
+            --border: #e5e5e5; 
             --ae-red: #ff3333; 
         }
         .dark { 
@@ -57,14 +51,14 @@
         
         .hidden { display: none !important; }
 
-        /* البطاقة: مربعة، حدود فقط، لا ظلال، خلفية بيضاء سادة */
+        /* البطاقة: مسطحة تماماً مثل AliExpress Lite */
         .ae-card { 
             background: var(--bg-card); 
             border: 1px solid var(--border); 
-            border-radius: 4px; /* زوايا صغيرة جداً */
+            border-radius: 4px; /* زوايا حادة */
             overflow: hidden; 
             position: relative; 
-            /* ZERO SHADOW */
+            /* لا ظلال نهائياً لزيادة السرعة */
             box-shadow: none !important; 
         }
         
@@ -72,9 +66,9 @@
         .dark .img-wrapper { background: #2a2a2a; }
         .product-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        /* شارات أيقونات مربعة وحادة */
+        /* شارات الأيقونات */
         .badge-choice { 
-            background: #ffeb3b; color: #000; font-weight: 800; font-size: 10px; padding: 2px 4px; 
+            background: #ffeb3b; color: #000; font-weight: 800; font-size: 10px; padding: 2px 5px; 
             display: inline-block; border-radius: 2px;
         }
         .badge-affiliate { 
@@ -83,96 +77,103 @@
         }
 
         /* السعر */
-        .ae-price { color: #ff3333; font-weight: 900; font-size: 15px; line-height: 1; display: flex; align-items: baseline; gap: 1px;}
-        .ae-price small { font-size: 10px; font-weight: 700; color: #000; }
-        .dark .ae-price small { color: #ddd; }
+        .ae-price { color: #ff3333; font-weight: 900; font-size: 16px; line-height: 1; display: flex; align-items: baseline; gap: 1px;}
+        .ae-price small { font-size: 11px; font-weight: 700; color: #333; }
+        .dark .ae-price small { color: #ccc; }
 
-        /* Grid Compressed (كثافة عالية) */
-        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding-bottom: 20px; }
-        @media (min-width: 640px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; } }
+        /* الشبكة Grid Compact */
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding-bottom: 20px; }
+        @media (min-width: 640px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; } }
 
-        /* Input Sharp */
-        .input-field { background: #fff; border: 1px solid #ccc; color: #000; outline: none; border-radius: 2px; }
+        /* حقول الإدخال حادة */
+        .input-field { background: #fff; border: 1px solid #ccc; color: #000; outline: none; border-radius: 4px; transition: border-color 0.2s; }
         .dark .input-field { background: #333; border-color: #444; color: #fff; }
-        .input-field:focus { border-color: #000; }
+        .input-field:focus { border-color: #ff3333; }
 
-        /* Button Sharp */
-        .btn-primary { background: #ff3333; color: white; border: none; font-weight: 700; border-radius: 2px; }
+        /* أزرار */
+        .btn-primary { background: #ff3333; color: white; border: none; font-weight: 700; border-radius: 4px; }
         .btn-primary:active { opacity: 0.9; }
 
-        /* Marquee Standard */
-        .news-ticker-container { background: #fff8f8; border-bottom: 1px solid #eee; height: 30px; overflow: hidden; position: relative; display: flex; align-items: center; padding: 0 5px; }
+        /* شريط الأخبار */
+        .news-ticker-container { background: #fff8f8; border-bottom: 1px solid #eee; height: 32px; overflow: hidden; position: relative; display: flex; align-items: center; padding: 0 8px; }
         .dark .news-ticker-container { background: #220000; border-color: #330000; }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .news-content { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; font-size: 11px; font-weight: 700; color: #ff3333; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         html[dir="ltr"] .news-content { animation: marquee-ltr 20s linear infinite; }
         @keyframes marquee-ltr { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        /* Sticky Categories (Tabs Style) */
-        .sticky-cats { position: sticky; top: 48px; z-index: 29; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+        /* الأقسام اللاصقة Sticky Tabs */
+        .sticky-cats { position: sticky; top: 48px; z-index: 29; background: var(--bg-card); border-bottom: 1px solid var(--border); box-shadow: 0 2px 3px rgba(0,0,0,0.02); }
         .cat-scroll { display: flex; overflow-x: auto; scrollbar-width: none; }
+        .cat-scroll::-webkit-scrollbar { display: none; }
+        
         .cat-pill { 
-            background: transparent; border: none; padding: 8px 12px; border-bottom: 2px solid transparent; 
-            font-size: 11px; font-weight: 700; white-space: nowrap; color: #666; 
+            background: transparent; border: none; padding: 10px 14px; border-bottom: 2px solid transparent; 
+            font-size: 12px; font-weight: 700; white-space: nowrap; color: #666; 
             border-radius: 0;
         }
-        .cat-pill.active { color: #ff3333; border-bottom-color: #ff3333; }
-        .dark .cat-pill { color: #aaa; }
+        .cat-pill.active { color: #ff3333; border-bottom-color: #ff3333; background: transparent; }
+        .dark .cat-pill { color: #999; }
         .dark .cat-pill.active { color: #fff; border-bottom-color: #fff; }
 
         .bottom-nav { background: var(--bg-card); border-top: 1px solid var(--border); height: 50px; }
-        .nav-item { color: #999; }
+        .nav-item { color: #999; transition: color 0.1s; }
         .nav-item.active { color: #ff3333; }
 
-        /* Boosted - Sharp Golden Border */
+        /* Boosted Style */
         .boosted-card { border: 2px solid #ffaa00 !important; background: #fffbe6 !important; }
-
-        /* Modals & Overlays - Flat */
-        .overlay { background: rgba(0,0,0,0.7) !important; backdrop-filter: none !important; }
-        .float-badge-static { position: absolute; top: 0; right: 0; background: #ffaa00; color: #000; padding: 0 4px; font-size: 9px; font-weight: bold; border-bottom-left-radius: 4px; }
+        .dark .boosted-card { background: #2b2510 !important; border-color: #d97706 !important; }
+        
+        /* Modals Flat */
+        .overlay { background: rgba(0,0,0,0.8) !important; backdrop-filter: none !important; }
+        
+        /* Animations Minimal */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.1s ease-out; }
+        .animate-pulse-slow { animation: none; } /* Disable heavy anims */
 
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen pb-16">
     
-    <!-- Ultra Lite Loader (No Heavy Animation) -->
-    <div id="loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-black">
-        <h1 class="text-3xl font-black"><span class="text-[aliRed]">Dz</span>Market</h1>
-        <p class="text-xs text-gray-400 font-bold uppercase mt-1 tracking-widest">Lite</p>
+    <!-- Lite Loader -->
+    <div id="loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-black transition-opacity duration-300">
+        <h1 class="text-3xl font-black text-black dark:text-white mb-2"><span class="text-[#ff3333]">Dz</span>Market</h1>
+        <div class="w-8 h-8 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin"></div>
     </div>
 
     <!-- Auth Screen -->
-    <div id="authScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-white dark:bg-black overflow-y-auto">
-        <div class="w-full max-w-sm">
+    <div id="authScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6 bg-white dark:bg-black overflow-y-auto">
+        <div class="w-full max-w-sm animate-fadeIn">
             <div class="text-center mb-8">
-                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp" class="w-20 h-20 mx-auto mb-2 border border-gray-200">
-                <h1 class="text-3xl font-black">DzMarket</h1>
-                <p class="text-gray-500 text-xs" data-lang="app_slogan">سوق الجزائر الأول</p>
+                <img src="https://res.cloudinary.com/dvtuocsxs/image/upload/f_auto,q_auto/v1765973958/my8crq9sx9aezvda0wrd.webp" class="w-24 h-24 mx-auto mb-3 object-contain border border-gray-100 bg-white p-2">
+                <h1 class="text-3xl font-black mb-1 text-black dark:text-white">DzMarket</h1>
+                <p class="text-gray-500 text-sm font-bold" data-lang="app_slogan">سوق الجزائر الأول</p>
             </div>
             
             <div id="loginForm">
-                <div class="space-y-3">
-                    <input id="lEmail" type="email" data-lang-placeholder="email" placeholder="البريد الإلكتروني" class="input-field w-full px-3 py-3 font-bold text-sm">
-                    <input id="lPass" type="password" data-lang-placeholder="password" placeholder="كلمة المرور" class="input-field w-full px-3 py-3 font-bold text-sm">
-                    <button onclick="login()" class="btn-primary w-full py-3 text-sm" data-lang="login">تسجيل الدخول</button>
+                <div class="space-y-4">
+                    <input id="lEmail" type="email" data-lang-placeholder="email" placeholder="البريد الإلكتروني" class="input-field w-full px-4 py-3 font-bold text-sm">
+                    <input id="lPass" type="password" data-lang-placeholder="password" placeholder="كلمة المرور" class="input-field w-full px-4 py-3 font-bold text-sm">
+                    <button onclick="login()" class="btn-primary w-full py-3 font-black text-sm uppercase shadow-sm" data-lang="login">تسجيل الدخول</button>
                 </div>
-                <div class="mt-4 text-center text-xs font-bold">
-                    <span class="text-gray-500" data-lang="new_here">جديد؟</span>
-                    <button onclick="toggleAuth()" class="text-red-600 ml-1" data-lang="create_account">فتح حساب</button>
+                <div class="mt-6 text-center text-sm font-bold">
+                    <span class="text-gray-500" data-lang="new_here">جديد معنا؟</span>
+                    <button onclick="toggleAuth()" class="text-red-600 mr-1 hover:underline" data-lang="create_account">إنشاء حساب</button>
                 </div>
             </div>
 
             <div id="regForm" class="hidden">
                 <div class="space-y-3">
-                    <input id="rName" type="text" data-lang-placeholder="full_name" placeholder="الاسم" class="input-field w-full px-3 py-3 font-bold text-sm">
-                    <input id="rEmail" type="email" data-lang-placeholder="email" placeholder="البريد" class="input-field w-full px-3 py-3 font-bold text-sm">
-                    <input id="rPass" type="password" data-lang-placeholder="password" placeholder="كلمة المرور" class="input-field w-full px-3 py-3 font-bold text-sm">
-                    <input id="rPhone" type="tel" data-lang-placeholder="phone" placeholder="الهاتف" class="input-field w-full px-3 py-3 font-bold text-sm">
-                    <button onclick="register()" class="btn-primary w-full py-3 text-sm" data-lang="register">تسجيل</button>
+                    <input id="rName" type="text" data-lang-placeholder="full_name" placeholder="الاسم الكامل" class="input-field w-full px-4 py-3 font-bold text-sm">
+                    <input id="rEmail" type="email" data-lang-placeholder="email" placeholder="البريد الإلكتروني" class="input-field w-full px-4 py-3 font-bold text-sm">
+                    <input id="rPass" type="password" data-lang-placeholder="password" placeholder="كلمة المرور" class="input-field w-full px-4 py-3 font-bold text-sm">
+                    <input id="rPhone" type="tel" data-lang-placeholder="phone" placeholder="رقم الهاتف" class="input-field w-full px-4 py-3 font-bold text-sm">
+                    <button onclick="register()" class="btn-primary w-full py-3 font-black text-sm shadow-sm" data-lang="register">إنشاء حساب</button>
                 </div>
-                <div class="mt-4 text-center text-xs font-bold">
+                <div class="mt-6 text-center text-sm font-bold">
                     <span class="text-gray-500" data-lang="have_account">لديك حساب؟</span>
-                    <button onclick="toggleAuth()" class="text-red-600 ml-1" data-lang="login">دخول</button>
+                    <button onclick="toggleAuth()" class="text-red-600 mr-1 hover:underline" data-lang="login">دخول</button>
                 </div>
             </div>
         </div>
@@ -183,30 +184,30 @@
         <!-- Compact Header -->
         <header class="fixed top-0 left-0 right-0 z-40 bg-[var(--bg-card)] border-b border-[var(--border)] h-12 flex items-center px-2 justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar(true)" class="w-8 h-8 flex items-center justify-center text-[var(--text-main)]"><i class="fas fa-bars"></i></button>
+                <button onclick="toggleSidebar(true)" class="text-[var(--text-main)] w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-white/10"><i class="fas fa-bars text-lg"></i></button>
                 <div class="flex items-center" onclick="nav('market')">
-                    <span class="font-black text-xl text-[aliRed] tracking-tighter">Dz</span>
-                    <span class="font-black text-xl tracking-tighter">Mk</span>
+                    <span class="font-black text-xl text-[#ff3333] tracking-tighter">Dz</span>
+                    <span class="font-bold text-xl tracking-tighter">Mk</span>
                 </div>
             </div>
             
-            <!-- Search Bar Embedded (Lite Style) -->
+            <!-- Embedded Search (AliExpress Style) -->
             <div class="flex-1 mx-2 relative">
-                <input id="searchInput" type="text" data-lang-placeholder="search_placeholder" placeholder="بحث..." class="w-full bg-gray-100 dark:bg-white/10 text-xs px-3 py-1.5 rounded-sm outline-none border-none text-[var(--text-main)]" oninput="filterProducts()">
+                <input id="searchInput" type="text" data-lang-placeholder="search_placeholder" placeholder="بحث..." class="w-full bg-[#f0f0f0] dark:bg-white/10 px-3 py-1.5 rounded text-xs outline-none text-[var(--text-main)] font-medium" oninput="filterProducts()">
                 <i class="fas fa-search absolute left-2 top-1.5 text-gray-400 text-xs"></i>
             </div>
 
             <div class="flex items-center gap-1">
-                <button onclick="toggleLang()" id="langBtn" class="text-xs font-bold border border-[var(--border)] px-1 py-0.5 rounded-sm bg-[var(--bg-body)]">FR</button>
+                <button onclick="toggleLang()" id="langBtn" class="text-[10px] font-bold border border-gray-300 px-1 py-0.5 rounded bg-gray-50 text-gray-700">FR</button>
                 
                 <div class="relative">
-                    <button onclick="toggleNotifications()" class="w-8 h-8 flex items-center justify-center text-[var(--text-main)]">
-                        <i class="far fa-bell"></i>
-                        <span id="notifBadge" class="hidden absolute top-1 right-1 bg-red-600 text-white text-[9px] w-3 h-3 flex items-center justify-center rounded-full">0</span>
+                    <button onclick="toggleNotifications()" class="relative text-[var(--text-main)] w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-white/10">
+                        <i class="far fa-bell text-lg"></i>
+                        <span id="notifBadge" class="hidden absolute top-1 right-1 bg-red-600 text-white text-[9px] w-3 h-3 flex items-center justify-center rounded-full font-bold">0</span>
                     </button>
-                    <!-- Notif Menu -->
+                    <!-- Notif Dropdown -->
                     <div id="notifDropdown" class="hidden fixed top-12 left-0 right-0 bg-[var(--bg-card)] border-b border-[var(--border)] shadow-md z-50">
-                        <div class="p-2 bg-gray-100 dark:bg-white/5 border-b border-[var(--border)] flex justify-between items-center">
+                         <div class="p-2 bg-gray-100 dark:bg-white/5 border-b border-[var(--border)] flex justify-between items-center">
                             <h3 class="font-bold text-xs" data-lang="notifications">الإشعارات</h3>
                             <button onclick="markAllRead()" class="text-[10px] text-blue-600 font-bold" data-lang="read_all">مقروء</button>
                         </div>
@@ -216,29 +217,29 @@
             </div>
         </header>
 
-        <!-- Sidebar (Drawer) -->
+        <!-- Sidebar -->
         <div id="sidebarOverlay" class="fixed inset-0 z-50 overlay hidden" onclick="toggleSidebar(false)"></div>
-        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-64 bg-[var(--bg-card)] z-[60] shadow-none border-r border-[var(--border)] flex flex-col transform translate-x-full transition-transform duration-200">
+        <aside id="sidebar" class="fixed top-0 right-0 bottom-0 w-64 bg-[var(--bg-card)] z-[60] border-r border-[var(--border)] flex flex-col transform translate-x-full transition-transform duration-200">
             <div class="p-4 bg-[#ff3333] text-white">
-                <div class="flex items-center gap-2 mb-2">
-                    <div id="sidebarInitial" class="w-8 h-8 bg-white text-[#ff3333] flex items-center justify-center font-bold text-sm">U</div>
-                    <div class="overflow-hidden">
-                        <h3 id="userName" class="font-bold text-sm truncate">User</h3>
-                        <div class="text-[10px] bg-black/20 px-1 inline-block"><span id="sidebarBalance">0</span> <span class="currency-symbol">دج</span></div>
+                <div class="flex items-center gap-3">
+                    <div id="sidebarInitial" class="w-10 h-10 bg-white text-[#ff3333] flex items-center justify-center font-bold rounded-sm text-lg">U</div>
+                    <div>
+                        <h3 id="userName" class="font-bold text-sm">User</h3>
+                        <div class="bg-black/20 px-2 py-0.5 mt-1 rounded text-[10px] font-mono"><span id="sidebarBalance">0</span> <span class="currency-symbol">DA</span></div>
                     </div>
                 </div>
             </div>
-            <nav class="flex-1 overflow-y-auto p-0 text-sm">
-                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5"><i class="fas fa-store w-4 text-center"></i> <span data-lang="market">السوق</span></button>
-                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5"><i class="fas fa-envelope w-4 text-center"></i> <span data-lang="messages">الرسائل</span> <span id="sidebarMsgBadge" class="hidden text-xs bg-red-600 text-white px-1 ml-auto">0</span></button>
-                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5"><i class="fas fa-box w-4 text-center"></i> <span data-lang="orders">الطلبات</span> <span id="ordersBadge" class="hidden text-xs bg-red-600 text-white px-1 ml-auto">0</span></button>
-                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5"><i class="fas fa-user-clock w-4 text-center"></i> <span data-lang="chat_requests">طلبات</span> <span id="chatRequestsBadge" class="hidden text-xs bg-red-600 text-white px-1 ml-auto">0</span></button>
-                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5 text-[#ff3333]"><i class="fas fa-plus w-4 text-center"></i> <span data-lang="add_ad">بيع الآن</span></button>
-                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5"><i class="fas fa-list w-4 text-center"></i> <span data-lang="my_ads">إعلاناتي</span></button>
-                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] font-bold hover:bg-gray-50 dark:hover:bg-white/5"><i class="fas fa-wallet w-4 text-center"></i> <span data-lang="wallet">المحفظة</span></button>
+            <nav class="flex-1 overflow-y-auto p-0">
+                <button onclick="nav('market')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[var(--text-sub)]"><i class="fas fa-store w-4 text-center"></i> <span data-lang="market">السوق</span></button>
+                <button onclick="nav('messages')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[var(--text-sub)]"><i class="fas fa-comment-alt w-4 text-center"></i> <span data-lang="messages">الرسائل</span> <span id="sidebarMsgBadge" class="bg-red-600 text-white text-[9px] px-1 rounded ml-auto hidden">0</span></button>
+                <button onclick="nav('orders')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[var(--text-sub)]"><i class="fas fa-box w-4 text-center"></i> <span data-lang="orders">الطلبات</span> <span id="ordersBadge" class="bg-red-600 text-white text-[9px] px-1 rounded ml-auto hidden">0</span></button>
+                <button onclick="nav('chat-requests')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[var(--text-sub)]"><i class="fas fa-user-clock w-4 text-center"></i> <span data-lang="chat_requests">طلبات المحادثة</span> <span id="chatRequestsBadge" class="bg-red-600 text-white text-[9px] px-1 rounded ml-auto hidden">0</span></button>
+                <button onclick="nav('add')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[#ff3333]"><i class="fas fa-plus-circle w-4 text-center"></i> <span data-lang="add_ad">بيع الآن</span></button>
+                <button onclick="nav('mylist')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[var(--text-sub)]"><i class="fas fa-list w-4 text-center"></i> <span data-lang="my_ads">إعلاناتي</span></button>
+                <button onclick="nav('wallet')" class="w-full flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-white/5 font-bold text-xs text-[var(--text-sub)]"><i class="fas fa-wallet w-4 text-center"></i> <span data-lang="wallet">المحفظة</span></button>
             </nav>
             <div class="p-0 border-t border-[var(--border)]">
-                <button onclick="logout()" class="w-full py-4 text-[#ff3333] font-bold text-sm bg-gray-50 dark:bg-white/5 hover:bg-red-50" data-lang="logout">خروج</button>
+                <button onclick="logout()" class="w-full py-3 text-[#ff3333] font-bold text-xs bg-gray-50 hover:bg-red-50" data-lang="logout">خروج</button>
             </div>
         </aside>
 
@@ -246,36 +247,36 @@
         <main class="pt-12 pb-14 max-w-7xl mx-auto min-h-screen">
             
             <!-- View: Market -->
-            <div id="view-market">
+            <div id="view-market" class="animate-fadeIn">
                 <!-- News Ticker -->
                 <div class="news-ticker-container">
-                    <div class="flex items-center gap-2 text-[#ff3333] font-bold text-[10px] px-2 z-10 bg-[var(--bg-body)] h-full absolute right-0 border-l border-[#ffecec]">
-                        <span class="bg-[#ff3333] text-white px-1 text-[9px]">LIVE</span>
+                    <div class="flex items-center gap-2 text-[#ff3333] font-black text-[10px] px-2 z-10 bg-[var(--bg-body)] h-full absolute right-0 border-l border-[#ffdbdb]">
+                        <span class="bg-[#ff3333] text-white px-1">LIVE</span>
                     </div>
                     <div class="news-content w-full pr-14" data-lang="ticker_text">
-                         عروض حصرية - توصيل لكل الولايات - تسوق بأمان - ادفع عند الاستلام
+                         خصومات هائلة لهذا الأسبوع! - توصيل متوفر - سجل كمسوق واربح عمولة - منتجات جديدة
                     </div>
                 </div>
 
-                <!-- Slider (Choice/Affiliate) - Flat & Dense -->
-                <div id="sliderContainer" class="hidden bg-[var(--bg-card)] border-b border-[var(--border)] pt-2 pb-2">
+                <!-- Slider Section (Top Position) -->
+                <div id="sliderContainer" class="hidden bg-[var(--bg-card)] mb-0 border-b border-[var(--border)] pt-2 pb-2">
                     <div class="flex items-center justify-between px-2 mb-2">
-                        <div class="flex items-center gap-1">
-                             <h2 class="text-xs font-black bg-black text-white px-1" data-lang="affiliate_offers">TOP DEALS</h2>
+                        <div class="flex items-center gap-2">
+                             <h2 class="text-xs font-black bg-black text-white px-1">DEALS</h2>
                              <span class="badge-affiliate">سوق واربح</span>
                         </div>
                     </div>
-                    <div id="productSlider" class="flex gap-1 overflow-x-auto no-scrollbar px-2"></div>
+                    <div id="productSlider" class="flex gap-2 overflow-x-auto no-scrollbar px-2"></div>
                 </div>
                 
-                <!-- Categories - Sticky Tabs -->
+                <!-- Categories (Sticky Tab Style) -->
                 <div class="sticky-cats">
                     <div class="cat-scroll">
                         <button onclick="filterCategory('all')" class="cat-pill active" data-cat="all" data-lang="cat_all">الكل</button>
-                        <button onclick="filterCategory('product')" class="cat-pill" data-cat="product" data-lang="cat_product">منتج</button>
-                        <button onclick="filterCategory('service')" class="cat-pill" data-cat="service" data-lang="cat_service">خدمة</button>
-                        <button onclick="filterCategory('electronics')" class="cat-pill" data-cat="electronics" data-lang="cat_elec">إلكترونيك</button>
-                        <button onclick="filterCategory('fashion')" class="cat-pill" data-cat="fashion" data-lang="cat_fashion">موضة</button>
+                        <button onclick="filterCategory('product')" class="cat-pill" data-cat="product" data-lang="cat_product">منتجات</button>
+                        <button onclick="filterCategory('service')" class="cat-pill" data-cat="service" data-lang="cat_service">خدمات</button>
+                        <button onclick="filterCategory('electronics')" class="cat-pill" data-cat="electronics" data-lang="cat_elec">إلكترونيات</button>
+                        <button onclick="filterCategory('fashion')" class="cat-pill" data-cat="fashion" data-lang="cat_fashion">أزياء</button>
                         <button onclick="filterCategory('home')" class="cat-pill" data-cat="home" data-lang="cat_home">منزل</button>
                         <button onclick="filterCategory('beauty')" class="cat-pill" data-cat="beauty" data-lang="cat_beauty">جمال</button>
                         <button onclick="filterCategory('automotive')" class="cat-pill" data-cat="automotive" data-lang="cat_auto">سيارات</button>
@@ -283,75 +284,82 @@
                 </div>
 
                 <!-- Grid -->
-                <div class="p-1">
+                <div class="px-1 py-1">
                     <div id="marketGrid" class="products-grid">
                         <div class="col-span-full py-20 text-center text-gray-400">
                             <i class="fas fa-spinner fa-spin text-xl mb-2 text-gray-300"></i>
                             <p class="text-[10px]" data-lang="loading_products">جاري التحميل...</p>
                         </div>
                     </div>
-                    <!-- Spinner Lite -->
-                    <div id="scrollLoader" class="text-center py-2 hidden text-xs text-[#ff3333]">...</div>
+                    <!-- Scroll Loader -->
+                    <div id="scrollLoader" class="text-center text-[#ff3333] text-xs py-2 hidden font-bold">...</div>
                 </div>
             </div>
 
             <!-- Messages (Flat) -->
-            <div id="view-messages" class="hidden px-0 pt-0">
+            <div id="view-messages" class="hidden animate-fadeIn px-0 pt-0">
                 <div class="bg-[var(--bg-card)] p-2 border-b border-[var(--border)] font-bold text-sm" data-lang="messages">الرسائل</div>
                 <div id="chatsList" class="divide-y divide-[var(--border)] pb-20 bg-[var(--bg-card)]"></div>
             </div>
 
             <!-- Orders (Flat) -->
-            <div id="view-orders" class="hidden px-0 pt-0">
-                 <div class="bg-[var(--bg-card)] p-2 border-b border-[var(--border)] flex justify-between items-center">
-                    <span class="font-bold text-sm" data-lang="orders_received">الطلبات</span>
-                    <span id="ordersCountBadge" class="bg-red-600 text-white px-2 py-0.5 text-[10px]">0</span>
+            <div id="view-orders" class="hidden animate-fadeIn px-0 pt-0">
+                <div class="bg-[var(--bg-card)] p-2 border-b border-[var(--border)] flex justify-between items-center mb-1">
+                    <span class="font-bold text-sm" data-lang="orders_received">الطلبات الواردة</span>
+                    <span id="ordersCountBadge" class="bg-[#ff3333] text-white px-2 py-0.5 rounded-sm text-[10px] font-bold">0</span>
                 </div>
                 <div id="ordersList" class="p-2 space-y-2 pb-20"></div>
             </div>
 
             <!-- Chat Requests -->
-            <div id="view-chat-requests" class="hidden px-2 pt-2">
-                <div class="bg-yellow-50 text-yellow-900 text-[10px] p-2 border border-yellow-200 mb-2 font-bold text-center">
-                     <span data-lang="chat_cost_info">قبول المحادثة:</span> <b id="chatPriceDisplay">50</b> <span class="currency-symbol">دج</span>
+            <div id="view-chat-requests" class="hidden animate-fadeIn px-2 pt-2">
+                <div class="bg-yellow-50 text-yellow-900 text-[10px] p-2 border border-yellow-200 mb-2 flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i>
+                    <div><span data-lang="chat_cost_info">قبول المحادثة يكلف</span> <b id="chatPriceDisplay">50</b> <span class="currency-symbol">دج</span></div>
                 </div>
                 <div id="chatRequestsList" class="space-y-2 pb-20"></div>
             </div>
 
             <!-- Chat Room -->
-            <div id="view-chat" class="hidden flex flex-col h-[calc(100vh-50px)] bg-[var(--bg-body)] fixed inset-0 z-50 pt-0">
+            <div id="view-chat" class="hidden animate-fadeIn flex flex-col h-[calc(100vh-50px)] bg-[var(--bg-body)] fixed inset-0 z-50 pt-0">
                 <div class="bg-[var(--bg-card)] p-2 border-b border-[var(--border)] flex items-center gap-2 sticky top-0 z-20 h-12 shadow-sm">
-                    <button onclick="nav('messages')" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-sm text-gray-600"><i class="fas fa-arrow-right"></i></button>
-                    <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-bold text-xs" id="chatPartnerAvatar">U</div>
-                    <div class="flex-1">
+                    <button onclick="nav('messages')" class="text-gray-500 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-sm"><i class="fas fa-arrow-right"></i></button>
+                    <div class="w-8 h-8 bg-gray-200 flex items-center justify-center font-bold text-xs text-gray-600 rounded-sm" id="chatPartnerAvatar">U</div>
+                    <div>
                         <h3 id="chatPartnerName" class="font-bold text-xs">User</h3>
+                        <p class="text-[9px] text-green-600 font-bold" data-lang="online">متصل</p>
                     </div>
                 </div>
 
-                <div id="chatMessagesContainer" class="flex-1 overflow-y-auto p-2 space-y-1 bg-[var(--bg-body)] pb-14"></div>
+                <div id="chatMessagesContainer" class="flex-1 overflow-y-auto p-3 space-y-2 bg-[var(--bg-body)] pb-14"></div>
 
-                <div class="p-2 bg-[var(--bg-card)] border-t border-[var(--border)] flex gap-2 items-center sticky bottom-0 w-full h-12">
-                     <div id="chatPaymentOverlay" class="absolute inset-0 bg-white/95 z-10 flex items-center justify-center hidden">
-                        <button onclick="acceptChat(currentChatId)" class="bg-[#ff3333] text-white px-4 py-1 font-bold text-xs border border-red-700">دفع</button>
+                <div class="p-2 bg-[var(--bg-card)] border-t border-[var(--border)] flex gap-2 items-center sticky bottom-0 w-full pb-safe">
+                    <div id="chatPaymentOverlay" class="absolute inset-0 bg-white/95 z-10 flex items-center justify-center hidden">
+                        <button onclick="acceptChat(currentChatId)" class="bg-[#ff3333] text-white px-4 py-2 font-bold text-xs border border-red-700 animate-pulse">
+                            ادفع للرد
+                        </button>
                     </div>
                     <input id="chatMessageInput" type="text" data-lang-placeholder="type_message" placeholder="اكتب..." class="flex-1 bg-gray-50 border border-gray-300 p-2 text-xs outline-none">
-                    <button onclick="sendChatMessage()" class="w-8 h-8 bg-[#ff3333] text-white flex items-center justify-center font-bold"><i class="fas fa-paper-plane text-xs"></i></button>
+                    <button onclick="sendChatMessage()" class="w-8 h-8 bg-[#ff3333] text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Add Page (Industrial Form) -->
-            <div id="view-add" class="hidden px-2 pt-2">
-                <div class="bg-[var(--bg-card)] border border-[var(--border)] p-3 mb-20">
-                    <h2 class="text-sm font-black mb-3 text-center uppercase" id="addPageTitle" data-lang="add_new_ad">إعلان جديد</h2>
+            <!-- Add Page (Square Inputs) -->
+            <div id="view-add" class="hidden animate-fadeIn px-2 pt-2">
+                <div class="bg-[var(--bg-card)] border border-[var(--border)] p-4 mb-20">
+                    <h2 class="text-sm font-black mb-4 border-b pb-2 uppercase text-center" id="addPageTitle" data-lang="add_new_ad">إضافة إعلان جديد</h2>
                     <input type="hidden" id="editListingId"> 
                     
                     <div class="space-y-3">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div><label class="text-[10px] font-bold block text-gray-500" data-lang="type">النوع</label><select id="pType" class="input-field w-full p-2 text-xs font-bold" onchange="toggleProductOptions()"><option value="product" data-lang="product">منتج</option><option value="service" data-lang="service">خدمة</option></select></div>
-                            <div><label class="text-[10px] font-bold block text-gray-500" data-lang="price">السعر</label><input id="pPrice" type="number" class="input-field w-full p-2 text-xs font-black"></div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="type">النوع</label><select id="pType" class="input-field w-full p-2 text-xs font-bold" onchange="toggleProductOptions()"><option value="product" data-lang="product">منتج</option><option value="service" data-lang="service">خدمة</option></select></div>
+                            <div><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="price">السعر</label><input id="pPrice" type="number" class="input-field w-full p-2 text-xs font-black"></div>
                         </div>
                         
-                        <div><label class="text-[10px] font-bold block text-gray-500" data-lang="category">القسم</label>
+                        <div>
+                            <label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="category">القسم</label>
                             <select id="pCategory" class="input-field w-full p-2 text-xs font-bold">
                                 <option value="electronics" data-lang="cat_elec">إلكترونيات</option>
                                 <option value="fashion" data-lang="cat_fashion">أزياء</option>
@@ -365,397 +373,794 @@
                                 <option value="other" data-lang="cat_other">أخرى</option>
                             </select>
                         </div>
+
+                        <div><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="ad_title">العنوان</label><input id="pTitle" type="text" class="input-field w-full p-2 text-xs font-bold"></div>
+                        <div><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="desc">الوصف</label><textarea id="pDesc" rows="3" class="input-field w-full p-2 text-xs"></textarea></div>
                         
-                        <input id="pTitle" type="text" class="input-field w-full p-2 text-xs font-bold" placeholder="العنوان">
-                        <textarea id="pDesc" rows="3" class="input-field w-full p-2 text-xs" placeholder="الوصف"></textarea>
-                        
-                        <div class="bg-gray-100 p-2 border border-gray-300">
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" id="pIsAffiliate" class="w-4 h-4 rounded-none" onchange="toggleAffiliateInput()">
-                                <span class="text-xs font-black" data-lang="enable_affiliate">عمولة Affiliate</span>
+                        <div class="bg-gray-100 p-3 border border-gray-300">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="pIsAffiliate" class="w-4 h-4 accent-red-600 rounded-sm" onchange="toggleAffiliateInput()">
+                                <span class="text-xs font-black text-gray-800" data-lang="enable_affiliate">تفعيل العمولة</span>
                             </label>
-                            <div id="affiliateCommissionGroup" class="hidden mt-1 pt-1 border-t border-gray-300">
-                                <input id="pCommission" type="number" placeholder="%" class="input-field w-full p-1 text-xs font-bold">
+                            <div id="affiliateCommissionGroup" class="hidden mt-2 pt-2 border-t border-gray-300">
+                                <label class="text-[10px] block mb-1 font-bold" data-lang="commission_rate">العمولة (%)</label>
+                                <input id="pCommission" type="number" placeholder="10" class="input-field w-full p-2 text-xs font-bold bg-white">
                             </div>
                         </div>
 
-                        <div class="border border-gray-300 p-2 text-center bg-white">
-                            <span class="text-[10px] font-bold block text-gray-400" data-lang="main_image">صورة</span>
-                            <input type="file" id="fileInput" class="block w-full text-[9px] mx-auto mt-1">
-                            <span id="loadingMsg" class="hidden text-[10px] font-bold text-blue-600">جاري الرفع...</span>
-                            <span id="mainSuccessMsg" class="hidden text-[10px] font-bold text-green-600">OK</span>
+                        <div class="border border-gray-300 rounded-sm p-3 text-center bg-gray-50">
+                            <label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="main_image">صورة رئيسية</label>
+                            <input type="file" id="fileInput" class="block w-full text-[10px] text-slate-500 mx-auto">
+                            <div id="loadingMsg" class="hidden text-[10px] text-blue-600 mt-1 font-bold">جاري الرفع...</div>
+                            <div id="mainSuccessMsg" class="hidden text-[10px] text-green-600 mt-1 font-bold">تم الحفظ</div>
                             <input id="pServiceImage" type="hidden">
                         </div>
 
                         <div id="productOptions">
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input id="pOriginalPrice" type="number" class="input-field w-full p-2 text-xs" placeholder="سعر قديم">
-                                <input id="pRating" type="number" step="0.1" class="input-field w-full p-2 text-xs" placeholder="تقييم">
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="original_price">سعر أصلي</label><input id="pOriginalPrice" type="number" class="input-field w-full p-2 text-xs"></div>
+                                <div><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="rating">تقييم (0-5)</label><input id="pRating" type="number" step="0.1" class="input-field w-full p-2 text-xs"></div>
                             </div>
-                            <input type="file" id="extraFilesInput" multiple class="block w-full text-[9px] border p-1 mb-2 bg-white">
-                            <textarea id="pImages" class="hidden"></textarea>
-                            <span id="extraSuccessMsg" class="hidden text-[10px] text-green-600 font-bold">تم رفع الصور الإضافية</span>
-                            <div id="colorPalette" class="flex flex-wrap gap-1 mb-2"></div><input type="hidden" id="pColors">
-                            <input id="pSizes" type="text" class="input-field w-full p-2 text-xs" placeholder="المقاسات (S,M,L)">
+                            
+                            <div class="mb-3">
+                                <label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="extra_images">صور إضافية</label>
+                                <input type="file" id="extraFilesInput" multiple class="block w-full text-[10px] p-1 border bg-white">
+                                <textarea id="pImages" class="hidden"></textarea>
+                                <div id="extraLoadingMsg" class="hidden text-[10px] text-blue-500">جاري الرفع...</div>
+                                <div id="extraSuccessMsg" class="hidden text-[10px] text-green-600 font-bold">تم رفع الصور</div>
+                            </div>
+
+                            <div class="mb-3"><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="colors">الألوان</label><div id="colorPalette" class="flex flex-wrap gap-2 mb-2"></div><input type="hidden" id="pColors"></div>
+                            <div class="mb-3"><label class="text-[10px] font-bold block mb-1 text-gray-500" data-lang="sizes">المقاسات</label><input id="pSizes" type="text" class="input-field w-full p-2 text-xs"></div>
                         </div>
 
-                        <button onclick="publish()" id="publishBtn" class="btn-primary w-full py-3 text-sm" data-lang="publish">نشر الإعلان</button>
+                        <button onclick="publish()" id="publishBtn" class="btn-primary w-full py-3 rounded-sm font-black text-sm" data-lang="publish">نشر الإعلان</button>
                     </div>
                 </div>
             </div>
 
             <!-- My List -->
-            <div id="view-mylist" class="hidden px-0 pt-0">
+            <div id="view-mylist" class="hidden animate-fadeIn px-0 pt-0">
                 <div class="bg-[var(--bg-card)] p-2 border-b border-[var(--border)] flex justify-between items-center mb-1">
                     <span class="font-bold text-sm" data-lang="my_ads">إعلاناتي</span>
-                    <button onclick="nav('add')" class="text-[10px] bg-black text-white px-2 py-1 font-bold" data-lang="add_new">+ ADD</button>
+                    <button onclick="nav('add')" class="text-[10px] bg-black text-white px-3 py-1 font-bold rounded-sm" data-lang="add_new">+ جديد</button>
                 </div>
                 <div id="myListGrid" class="p-2 space-y-2 pb-20"></div>
             </div>
 
             <!-- Wallet -->
-            <div id="view-wallet" class="hidden px-2 pt-2">
-                <div class="bg-[#1a1a1a] text-white p-4 mb-2 shadow-none border border-black">
-                    <div class="text-[9px] text-gray-400 font-bold uppercase" data-lang="total_balance">SOLDE</div>
-                    <div class="text-3xl font-black mb-3 text-white"><span id="wBalance">0</span> <small class="text-sm text-gray-500 currency-symbol">DA</small></div>
+            <div id="view-wallet" class="hidden animate-fadeIn px-2 pt-2">
+                <div class="bg-[#222] text-white p-4 mb-2 shadow-none border border-black rounded-sm">
+                    <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest" data-lang="total_balance">SOLDE</div>
+                    <div class="text-3xl font-black mb-4"><span id="wBalance">0</span> <small class="text-sm font-bold text-gray-500 currency-symbol">دج</small></div>
                     <div class="flex gap-2">
-                        <button onclick="openDepositModal()" class="flex-1 bg-[#333] hover:bg-[#444] py-2 text-xs font-bold border border-white/10" data-lang="deposit">شحن</button>
-                        <button onclick="openWithdrawModal()" class="flex-1 bg-[#ff3333] hover:bg-red-700 py-2 text-xs font-bold" data-lang="withdraw">سحب</button>
+                        <button onclick="openDepositModal()" class="flex-1 bg-white/20 hover:bg-white/30 py-2 text-xs font-bold border border-white/10" data-lang="deposit">شحن</button>
+                        <button onclick="openWithdrawModal()" class="flex-1 bg-[#ff3333] hover:bg-red-700 py-2 text-xs font-bold border border-red-500" data-lang="withdraw">سحب</button>
                     </div>
                 </div>
-                <div class="bg-[var(--bg-card)] border border-[var(--border)] mb-20">
-                    <div class="p-2 border-b border-[var(--border)] bg-gray-50 dark:bg-white/5">
+                <div class="bg-[var(--bg-card)] border border-[var(--border)] mb-20 rounded-sm">
+                    <div class="p-2 border-b border-[var(--border)] bg-gray-50 dark:bg-white/5 flex justify-between items-center">
                         <h3 class="font-bold text-xs" data-lang="transactions">العمليات</h3>
                     </div>
-                    <div id="transactionsList" class="divide-y divide-[var(--border)] text-xs"></div>
+                    <div id="transactionsList" class="divide-y divide-[var(--border)]"></div>
                 </div>
             </div>
+
         </main>
 
-        <!-- Bottom Nav (Standard Lite) -->
-        <nav class="bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-0 bg-white border-t border-gray-200">
-            <button onclick="nav('market')" class="nav-item active flex-1 flex flex-col items-center justify-center h-full" data-view="market">
-                <i class="fas fa-home text-sm mb-0.5"></i><span class="text-[8px] font-bold uppercase" data-lang="home">Home</span>
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-1 border-t border-gray-300">
+            <button onclick="nav('market')" class="nav-item active flex-1 flex flex-col items-center justify-center gap-0.5" data-view="market">
+                <i class="fas fa-home text-sm"></i><span class="text-[9px] font-bold uppercase" data-lang="home">HOME</span>
             </button>
-            <button onclick="nav('messages')" class="nav-item flex-1 flex flex-col items-center justify-center h-full relative" data-view="messages">
-                <i class="fas fa-comment text-sm mb-0.5"></i><span class="text-[8px] font-bold uppercase" data-lang="messages">Chat</span>
-                <span id="msgBadge" class="hidden absolute top-1 right-3 bg-red-600 text-white w-3 h-3 text-[8px] rounded-full flex items-center justify-center"></span>
+            <button onclick="nav('messages')" class="nav-item flex-1 flex flex-col items-center justify-center gap-0.5 relative" data-view="messages">
+                <i class="fas fa-comment text-sm"></i><span class="text-[9px] font-bold uppercase" data-lang="messages">CHAT</span>
+                <span id="msgBadge" class="hidden absolute top-1 right-5 bg-red-600 text-white text-[8px] min-w-[12px] h-[12px] flex items-center justify-center rounded-full"></span>
             </button>
-            <button onclick="nav('add')" class="nav-item flex-1 flex flex-col items-center justify-center h-full" data-view="add">
-                 <div class="w-8 h-8 bg-red-600 rounded-sm flex items-center justify-center mb-2"><i class="fas fa-plus text-white text-xs"></i></div>
-                 <span class="text-[8px] font-bold uppercase text-red-600 -mt-2" data-lang="sell">SELL</span>
+            <button onclick="nav('add')" class="nav-item flex-1 flex flex-col items-center justify-center" data-view="add">
+                 <div class="w-9 h-9 bg-[#ff3333] rounded-sm flex items-center justify-center -mt-4 border-2 border-[var(--bg-body)]"><i class="fas fa-plus text-sm text-white"></i></div>
+                 <span class="text-[9px] font-bold mt-1 text-[#ff3333] uppercase" data-lang="sell">SELL</span>
             </button>
-            <button onclick="nav('orders')" class="nav-item flex-1 flex flex-col items-center justify-center h-full" data-view="orders">
-                <i class="fas fa-box text-sm mb-0.5"></i><span class="text-[8px] font-bold uppercase" data-lang="orders">Orders</span>
+            <button onclick="nav('orders')" class="nav-item flex-1 flex flex-col items-center justify-center gap-0.5" data-view="orders">
+                <i class="fas fa-box text-sm"></i><span class="text-[9px] font-bold uppercase" data-lang="orders">ORDERS</span>
             </button>
-            <button onclick="nav('wallet')" class="nav-item flex-1 flex flex-col items-center justify-center h-full" data-view="wallet">
-                <i class="fas fa-wallet text-sm mb-0.5"></i><span class="text-[8px] font-bold uppercase" data-lang="wallet">Wallet</span>
+            <button onclick="nav('wallet')" class="nav-item flex-1 flex flex-col items-center justify-center gap-0.5" data-view="wallet">
+                <i class="fas fa-wallet text-sm"></i><span class="text-[9px] font-bold uppercase" data-lang="wallet">WALLET</span>
             </button>
         </nav>
     </div>
 
-    <!-- MODALS (SQUARE & FAST) -->
-    <div id="withdrawModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-0 bg-black/80">
-        <div class="ae-card w-64 p-4 bg-white border border-gray-400">
-            <h3 class="font-bold text-center mb-1 bg-gray-100 py-1" data-lang="withdraw_profit">سحب الأرباح</h3>
-            <p class="text-center text-xs font-mono mb-2"><span id="wdAvailBalance">0</span></p>
-            <div class="space-y-2">
-                <select id="wdMethod" class="input-field w-full p-1 text-xs bg-gray-50" onchange="updateWdFields()"><option value="baridimob">BaridiMob</option><option value="paypal">PayPal</option><option value="redotpay">RedotPay</option></select>
-                <input id="wdAccount" type="text" class="input-field w-full p-1 text-xs font-mono" placeholder="الرقم/الإيميل">
-                <input id="wdAmount" type="number" class="input-field w-full p-1 text-xs" placeholder="المبلغ">
-                <div class="flex gap-1 pt-1"><button onclick="closeWithdrawModal()" class="flex-1 py-1 bg-gray-200 text-xs font-bold text-black" data-lang="cancel">X</button><button onclick="submitWithdraw()" class="flex-1 py-1 bg-red-600 text-xs font-bold text-white" data-lang="confirm">OK</button></div>
+    <!-- MODALS (Flat Square) -->
+    <div id="withdrawModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80">
+        <div class="ae-card w-full max-w-sm p-5 animate-fadeIn bg-white rounded-none">
+            <h3 class="font-bold text-center mb-1 bg-gray-100 py-2 border mb-2" data-lang="withdraw_profit">سحب الأرباح</h3>
+            <p class="text-center text-xs text-gray-500 mb-4 font-mono"><span id="wdAvailBalance">0</span> <span class="currency-symbol">دج</span></p>
+            <div class="space-y-3">
+                <select id="wdMethod" class="input-field w-full p-2 text-xs font-bold bg-gray-50" onchange="updateWdFields()"><option value="baridimob">BaridiMob</option><option value="paypal">PayPal</option><option value="redotpay">RedotPay</option></select>
+                <input id="wdAccount" type="text" class="input-field w-full p-2 text-xs font-mono" placeholder="رقم الحساب / الإيميل">
+                <input id="wdAmount" type="number" class="input-field w-full p-2 text-xs font-black" placeholder="المبلغ">
+                <div class="flex gap-2 pt-2"><button onclick="closeWithdrawModal()" class="flex-1 py-2 text-xs font-bold text-black bg-gray-200" data-lang="cancel">إلغاء</button><button onclick="submitWithdraw()" class="flex-1 py-2 text-xs font-bold text-white bg-[#ff3333]" data-lang="confirm">تأكيد</button></div>
             </div>
         </div>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-0 bg-black/80">
-        <div class="ae-card w-64 p-4 bg-white">
-            <h3 class="font-bold text-center mb-2" data-lang="deposit_funds">شحن الرصيد</h3>
-            <div id="paymentMethods" class="mb-2 text-[9px] bg-gray-100 p-1 border"></div>
-            <div class="space-y-2">
-                <input id="depAmount" type="number" class="input-field w-full p-1 text-xs" placeholder="المبلغ">
-                <input type="file" id="depFileInput" class="text-[9px]">
-                <span id="depSuccessMsg" class="hidden text-xs text-green-600 font-bold">Attached</span>
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80">
+        <div class="ae-card w-full max-w-sm p-5 animate-fadeIn bg-white rounded-none">
+            <h3 class="font-bold text-center mb-3 border-b pb-2" data-lang="deposit_funds">شحن</h3>
+            <div id="paymentMethods" class="mb-3 text-[10px] bg-gray-50 p-2 border"></div>
+            <div class="space-y-3">
+                <input id="depAmount" type="number" class="input-field w-full p-2 text-xs font-black" placeholder="المبلغ">
+                <input type="file" id="depFileInput" class="block w-full text-[10px]">
+                <div id="depLoadingMsg" class="hidden text-[10px] text-blue-600 font-bold">جاري الرفع...</div>
+                <div id="depSuccessMsg" class="hidden text-[10px] text-green-600 font-bold">تم إرفاق الوصل</div>
                 <input id="depProof" type="hidden">
-                <div class="flex gap-1"><button onclick="closeDepositModal()" class="flex-1 py-1 bg-gray-200 text-xs font-bold">X</button><button onclick="submitDeposit()" class="flex-1 py-1 bg-blue-600 text-white text-xs font-bold">SEND</button></div>
+                <div class="flex gap-2 pt-2"><button onclick="closeDepositModal()" class="flex-1 py-2 text-xs font-bold bg-gray-200">إلغاء</button><button onclick="submitDeposit()" class="flex-1 py-2 text-xs font-bold text-white bg-blue-600">إرسال</button></div>
             </div>
         </div>
     </div>
 
-    <div id="revealOrderModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-0 bg-black/80">
-        <div class="ae-card w-60 p-4 text-center bg-white">
-            <h3 class="font-bold mb-2 text-sm" data-lang="reveal_info">تأكيد كشف البيانات</h3>
-            <div class="bg-red-50 p-2 mb-2 border border-red-100"><strong class="text-red-600 text-xs">-<span id="revealPrice">50</span></strong></div>
-            <div class="flex gap-1"><button onclick="closeRevealModal()" class="flex-1 py-1 bg-gray-200 text-xs font-bold" data-lang="cancel">No</button><button onclick="confirmRevealOrder()" class="flex-1 py-1 bg-red-600 text-white text-xs font-bold" data-lang="confirm">Yes</button></div>
+    <!-- Confirmation Modals -->
+    <div id="revealOrderModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80">
+        <div class="ae-card w-full max-w-xs p-5 text-center bg-white rounded-none">
+            <h3 class="font-bold text-sm mb-2" data-lang="reveal_info">كشف معلومات المشتري</h3>
+            <p class="text-xs mb-4 bg-gray-50 p-2 border">سيتم خصم <strong class="text-red-600" id="revealPrice">50</strong></p>
+            <div class="flex gap-2"><button onclick="closeRevealModal()" class="flex-1 py-2 text-xs font-bold bg-gray-200" data-lang="cancel">إلغاء</button><button onclick="confirmRevealOrder()" class="flex-1 py-2 text-xs font-bold bg-[#ff3333] text-white" data-lang="confirm">تأكيد</button></div>
         </div>
     </div>
-    
-    <div id="acceptChatModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-0 bg-black/80">
-        <div class="ae-card w-60 p-4 text-center bg-white">
-            <h3 class="font-bold mb-2 text-sm" data-lang="accept_chat">دفع رسوم المحادثة</h3>
-            <div class="bg-blue-50 p-2 mb-2 border border-blue-100"><strong class="text-blue-600 text-xs">-<span id="acceptChatPrice">50</span></strong></div>
-            <div class="flex gap-1"><button onclick="closeAcceptChatModal()" class="flex-1 py-1 bg-gray-200 text-xs font-bold" data-lang="cancel">No</button><button onclick="confirmAcceptChat()" class="flex-1 py-1 bg-blue-600 text-white text-xs font-bold" data-lang="accept">Yes</button></div>
+
+    <div id="acceptChatModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80">
+        <div class="ae-card w-full max-w-xs p-5 text-center bg-white rounded-none">
+            <h3 class="font-bold text-sm mb-2" data-lang="accept_chat">قبول ودفع</h3>
+            <p class="text-xs mb-4 bg-gray-50 p-2 border">سيتم خصم <strong class="text-blue-600" id="acceptChatPrice">50</strong></p>
+            <div class="flex gap-2"><button onclick="closeAcceptChatModal()" class="flex-1 py-2 text-xs font-bold bg-gray-200" data-lang="cancel">إلغاء</button><button onclick="confirmAcceptChat()" class="flex-1 py-2 text-xs font-bold bg-blue-600 text-white" data-lang="accept">قبول</button></div>
         </div>
     </div>
 
     <!-- Boost Modal -->
-    <div id="boostModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-0 bg-black/80">
-        <div class="ae-card w-64 p-4 text-center bg-white">
-            <h3 class="font-black mb-1 bg-yellow-300 py-1 uppercase text-sm">Boost</h3>
-            <p class="text-[10px] truncate font-bold text-gray-500 mb-2" id="boostTitleDisplay">Product</p>
+    <div id="boostModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80">
+        <div class="ae-card w-full max-w-sm p-5 text-center bg-white rounded-none">
+            <h3 class="font-black mb-1 bg-yellow-300 py-1 uppercase text-sm border border-black">Boost Product</h3>
+            <p class="text-xs font-bold text-gray-500 mb-4 mt-2" id="boostTitleDisplay">...</p>
             <input type="hidden" id="boostIdInput">
-            <div class="grid grid-cols-3 gap-1 mb-2">
-                <div onclick="selectBoost(1)" class="boost-opt border p-1 cursor-pointer bg-gray-50 hover:bg-yellow-200" id="boostOpt1"><div class="font-black text-sm">1</div><div class="text-[8px]">Day</div></div>
-                <div onclick="selectBoost(3)" class="boost-opt border p-1 cursor-pointer bg-gray-50 hover:bg-yellow-200" id="boostOpt3"><div class="font-black text-sm">3</div><div class="text-[8px]">Days</div></div>
-                <div onclick="selectBoost(7)" class="boost-opt border border-black bg-yellow-100 p-1 cursor-pointer" id="boostOpt7"><div class="font-black text-sm">7</div><div class="text-[8px]">Week</div></div>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <div onclick="selectBoost(1)" class="boost-opt border p-2 cursor-pointer hover:bg-yellow-200" id="boostOpt1"><div class="text-lg font-black">1</div><div class="text-[9px] uppercase">Day</div></div>
+                <div onclick="selectBoost(3)" class="boost-opt border p-2 cursor-pointer hover:bg-yellow-200" id="boostOpt3"><div class="text-lg font-black">3</div><div class="text-[9px] uppercase">Days</div></div>
+                <div onclick="selectBoost(7)" class="boost-opt border border-black bg-yellow-100 p-2 cursor-pointer" id="boostOpt7"><div class="text-lg font-black text-black">7</div><div class="text-[9px] uppercase font-bold">Week</div></div>
             </div>
-            <div class="font-black text-red-600 mb-2"><span id="boostCost">0</span> <span class="currency-symbol">DA</span></div>
-            <div class="flex gap-1">
-                <button onclick="document.getElementById('boostModal').classList.add('hidden')" class="flex-1 py-1 bg-gray-200 text-xs font-bold">X</button>
-                <button onclick="submitBoost()" id="btnPayBoost" class="flex-1 py-1 bg-black text-white text-xs font-bold">PAY</button>
+            <div class="text-sm font-black text-[#ff3333] mb-4"><span id="boostCost">0</span> <span class="currency-symbol">DA</span></div>
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('boostModal').classList.add('hidden')" class="flex-1 py-2 bg-gray-200 font-bold text-xs">CANCEL</button>
+                <button onclick="submitBoost()" id="btnPayBoost" class="flex-1 py-2 bg-black text-white font-bold text-xs">PAY NOW</button>
             </div>
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed top-14 left-0 right-0 z-[200] flex flex-col items-center pointer-events-none px-4"></div>
+    <div id="toastContainer" class="fixed top-14 left-0 right-0 z-[200] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
-    // ============ TRANSLATION (LITE) ============
+    // ============ 1. TRANSLATION (LITE DICTIONARY) ============
     const translations = {
         ar: {
-            app_slogan: "نسخة لايت", email: "الإيميل", password: "كلمة المرور", login: "دخول", new_here: "جديد؟", create_account: "فتح حساب",
-            full_name: "الاسم", phone: "الهاتف", register: "تسجيل", have_account: "لديك حساب؟", search_placeholder: "بحث عن منتج...", notifications: "تنبيهات",
-            read_all: "حذف", current_balance: "الرصيد", market: "السوق", messages: "رسائل", orders: "طلبات", chat_requests: "المنتظر",
-            add_ad: "بيع", my_ads: "معروضي", wallet: "المحفظة", logout: "خروج", ticker_text: " خصومات وعروض - توصيل متوفر",
-            cat_all: "الكل", cat_product: "منتج", cat_service: "خدمة", cat_elec: "إلكترونيك", cat_fashion: "أزياء", cat_home: "منزل", cat_beauty: "تجميل",
-            cat_sports: "رياضة", cat_toys: "ألعاب", cat_books: "كتب", cat_auto: "سيارات", cat_food: "طعام", cat_other: "غير ذلك", affiliate_offers: "سوق واربح",
-            loading_products: "تحميل...", orders_received: "الطلبات", chat_cost_info: "لفتح المحادثة يخصم", free_mode_hint: "مجاني", online: "ON",
-            type_message: "اكتب...", add_new_ad: "إعلان جديد", type: "نوع", product: "منتج", service: "خدمة", price: "السعر", category: "القسم",
-            ad_title: "عنوان", desc: "وصف", enable_affiliate: "نظام عمولة", commission_rate: "%", main_image: "الصورة", uploading: "...",
-            saved: "OK", original_price: "قديم", rating: "نجم", extra_images: "+", images_uploaded: "تم", colors: "اللون", sizes: "المقاس",
-            publish: "نشر", add_new: "+ADD", total_balance: "TOTAL", deposit: "شحن", withdraw: "سحب", transactions: "العمليات", sell: "بيع",
-            withdraw_profit: "سحب", available: "متاح", confirm: "تأكيد", cancel: "إلغاء", deposit_funds: "شحن", send: "إرسال", reveal_info: "كشف", accept: "قبول"
+            app_slogan: "سوق الجزائر الأول",
+            email: "البريد الإلكتروني",
+            password: "كلمة المرور",
+            login: "تسجيل الدخول",
+            new_here: "جديد معنا؟",
+            create_account: "إنشاء حساب مجاني",
+            full_name: "الاسم الكامل",
+            phone: "رقم الهاتف",
+            register: "إنشاء حساب",
+            have_account: "لديك حساب؟",
+            search_placeholder: "ما الذي تبحث عنه؟",
+            notifications: "الإشعارات",
+            read_all: "قراءة الكل",
+            current_balance: "الرصيد الحالي:",
+            market: "السوق",
+            messages: "الرسائل",
+            orders: "الطلبات",
+            chat_requests: "طلبات المحادثة",
+            add_ad: "إضافة إعلان",
+            my_ads: "إعلاناتي",
+            wallet: "المحفظة",
+            logout: "تسجيل الخروج",
+            urgent: "عاجل",
+            ticker_text: " خصومات هائلة لهذا الأسبوع! -  توصيل متوفر -  سجل كمسوق واربح عمولة - منتجات جديدة",
+            cat_all: "الكل",
+            cat_product: "منتجات",
+            cat_service: "خدمات",
+            cat_elec: "إلكترونيات",
+            cat_fashion: "أزياء",
+            cat_home: "منزل",
+            cat_beauty: "جمال",
+            cat_sports: "رياضة",
+            cat_toys: "ألعاب",
+            cat_books: "كتب",
+            cat_auto: "سيارات",
+            cat_food: "طعام",
+            cat_other: "أخرى",
+            affiliate_offers: "عروض المسوقين",
+            loading_products: "جاري التحميل...",
+            loading_more: "جاري تحميل المزيد...",
+            orders_received: "الطلبات الواردة",
+            chat_cost_info: "قبول المحادثة يكلف",
+            free_mode_hint: "مجاني إذا كان الوضع المجاني مفعّل",
+            online: "متصل الآن",
+            type_message: "اكتب رسالتك هنا...",
+            add_new_ad: "إضافة إعلان جديد",
+            type: "النوع",
+            product: "منتج",
+            service: "خدمة",
+            price: "السعر",
+            category: "القسم",
+            ad_title: "عنوان الإعلان",
+            desc: "الوصف",
+            enable_affiliate: "تفعيل العمولة",
+            commission_rate: "نسبة العمولة (%)",
+            main_image: "الصورة الرئيسية",
+            uploading: "جاري الرفع...",
+            saved: "تم الحفظ",
+            original_price: "سعر أصلي",
+            rating: "تقييم",
+            extra_images: "صور إضافية",
+            images_uploaded: "صور تم رفعها",
+            colors: "الألوان المتوفرة",
+            selected: "مختار:",
+            sizes: "المقاسات",
+            duration: "مدة العرض (ساعات)",
+            publish: "نشر الإعلان",
+            add_new: "+ إضافة جديد",
+            total_balance: "الرصيد الكلي",
+            deposit: "شحن",
+            withdraw: "سحب",
+            transactions: "سجل المعاملات",
+            sell: "بيع",
+            withdraw_profit: "سحب الأرباح",
+            available: "المتاح:",
+            account_num: "رقم الحساب",
+            amount: "المبلغ",
+            cancel: "إلغاء",
+            confirm: "تأكيد",
+            deposit_funds: "شحن الرصيد",
+            upload_receipt: "صورة الوصل",
+            receipt_attached: "تم إرفاق الوصل",
+            send: "إرسال",
+            reveal_info: "كشف معلومات المشتري",
+            deduct_msg: "سيتم خصم",
+            accept_chat: "قبول المحادثة",
+            accept: "قبول"
         },
         fr: {
-            app_slogan: "Version Lite", email: "Email", password: "Pass", login: "Login", new_here: "New?", create_account: "Sign Up",
-            full_name: "Nom", phone: "Tel", register: "OK", have_account: "Login?", search_placeholder: "Chercher...", notifications: "Notifs",
-            read_all: "Clear", current_balance: "Solde", market: "Marché", messages: "Chat", orders: "Ordres", chat_requests: "Reqs",
-            add_ad: "Vendre", my_ads: "Mes Offres", wallet: "Portefeuille", logout: "Exit", ticker_text: "Promo - Livraison - Lite Version",
-            cat_all: "Tout", cat_product: "Prod", cat_service: "Serv", cat_elec: "Elec", cat_fashion: "Mode", cat_home: "Maison",
-            cat_beauty: "Beauté", cat_sports: "Sport", cat_toys: "Jeux", cat_books: "Livre", cat_auto: "Auto", cat_food: "Miam", cat_other: "Autre",
-            affiliate_offers: "Top Deals", loading_products: "...", orders_received: "Orders", chat_cost_info: "Cost", free_mode_hint: "Free",
-            online: "On", type_message: "Msg...", add_new_ad: "Nouveau", type: "Type", product: "Prod", service: "Serv", price: "Prix",
-            category: "Cat", ad_title: "Titre", desc: "Txt", enable_affiliate: "Affiliate", commission_rate: "%", main_image: "Img",
-            uploading: "..", saved: "OK", original_price: "Prix Av.", rating: "Note", extra_images: "+Img", images_uploaded: "OK", colors: "Cols",
-            sizes: "Sizes", publish: "Publier", add_new: "+New", total_balance: "SOLDE", deposit: "Dépôt", withdraw: "Retrait", transactions: "Ops",
-            sell: "Vendre", withdraw_profit: "Retrait", available: "Dispo", confirm: "OK", cancel: "No", deposit_funds: "Add", send: "Go",
-            reveal_info: "Voir", accept: "Oui"
+            app_slogan: "Le 1er marché en Algérie",
+            email: "Email",
+            password: "Mot de passe",
+            login: "Se connecter",
+            new_here: "Nouveau ici ?",
+            create_account: "Créer un compte",
+            full_name: "Nom complet",
+            phone: "Téléphone",
+            register: "S'inscrire",
+            have_account: "Vous avez un compte ?",
+            search_placeholder: "Que cherchez-vous ?",
+            notifications: "Notifications",
+            read_all: "Tout lire",
+            current_balance: "Solde actuel :",
+            market: "Marché",
+            messages: "Messages",
+            orders: "Commandes",
+            chat_requests: "Demandes",
+            add_ad: "Vendre",
+            my_ads: "Mes annonces",
+            wallet: "Portefeuille",
+            logout: "Déconnexion",
+            urgent: "Urgent",
+            ticker_text: "🎉 Grandes remises ! - 🚚 Livraison 58 wilayas - 💰 Devenez affilié",
+            cat_all: "Tout",
+            cat_product: "Produits",
+            cat_service: "Services",
+            cat_elec: "Élec",
+            cat_fashion: "Mode",
+            cat_home: "Maison",
+            cat_beauty: "Beauté",
+            cat_sports: "Sport",
+            cat_toys: "Jeux",
+            cat_books: "Livres",
+            cat_auto: "Auto",
+            cat_food: "Miam",
+            cat_other: "Autre",
+            affiliate_offers: "Top Deals",
+            loading_products: "Chargement...",
+            loading_more: "Chargement...",
+            orders_received: "Commandes",
+            chat_cost_info: "Accepter le chat coûte",
+            free_mode_hint: "Gratuit si le mode gratuit est actif",
+            online: "En ligne",
+            type_message: "Message...",
+            add_new_ad: "Ajouter annonce",
+            type: "Type",
+            product: "Produit",
+            service: "Service",
+            price: "Prix",
+            category: "Catégorie",
+            ad_title: "Titre",
+            desc: "Description",
+            enable_affiliate: "Activer affiliation",
+            commission_rate: "Commission (%)",
+            main_image: "Image",
+            uploading: "Upload...",
+            saved: "OK",
+            original_price: "Prix original",
+            rating: "Note",
+            extra_images: "Images supp.",
+            images_uploaded: "images téléchargées",
+            colors: "Couleurs",
+            selected: "Sélectionné :",
+            sizes: "Tailles",
+            duration: "Durée",
+            publish: "Publier",
+            add_new: "+ Ajouter",
+            total_balance: "Solde",
+            deposit: "Dépôt",
+            withdraw: "Retrait",
+            transactions: "Transactions",
+            sell: "Vendre",
+            withdraw_profit: "Retrait",
+            available: "Disponible :",
+            account_num: "Numéro",
+            amount: "Montant",
+            cancel: "Annuler",
+            confirm: "Confirmer",
+            deposit_funds: "Recharge",
+            upload_receipt: "Reçu",
+            receipt_attached: "Reçu joint",
+            send: "Envoyer",
+            reveal_info: "Voir Infos",
+            deduct_msg: "Sera déduit",
+            accept_chat: "Accepter",
+            accept: "Accepter"
         }
     };
-    
+
     let currentLang = localStorage.getItem('dz_lang') || 'ar';
+
     function setLanguage(lang) {
-        currentLang = lang; localStorage.setItem('dz_lang', lang);
+        currentLang = lang;
+        localStorage.setItem('dz_lang', lang);
+        
         const html = document.documentElement;
-        if(lang === 'fr') { html.setAttribute('dir', 'ltr'); html.setAttribute('lang', 'fr'); document.body.style.fontFamily = "'Roboto', sans-serif"; }
-        else { html.setAttribute('dir', 'rtl'); html.setAttribute('lang', 'ar'); document.body.style.fontFamily = "'Cairo', sans-serif"; }
-        document.querySelectorAll('[data-lang]').forEach(el => { const key = el.getAttribute('data-lang'); if(translations[lang][key]) el.innerText = translations[lang][key]; });
-        document.querySelectorAll('[data-lang-placeholder]').forEach(el => { const key = el.getAttribute('data-lang-placeholder'); if(translations[lang][key]) el.placeholder = translations[lang][key]; });
-        const btn = document.getElementById('langBtn'); if(btn) btn.innerText = lang === 'ar' ? 'FR' : 'AR';
+        if (lang === 'fr') {
+            html.setAttribute('dir', 'ltr');
+            html.setAttribute('lang', 'fr');
+            document.body.style.fontFamily = "'Roboto', sans-serif";
+        } else {
+            html.setAttribute('dir', 'rtl');
+            html.setAttribute('lang', 'ar');
+            document.body.style.fontFamily = "'Cairo', sans-serif";
+        }
+
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
+            if (translations[lang][key]) el.innerText = translations[lang][key];
+        });
+
+        document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-lang-placeholder');
+            if (translations[lang][key]) el.placeholder = translations[lang][key];
+        });
+
+        const btn = document.getElementById('langBtn');
+        if(btn) btn.innerText = lang === 'ar' ? 'FR' : 'AR';
     }
 
-    let USER=null, ALL_LISTINGS=[], NOTIFICATIONS=[], ORDERS=[], currentChatId=null, pendingRevealOrderId=null, pendingAcceptChatId=null, notifInterval=null;
-    const CLOUD_CONFIG={name:'dvtuocsxs', preset:'DZmarket'};
-    let APP_SETTINGS={orderRevealPrice:50, chatPrice:50, freeMode:false, currency:'DA'};
-    let currentProductCount=0, productsBatchSize=8, isFetchingMore=false, hasMoreProducts=true, currentBoostDays=7, boostPricePerDay=200;
+    // ============ 2. ORIGINAL JS LOGIC RESTORED (FULL SAFETY) ============
+    let USER = null;
+    let ALL_LISTINGS = [];
+    let NOTIFICATIONS = [];
+    let ORDERS = [];
+    let currentChatId = null;
+    let pendingRevealOrderId = null;
+    let pendingAcceptChatId = null;
+    let notifInterval = null;
+    const CLOUD_CONFIG = { name: 'dvtuocsxs', preset: 'DZmarket' };
+    let APP_SETTINGS = { orderRevealPrice: 50, chatPrice: 50, freeMode: false, currency: 'دج' };
+    let currentProductCount = 0;
+    const productsBatchSize = 10;
+    let isFetchingMore = false;
+    let hasMoreProducts = true;
+    let currentBoostDays = 7;
+    let boostPricePerDay = 200;
 
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
-    
+    // ============ INIT ============
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+
     window.onload = async () => {
-        setLanguage(currentLang);
+        setLanguage(currentLang); 
+        const loader = document.getElementById('loader');
         try {
             await loadAppSettings();
             const stored = localStorage.getItem('dz_user');
-            if(stored) {
+            if (stored) {
                 const u = JSON.parse(stored);
                 const res = await fetch('/api/user/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: u._id}) });
                 const d = await res.json();
-                if(d.success) { USER = d.user; localStorage.setItem('dz_user', JSON.stringify(USER)); initApp(); } 
-                else showAuth();
+                if (d.success) {
+                    USER = d.user;
+                    localStorage.setItem('dz_user', JSON.stringify(USER));
+                    initApp();
+                } else showAuth();
             } else showAuth();
         } catch(e) { showAuth(); } 
-        finally { document.getElementById('loader').classList.add('hidden'); }
+        finally { if (loader) loader.classList.add('hidden'); }
     };
 
     function initApp() {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
-        updateUserUI(); nav('market'); startNotificationPolling();
+        updateUserUI();
+        nav('market');
+        startNotificationPolling();
+        
         window.addEventListener('scroll', () => {
-             if(!document.getElementById('view-market').classList.contains('hidden')) {
-                 if((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-                     if(!isFetchingMore && hasMoreProducts && ALL_LISTINGS.length > currentProductCount) loadMoreProducts();
-                 }
-             }
+            if (!document.getElementById('view-market').classList.contains('hidden')) {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                    if (!isFetchingMore && hasMoreProducts && ALL_LISTINGS.length > currentProductCount) {
+                        loadMoreProducts();
+                    }
+                }
+            }
         });
-        const urlParams = new URLSearchParams(window.location.search); if(urlParams.get('ref')) localStorage.setItem('dz_affiliate', urlParams.get('ref'));
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('ref')) localStorage.setItem('dz_affiliate', urlParams.get('ref'));
     }
 
-    async function loadAppSettings() { try{const r=await fetch('/api/public/settings');const s=await r.json();APP_SETTINGS={...APP_SETTINGS,...s};if(s.boostPricePerDay)boostPricePerDay=s.boostPricePerDay;updatePriceDisplays();}catch(e){} }
+    function toggleLang() {
+        const newLang = currentLang === 'ar' ? 'fr' : 'ar';
+        setLanguage(newLang);
+    }
+
+    async function loadAppSettings() {
+        try {
+            const res = await fetch('/api/public/settings');
+            const s = await res.json();
+            APP_SETTINGS = { ...APP_SETTINGS, ...s };
+            if(s.boostPricePerDay) boostPricePerDay = s.boostPricePerDay;
+            updatePriceDisplays();
+        } catch(e) {}
+    }
+
     function updatePriceDisplays() {
-        document.querySelectorAll('.currency-symbol').forEach(el=>el.textContent=APP_SETTINGS.currency);
-        const set=(i,v)=>{const e=document.getElementById(i);if(e)e.textContent=v;};
-        set('orderRevealPriceDisplay',APP_SETTINGS.orderRevealPrice);set('revealPrice',APP_SETTINGS.orderRevealPrice);
-        set('chatPriceDisplay',APP_SETTINGS.chatPrice);set('acceptChatPrice',APP_SETTINGS.chatPrice);
-    }
-    function updateUserUI() {
-        document.getElementById('userBalance').innerText=(USER.balance||0).toLocaleString(); document.getElementById('wBalance').innerText=(USER.balance||0).toLocaleString();
-        document.getElementById('sidebarBalance').innerText=(USER.balance||0).toLocaleString();
-        document.getElementById('userName').innerText=USER.name;
-        document.getElementById('sidebarInitial').innerText=USER.name?.charAt(0)||'U';
+        document.querySelectorAll('.currency-symbol').forEach(el => el.textContent = APP_SETTINGS.currency);
+        const ids = {
+            'orderRevealPriceDisplay': APP_SETTINGS.orderRevealPrice,
+            'revealPrice': APP_SETTINGS.orderRevealPrice,
+            'chatPriceDisplay': APP_SETTINGS.chatPrice,
+            'acceptChatPrice': APP_SETTINGS.chatPrice
+        };
+        for (const [id, val] of Object.entries(ids)) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
     }
 
-    function showAuth(){document.getElementById('authScreen').classList.remove('hidden');}
-    function toggleAuth(){document.getElementById('loginForm').classList.toggle('hidden');document.getElementById('regForm').classList.toggle('hidden');}
-    function toggleLang(){setLanguage(currentLang==='ar'?'fr':'ar');}
-    async function login(){
-        const e=document.getElementById('lEmail').value,p=document.getElementById('lPass').value;if(!e||!p)return showToast('!');
-        try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const d=await r.json();if(d.success){localStorage.setItem('dz_user',JSON.stringify(d.user));location.reload();}else showToast(d.msg,'err');}catch(z){}
+    function updateUserUI() {
+        document.getElementById('userBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('sidebarBalance').innerText = (USER.balance || 0).toLocaleString();
+        document.getElementById('userName').innerText = USER.name;
+        // sidebar initial logic
+        document.getElementById('sidebarInitial').innerText = USER.name?.charAt(0) || 'U';
     }
-    async function register(){
-        const data={name:document.getElementById('rName').value,email:document.getElementById('rEmail').value,password:document.getElementById('rPass').value,phone:document.getElementById('rPhone').value,fingerprint:'lite'+Math.random()};
-        try{const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const d=await r.json();if(d.success){localStorage.setItem('dz_user',JSON.stringify(d.user));location.reload();}else showToast(d.msg,'err');}catch(z){}
+
+    // ============ AUTH & NAV ============
+    function showAuth() { document.getElementById('authScreen').classList.remove('hidden'); }
+    function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('regForm').classList.toggle('hidden'); }
+    
+    async function login() {
+        const email = document.getElementById('lEmail').value;
+        const password = document.getElementById('lPass').value;
+        if (!email || !password) return showToast('Fill all fields', 'error');
+        try {
+            const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password}) });
+            const d = await res.json();
+            if (d.success) { localStorage.setItem('dz_user', JSON.stringify(d.user)); location.reload(); }
+            else showToast(d.msg, 'error');
+        } catch(e) { showToast('Connection Error', 'error'); }
     }
-    function logout(){localStorage.removeItem('dz_user');location.reload();}
+
+    async function register() {
+        const data = { name: document.getElementById('rName').value, email: document.getElementById('rEmail').value, password: document.getElementById('rPass').value, phone: document.getElementById('rPhone').value, fingerprint: Math.random().toString(36).substring(7) };
+        try {
+            const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            const d = await res.json();
+            if (d.success) { localStorage.setItem('dz_user', JSON.stringify(d.user)); location.reload(); }
+            else showToast(d.msg, 'error');
+        } catch(e) { showToast('Connection Error', 'error'); }
+    }
+
+    function logout() { localStorage.removeItem('dz_user'); location.reload(); }
 
     function nav(view) {
-        ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => { const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden'); });
-        document.getElementById('view-' + view).classList.remove('hidden'); toggleSidebar(false);
-        document.querySelectorAll('.nav-item').forEach(b=>{b.classList.remove('active');if(b.dataset.view===view)b.classList.add('active');});
-        if(view==='market')loadMarket();else if(view==='mylist')loadMyList();else if(view==='wallet')loadWallet();else if(view==='orders')loadOrders();else if(view==='messages')loadChats();else if(view==='chat-requests')loadChatRequests();
+        ['market', 'messages', 'chat', 'chat-requests', 'orders', 'add', 'mylist', 'wallet'].forEach(v => { const el = document.getElementById('view-' + v); if(el) el.classList.add('hidden'); });
+        document.getElementById('view-' + view).classList.remove('hidden');
+        toggleSidebar(false); updatePriceDisplays();
+        document.querySelectorAll('.nav-item').forEach(b => { b.classList.remove('active'); if(b.dataset.view === view) b.classList.add('active'); });
+        if(view === 'market') loadMarket(); else if(view === 'mylist') loadMyList(); else if(view === 'wallet') loadWallet(); else if(view === 'orders') loadOrders(); else if(view === 'messages') loadChats(); else if(view === 'chat-requests') loadChatRequests();
+        if(view !== 'add') { document.getElementById('addPageTitle').innerText = translations[currentLang].add_new_ad; document.getElementById('publishBtn').innerText = translations[currentLang].publish; document.getElementById('editListingId').value = ''; }
     }
-    function toggleSidebar(open){const s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay');if(open){s.classList.remove('translate-x-full');o.classList.remove('hidden');}else{s.classList.add('translate-x-full');o.classList.add('hidden');}}
 
-    // ============ MARKET (ULTRA LITE) ============
+    function toggleSidebar(open) {
+        const s = document.getElementById('sidebar'); const o = document.getElementById('sidebarOverlay');
+        if(open) { s.classList.remove('translate-x-full'); o.classList.remove('hidden'); } 
+        else { s.classList.add('translate-x-full'); o.classList.add('hidden'); }
+    }
+
+    // ============ MARKET (Original Logic - Lite View) ============
     async function loadMarket() {
         try {
-            const res = await fetch('/api/market'); ALL_LISTINGS = await res.json();
-            renderProductSlider(ALL_LISTINGS);
-            if(ALL_LISTINGS.length){currentProductCount=0;hasMoreProducts=true;document.getElementById('marketGrid').innerHTML='';loadMoreProducts();}
-            else document.getElementById('marketGrid').innerHTML='<div class="col-span-full text-center py-20 text-gray-300">Empty</div>';
-        } catch(e){}
+            const res = await fetch('/api/market');
+            ALL_LISTINGS = await res.json();
+            if (ALL_LISTINGS && ALL_LISTINGS.length > 0) {
+                renderProductSlider(ALL_LISTINGS);
+                currentProductCount = 0; hasMoreProducts = true;
+                document.getElementById('marketGrid').innerHTML = '';
+                loadMoreProducts();
+            } else { document.getElementById('marketGrid').innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 text-sm">Empty</div>'; }
+        } catch(e) {}
     }
+
     function loadMoreProducts() {
-        if(isFetchingMore) return; isFetchingMore=true; document.getElementById('scrollLoader').classList.remove('hidden');
-        setTimeout(()=>{
-            const batch=ALL_LISTINGS.slice(currentProductCount,currentProductCount+productsBatchSize);
-            if(batch.length){renderBatch(batch);currentProductCount+=batch.length;}else{hasMoreProducts=false;}
-            document.getElementById('scrollLoader').classList.add('hidden');isFetchingMore=false;
-        },50);
+        if(isFetchingMore) return;
+        isFetchingMore = true;
+        document.getElementById('scrollLoader').classList.remove('hidden');
+        setTimeout(() => {
+            const nextBatch = ALL_LISTINGS.slice(currentProductCount, currentProductCount + productsBatchSize);
+            if(nextBatch.length > 0) { renderBatch(nextBatch); currentProductCount += nextBatch.length; } else { hasMoreProducts = false; }
+            document.getElementById('scrollLoader').classList.add('hidden'); isFetchingMore = false;
+        }, 300);
     }
-    // دالة الرسم - أهم جزء للتصميم الجديد
+
     function renderBatch(list) {
         const grid = document.getElementById('marketGrid');
-        const now = new Date();
+        const now = new Date(); 
+
         const html = list.map(p => {
+            const discount = (p.originalPrice && p.originalPrice > p.price) ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
+            const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
             const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
-            // High Performance HTML String - Minimal DOM Depth
-            const cardClass = isBoosted ? 'ae-card boosted-card cursor-pointer' : 'ae-card cursor-pointer';
-            const badges = p.isAffiliate ? `<span class="badge-affiliate absolute bottom-1 right-1">عمولة ${p.commission}%</span>` : '';
-            return `<div class="${cardClass}" onclick="window.location.href='/p/${p._id}'"><div class="img-wrapper"><img src="${p.image}" class="product-img" loading="lazy">${badges}</div><div class="p-1"><div class="ae-price mt-0.5">${Number(p.price).toLocaleString()}<small>${APP_SETTINGS.currency}</small></div><div class="text-[10px] text-gray-500 truncate font-medium mt-0.5">${p.title}</div><span class="bg-gray-100 text-[9px] px-1 text-gray-600 mt-1 inline-block">${p.category}</span></div></div>`;
+            
+            // Lite Classes
+            const cardClass = isBoosted 
+                ? 'ae-card boosted-card cursor-pointer flex flex-col h-full animate-fadeIn' 
+                : 'ae-card cursor-pointer flex flex-col h-full animate-fadeIn';
+            
+            // Lite Badges (No Animation)
+            let badges = '';
+            if (p.isAffiliate) badges += `<span class="badge-affiliate absolute bottom-1 right-1 shadow-sm">عمولة ${p.commission}%</span>`;
+            
+            // NEW LITE TEMPLATE (Visual Update Only)
+            return `
+            <div class="${cardClass}" onclick="window.location.href='/p/${p._id}'">
+                <div class="img-wrapper relative">
+                    ${badges}
+                    <img src="${img}" loading="lazy" class="product-img">
+                </div>
+                <div class="p-2 flex flex-col flex-1">
+                    <div class="ae-price mt-1">
+                        <span>${Number(p.price).toLocaleString()}</span>
+                        <small>${APP_SETTINGS.currency}</small>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-1 line-clamp-2 leading-tight">${p.title}</div>
+                    <div class="mt-2 flex gap-1">
+                         <span class="bg-gray-100 text-[9px] px-1 rounded text-gray-600">${p.category}</span>
+                    </div>
+                </div>
+            </div>`;
         }).join('');
         grid.insertAdjacentHTML('beforeend', html);
     }
+
     function renderProductSlider(list) {
-        const container=document.getElementById('sliderContainer');
-        const affiliate=list.filter(p=>p.isAffiliate);
-        if(!affiliate.length){container.classList.add('hidden');return;}
+        const slider = document.getElementById('productSlider');
+        const container = document.getElementById('sliderContainer');
+        const affiliate = list.filter(p => p.isAffiliate);
+        if (!affiliate.length) { container.classList.add('hidden'); return; }
         container.classList.remove('hidden');
-        document.getElementById('productSlider').innerHTML=affiliate.map(p=>{
-            const profit=Math.floor((p.price*(p.commission||0))/100);
-            return `<div class="ae-card min-w-[100px] border border-gray-200" onclick="window.location.href='/p/${p._id}'"><div class="img-wrapper h-20 bg-gray-50"><div class="absolute top-0 right-0 bg-[#ff3333] text-white text-[9px] font-bold px-1">${profit}DA</div><img src="${p.image}" class="product-img"></div><div class="p-1 text-center"><div class="font-black text-xs text-black">${Number(p.price).toLocaleString()}</div></div></div>`;
+        slider.innerHTML = affiliate.map(p => {
+            const profit = Math.floor((p.price * (p.commission || 0)) / 100);
+            return `<div class="ae-card min-w-[100px] border border-gray-200 cursor-pointer" onclick="window.location.href='/p/${p._id}'"><div class="img-wrapper h-20 bg-white"><div class="absolute top-0 right-0 bg-[#ff3333] text-white text-[9px] font-bold px-1">${profit}DA</div><img src="${p.image}" class="product-img"></div><div class="p-1"><div class="text-[#ff3333] text-xs font-black text-center">${Number(p.price).toLocaleString()}</div></div></div>`;
         }).join('');
     }
+
     function filterProducts() {
-        const q=document.getElementById('searchInput').value.toLowerCase(); const f=ALL_LISTINGS.filter(p=>p.title.toLowerCase().includes(q));
-        const g=document.getElementById('marketGrid');g.innerHTML='';currentProductCount=0;
-        if(f.length===0)g.innerHTML='...';else renderBatch(f);
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = ALL_LISTINGS.filter(p => p.title.toLowerCase().includes(q));
+        const grid = document.getElementById('marketGrid'); grid.innerHTML = ''; currentProductCount = 0;
+        if(filtered.length === 0) grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 text-sm">No results</div>';
+        else { renderBatch(filtered); }
     }
+
     function filterCategory(cat) {
-        document.querySelectorAll('.cat-pill').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
-        let f;if(cat==='all')f=ALL_LISTINGS;else if(cat==='product'||cat==='service')f=ALL_LISTINGS.filter(p=>p.type===cat);else f=ALL_LISTINGS.filter(p=>p.category===cat);
-        document.getElementById('marketGrid').innerHTML='';renderBatch(f.slice(0,50));
+        document.querySelectorAll('.cat-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+        let filtered;
+        if (cat === 'all') filtered = ALL_LISTINGS;
+        else if (cat === 'product' || cat === 'service') filtered = ALL_LISTINGS.filter(p => p.type === cat);
+        else filtered = ALL_LISTINGS.filter(p => p.category === cat);
+        document.getElementById('marketGrid').innerHTML = '';
+        renderBatch(filtered.slice(0, 50));
     }
 
-    // ============ WALLET, ORDERS, CHAT (Functionality Intact) ============
-    async function loadWallet(){
-        document.getElementById('wBalance').innerText=(USER.balance||0).toLocaleString(); loadPaymentMethods();
-        try{const r=await fetch('/api/transactions/'+USER._id);const t=await r.json(); const l=document.getElementById('transactionsList'); if(!t.length){l.innerHTML='...';return;} l.innerHTML=t.map(x=>`<div class="p-2 flex justify-between items-center"><div class="flex items-center gap-2"><div><div class="font-bold">${x.description}</div><div class="text-[9px] text-gray-400">${new Date(x.date).toLocaleDateString()}</div></div></div><div class="font-bold ${(x.type==='withdraw'||x.type==='deduct')?'text-red-600':'text-green-600'}">${x.amount}</div></div>`).join('');}catch(e){}
+    // ============ WALLET ============
+    async function loadWallet() {
+        document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
+        loadPaymentMethods();
+        try {
+            const res = await fetch('/api/transactions/' + USER._id);
+            const trans = await res.json();
+            const list = document.getElementById('transactionsList');
+            const hiddenTrans = JSON.parse(localStorage.getItem('hidden_trans') || '[]');
+            const visibleTrans = trans.filter(t => !hiddenTrans.includes(t._id));
+
+            if(!visibleTrans.length) { list.innerHTML = '<div class="p-6 text-center text-xs text-gray-400">Empty</div>'; return; }
+
+            list.innerHTML = visibleTrans.map(t => {
+                const isNegative = t.type === 'withdraw' || t.type === 'deduct';
+                return `<div class="p-3 border-b flex justify-between items-center hover:bg-gray-50"><div class="flex gap-2 items-center"><div class="text-[9px] font-mono text-gray-400">${new Date(t.date).toLocaleDateString()}</div><div class="font-bold text-xs">${t.description}</div></div><div class="font-black text-xs ${isNegative?'text-red-600':'text-green-600'}">${isNegative?'-':'+'}${t.amount}</div></div>`;
+            }).join('');
+        } catch(e) {}
     }
-    async function loadPaymentMethods(){try{const r=await fetch('/api/payment-methods');const m=await r.json();document.getElementById('paymentMethods').innerHTML=m.map(x=>`<div class="flex justify-between py-1 border-b last:border-0"><b>${x.name}</b><span class="font-mono bg-white px-1 border">${x.account}</span></div>`).join('');}catch(e){}}
+
+    async function loadPaymentMethods() {
+        try {
+            const res = await fetch('/api/payment-methods');
+            const methods = await res.json();
+            document.getElementById('paymentMethods').innerHTML = methods.map(m => `<div class="flex justify-between border-b py-1 last:border-0"><span class="font-bold">${m.name}</span><span class="font-mono bg-white px-1 border">${m.account}</span></div>`).join('');
+        } catch(e) {}
+    }
+
+    // ============ UPLOAD ============
+    async function uploadToCloudinary(file) {
+        const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', CLOUD_CONFIG.preset);
+        try {
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.name}/image/upload`, { method:'POST', body:fd });
+            const data = await res.json(); return data.secure_url ? data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/') : null;
+        } catch(e) { return null; }
+    }
     
-    // Cloudinary
-    async function uploadToCloudinary(f){const fd=new FormData();fd.append('file',f);fd.append('upload_preset',CLOUD_CONFIG.preset);try{const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.name}/image/upload`,{method:'POST',body:fd});const d=await r.json();return d.secure_url?d.secure_url.replace('/upload/','/upload/f_auto,q_auto/'):null;}catch(e){return null;}}
+    // Deposit / Withdraw Modals
+    function openWithdrawModal() { document.getElementById('wdAvailBalance').innerText = (USER.balance || 0).toLocaleString(); document.getElementById('withdrawModal').classList.remove('hidden'); updateWdFields(); }
+    function closeWithdrawModal() { document.getElementById('withdrawModal').classList.add('hidden'); }
+    function updateWdFields() { const m = document.getElementById('wdMethod').value; const inp = document.getElementById('wdAccount'); if(m==='baridimob') inp.placeholder = '007xxxxxxxxxxxxxxxxxx'; else if(m==='paypal') inp.placeholder = 'email@example.com'; else inp.placeholder = 'ID / Email'; }
+    async function submitWithdraw() {
+        const amount = Number(document.getElementById('wdAmount').value); const account = document.getElementById('wdAccount').value; const method = document.getElementById('wdMethod'); const methodText = method.options[method.selectedIndex].text;
+        if(!amount || !account) return showToast('Error', 'error');
+        try {
+            const res = await fetch('/api/wallet/withdraw', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ userId: USER._id, amount, method: methodText, accountDetails: account }) });
+            const d = await res.json();
+            if(d.success) { showToast('Success', 'success'); closeWithdrawModal(); loadWallet(); USER.balance = d.newBalance; updateUserUI(); } else showToast(d.msg, 'error');
+        } catch(e) { showToast('Error', 'error'); }
+    }
+    function openDepositModal() { document.getElementById('depositModal').classList.remove('hidden'); }
+    function closeDepositModal() { document.getElementById('depositModal').classList.add('hidden'); }
+    async function submitDeposit() {
+        const amount = document.getElementById('depAmount').value; const proof = document.getElementById('depProof').value;
+        if(!amount || !proof) return showToast('Error', 'error');
+        try { await fetch('/api/wallet/deposit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, amount: Number(amount), proof }) }); showToast('Success', 'success'); closeDepositModal(); } catch(e) { showToast('Error', 'error'); }
+    }
 
-    // Listeners (Preserving logic for Add, Boost etc)
-    document.addEventListener('DOMContentLoaded', ()=>{
-        const fi=document.getElementById('fileInput'); if(fi) fi.addEventListener('change',async()=>{document.getElementById('loadingMsg').classList.remove('hidden');const u=await uploadToCloudinary(fi.files[0]);document.getElementById('loadingMsg').classList.add('hidden');if(u){document.getElementById('pServiceImage').value=u;document.getElementById('mainSuccessMsg').classList.remove('hidden');}});
-        const di=document.getElementById('depFileInput'); if(di) di.addEventListener('change',async()=>{const u=await uploadToCloudinary(di.files[0]);if(u){document.getElementById('depProof').value=u;document.getElementById('depSuccessMsg').classList.remove('hidden');}});
-        // Color/Sizes UI logic abbreviated for space but fully functional
-        const pal=document.getElementById('colorPalette'); const colors=['#000','#fff','#f00','#00f','#0f0','#ff0'];
-        if(pal) colors.forEach(c=>{const b=document.createElement('div');b.className='w-4 h-4 border cursor-pointer';b.style.backgroundColor=c;b.onclick=()=>{let arr=document.getElementById('pColors').value?document.getElementById('pColors').value.split(','):[]; if(arr.includes(c))arr=arr.filter(x=>x!==c);else arr.push(c); document.getElementById('pColors').value=arr.join(','); b.style.borderColor=arr.includes(c)?'red':'gray';};pal.appendChild(b);});
+    // ============ ADD LISTING LISTENERS ============
+    document.addEventListener('DOMContentLoaded', () => {
+        const fInput = document.getElementById('fileInput'); if(fInput) fInput.addEventListener('change', async () => { document.getElementById('loadingMsg').classList.remove('hidden'); const url = await uploadToCloudinary(fInput.files[0]); document.getElementById('loadingMsg').classList.add('hidden'); if(url) { document.getElementById('pServiceImage').value = url; document.getElementById('mainSuccessMsg').classList.remove('hidden'); }});
+        const exInput = document.getElementById('extraFilesInput'); if(exInput) exInput.addEventListener('change', async () => { document.getElementById('extraLoadingMsg').classList.remove('hidden'); let urls = []; for(const f of exInput.files) { const u = await uploadToCloudinary(f); if(u) urls.push(u); } document.getElementById('extraLoadingMsg').classList.add('hidden'); if(urls.length) { const area = document.getElementById('pImages'); area.value = area.value + (area.value ? '\n' : '') + urls.join('\n'); document.getElementById('extraSuccessMsg').classList.remove('hidden'); }});
+        const depInput = document.getElementById('depFileInput'); if(depInput) depInput.addEventListener('change', async () => { document.getElementById('depLoadingMsg').classList.remove('hidden'); const url = await uploadToCloudinary(depInput.files[0]); document.getElementById('depLoadingMsg').classList.add('hidden'); if(url) { document.getElementById('depProof').value = url; document.getElementById('depSuccessMsg').classList.remove('hidden'); }});
+        // Lite Color Palette Logic
+        const colors = [{c:'#000'},{c:'#fff'},{c:'#f00'},{c:'#00f'},{c:'#0f0'},{c:'#ff0'}];
+        const pal = document.getElementById('colorPalette'); 
+        if(pal) colors.forEach(col => { 
+            const btn = document.createElement('div'); btn.className = 'w-5 h-5 border cursor-pointer'; btn.style.backgroundColor = col.c;
+            btn.onclick = () => { let v=document.getElementById('pColors').value?document.getElementById('pColors').value.split(','):[]; if(v.includes(col.c)){v=v.filter(x=>x!==col.c);btn.style.border='1px solid #ccc';}else{v.push(col.c);btn.style.border='2px solid red';} document.getElementById('pColors').value=v.join(','); }; 
+            pal.appendChild(btn); 
+        });
     });
 
-    // Modals
-    function openWithdrawModal(){document.getElementById('wdAvailBalance').innerText=USER.balance;document.getElementById('withdrawModal').classList.remove('hidden');}
-    function closeWithdrawModal(){document.getElementById('withdrawModal').classList.add('hidden');}
-    async function submitWithdraw(){const a=Number(document.getElementById('wdAmount').value), ac=document.getElementById('wdAccount').value, m=document.getElementById('wdMethod').value; if(a&&ac){try{await fetch('/api/wallet/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:USER._id,amount:a,method:m,accountDetails:ac})});closeWithdrawModal();loadWallet();showToast('OK');}catch(e){}}}
-    function openDepositModal(){document.getElementById('depositModal').classList.remove('hidden');}
-    function closeDepositModal(){document.getElementById('depositModal').classList.add('hidden');}
-    async function submitDeposit(){const a=document.getElementById('depAmount').value, p=document.getElementById('depProof').value; if(a&&p){try{await fetch('/api/wallet/deposit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:USER._id,amount:Number(a),proof:p})});closeDepositModal();showToast('OK');}catch(e){}}}
-    
-    // Listing Actions
-    function toggleAffiliateInput(){const c=document.getElementById('pIsAffiliate').checked;document.getElementById('affiliateCommissionGroup').classList.toggle('hidden',!c);}
-    function toggleProductOptions(){const t=document.getElementById('pType').value;document.getElementById('productOptions').style.display=t==='product'?'block':'none';}
-    async function publish(){
-        const t=document.getElementById('pType').value, id=document.getElementById('editListingId').value;
-        const data={userId:USER._id, userName:USER.name, type:t, title:document.getElementById('pTitle').value, price:Number(document.getElementById('pPrice').value), desc:document.getElementById('pDesc').value, image:document.getElementById('pServiceImage').value, category:document.getElementById('pCategory').value, isAffiliate:document.getElementById('pIsAffiliate').checked, commission:document.getElementById('pCommission').value, colors:document.getElementById('pColors').value.split(','), sizes:document.getElementById('pSizes').value.split(',')};
-        if(!data.title||!data.price) return;
-        let url='/api/listing/create'; if(id){url='/api/admin/listing/update';data.id=id;}
-        try{await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); nav('market');if(!id)location.reload();}catch(e){}
+    function toggleAffiliateInput() { const c = document.getElementById('pIsAffiliate').checked; document.getElementById('affiliateCommissionGroup').classList.toggle('hidden', !c); }
+    function toggleProductOptions() { const t = document.getElementById('pType').value; document.getElementById('productOptions').style.display = t === 'product' ? 'block' : 'none'; }
+    async function publish() {
+        const type = document.getElementById('pType').value; const title = document.getElementById('pTitle').value; const price = document.getElementById('pPrice').value; const desc = document.getElementById('pDesc').value; const img = document.getElementById('pServiceImage').value; const cat = document.getElementById('pCategory').value; const isAff = document.getElementById('pIsAffiliate').checked; const comm = document.getElementById('pCommission').value; const editId = document.getElementById('editListingId').value;
+        if(!title || !price) return showToast('Required', 'error');
+        const data = { userId: USER._id, userName: USER.name, type, title, price:Number(price), desc, image:img, category:cat, isAffiliate:isAff, commission: isAff ? Number(comm) : 0 };
+        if(type==='product') { const extra = document.getElementById('pImages').value.split('\n').filter(x=>x); data.images = img ? [img, ...extra] : extra; data.colors = document.getElementById('pColors').value.split(',').filter(x=>x); data.sizes = document.getElementById('pSizes').value.split(',').filter(x=>x); const orig = document.getElementById('pOriginalPrice').value; if(orig) data.originalPrice = Number(orig); } else { data.images = img ? [img] : []; }
+        let url = '/api/listing/create'; if(editId) { url = '/api/admin/listing/update'; data.id = editId; }
+        try { await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); showToast('Success', 'success'); nav('market'); if(!editId) location.reload(); } catch(e) { showToast('Error', 'error'); }
+    }
+
+    async function loadMyList() {
+        try {
+            const res = await fetch('/api/user/listings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) });
+            const list = await res.json();
+            const grid = document.getElementById('myListGrid');
+            if(!list.length) { grid.innerHTML = '<div class="text-center py-10 text-gray-400 text-xs">Empty</div>'; return; }
+            grid.innerHTML = list.map(p => `
+                <div class="ae-card p-2 flex gap-2 relative border mb-1">
+                    <img src="${p.image}" class="w-16 h-16 object-cover border">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-xs truncate mb-1">${p.title}</div>
+                        <div class="text-red-600 font-black text-xs">${Number(p.price).toLocaleString()} DA</div>
+                        <div class="flex gap-2 mt-1">
+                            <button onclick="openBoostModal('${p._id}', '${p.title}')" class="text-[9px] bg-yellow-300 text-black px-1 font-bold">BOOST</button>
+                            <button onclick="deleteListing('${p._id}')" class="text-[9px] bg-red-100 text-red-600 px-1 font-bold">DEL</button>
+                            <button onclick='editListing(${JSON.stringify(p)})' class="text-[9px] bg-blue-100 text-blue-600 px-1 font-bold">EDIT</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) {}
     }
     
-    // MyList, Orders, Chat Logic (Standard)
-    async function loadMyList(){ try{const r=await fetch('/api/user/listings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:USER._id})});const l=await r.json();document.getElementById('myListGrid').innerHTML=l.map(p=>`<div class="ae-card p-2 flex gap-2"><img src="${p.image}" class="w-12 h-12 object-cover border"><div class="flex-1"><div class="font-bold text-xs truncate">${p.title}</div><div class="text-red-600 font-bold text-xs">${p.price}</div><div class="flex gap-1 mt-1"><button onclick="openBoostModal('${p._id}','${p.title}')" class="bg-yellow-200 text-[8px] px-1 font-bold">BOOST</button><button onclick="deleteListing('${p._id}')" class="bg-red-100 text-[8px] px-1 font-bold">DEL</button><button onclick='editL(${JSON.stringify(p)})' class="bg-blue-100 text-[8px] px-1 font-bold">EDIT</button></div></div></div>`).join('');}catch(e){} }
-    function editL(p){nav('add');document.getElementById('editListingId').value=p._id;document.getElementById('pTitle').value=p.title;document.getElementById('pPrice').value=p.price;document.getElementById('pServiceImage').value=p.image;}
-    async function deleteListing(id){if(confirm('Del?'))try{await fetch('/api/user/listing/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,userId:USER._id})});loadMyList();}catch(e){}}
-    
-    async function loadOrders(){try{const r=await fetch('/api/seller/orders/'+USER._id);ORDERS=await r.json();document.getElementById('ordersList').innerHTML=ORDERS.map(o=>`<div class="ae-card p-2 mb-2 flex justify-between"><div><div class="font-bold text-xs">${o.listingTitle}</div><div class="text-red-600 font-bold">${o.totalPrice}</div></div>${o.isRevealed?`<div class="bg-gray-100 p-1 text-[9px]"><b>${o.buyerName}</b><br>${o.buyerPhone}</div>`:`<button onclick="revealOrder('${o._id}')" class="bg-red-600 text-white px-2 text-[10px] font-bold">كشف</button>`}</div>`).join('');}catch(e){}}
-    function revealOrder(id){pendingRevealOrderId=id;APP_SETTINGS.freeMode?confirmRevealDirect(id):document.getElementById('revealOrderModal').classList.remove('hidden');}
-    function closeRevealModal(){document.getElementById('revealOrderModal').classList.add('hidden');}
-    async function confirmRevealOrder(){try{await fetch('/api/order/reveal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:USER._id,orderId:pendingRevealOrderId})});loadOrders();closeRevealModal();}catch(e){}}
-    async function confirmRevealDirect(id){try{await fetch('/api/order/reveal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:USER._id,orderId:id})});loadOrders();}catch(e){}}
+    function editListing(p) {
+        nav('add'); document.getElementById('editListingId').value = p._id;
+        document.getElementById('pTitle').value = p.title; document.getElementById('pPrice').value = p.price; document.getElementById('pDesc').value = p.desc;
+        document.getElementById('pServiceImage').value = p.image; toggleProductOptions();
+    }
 
-    async function loadChats(){try{const r=await fetch('/api/chats/'+USER._id);const c=await r.json();document.getElementById('chatsList').innerHTML=c.map(x=>`<div class="p-2 border-b flex gap-2 hover:bg-gray-50" onclick="openChat('${x._id}')"><div class="font-bold flex-1 text-xs">${x.buyerName||x.sellerName}</div><div class="text-[9px] text-gray-400">${x.lastMessage}</div></div>`).join('');}catch(e){}}
-    async function openChat(id){currentChatId=id;nav('chat');const r=await fetch('/api/chat/'+id);const c=await r.json();document.getElementById('chatPartnerName').innerText=(c.buyerId===USER._id?c.sellerName:c.buyerName); if(c.sellerId===USER._id && !c.isPaid) document.getElementById('chatPaymentOverlay').classList.remove('hidden'); else document.getElementById('chatPaymentOverlay').classList.add('hidden'); loadMsgs();}
-    async function loadMsgs(){if(!currentChatId)return; const r=await fetch('/api/chat/messages/'+currentChatId); const m=await r.json(); document.getElementById('chatMessagesContainer').innerHTML=m.map(x=>`<div class="flex flex-col ${x.senderId===USER._id?'items-end':'items-start'}"><span class="px-2 py-1 text-xs ${x.senderId===USER._id?'bg-red-100':'bg-white border'}">${x.content}</span></div>`).join('');}
-    async function sendChatMessage(){const t=document.getElementById('chatMessageInput').value; if(t) { await fetch('/api/chat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chatId:currentChatId,senderId:USER._id,content:t})}); document.getElementById('chatMessageInput').value=''; loadMsgs(); }}
-    async function loadChatRequests(){try{const r=await fetch('/api/chat/pending/'+USER._id);const q=await r.json();document.getElementById('chatRequestsList').innerHTML=q.map(x=>`<div class="ae-card p-2"><div class="font-bold text-xs">${x.buyerName}</div><button onclick="acceptChat('${x._id}')" class="w-full bg-blue-600 text-white text-[10px] mt-2 py-1">ACCEPT</button></div>`).join('');}catch(e){}}
-    function acceptChat(id){pendingAcceptChatId=id;document.getElementById('acceptChatModal').classList.remove('hidden');}
-    function closeAcceptChatModal(){document.getElementById('acceptChatModal').classList.add('hidden');}
-    async function confirmAcceptChat(){try{await fetch('/api/chat/accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chatId:pendingAcceptChatId,sellerId:USER._id})});loadChatRequests();closeAcceptChatModal();}catch(e){}}
+    async function deleteListing(id) { if(!confirm('Confirm Delete?')) return; try { await fetch('/api/user/listing/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id, userId: USER._id }) }); loadMyList(); } catch(e) {} }
 
-    // Polling & Toast
-    function startNotificationPolling(){loadNotifs();setInterval(loadNotifs,10000);}
-    async function loadNotifs(){try{const r=await fetch('/api/notifications/'+USER._id);const n=await r.json();const u=n.filter(x=>!x.read).length;document.getElementById('notifBadge').innerText=u;document.getElementById('notifBadge').classList.toggle('hidden',!u);document.getElementById('notifList').innerHTML=n.map(x=>`<div class="p-2 border-b text-xs">${x.title}</div>`).join('');}catch(e){}}
-    function showToast(m,t){const c=document.getElementById('toastContainer');const d=document.createElement('div');d.className='bg-black text-white px-3 py-1 text-xs mb-1 font-bold';d.innerText=m;c.appendChild(d);setTimeout(()=>d.remove(),3000);}
-    function toggleNotifications(){document.getElementById('notifDropdown').classList.toggle('hidden');}
-    async function markAllRead(){await fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:USER._id})});}
+    // ============ ORDERS & CHAT (Functions preserved) ============
+    async function loadOrders() {
+        try {
+            const res = await fetch('/api/seller/orders/' + USER._id); ORDERS = await res.json();
+            const list = document.getElementById('ordersList'); document.getElementById('ordersCountBadge').innerText = ORDERS.length;
+            list.innerHTML = ORDERS.map(o => `<div class="ae-card p-3 mb-2 flex justify-between"><div><span class="font-bold text-xs">${o.listingTitle}</span><br><span class="text-red-600 font-bold">${o.totalPrice}</span></div>${!o.isRevealed ? `<button onclick="revealOrder('${o._id}')" class="bg-red-600 text-white px-2 py-1 text-xs font-bold">Reveal (-${APP_SETTINGS.orderRevealPrice})</button>` : `<div class="text-[10px] bg-gray-50 p-1 border"><b>${o.buyerName}</b><br>${o.buyerPhone}</div>`}</div>`).join('');
+        } catch(e) {}
+    }
+    function revealOrder(id) { pendingRevealOrderId = id; if(APP_SETTINGS.freeMode) confirmRevealDirect(id); else document.getElementById('revealOrderModal').classList.remove('hidden'); }
+    function closeRevealModal() { document.getElementById('revealOrderModal').classList.add('hidden'); }
+    async function confirmRevealOrder() { try { await fetch('/api/order/reveal', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, orderId: pendingRevealOrderId }) }); loadOrders(); } catch(e) {} closeRevealModal(); }
+    async function confirmRevealDirect(id) { try { await fetch('/api/order/reveal', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId: USER._id, orderId: id }) }); loadOrders(); } catch(e){} }
+
+    async function loadChats() {
+        try { const res = await fetch('/api/chats/' + USER._id); const chats = await res.json(); 
+            document.getElementById('chatsList').innerHTML = chats.map(c => `<div class="p-3 border-b hover:bg-gray-50 flex gap-2" onclick="openChat('${c._id}')"><div class="w-10 h-10 bg-gray-200 flex items-center justify-center font-bold text-sm text-gray-600 rounded-sm">${(c.buyerId === USER._id ? c.sellerName : c.buyerName).charAt(0)}</div><div class="flex-1"><div class="font-bold text-xs">${c.buyerId === USER._id ? c.sellerName : c.buyerName}</div><div class="text-[10px] text-gray-400">${c.lastMessage}</div></div></div>`).join(''); 
+        } catch(e) {}
+    }
+    async function openChat(id) {
+        currentChatId = id; nav('chat');
+        try {
+            const res = await fetch(`/api/chat/${id}`); const chat = await res.json();
+            const partner = chat.buyerId === USER._id ? chat.sellerName : chat.buyerName;
+            document.getElementById('chatPartnerName').innerText = partner; document.getElementById('chatPartnerAvatar').innerText = partner.charAt(0);
+            if (chat.sellerId === USER._id && !chat.isPaid) document.getElementById('chatPaymentOverlay').classList.remove('hidden'); else document.getElementById('chatPaymentOverlay').classList.add('hidden');
+            loadChatMessages();
+        } catch(e) {}
+    }
+    async function loadChatMessages() { if(!currentChatId) return; const res = await fetch(`/api/chat/messages/${currentChatId}`); const msgs = await res.json(); document.getElementById('chatMessagesContainer').innerHTML = msgs.map(m => `<div class="flex flex-col ${m.senderId === USER._id ? 'items-end' : 'items-start'}"><span class="px-2 py-1 max-w-[85%] text-xs ${m.senderId === USER._id ? 'bg-[#ff3333] text-white' : 'bg-white border text-black'}">${m.content}</span></div>`).join(''); }
+    async function sendChatMessage() { const txt = document.getElementById('chatMessageInput').value; if(!txt) return; document.getElementById('chatMessageInput').value=''; await fetch('/api/chat/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatId:currentChatId, senderId:USER._id, content:txt }) }); loadChatMessages(); }
+
+    async function loadChatRequests() {
+        try { const res = await fetch('/api/chat/pending/' + USER._id); const reqs = await res.json(); 
+        document.getElementById('chatRequestsBadge').innerText = reqs.length||'';
+        document.getElementById('chatRequestsList').innerHTML = reqs.map(r => `<div class="ae-card p-3 mb-2"><div class="font-bold text-xs mb-2">${r.buyerName}</div><button onclick="acceptChat('${r._id}')" class="w-full bg-blue-600 text-white py-2 text-xs font-bold">ACCEPT (-${APP_SETTINGS.chatPrice})</button></div>`).join('');
+        } catch(e) {}
+    }
+    function acceptChat(id) { pendingAcceptChatId = id; document.getElementById('acceptChatModal').classList.remove('hidden'); }
+    function closeAcceptChatModal() { document.getElementById('acceptChatModal').classList.add('hidden'); }
+    async function confirmAcceptChat() { try { await fetch('/api/chat/accept', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatId: pendingAcceptChatId, sellerId: USER._id }) }); loadChatRequests(); } catch(e) {} closeAcceptChatModal(); }
+
+    // Notif
+    function startNotificationPolling() { loadNotifs(); setInterval(loadNotifs, 10000); }
+    async function loadNotifs() { try { const r=await fetch('/api/notifications/'+USER._id); const n=await r.json(); document.getElementById('notifBadge').innerText=n.filter(x=>!x.read).length||''; document.getElementById('notifList').innerHTML=n.map(x=>`<div class="p-2 border-b text-xs">${x.title}</div>`).join(''); } catch(e){} }
+    function toggleNotifications() { document.getElementById('notifDropdown').classList.toggle('hidden'); }
+    async function markAllRead() { await fetch('/api/notifications/read-all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId: USER._id}) }); }
+
+    function showToast(msg, type='info') { const c = document.getElementById('toastContainer'); const d = document.createElement('div'); d.className = 'bg-black text-white px-3 py-1 text-xs font-bold'; d.innerText = msg; c.appendChild(d); setTimeout(() => d.remove(), 3000); }
     
-    // Boost Logic (Full)
-    function selectBoost(d){currentBoostDays=d;document.querySelectorAll('.boost-opt').forEach(el=>el.classList.remove('bg-yellow-200','border-black'));document.getElementById('boostOpt'+d).classList.add('bg-yellow-200','border-black');document.getElementById('boostCost').innerText=(d*boostPricePerDay).toLocaleString();}
-    async function submitBoost(){try{const res=await fetch('/api/user/listing/boost',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({listingId:document.getElementById('boostIdInput').value,userId:USER._id,days:currentBoostDays})});if((await res.json()).success){document.getElementById('boostModal').classList.add('hidden');showToast('OK');loadMyList();}else showToast('No Balance');}catch(e){}}
+    // Boost Logic
+    function openBoostModal(id, title) { document.getElementById('boostIdInput').value = id; document.getElementById('boostTitleDisplay').innerText = title; document.getElementById('boostModal').classList.remove('hidden'); selectBoost(7); }
+    function selectBoost(days) { currentBoostDays = days; document.querySelectorAll('.boost-opt').forEach(el => el.classList.remove('bg-yellow-200')); document.getElementById('boostOpt'+days).classList.add('bg-yellow-200'); document.getElementById('boostCost').innerText = (days * boostPricePerDay).toLocaleString(); }
+    async function submitBoost() { try { const res = await fetch('/api/user/listing/boost', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ listingId: document.getElementById('boostIdInput').value, userId: USER._id, days: currentBoostDays }) }); const d = await res.json(); if(d.success) { USER.balance = d.newBalance; updateUserUI(); document.getElementById('boostModal').classList.add('hidden'); showToast('Success', 'success'); } else showToast('No Funds', 'error'); } catch(e) {} }
 
 </script>
 </body>
