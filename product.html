@@ -603,23 +603,49 @@
             const d = await res.json();
             if(d.success && d.exists) {
                 chatId = d.chatId;
-                if(d.isPaid) { document.getElementById('chatPendingOverlay').classList.add('hidden'); loadChatMessages(); } 
-                else document.getElementById('chatPendingOverlay').classList.remove('hidden');
+                // في كلتا الحالتين (مدفوعة أو لا) نسمح بفتح الشات للمشتري ليرى رسائله والرد الآلي
+                document.getElementById('chatPendingOverlay').classList.add('hidden');
             }
         } catch(e){}
     }
+
+
+
+    
     async function handleChatClick() {
         const buyerName = prompt('الرجاء إدخال اسمك للبدء:');
         if(!buyerName) return;
+
+        // فتح النافذة فوراً
         document.getElementById('chatModal').classList.remove('hidden');
+        document.getElementById('chatHeaderName').innerText = document.getElementById('sellerName').innerText;
+        
+        // إخفاء رسالة الانتظار لأننا سنسمح له بالكتابة
+        document.getElementById('chatPendingOverlay').classList.add('hidden');
+
         if(!chatId) {
+            // إنشاء محادثة جديدة فوراً
             try {
-                const res = await fetch('/api/chat/request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ listingId: pid, fingerprint: fp, buyerName }) });
+                const res = await fetch('/api/chat/request', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({ listingId: pid, fingerprint: fp, buyerName })
+                });
                 const d = await res.json();
-                if(d.success) { chatId = d.chatId; if(!d.isPaid) document.getElementById('chatPendingOverlay').classList.remove('hidden'); else loadChatMessages(); }
+                if(d.success) {
+                    chatId = d.chatId;
+                    loadChatMessages(); // تحميل (قد يكون فارغاً أو فيه رسالة ترحيب)
+                }
             } catch(e){}
-        } else checkChat();
+        } else {
+            loadChatMessages();
+        }
     }
+
+
+
+
+
+    
     function closeChatModal() { document.getElementById('chatModal').classList.add('hidden'); }
     async function loadChatMessages() {
         if(!chatId) return;
