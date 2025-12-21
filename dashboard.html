@@ -1075,21 +1075,27 @@
     
     
     
-                        function renderBatch(list) {
+                        
+     
+    function renderBatch(list) {
         const grid = document.getElementById('marketGrid');
         const now = new Date();
 
         const html = list.map(p => {
-            const discount = (p.originalPrice && p.originalPrice > p.price) ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
+            const discount = (p.originalPrice && p.originalPrice > p.price) 
+                ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
+                : 0;
             const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
             const soldCount = p.reviews ? `${p.reviews} sold` : 'New'; 
             const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
 
-            // ============ البطاقة الذهبية (كما هي) ============
+            // ============================================
+            // 🌟 الإعلان المروج (الإطار الذهبي)
+            // ============================================
             if (isBoosted) {
                 return `
-                <div class="ae-card flex flex-col h-full cursor-pointer relative" 
-                     style="background: #ffffff; border: 2px solid #FFD700; overflow: hidden; margin: 1px;" 
+                <div class="flex flex-col h-full cursor-pointer relative" 
+                     style="background: #ffffff; border: 2px solid #FFD700; overflow: hidden;"
                      onclick="window.location.href='/p/${p._id}'">
                     
                     <div class="absolute top-0 right-0 z-20 px-2 py-0.5 rounded-bl shadow-sm flex items-center gap-1"
@@ -1102,12 +1108,16 @@
                     </div>
 
                     <div class="p-2 flex flex-col flex-1" style="background: #ffffff;">
+                        <!-- السعر (نفس الستايل بالضبط) -->
                         <div class="text-[#ff3333] font-black text-lg leading-none mb-1">
                             ${APP_SETTINGS.currency} <span class="text-xl">${Number(p.price).toLocaleString()}</span>
                         </div>
-                        <div class="text-xs text-gray-900 font-bold line-clamp-2 leading-tight">
+                        
+                        <!-- العنوان (نفس الستايل بالضبط) -->
+                        <div class="text-xs text-gray-900 font-bold line-clamp-2 leading-tight h-8 overflow-hidden">
                             ${p.title}
                         </div>
+                        
                         <div class="mt-auto pt-2">
                             <span class="bg-[#FFD700] text-black text-[9px] px-1.5 rounded font-bold">Premium</span>
                         </div>
@@ -1115,14 +1125,16 @@
                 </div>`;
             }
 
-            // ============ البطاقة العادية (عريضة وبدون مسافات) ============
+            // ============================================
+            // ⬜ البطاقة العادية (نسخنا خطوط البطاقة الذهبية هنا)
+            // ============================================
             else {
                 let badgesHTML = '';
                 if (p.isAffiliate) badgesHTML += `<span style="background:#FBD913; color:#000; padding:1px 3px; font-weight:800; font-size:9px; border-radius:2px; margin-right:3px;">Choice</span>`;
                 
                 return `
                 <div class="flex flex-col h-full cursor-pointer relative" 
-                     style="background-color: #ffffff; border: none; overflow: hidden; padding: 2px;" 
+                     style="background-color: #ffffff; border: none; overflow: hidden; margin-bottom: 4px;" 
                      onclick="window.location.href='/p/${p._id}'">
                     
                     <!-- الصورة -->
@@ -1132,32 +1144,29 @@
                     </div>
 
                     <!-- المعلومات -->
-                    <div class="p-2 flex flex-col flex-1" style="background-color: #ffffff;">
+                    <div class="p-1 flex flex-col flex-1" style="background-color: #ffffff;">
                         
-                        <!-- العنوان (تم جعله font-bold ليصبح عريضاً) -->
-                        <div class="text-[12px] text-[#000] leading-snug line-clamp-2 mb-1 h-9 overflow-hidden font-bold">
+                        <!-- 1. السعر: (نسخ مطابق لكود الإعلان) -->
+                        <div class="text-[#ff3333] font-black text-lg leading-none mb-1 mt-1">
+                            ${APP_SETTINGS.currency} <span class="text-xl">${Number(p.price).toLocaleString()}</span>
+                        </div>
+
+                        <!-- 2. العنوان: (نسخ مطابق لكود الإعلان: نص عريض وأسود غامق) -->
+                        <div class="text-xs text-gray-900 font-bold line-clamp-2 leading-tight h-8 overflow-hidden">
                             ${p.title}
                         </div>
 
-                        <!-- التقييم -->
-                        <div class="flex items-center gap-1 text-[10px] text-[#999] mb-1">
-                            ${p.rating ? `<i class="fas fa-star text-[9px] text-black"></i> <span class="text-black font-bold mr-1">${p.rating}</span>` : ''}
-                            <span>${soldCount}</span>
-                        </div>
-
-                        <div class="flex items-center flex-wrap gap-1 mb-1">
+                        <!-- الشارات والمبيعات -->
+                        <div class="flex items-center flex-wrap gap-1 mt-1 mb-1">
                             ${badgesHTML}
                         </div>
 
-                        <!-- السعر -->
-                        <div class="mt-auto">
-                            <div class="flex items-baseline gap-1">
-                                <span style="color:#FF0036; font-size:12px; font-weight:800;">${APP_SETTINGS.currency}</span>
-                                <!-- السعر أصبح font-black ليكون عريضاً جداً -->
-                                <span style="color:#FF0036; font-size:18px; font-black;">${Number(p.price).toLocaleString()}</span>
-                            </div>
-                            ${p.originalPrice && discount > 0 ? `<div class="text-[10px] text-[#ccc] line-through">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : '<div class="h-4"></div>'}
+                        <div class="flex items-center gap-1 text-[10px] text-[#999]">
+                            <span>${soldCount}</span>
+                            ${p.rating ? `<span class="text-black font-bold">★ ${p.rating}</span>` : ''}
                         </div>
+                        
+                        ${p.originalPrice && discount > 0 ? `<div class="text-[10px] text-[#ccc] line-through mt-1">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : ''}
                     </div>
                 </div>`;
             }
