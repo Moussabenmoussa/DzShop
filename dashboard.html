@@ -1149,23 +1149,107 @@
     }
 
     // ============ WALLET & TRANSACTIONS ============
+    // ============ WALLET & TRANSACTIONS (Updated Colors 🎨) ============
     async function loadWallet() {
         document.getElementById('wBalance').innerText = (USER.balance || 0).toLocaleString();
-        loadPaymentMethods();
+        loadPaymentMethods(); // دالة تحميل طرق الدفع الموجودة لديك
+        
         try {
             const res = await fetch('/api/transactions/' + USER._id);
             const trans = await res.json();
             const list = document.getElementById('transactionsList');
-            if(!trans.length) { list.innerHTML = '<div class="p-4 text-center text-xs text-gray-400">Empty</div>'; return; }
-            list.innerHTML = trans.map(t => {
-                let statusText = t.status; let statusColor = ''; let icon = '';
-                if (t.type === 'withdraw') { statusColor = 'text-orange-500'; icon = 'fa-clock'; } 
-                else if (t.type === 'deposit') { statusColor = 'text-green-500'; icon = 'fa-arrow-down'; } 
-                else { icon = 'fa-arrow-up'; }
+            
+            // فلترة المحذوف
+            const hiddenTrans = JSON.parse(localStorage.getItem('hidden_trans') || '[]');
+            const visibleTrans = trans.filter(t => !hiddenTrans.includes(t._id));
+
+            if(!visibleTrans.length) { 
+                list.innerHTML = '<div class="p-6 text-center text-xs text-gray-400">لا توجد معاملات</div>'; 
+                return; 
+            }
+
+            list.innerHTML = visibleTrans.map(t => {
+                let statusText = ''; 
+                let statusColor = ''; 
+                let icon = '';
+                
+                // التحقق من اللغة لعرض النصوص
+                const isAr = currentLang === 'ar';
+
+                // 1. منطق السحب (Withdraw)
+                if (t.type === 'withdraw') {
+                    if (t.status === 'pending') { 
+                        statusText = isAr ? 'قيد المراجعة ⏳' : 'Pending'; 
+                        statusColor = 'text-amber-600'; // برتقالي للمراجعة
+                        icon = 'fa-clock'; 
+                    }
+                    else if (t.status === 'approved') { 
+                        statusText = isAr ? 'تم الدفع ✅' : 'Paid'; 
+                        statusColor = 'text-green-600'; // 🟢 أخضر واضح للمقبول
+                        icon = 'fa-check-circle'; 
+                    }
+                    else if (t.status === 'rejected') { 
+                        statusText = isAr ? 'مرفوض ❌' : 'Rejected'; 
+                        statusColor = 'text-red-600'; // أحمر للمرفوض
+                        icon = 'fa-times-circle'; 
+                    }
+                } 
+                // 2. منطق الشحن (Deposit)
+                else if (t.type === 'deposit') {
+                     if (t.status === 'pending') { 
+                         statusText = isAr ? 'جاري التحقق...' : 'Verifying...'; 
+                         statusColor = 'text-amber-600'; 
+                     }
+                     else if (t.status === 'approved') { 
+                         statusText = isAr ? 'تم الشحن بنجاح' : 'Success'; 
+                         statusColor = 'text-green-600'; // 🟢 أخضر واضح
+                     }
+                     icon = 'fa-arrow-down';
+                } 
+                // 3. خصومات أخرى (Services)
+                else { 
+                    statusText = isAr ? 'خصم خدمات' : 'Service fee';
+                    statusColor = 'text-gray-500';
+                    icon = 'fa-arrow-up'; 
+                }
+
                 const isNegative = t.type === 'withdraw' || t.type === 'deduct';
-                return `<div class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition" id="trans-${t._id}"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${isNegative ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'} flex items-center justify-center text-sm shadow-sm"><i class="fas ${icon}"></i></div><div><div class="text-xs font-bold">${t.description}</div><div class="text-[10px] ${statusColor} font-bold mt-0.5 flex items-center gap-1">${statusText}</div><div class="text-[9px] text-gray-400 mt-0.5">${new Date(t.date).toLocaleDateString()}</div></div></div><div class="flex items-center gap-3"><div class="font-black text-sm ${isNegative ? 'text-gray-800 dark:text-gray-200' : 'text-green-600'}" dir="ltr">${isNegative ? '-' : '+'}${Number(t.amount).toLocaleString()} <span class="text-[10px]">${APP_SETTINGS.currency}</span></div><button onclick="deleteTransaction('${t._id}', this)" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash-alt text-xs"></i></button></div></div>`;
+
+                // رسم البطاقة
+                return `
+                <div class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition border-b border-[var(--border)] last:border-0" id="trans-${t._id}">
+                    
+                    <div class="flex items-center gap-3">
+                        <!-- الأيقونة -->
+                        <div class="w-10 h-10 rounded-full ${isNegative ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600'} flex items-center justify-center text-sm shadow-sm border border-white dark:border-slate-700">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        
+                        <!-- النصوص -->
+                        <div>
+                            <div class="text-xs font-bold text-gray-800 dark:text-gray-200">${t.description}</div>
+                            
+                            <!-- هنا يظهر لون الحالة -->
+                            <div class="text-[10px] font-black mt-1 flex items-center gap-1 ${statusColor}">
+                                ${statusText}
+                            </div>
+                            
+                            <div class="text-[9px] text-gray-400 mt-0.5">${new Date(t.date).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+
+                    <!-- المبلغ وزر الحذف -->
+                    <div class="flex items-center gap-3">
+                        <div class="font-black text-sm ${isNegative ? 'text-gray-800 dark:text-white' : 'text-green-600'}" dir="ltr">
+                            ${isNegative ? '-' : '+'}${Number(t.amount).toLocaleString()} <span class="text-[9px] font-medium text-gray-400">${APP_SETTINGS.currency}</span>
+                        </div>
+                        <button onclick="deleteTransaction('${t._id}', this)" class="text-gray-300 hover:text-red-500 transition px-2">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
+                    </div>
+                </div>`;
             }).join('');
-        } catch(e) {}
+        } catch(e) { console.error(e); }
     }
 
     async function deleteTransaction(id, btn) {
