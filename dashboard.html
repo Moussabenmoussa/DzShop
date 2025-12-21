@@ -328,21 +328,38 @@
             </div>
 
             <!-- Chat Room -->
-            <!-- Chat Input Area -->
-    <div class="p-3 bg-[var(--bg-card)] border-t border-[var(--border)] relative">
-        
-        <!-- هذا الغطاء يظهر فقط إذا لم يدفع البائع -->
-        <div id="chatPaymentOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center hidden">
-            <button onclick="acceptChat(currentChatId)" class="bg-red-500 text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:bg-red-600 transition animate-pulse">
-                ادفع 50 دج للرد
-            </button>
-        </div>
+            <!-- Chat Room -->
+            <div id="view-chat" class="hidden animate-fadeIn flex flex-col h-[calc(100vh-56px)] bg-[var(--bg-body)] fixed inset-0 z-50 pt-0">
+                <!-- Chat Header -->
+                <div class="bg-[var(--bg-card)] p-3 border-b border-[var(--border)] flex items-center gap-3 sticky top-0 z-20 shadow-sm">
+                    <button onclick="nav('messages')" class="text-gray-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"><i class="fas fa-arrow-right"></i></button>
+                    <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center font-bold text-sm text-gray-600 border border-gray-200" id="chatPartnerAvatar">U</div>
+                    <div>
+                        <h3 id="chatPartnerName" class="font-bold text-sm">User</h3>
+                        <p class="text-[10px] text-green-600 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> <span data-lang="online">متصل الآن</span></p>
+                    </div>
+                </div>
 
-        <div class="flex gap-2 items-center">
-            <input id="chatMessageInput" type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-gray-50 dark:bg-white/5 rounded-full px-5 py-3 text-sm outline-none border border-gray-200 focus:border-red-500 transition">
-            <button onclick="sendChatMessage()" class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs"></i></button>
-        </div>
-    </div>
+                <!-- Chat Messages Area -->
+                <div id="chatMessagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth bg-[var(--bg-body)] pb-20">
+                    <!-- الرسائل تظهر هنا -->
+                </div>
+
+                <!-- Chat Input Area (داخل الـ View حصراً) -->
+                <div class="p-3 bg-[var(--bg-card)] border-t border-[var(--border)] flex gap-2 items-center sticky bottom-0 w-full pb-safe">
+                    <!-- قفل الدفع للبائع -->
+                    <div id="chatPaymentOverlay" class="absolute inset-0 bg-white/90 z-10 flex items-center justify-center hidden">
+                        <button onclick="acceptChat(currentChatId)" class="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-xs shadow-md animate-pulse">
+                            ادفع 50 دج للرد
+                        </button>
+                    </div>
+
+                    <input id="chatMessageInput" type="text" data-lang-placeholder="type_message" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-gray-50 dark:bg-white/5 rounded-full px-5 py-3 text-sm outline-none border border-gray-200 focus:border-red-500 transition">
+                    <button onclick="sendChatMessage()" class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-red-500/30 hover:scale-105 transition">
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
 
             <!-- Add/Edit Listing -->
             <div id="view-add" class="hidden animate-slideUp px-3 pt-3">
@@ -1095,31 +1112,58 @@
             const list = document.getElementById('chatRequestsList');
             document.getElementById('chatRequestsBadge').innerText = reqs.length || '';
             
-            if(!reqs.length) { list.innerHTML = '<div class="text-center py-10 text-gray-400 text-xs">لا توجد طلبات</div>'; return; }
+            if(!reqs.length) { 
+                list.innerHTML = '<div class="text-center py-10 text-gray-400 text-xs">لا توجد طلبات جديدة</div>'; 
+                return; 
+            }
             
-            list.innerHTML = reqs.map(r => `
-                <div class="ae-card p-4">
+            list.innerHTML = reqs.map(r => {
+                // 1. نظام الحماية الذكي (إخفاء الأرقام والعناوين)
+                let previewText = r.lastMessage || 'يريد التواصل معك بخصوص المنتج...';
+                
+                // استبدال أي سلسلة أرقام (أرقام هواتف) بنجوم
+                previewText = previewText.replace(/\d+/g, '٭٭٭٭');
+                
+                // قطع النص إذا كان طويلاً
+                if(previewText.length > 40) previewText = previewText.substring(0, 40) + '...';
+
+                // 2. السعر الديناميكي
+                const price = APP_SETTINGS.chatPrice;
+                const isFree = APP_SETTINGS.freeMode;
+
+                return `
+                <div class="ae-card p-4 relative overflow-hidden">
                     <div class="flex justify-between items-center mb-2">
                         <div class="font-bold text-sm">${r.buyerName}</div>
                         <div class="text-[10px] text-gray-400">${new Date(r.createdAt).toLocaleDateString()}</div>
                     </div>
                     
-                    <!-- عرض رسالة المشتري للتشويق -->
-                    <div class="bg-blue-50 p-3 rounded-lg mb-3 border border-blue-100 relative">
-                        <i class="fas fa-quote-right text-blue-200 absolute top-1 right-2 text-xl"></i>
-                        <p class="text-xs text-gray-700 font-medium relative z-10 line-clamp-2">
-                            ${r.lastMessage || 'يريد التواصل معك بخصوص المنتج...'}
-                        </p>
+                    <!-- الرسالة المشفرة والمضببة -->
+                    <div class="bg-gray-50 p-3 rounded-lg mb-3 border border-gray-100 relative group cursor-not-allowed select-none">
+                        <div class="filter blur-[3px] opacity-70 transition group-hover:blur-[2px]">
+                            <p class="text-xs text-gray-800 font-medium">
+                                ${previewText}
+                            </p>
+                            <p class="text-xs text-gray-800 mt-1">والعنوان هو ولاية ٭٭٭ بلدية ٭٭٭</p> <!-- نص وهمي لزيادة التمويه -->
+                        </div>
+                        
+                        <!-- قفل فوق الرسالة -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-gray-500 shadow-sm border">
+                                <i class="fas fa-lock"></i> محتوى مخفي
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="text-[10px] text-gray-500 mb-2">المنتج: ${r.listingTitle}</div>
+                    <div class="text-[10px] text-gray-500 mb-2 truncate">المنتج: ${r.listingTitle}</div>
                     
-                    <button onclick="acceptChat('${r._id}')" class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-xs py-2.5 rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
-                        <span>قبول والرد</span>
-                        <span class="bg-white/20 px-1.5 rounded text-[9px]">-50 دج</span>
+                    <button onclick="acceptChat('${r._id}')" class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-xs py-3 rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+                        <i class="fas fa-unlock"></i>
+                        <span>كشف وقبول</span>
+                        ${!isFree ? `<span class="bg-black/20 px-2 py-0.5 rounded text-[10px] font-mono">-${price} ${APP_SETTINGS.currency}</span>` : '<span class="bg-green-500/20 px-2 rounded">مجاني</span>'}
                     </button>
                 </div>
-            `).join('');
+            `}).join('');
         } catch(e) {}
     }
     
