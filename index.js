@@ -1,17 +1,14 @@
 
 require('dotenv').config();
-
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
 const app = express();
-
 // ============ MIDDLEWARE ============
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
-
 // ============ DATABASE ============
 const mongoUri = process.env.MONGO_URI;
 if (mongoUri) {
@@ -53,8 +50,6 @@ const ListingSchema = new mongoose.Schema({
 
 rating: { type: Number, default: 0 }, 
     reviews: { type: Number, default: 0 },
-
-    
     active: { type: Boolean, default: true },
     views: { type: Number, default: 0 },
     isAffiliate: { type: Boolean, default: false },
@@ -63,7 +58,6 @@ rating: { type: Number, default: 0 },
     date: { type: Date, default: Date.now }
 });
 const Listing = mongoose.model('Listing', ListingSchema);
-
 const OrderSchema = new mongoose.Schema({
     listingId: String,
     listingTitle: String,
@@ -86,7 +80,6 @@ const OrderSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', OrderSchema);
-
 const ChatSchema = new mongoose.Schema({
     listingId: String,
     listingTitle: String,
@@ -103,7 +96,6 @@ const ChatSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 const Chat = mongoose.model('Chat', ChatSchema);
-
 const MessageSchema = new mongoose.Schema({
     chatId: { type: String, required: true },
     senderId: String,
@@ -114,7 +106,6 @@ const MessageSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 });
 const Message = mongoose.model('Message', MessageSchema);
-
 const NotificationSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     type: { type: String, required: true },
@@ -126,7 +117,6 @@ const NotificationSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 });
 const Notification = mongoose.model('Notification', NotificationSchema);
-
 const PaymentMethodSchema = new mongoose.Schema({
     name: { type: String, required: true },
     type: { type: String, default: 'local' },
@@ -138,7 +128,6 @@ const PaymentMethodSchema = new mongoose.Schema({
     order: { type: Number, default: 0 }
 });
 const PaymentMethod = mongoose.model('PaymentMethod', PaymentMethodSchema);
-
 const TransSchema = new mongoose.Schema({
     userId: String,
     userName: String,
@@ -151,13 +140,11 @@ const TransSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
 });
 const Trans = mongoose.model('Trans', TransSchema);
-
 const SettingsSchema = new mongoose.Schema({
     key: { type: String, unique: true },
     value: mongoose.Schema.Types.Mixed
 });
 const Settings = mongoose.model('Settings', SettingsSchema);
-
 // ============ HELPER FUNCTIONS ============
 async function getSetting(key, defaultValue) {
     const s = await Settings.findOne({ key });
