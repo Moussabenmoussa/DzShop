@@ -704,27 +704,22 @@ app.get('/api/unread-counts/:userId', async (req, res) => {
 
     let messages = 0;
     chats.forEach(c => {
-        messages += c.sellerId === userId ? (c.sellerUnread | (c.buyerUnread || 0);
-    });
-
+    messages += c.sellerId === userId ? (c.sellerUnread || 0) : (c.buyerUnread || 0);
+});
     const pendingChats = await Chat.countDocuments({ sellerId: userId, isPaid: false });
     const orders = await Order.countDocuments({ sellerId: userId, isRevealed: false });
-
     res.json({ messages, orders, pendingChats });
 });
-
 // ============ PAYMENT METHODS API ============
 app.get('/api/payment-methods', async (req, res) => {
     const methods = await PaymentMethod.find({ isActive: true }).sort({ order: 1 });
     res.json(methods);
 });
-
 // ============ TRANSACTIONS API ============
 app.get('/api/transactions/:userId', async (req, res) => {
     const trans = await Trans.find({ userId: req.params.userId }).sort({ date: -1 }).limit(50);
     res.json(trans);
 });
-
 // ============ WALLET API ============
 app.post('/api/wallet/deposit', async (req, res) => {
     try {
