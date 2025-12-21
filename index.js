@@ -54,6 +54,7 @@ const ListingSchema = new mongoose.Schema({
     views: { type: Number, default: 0 },
     isAffiliate: { type: Boolean, default: false },
     commission: { type: Number, default: 0 },
+    boostExpiry: { type: Date },
     date: { type: Date, default: Date.now }
 });
 const Listing = mongoose.model('Listing', ListingSchema);
@@ -294,12 +295,11 @@ async function deductBalance(userId, amount, description) {
 
 
 app.get('/api/market', async (req, res) => {
-    try {
-        const listings = await Listing.find().sort({ createdAt: -1 });
-        res.json(listings);
-    } catch (e) {
-        res.status(500).json([]);
-    }
+    // الترتيب: من يملك تاريخ ترويج (في المستقبل) يظهر في القمة، ثم الباقي حسب الأحدث
+    const list = await Listing.find({ active: true })
+        .sort({ boostExpiry: -1, date: -1 }) // -1 يعني من الأكبر (المستقبل) للأصغر
+        .limit(100);
+    res.json(list);
 });
 
 
@@ -1272,6 +1272,44 @@ app.post('/api/user/order/delete', async (req, res) => {
         res.json({ success: false });
     }
 });
+
+
+
+// شراء خدمة الترويج (Boost)
+app.post('/api/user/listing/boost', async (req, res) => {
+    try {
+        const { listingId, userId, days } = req.body;
+        const user = await User.findById(userId);
+        
+        // جلب سعر اليوم من الإعدادات (افتراضياً 200)
+        const boostPrice = await getSetting('boostPricePerDay', 200);
+        const totalCost = boostPrice * days;
+
+        if (user.balance < totalCost) {
+            return res.json({ success: false, msg: 'رصيدك غير كافٍ للعملية' });
+        }
+
+        // 1. خصم الرصيد وتوثيق العملية
+        user.balance -= totalCost;
+        await user.save();
+        
+        await Trans.create({
+            userId, userName: user.name, type: 'deduct', amount: totalCost,
+            description: `ترويج إعلان لمدة ${days} أيام 🚀`, status: 'completed'
+        });
+
+        // 2. تحديث تاريخ انتهاء الترويج للمنتج
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + days);
+        
+        await Listing.findByIdAndUpdate(listingId, { boostExpiry: expiryDate });
+
+        res.json({ success: true, newBalance: user.balance });
+    } catch (e) {
+        res.json({ success: false, msg: 'حدث خطأ في السيرفر' });
+    }
+});
+
 
 
 
