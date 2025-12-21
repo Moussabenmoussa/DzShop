@@ -1084,67 +1084,80 @@
 function renderBatch(list) {
     const grid = document.getElementById('marketGrid');
     const now = new Date();
+    
+    // تعريف نصوص الترجمة المتغيرة داخل الدالة
+    const isAr = currentLang === 'ar';
+    const txt = {
+        sold: isAr ? 'بيع' : 'vendu',
+        featured: isAr ? 'مميز' : 'Top',
+        choice: 'Choice',
+        discount_prefix: '-'
+    };
 
     const html = list.map(p => {
-        // حساب الخصم
+        // 1. حساب الخصم
         const discount = (p.originalPrice && p.originalPrice > p.price) 
             ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
             : 0;
             
-        // الصورة
+        // 2. معالجة الصورة
         const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
         
-        // التحقق من الترويج
+        // 3. التحقق من الترويج (Boost)
         const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
 
-        // تجهيز ستايل البطاقة (إطار ذهبي للمميز فقط)
-        const borderStyle = isBoosted ? 'border: 2px solid #FFD700;' : 'border: none;';
+        // 4. ستايل الإطار للمنتجات المميزة (Shadow بدلاً من Border للحفاظ على المقاسات)
+        const borderStyle = isBoosted ? 'box-shadow: inset 0 0 0 2px #FFD700;' : '';
         
-        // تجهيز شارة "Choice" أو "Premium"
+        // 5. الشارات (Badges)
         let badgeHTML = '';
-        if (isBoosted) badgeHTML = `<span class="bg-[#FFD700] text-[#422a00] text-[9px] px-1.5 py-0.5 rounded font-black absolute top-0 right-0 z-10 m-1"><i class="fas fa-crown"></i> مميز</span>`;
-        else if (p.isAffiliate) badgeHTML = `<span class="bg-[#FBD913] text-black text-[9px] px-1.5 py-0.5 rounded font-black absolute top-0 right-0 z-10 m-1">Choice</span>`;
+        if (isBoosted) {
+            badgeHTML = `<span class="absolute top-0 right-0 z-10 m-1 bg-[#FFD700] text-[#422a00] text-[9px] px-1.5 py-0.5 rounded font-black shadow-sm"><i class="fas fa-crown text-[8px]"></i> ${txt.featured}</span>`;
+        } else if (p.isAffiliate) {
+            badgeHTML = `<span class="absolute top-0 right-0 z-10 m-1 bg-[#FBD913] text-black text-[9px] px-1.5 py-0.5 rounded font-black shadow-sm">${txt.choice}</span>`;
+        }
 
-        // المبيعات والتقييم (إظهار الأصفار بوضوح)
+        // 6. تنسيق الأرقام (التقييم والمبيعات)
+        // نظهر 0 إذا لم توجد بيانات للحفاظ على توازن شكل البطاقة
         const soldCount = p.reviews ? p.reviews * 10 : 0;
-        const soldText = soldCount > 0 ? `+${soldCount} بيع` : `0 بيع`;
         const ratingVal = p.rating || 0;
 
-        // --- الهيكل الموحد (Unified Structure) ---
+        // --- الهيكل الموحد (Unified HTML Structure) ---
         return `
-        <div class="flex flex-col h-full cursor-pointer relative bg-white shadow-sm overflow-hidden" 
-             style="${borderStyle} border-radius: 8px;"
+        <div class="ae-card flex flex-col h-full cursor-pointer relative" 
+             style="${borderStyle}"
              onclick="window.location.href='/p/${p._id}'">
             
-            <!-- 1. الصورة (مربعة دائماً) -->
+            <!-- الصورة: مربعة دائماً (aspect-square) -->
             <div class="relative w-full aspect-square bg-gray-50">
                 <img src="${img}" loading="lazy" class="w-full h-full object-cover">
-                ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#FF0036] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tr-sm">-${discount}%</div>` : ''}
                 ${badgeHTML}
+                ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#FF0036] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tr-sm" dir="ltr">${txt.discount_prefix}${discount}%</div>` : ''}
             </div>
 
-            <!-- 2. المحتوى -->
+            <!-- تفاصيل المنتج -->
             <div class="p-2 flex flex-col flex-1">
                 
-                <!-- السعر (كبير وواضح) -->
-                <div class="text-[#ff4747] font-black text-base leading-none mb-1">
+                <!-- السعر: كبير وواضح -->
+                <div class="text-[#ff4747] font-black text-base leading-none mb-1 mt-1">
                     <small class="text-xs text-black font-bold">${APP_SETTINGS.currency}</small> ${Number(p.price).toLocaleString()}
                 </div>
 
-                <!-- العنوان (سطرين إجباري) -->
-                <div class="text-xs text-[#222] font-medium line-clamp-2 mb-2 leading-tight">
+                <!-- العنوان: مقيد بارتفاع سطرين -->
+                <div class="text-xs text-[#222] font-medium line-clamp-2 mb-2 leading-tight h-[2.6em] overflow-hidden">
                     ${p.title}
                 </div>
 
-                <!-- الفوتر (التقييم والمبيعات) -->
+                <!-- الفوتر: التقييم والمبيعات -->
                 <div class="mt-auto flex items-center justify-between text-[10px] text-gray-500">
-                    <div class="flex items-center gap-0.5 bg-gray-100 px-1 rounded">
+                    <div class="flex items-center gap-0.5 bg-gray-100 px-1 rounded h-4">
                         <i class="fas fa-star text-[8px] text-orange-400"></i>
-                        <span class="font-bold text-black">${ratingVal}</span>
+                        <span class="font-bold text-black leading-none pt-0.5">${ratingVal}</span>
                     </div>
-                    <span class="font-medium">${soldText}</span>
+                    <span class="font-medium">${soldCount > 0 ? `+${soldCount} ${txt.sold}` : `0 ${txt.sold}`}</span>
                 </div>
                 
+                <!-- السعر القديم (إن وجد) -->
                 ${p.originalPrice && discount > 0 ? `<div class="text-[9px] text-gray-400 line-through mt-0.5">${Number(p.originalPrice).toLocaleString()}</div>` : ''}
             </div>
         </div>`;
