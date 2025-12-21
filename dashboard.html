@@ -1255,12 +1255,26 @@
     }
 
     async function deleteListing(id) {
-        if(!confirm('هل أنت متأكد من حذف هذا الإعلان؟')) return;
+        if(!confirm('هل أنت متأكد من حذف هذا الإعلان نهائياً من السوق؟')) return;
+        
         try {
-            await fetch('/api/admin/listing/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-            showToast('تم الحذف', 'success');
-            loadMyList();
-        } catch(e) { showToast('فشل الحذف', 'error'); }
+            // الاتصال برابط المستخدم الجديد بدلاً من رابط الأدمن
+            const res = await fetch('/api/user/listing/delete', { 
+                method: 'POST', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({ id, userId: USER._id }) 
+            });
+            
+            const data = await res.json();
+            if(data.success) {
+                showToast('تم حذف الإعلان بنجاح', 'success');
+                loadMyList(); // إعادة تحميل القائمة
+            } else {
+                showToast(data.msg || 'فشل الحذف', 'error');
+            }
+        } catch(e) { 
+            showToast('خطأ في الاتصال', 'error'); 
+        }
     }
 
     function editListing(p) {
@@ -1298,11 +1312,20 @@
             ORDERS = await res.json();
             const list = document.getElementById('ordersList');
             document.getElementById('ordersCountBadge').innerText = ORDERS.length;
-            if(!ORDERS.length) { list.innerHTML = '<div class="text-center py-10 text-gray-400 text-xs">لا توجد طلبات</div>'; return; }
+            
+            if(!ORDERS.length) { 
+                list.innerHTML = '<div class="text-center py-10 text-gray-400 text-xs">لا توجد طلبات</div>'; 
+                return; 
+            }
             
             list.innerHTML = ORDERS.map(o => `
-                <div class="ae-card p-4">
-                    <div class="flex justify-between items-start mb-2">
+                <div class="ae-card p-4 relative group" id="order-${o._id}">
+                    <!-- زر الحذف الجديد -->
+                    <button onclick="deleteOrder('${o._id}')" class="absolute top-2 left-2 text-gray-300 hover:text-red-500 transition p-1">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+
+                    <div class="flex justify-between items-start mb-2 pr-2"> <!-- pr-2 to avoid overlap with delete btn -->
                         <div>
                             <span class="px-2 py-0.5 ${o.isRevealed?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'} rounded text-[9px] font-bold">${o.isRevealed?'مكشوف':'مخفي'}</span>
                             <div class="font-bold text-sm mt-1">${o.listingTitle}</div>
@@ -1321,6 +1344,37 @@
                 </div>
             `).join('');
         } catch(e) {}
+    }
+
+    // دالة حذف الطلب الجديدة
+    async function deleteOrder(id) {
+        if(!confirm('هل تريد حذف هذا الطلب نهائياً من السجل؟')) return;
+        
+        try {
+            const res = await fetch('/api/user/order/delete', { 
+                method: 'POST', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({ id, userId: USER._id }) 
+            });
+            
+            const data = await res.json();
+            if(data.success) {
+                // إزالة العنصر بصرياً ثم إعادة التحميل
+                const el = document.getElementById(`order-${id}`);
+                el.classList.add('animate-delete');
+                setTimeout(() => {
+                    el.remove();
+                    // تحديث العداد
+                    const count = document.getElementById('ordersCountBadge');
+                    count.innerText = Math.max(0, parseInt(count.innerText) - 1);
+                }, 300);
+                showToast('تم حذف الطلب', 'success');
+            } else {
+                showToast('فشل الحذف', 'error');
+            }
+        } catch(e) {
+            showToast('خطأ في الاتصال', 'error');
+        }
     }
 
     function revealOrder(id) {
