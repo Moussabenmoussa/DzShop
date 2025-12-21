@@ -1080,20 +1080,16 @@
         const now = new Date();
 
         const html = list.map(p => {
-            const discount = (p.originalPrice && p.originalPrice > p.price) 
-                ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
-                : 0;
+            const discount = (p.originalPrice && p.originalPrice > p.price) ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
             const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
             const soldCount = p.reviews ? `${p.reviews} sold` : 'New'; 
             const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
 
-            // ============================================
-            // 🌟 الإعلان المروج (يحتاج إطار للتمييز فقط)
-            // ============================================
+            // ============ البطاقة الذهبية (كما هي) ============
             if (isBoosted) {
                 return `
-                <div class="flex flex-col h-full cursor-pointer relative" 
-                     style="background: #ffffff; border: 2px solid #FFD700; border-radius: 6px; overflow: hidden;"
+                <div class="ae-card flex flex-col h-full cursor-pointer relative" 
+                     style="background: #ffffff; border: 2px solid #FFD700; overflow: hidden; margin: 1px;" 
                      onclick="window.location.href='/p/${p._id}'">
                     
                     <div class="absolute top-0 right-0 z-20 px-2 py-0.5 rounded-bl shadow-sm flex items-center gap-1"
@@ -1119,31 +1115,31 @@
                 </div>`;
             }
 
-            // ============================================
-            // ⬜ البطاقة العادية (بدون حدود نهائياً - Border NONE)
-            // ============================================
+            // ============ البطاقة العادية (عريضة وبدون مسافات) ============
             else {
                 let badgesHTML = '';
                 if (p.isAffiliate) badgesHTML += `<span style="background:#FBD913; color:#000; padding:1px 3px; font-weight:800; font-size:9px; border-radius:2px; margin-right:3px;">Choice</span>`;
                 
                 return `
                 <div class="flex flex-col h-full cursor-pointer relative" 
-                     style="background-color: #ffffff; border: none; overflow: hidden; border-radius: 4px;" 
+                     style="background-color: #ffffff; border: none; overflow: hidden; padding: 2px;" 
                      onclick="window.location.href='/p/${p._id}'">
                     
                     <!-- الصورة -->
                     <div class="relative aspect-square w-full" style="background-color: #ffffff;">
-                        <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover">
+                        <img src="${img}" loading="lazy" decoding="async" class="product-img w-full h-full object-cover rounded-sm">
                         ${discount > 0 ? `<div class="absolute bottom-0 left-0 bg-[#FF0036] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tr-sm">-${discount}%</div>` : ''}
                     </div>
 
                     <!-- المعلومات -->
                     <div class="p-2 flex flex-col flex-1" style="background-color: #ffffff;">
                         
-                        <div class="text-[12px] text-[#222] leading-snug line-clamp-2 mb-1 h-9 overflow-hidden font-normal">
+                        <!-- العنوان (تم جعله font-bold ليصبح عريضاً) -->
+                        <div class="text-[12px] text-[#000] leading-snug line-clamp-2 mb-1 h-9 overflow-hidden font-bold">
                             ${p.title}
                         </div>
 
+                        <!-- التقييم -->
                         <div class="flex items-center gap-1 text-[10px] text-[#999] mb-1">
                             ${p.rating ? `<i class="fas fa-star text-[9px] text-black"></i> <span class="text-black font-bold mr-1">${p.rating}</span>` : ''}
                             <span>${soldCount}</span>
@@ -1153,10 +1149,12 @@
                             ${badgesHTML}
                         </div>
 
+                        <!-- السعر -->
                         <div class="mt-auto">
                             <div class="flex items-baseline gap-1">
-                                <span style="color:#FF0036; font-size:12px; font-weight:700;">${APP_SETTINGS.currency}</span>
-                                <span style="color:#FF0036; font-size:17px; font-black;">${Number(p.price).toLocaleString()}</span>
+                                <span style="color:#FF0036; font-size:12px; font-weight:800;">${APP_SETTINGS.currency}</span>
+                                <!-- السعر أصبح font-black ليكون عريضاً جداً -->
+                                <span style="color:#FF0036; font-size:18px; font-black;">${Number(p.price).toLocaleString()}</span>
                             </div>
                             ${p.originalPrice && discount > 0 ? `<div class="text-[10px] text-[#ccc] line-through">${APP_SETTINGS.currency}${Number(p.originalPrice).toLocaleString()}</div>` : '<div class="h-4"></div>'}
                         </div>
@@ -1167,8 +1165,6 @@
 
         grid.insertAdjacentHTML('beforeend', html);
     }
-
-
 
 
     
