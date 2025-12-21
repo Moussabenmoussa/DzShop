@@ -139,6 +139,34 @@
 
 
 
+/* تصميم شارة Affiliate */
+.badge-affiliate {
+    font-size: 8px; /* حجم صغير وأنيق */
+    font-weight: 900; /* خط سميك */
+    text-transform: uppercase;
+    color: white;
+    /* تدرج لوني فاقع (بنفسجي - وردي - برتقالي) */
+    background: linear-gradient(45deg, #8b5cf6, #ec4899, #f97316, #8b5cf6);
+    background-size: 300% 300%;
+    padding: 2px 8px;
+    border-radius: 20px; /* حواف دائرية كاملة */
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(236, 72, 153, 0.4);
+    /* الأنيميشن */
+    animation: gradient-shimmer 3s ease infinite, pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* حركة التموج للألوان */
+@keyframes gradient-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+
+        
+
 
         
     </style>
@@ -313,20 +341,28 @@
                     </div>
                 </div>
 
-                <!-- Slider Section Corrected -->
+                <!-- Slider Section (Updated with Affiliate Badge) -->
 <div id="sliderContainer" class="hidden bg-[var(--bg-card)] mb-2 border-y border-[var(--border)] pt-3 pb-1">
     
-    <!-- 1. العنوان الثابت (لن يتحرك) -->
-    <div class="flex items-center gap-2 mb-2 px-3">
-        <span class="badge-choice animate-pulse-badge">
-            <i class="fas fa-star text-[9px] text-white"></i> Choice
+    <!-- العنوان مع الشارات -->
+    <div class="flex items-center gap-2 mb-2 px-3 flex-wrap">
+        <!-- 1. شارة Choice -->
+        <span class="badge-choice">
+            <i class="fas fa-star text-[8px] text-white"></i> Choice
         </span>
+
+        <!-- 2. العنوان العربي -->
         <h2 class="text-sm font-black text-gray-800 dark:text-gray-200" data-lang="affiliate_offers">
-            Marketing
+            عروض المسوقين
         </h2>
+
+        <!-- 3. 🔥 الكلمة الجديدة المتحركة 🔥 -->
+        <span class="badge-affiliate">
+            Affiliate <i class="fas fa-bolt text-[7px] animate-pulse"></i>
+        </span>
     </div>
 
-    <!-- 2. شريط البطاقات المتحرك (فقط هذا يتحرك) -->
+    <!-- شريط البطاقات -->
     <div id="productSlider" class="flex gap-3 overflow-x-auto no-scrollbar px-3 pb-3">
         <!-- البطاقات تظهر هنا -->
     </div>
