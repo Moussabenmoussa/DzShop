@@ -1219,7 +1219,55 @@ app.get('/api/public/reviews/:listingId', async (req, res) => {
 });
 
 
+// ============ DELETE APIs (New) ============
 
+// 1. حذف إشعار
+app.post('/api/notification/delete', async (req, res) => {
+    try {
+        const { id, userId } = req.body;
+        // نحذف الإشعار بشرط أن يكون خاصاً بالمستخدم نفسه (للأمان)
+        await Notification.findOneAndDelete({ _id: id, userId });
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// 2. حذف معاملة (سجل مالي)
+app.post('/api/transaction/delete', async (req, res) => {
+    try {
+        const { id, userId } = req.body;
+        // حذف المعاملة من السجل
+        await Trans.findOneAndDelete({ _id: id, userId });
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
+
+// 3. حذف محادثة
+app.post('/api/chat/delete', async (req, res) => {
+    try {
+        const { id, userId } = req.body;
+        // التحقق أن المستخدم طرف في المحادثة
+        const chat = await Chat.findOne({ 
+            _id: id, 
+            $or: [{ sellerId: userId }, { buyerId: userId }] 
+        });
+
+        if (chat) {
+            // حذف المحادثة
+            await Chat.findByIdAndDelete(id);
+            // حذف الرسائل التابعة لها لتنظيف القاعدة
+            await Message.deleteMany({ chatId: id });
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, msg: 'غير مصرح' });
+        }
+    } catch (e) {
+        res.json({ success: false });
+    }
+});
 
 
 // ============ START SERVER ============
