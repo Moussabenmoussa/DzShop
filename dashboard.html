@@ -1007,17 +1007,33 @@
         } catch(e) {}
     }
 
-    function deleteTransaction(id, btn) {
-        if(!confirm('هل تريد حذف هذه المعاملة من السجل؟')) return;
-        // 1. Visually remove
+    async function deleteTransaction(id, btn) {
+        if(!confirm('هل تريد حذف هذه المعاملة نهائياً من السيرفر؟')) return;
+        
+        // تأثير بصري للحذف
         const el = document.getElementById(`trans-${id}`);
         el.classList.add('animate-delete');
-        setTimeout(() => el.remove(), 300);
-        // 2. Local Hide
-        let hidden = JSON.parse(localStorage.getItem('hidden_trans') || '[]');
-        hidden.push(id);
-        localStorage.setItem('hidden_trans', JSON.stringify(hidden));
-        showToast('تم حذف المعاملة', 'info');
+        
+        try {
+            const res = await fetch('/api/transaction/delete', { 
+                method: 'POST', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({ id, userId: USER._id }) 
+            });
+            
+            const data = await res.json();
+            if(data.success) {
+                setTimeout(() => el.remove(), 300);
+                showToast('تم حذف المعاملة بنجاح', 'success');
+                // لا حاجة لـ LocalStorage بعد الآن
+            } else {
+                showToast('حدث خطأ أثناء الحذف', 'error');
+                el.classList.remove('animate-delete');
+            }
+        } catch(e) { 
+            showToast('خطأ في الاتصال', 'error'); 
+            el.classList.remove('animate-delete');
+        }
     }
 
     async function loadPaymentMethods() {
@@ -1499,10 +1515,21 @@
     }
     
     async function deleteNotification(id, btn) {
+        // إخفاء العنصر فوراً لتحسين التجربة
         const el = document.getElementById(`notif-${id}`);
         if(el) el.style.display = 'none';
-        await fetch('/api/notification/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-        showToast('تم إزالة الإشعار', 'info');
+        
+        try {
+            // الاتصال بالسيرفر للحذف الحقيقي
+            await fetch('/api/notification/delete', { 
+                method: 'POST', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({ id, userId: USER._id }) 
+            });
+            showToast('تم حذف الإشعار نهائياً', 'info');
+        } catch(e) {
+            showToast('فشل الحذف', 'error');
+        }
     }
 
     function toggleNotifications() { document.getElementById('notifDropdown').classList.toggle('hidden'); }
