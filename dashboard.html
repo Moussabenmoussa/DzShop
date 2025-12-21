@@ -1043,14 +1043,19 @@
     // ============ MARKET ============
     async function loadMarket() {
         try {
-            const res = await fetch('/api/market');
+            // التعديل هنا: إضافة ?t= لضمان جلب أحدث البيانات (التقييمات الجديدة)
+            const res = await fetch('/api/market?t=' + new Date().getTime());
+            
             ALL_LISTINGS = await res.json();
             if (ALL_LISTINGS && ALL_LISTINGS.length > 0) {
                 renderProductSlider(ALL_LISTINGS);
-                currentProductCount = 0; hasMoreProducts = true;
+                currentProductCount = 0; 
+                hasMoreProducts = true;
                 document.getElementById('marketGrid').innerHTML = '';
                 loadMoreProducts();
-            } else { document.getElementById('marketGrid').innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 text-sm">Empty</div>'; }
+            } else { 
+                document.getElementById('marketGrid').innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 text-sm">Empty</div>'; 
+            }
         } catch(e) {}
     }
 
