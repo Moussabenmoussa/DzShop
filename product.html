@@ -3,164 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفاصيل الخدمة | DzMarket</title>
+    <title>تفاصيل الخدمة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Cairo', sans-serif; background: #f9fafb; padding-bottom: 80px; }
-        .online-badge { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block; margin-left: 5px; }
-        .offline-badge { width: 10px; height: 10px; background: #9ca3af; border-radius: 50%; display: inline-block; margin-left: 5px; }
-    </style>
+    <style>body { font-family: 'Cairo', sans-serif; background: #f5f5f5; }</style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="fixed top-0 w-full bg-white z-50 h-14 flex items-center px-4 shadow-sm">
-        <button onclick="history.back()" class="text-gray-600"><i class="fas fa-arrow-right text-lg"></i></button>
-        <h1 class="font-bold text-sm mr-4 flex-1 truncate" id="pTitleNav">جاري التحميل...</h1>
-        <button onclick="window.location.href='/dashboard'" class="text-gray-600"><i class="fas fa-home text-lg"></i></button>
+    <div class="fixed top-0 w-full bg-white h-14 border-b flex items-center px-4 justify-between z-40">
+        <button onclick="history.back()"><i class="fas fa-arrow-right"></i></button>
+        <span class="font-bold">تفاصيل</span>
+        <button onclick="window.location.href='/'"><i class="fas fa-home"></i></button>
     </div>
 
-    <!-- Main Content -->
-    <div class="pt-16 px-4 max-w-2xl mx-auto hidden" id="mainContainer">
+    <div class="pt-16 px-4 pb-20">
+        <img id="pImg" src="" class="w-full h-64 object-cover rounded-xl mb-4 bg-gray-200">
+        <h1 id="pTitle" class="text-xl font-black mb-2">...</h1>
+        <div class="text-2xl font-black text-red-600 mb-4"><span id="pPrice">0</span> $</div>
         
-        <!-- Service Card -->
-        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-4">
-            <img id="pImg" src="" class="w-full h-48 object-cover hidden">
-            <div class="p-5">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-1 rounded font-bold" id="pCat"></span>
-                    <span class="text-xs text-gray-400" id="pDate"></span>
-                </div>
-                <h1 class="text-xl font-black text-gray-800 mb-2 leading-tight" id="pTitle"></h1>
-                <div class="text-2xl font-black text-[#fb2e2e] mb-4"><span id="pPrice"></span> $ <span class="text-xs text-gray-400 font-normal line-through ml-2">قابل للتفاوض</span></div>
-                <hr class="border-gray-100 my-4">
-                <h3 class="font-bold text-sm mb-2">تفاصيل الخدمة:</h3>
-                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line" id="pDesc"></p>
+        <div class="bg-white p-4 rounded-xl border mb-4 flex items-center gap-3">
+            <img id="sAvatar" src="" class="w-12 h-12 rounded-full bg-gray-200">
+            <div>
+                <div class="font-bold text-sm" id="sName">...</div>
+                <div class="text-xs text-gray-500">بائع</div>
             </div>
         </div>
 
-        <!-- Seller Profile Card -->
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition">
-            <div class="relative">
-                <img id="sAvatar" src="" class="w-14 h-14 rounded-full bg-gray-100 object-cover">
-                <div id="sStatus" class="absolute bottom-0 right-0 border-2 border-white offline-badge"></div>
-            </div>
-            <div class="flex-1">
-                <div class="flex items-center gap-1">
-                    <h3 class="font-bold text-sm" id="sName"></h3>
-                    <i class="fas fa-check-circle text-blue-500 text-xs" id="sVerified" style="display:none"></i>
-                </div>
-                <p class="text-[10px] text-gray-400 mb-1" id="sBio">بائع في المنصة</p>
-                <div class="flex gap-3 text-[10px] font-bold">
-                    <span class="text-yellow-500"><i class="fas fa-star"></i> <span id="sRating">0.0</span></span>
-                    <span class="text-gray-400"><i class="fas fa-shopping-bag"></i> <span id="sSales">0</span> مبيعات</span>
-                </div>
-            </div>
+        <div class="bg-white p-4 rounded-xl border">
+            <h3 class="font-bold mb-2">الوصف</h3>
+            <p id="pDesc" class="text-gray-600 text-sm whitespace-pre-line">...</p>
         </div>
     </div>
 
-    <!-- Sticky Bottom Action Bar -->
-    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 p-3 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50 md:max-w-2xl md:left-1/2 md:-translate-x-1/2 hidden" id="actionBar">
-        <div class="flex gap-3">
-            <button onclick="startChat()" class="flex-1 bg-black text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition">
-                <i class="fas fa-comments"></i> تواصل للتفاوض
-            </button>
-            <div class="flex flex-col justify-center items-center px-4">
-                <span class="text-[10px] text-gray-400">السعر المبدئي</span>
-                <span class="font-black text-lg text-[#fb2e2e]"><span id="pPriceBottom"></span>$</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading State -->
-    <div id="loader" class="fixed inset-0 bg-white z-[60] flex items-center justify-center">
-        <div class="w-8 h-8 border-4 border-gray-200 border-t-red-500 rounded-full animate-spin"></div>
+    <div class="fixed bottom-0 w-full bg-white p-3 border-t flex gap-3">
+        <button onclick="startChat()" class="flex-1 bg-black text-white py-3 rounded-xl font-bold shadow-lg">
+            <i class="fas fa-comments mr-2"></i> تواصل للتفاوض
+        </button>
     </div>
 
     <script>
-        const listingId = window.location.pathname.split('/').pop();
+        const id = window.location.pathname.split('/').pop();
         let sellerId = null;
 
         window.onload = async () => {
-            if (!listingId) return alert('رابط غير صالح');
+            const res = await fetch(`/api/public/product/${id}`);
+            const d = await res.json();
             
-            try {
-                // 1. جلب البيانات الحقيقية من السيرفر
-                const res = await fetch(`/api/public/product/${listingId}`);
-                const data = await res.json();
-
-                if (data._id) {
-                    // تعبئة البيانات في الصفحة
-                    document.getElementById('pTitle').innerText = data.title;
-                    document.getElementById('pTitleNav').innerText = data.title;
-                    document.getElementById('pDesc').innerText = data.desc || 'لا يوجد وصف';
-                    document.getElementById('pPrice').innerText = data.price;
-                    document.getElementById('pPriceBottom').innerText = data.price;
-                    document.getElementById('pCat').innerText = data.category;
-                    document.getElementById('pDate').innerText = new Date(data.date).toLocaleDateString();
-                    
-                    if(data.image) {
-                        const img = document.getElementById('pImg');
-                        img.src = data.image;
-                        img.classList.remove('hidden');
-                    }
-
-                    // بيانات البائع الحقيقية
-                    if (data.seller) {
-                        sellerId = data.seller._id;
-                        document.getElementById('sName').innerText = data.seller.name;
-                        document.getElementById('sAvatar').src = data.seller.avatar || 'https://ui-avatars.com/api/?name=' + data.seller.name;
-                        if(data.seller.isVerified) document.getElementById('sVerified').style.display = 'inline';
-                        
-                        // التحقق من حالة الاتصال الحقيقية
-                        if (data.seller.lastSeen) {
-                            const isOnline = (new Date() - new Date(data.seller.lastSeen)) < 2 * 60 * 1000;
-                            document.getElementById('sStatus').className = isOnline ? 'absolute bottom-0 right-0 border-2 border-white online-badge' : 'absolute bottom-0 right-0 border-2 border-white offline-badge';
-                        }
-                    }
-
-                    // إظهار المحتوى
-                    document.getElementById('loader').classList.add('hidden');
-                    document.getElementById('mainContainer').classList.remove('hidden');
-                    document.getElementById('actionBar').classList.remove('hidden');
-                } else {
-                    alert('الخدمة غير موجودة أو تم حذفها');
-                    window.location.href = '/dashboard';
+            if (d._id) {
+                document.getElementById('pTitle').innerText = d.title;
+                document.getElementById('pPrice').innerText = d.price;
+                document.getElementById('pDesc').innerText = d.desc || 'لا يوجد وصف';
+                document.getElementById('pImg').src = d.image || 'https://via.placeholder.com/300';
+                
+                if (d.seller) {
+                    sellerId = d.seller._id;
+                    document.getElementById('sName').innerText = d.seller.name;
+                    document.getElementById('sAvatar').src = d.seller.avatar || 'https://via.placeholder.com/50';
                 }
-            } catch (e) {
-                console.error(e);
-                alert('خطأ في الاتصال بالسيرفر');
             }
         };
 
         async function startChat() {
-            const userStr = localStorage.getItem('dz_user_v2');
+            const userStr = localStorage.getItem('dz_user');
             if (!userStr) {
-                alert('يجب عليك تسجيل الدخول أولاً للتفاوض');
-                window.location.href = '/dashboard';
+                alert('يجب عليك تسجيل الدخول أولاً');
+                window.location.href = '/';
                 return;
             }
             const user = JSON.parse(userStr);
             
-            if (user._id === sellerId) return alert('لا يمكنك التفاوض مع نفسك!');
+            if (user._id === sellerId) return alert('لا يمكنك التفاوض مع نفسك');
 
             try {
                 const res = await fetch('/api/chat/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buyerId: user._id, sellerId: sellerId, listingId: listingId })
+                    body: JSON.stringify({ buyerId: user._id, sellerId, listingId: id })
                 });
                 const d = await res.json();
-                
                 if (d.success) {
-                    // توجيه للمحادثة في الداشبورد
-                    window.location.href = '/dashboard#chat=' + d.chatId;
-                } else {
-                    alert('خطأ في بدء المحادثة');
+                    // توجيه إلى الداشبورد مع كود الشات
+                    window.location.href = '/#chat=' + d.chatId;
                 }
-            } catch(e) { alert('خطأ في الاتصال'); }
+            } catch(e) { alert('خطأ'); }
         }
     </script>
 </body>
