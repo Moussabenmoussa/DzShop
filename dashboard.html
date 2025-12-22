@@ -1142,7 +1142,7 @@ function renderBatch(list) {
         const img = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
         
         // حساب المبيعات والتقييم
-        const calculatedSold = p.reviews ? p.reviews * 10 : 0;
+        const calculatedSold = p.reviews ? p.reviews * 1 : 0;
         const soldDisplay = calculatedSold > 0 ? `sold +${calculatedSold}` : `sold 0`;
         const ratingVal = p.rating || 0; 
         const isBoosted = p.boostExpiry && new Date(p.boostExpiry) > now;
