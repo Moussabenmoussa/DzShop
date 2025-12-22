@@ -1,157 +1,93 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const cors = require('cors');
-const app = express();
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الخدمة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>body { font-family: 'Cairo', sans-serif; background: #f5f5f5; }</style>
+</head>
+<body>
 
-// ============ CONFIGURATION ============
-const PORT = process.env.PORT || 3000;
-const AUTO_RELEASE_HOURS = 72;
-const COMMISSION_RATE = 15;
+    <div class="fixed top-0 w-full bg-white h-14 border-b flex items-center px-4 justify-between z-40">
+        <button onclick="history.back()"><i class="fas fa-arrow-right"></i></button>
+        <span class="font-bold">تفاصيل</span>
+        <button onclick="window.location.href='/'"><i class="fas fa-home"></i></button>
+    </div>
 
-// ============ MIDDLEWARE ============
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-// ============ DATABASE ============
-const mongoUri = process.env.MONGO_URI;
-if (mongoUri) {
-    mongoose.connect(mongoUri)
-        .then(() => console.log('✅ MongoDB Connected'))
-        .catch(err => console.error('❌ MongoDB Error:', err));
-}
-
-// ============ MODELS ============
-const UserSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
-    avatar: { type: String, default: '' },
-    isVerified: { type: Boolean, default: false },
-    otpCode: String, otpExpiry: Date,
-    balance: { type: Number, default: 0 },
-    lastSeen: { type: Date, default: Date.now },
-    createdAt: { type: Date, default: Date.now }
-});
-const User = mongoose.model('User', UserSchema);
-
-const ListingSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    userName: String,
-    userAvatar: String,
-    title: { type: String, required: true },
-    desc: String,
-    price: { type: Number, required: true },
-    image: String, // الصورة الرئيسية
-    category: { type: String, default: 'other' },
-    active: { type: Boolean, default: true },
-    date: { type: Date, default: Date.now }
-});
-const Listing = mongoose.model('Listing', ListingSchema);
-
-const OrderSchema = new mongoose.Schema({
-    sellerId: String, buyerId: String, listingId: String, listingTitle: String,
-    amount: Number, netAmount: Number, status: { type: String, default: 'active' },
-    deliveryContent: String, createdAt: { type: Date, default: Date.now }
-});
-const Order = mongoose.model('Order', OrderSchema);
-
-const ChatSchema = new mongoose.Schema({
-    participants: [String], listingId: String, listingTitle: String,
-    lastMessage: String, lastMessageDate: { type: Date, default: Date.now }
-});
-const Chat = mongoose.model('Chat', ChatSchema);
-
-const MessageSchema = new mongoose.Schema({
-    chatId: String, senderId: String, type: { type: String, default: 'text' },
-    content: String, meta: mongoose.Schema.Types.Mixed, date: { type: Date, default: Date.now }
-});
-const Message = mongoose.model('Message', MessageSchema);
-
-// ============ API ROUTES ============
-
-// 1. PUBLIC PRODUCT (Fixing the connection error)
-app.get('/api/public/product/:id', async (req, res) => {
-    try {
-        const p = await Listing.findById(req.params.id);
-        if (!p) return res.json({ error: 'الخدمة غير موجودة' });
+    <div class="pt-16 px-4 pb-20">
+        <img id="pImg" src="" class="w-full h-64 object-cover rounded-xl mb-4 bg-gray-200">
+        <h1 id="pTitle" class="text-xl font-black mb-2">...</h1>
+        <div class="text-2xl font-black text-red-600 mb-4"><span id="pPrice">0</span> $</div>
         
-        // جلب بيانات البائع بأمان
-        const seller = await User.findById(p.userId, 'name avatar isVerified lastSeen');
-        
-        // إرجاع البيانات مدمجة
-        res.json({
-            ...p.toObject(),
-            seller: seller ? seller.toObject() : { name: 'مستخدم محذوف', avatar: '' }
-        });
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'خطأ في السيرفر' });
-    }
-});
+        <div class="bg-white p-4 rounded-xl border mb-4 flex items-center gap-3">
+            <img id="sAvatar" src="" class="w-12 h-12 rounded-full bg-gray-200">
+            <div>
+                <div class="font-bold text-sm" id="sName">...</div>
+                <div class="text-xs text-gray-500">بائع</div>
+            </div>
+        </div>
 
-// 2. MARKET LISTINGS
-app.get('/api/market', async (req, res) => {
-    try {
-        const listings = await Listing.find({ active: true }).sort({ date: -1 }).limit(50);
-        res.json(listings);
-    } catch (e) { res.json([]); }
-});
+        <div class="bg-white p-4 rounded-xl border">
+            <h3 class="font-bold mb-2">الوصف</h3>
+            <p id="pDesc" class="text-gray-600 text-sm whitespace-pre-line">...</p>
+        </div>
+    </div>
 
-// 3. CREATE LISTING
-app.post('/api/listing/create', async (req, res) => {
-    try {
-        const { userId, ...data } = req.body;
-        const user = await User.findById(userId);
-        await Listing.create({
-            userId,
-            userName: user.name,
-            userAvatar: user.avatar,
-            ...data
-        });
-        res.json({ success: true });
-    } catch (e) { res.json({ success: false }); }
-});
+    <div class="fixed bottom-0 w-full bg-white p-3 border-t flex gap-3">
+        <button onclick="startChat()" class="flex-1 bg-black text-white py-3 rounded-xl font-bold shadow-lg">
+            <i class="fas fa-comments mr-2"></i> تواصل للتفاوض
+        </button>
+    </div>
 
-// 4. AUTH
-app.post('/api/auth/login', async (req, res) => {
-    const user = await User.findOne({ email: req.body.email.toLowerCase(), password: req.body.password });
-    if (!user) return res.json({ success: false, msg: 'خطأ في البيانات' });
-    res.json({ success: true, user });
-});
+    <script>
+        const id = window.location.pathname.split('/').pop();
+        let sellerId = null;
 
-app.post('/api/auth/register', async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
-        // تسجيل مباشر بدون تفعيل مؤقتاً لتسريع التجربة (يمكنك تفعيل الكود السابق لاحقاً)
-        const user = await User.create({ name, email: email.toLowerCase(), password, isVerified: true });
-        res.json({ success: true, user });
-    } catch (e) { res.json({ success: false, msg: 'البريد مستخدم' }); }
-});
+        window.onload = async () => {
+            const res = await fetch(`/api/public/product/${id}`);
+            const d = await res.json();
+            
+            if (d._id) {
+                document.getElementById('pTitle').innerText = d.title;
+                document.getElementById('pPrice').innerText = d.price;
+                document.getElementById('pDesc').innerText = d.desc || 'لا يوجد وصف';
+                document.getElementById('pImg').src = d.image || 'https://via.placeholder.com/300';
+                
+                if (d.seller) {
+                    sellerId = d.seller._id;
+                    document.getElementById('sName').innerText = d.seller.name;
+                    document.getElementById('sAvatar').src = d.seller.avatar || 'https://via.placeholder.com/50';
+                }
+            }
+        };
 
-// 5. CHAT START
-app.post('/api/chat/start', async (req, res) => {
-    const { buyerId, sellerId, listingId } = req.body;
-    let chat = await Chat.findOne({ participants: { $all: [buyerId, sellerId] }, listingId });
-    if (!chat) {
-        const listing = await Listing.findById(listingId);
-        chat = await Chat.create({
-            participants: [buyerId, sellerId],
-            listingId,
-            listingTitle: listing ? listing.title : 'خدمة',
-            lastMessage: 'بداية التفاوض'
-        });
-    }
-    res.json({ success: true, chatId: chat._id });
-});
+        async function startChat() {
+            const userStr = localStorage.getItem('dz_user');
+            if (!userStr) {
+                alert('يجب عليك تسجيل الدخول أولاً');
+                window.location.href = '/';
+                return;
+            }
+            const user = JSON.parse(userStr);
+            
+            if (user._id === sellerId) return alert('لا يمكنك التفاوض مع نفسك');
 
-// ... (يمكنك إضافة باقي الروابط الخاصة بالطلبات والمحفظة هنا كما في الكود السابق)
-
-// SERVE FILES
-app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html'))); // تأكد أن index.html يحتوي على كود dashboard
-app.get('/dashboard', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html')));
-app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html')));
-
-app.listen(PORT, () => console.log(`🚀 Server Running on ${PORT}`));
+            try {
+                const res = await fetch('/api/chat/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ buyerId: user._id, sellerId, listingId: id })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    // توجيه إلى الداشبورد مع كود الشات
+                    window.location.href = '/#chat=' + d.chatId;
+                }
+            } catch(e) { alert('خطأ'); }
+        }
+    </script>
+</body>
+</html>
