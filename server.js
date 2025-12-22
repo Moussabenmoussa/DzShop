@@ -142,6 +142,7 @@ app.get('/api/chats/:userId', async (req, res) => {
 });
 
 app.get('/api/chat/history/:chatId', async (req, res) => {
+    // هذا الكود هو الذي يرد على طلب المتصفح كل ثانيتين
     const msgs = await Message.find({ chatId: req.params.chatId }).sort({ date: 1 });
     res.json(msgs);
 });
