@@ -3,383 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>الرسائل | DzMarket</title>
+    <title>المحادثة | DzMarket</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Cairo', sans-serif; overflow: hidden; }
+        body { font-family: 'Cairo', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; background: #efeae2; }
         
-        /* WhatsApp Background */
+        /* خلفية واتساب */
         .chat-bg {
             background-color: #efeae2;
             background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
-            background-repeat: repeat;
-            background-size: 400px;
+            opacity: 0.8;
         }
 
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-
-        /* Animations */
-        .fade-in { animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* تحسين شريط التمرير */
+        .no-scrollbar::-webkit-scrollbar { width: 4px; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen w-screen flex">
+<body class="bg-gray-100">
 
-    <aside id="inboxView" class="w-full md:w-[400px] bg-white border-l border-gray-200 flex flex-col h-full absolute md:relative z-20 transition-transform duration-300">
-        <div class="h-16 bg-[#f0f2f5] px-4 flex items-center justify-between border-b flex-shrink-0">
-            <div class="flex items-center gap-3">
-                <button onclick="window.location.href='/dashboard'" class="md:hidden text-gray-500 hover:bg-gray-200 p-2 rounded-full">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-                <div class="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
-                    <img id="myAvatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover">
-                </div>
-                <h1 class="font-bold text-gray-700">الدردشات</h1>
-            </div>
-            <div class="flex gap-3 text-gray-500">
-                <button class="hover:bg-gray-200 p-2 rounded-full"><i class="fas fa-circle-notch"></i></button>
-                <button class="hover:bg-gray-200 p-2 rounded-full"><i class="fas fa-comment-alt"></i></button>
-                <button class="hover:bg-gray-200 p-2 rounded-full"><i class="fas fa-ellipsis-v"></i></button>
-            </div>
-        </div>
-
-        <div class="p-2 border-b bg-white">
-            <div class="bg-[#f0f2f5] rounded-lg flex items-center px-3 py-1.5">
-                <i class="fas fa-search text-gray-500 text-sm ml-3"></i>
-                <input type="text" placeholder="بحث أو بدء محادثة جديدة" class="bg-transparent w-full text-sm outline-none placeholder-gray-500 h-8">
-            </div>
-        </div>
-
-        <div id="chatList" class="flex-1 overflow-y-auto bg-white">
-            <div class="flex flex-col items-center justify-center h-40 text-gray-400">
-                <i class="fas fa-spinner fa-spin mb-2"></i>
-                <span class="text-sm">جاري التحميل...</span>
-            </div>
-        </div>
-    </aside>
-
-    <main id="roomView" class="flex-1 flex flex-col h-full relative bg-[#efeae2] transform translate-x-full md:translate-x-0 transition-transform duration-300 absolute md:relative inset-0 z-30 w-full">
-        
-        <header class="h-16 bg-[#f0f2f5] px-4 flex items-center justify-between border-b shadow-sm z-10">
-            <div class="flex items-center gap-3 cursor-pointer">
-                <button onclick="closeChat()" class="md:hidden text-gray-500 mr-2">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </button>
-                <div class="w-10 h-10 rounded-full overflow-hidden">
-                    <img id="chatAvatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover">
-                </div>
-                <div class="flex flex-col justify-center">
-                    <h2 id="chatName" class="font-bold text-gray-800 text-sm leading-tight">...</h2>
-                    <span class="text-[11px] text-gray-500 truncate">اضغط هنا لمعلومات الاتصال</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 text-gray-500">
-                <button onclick="openInvoiceModal()" class="text-green-600 bg-green-50 px-3 py-1 rounded-full text-xs font-bold hover:bg-green-100 transition" title="إنشاء فاتورة">
-                    <i class="fas fa-file-invoice-dollar"></i> فاتورة
-                </button>
-                <i class="fas fa-search cursor-pointer"></i>
-                <i class="fas fa-paperclip cursor-pointer"></i>
-                <i class="fas fa-ellipsis-v cursor-pointer"></i>
-            </div>
-        </header>
-
-        <div id="chatBody" class="flex-1 overflow-y-auto p-4 space-y-2 chat-bg relative">
-            </div>
-
-        <footer class="bg-[#f0f2f5] px-4 py-2 flex items-center gap-3 z-10">
-            <button class="text-gray-500 hover:text-gray-700 text-xl"><i class="far fa-smile"></i></button>
-            <button class="text-gray-500 hover:text-gray-700 text-xl"><i class="fas fa-plus"></i></button>
-            
-            <div class="flex-1 bg-white rounded-lg px-4 py-2 flex items-center shadow-sm">
-                <input id="msgInput" type="text" placeholder="اكتب رسالة..." class="w-full bg-transparent outline-none text-sm text-gray-700 h-6" onkeypress="if(event.key === 'Enter') sendMsg('text')">
-            </div>
-
-            <button onclick="sendMsg('text')" class="text-[#54656f] hover:text-[#00a884] transition transform hover:scale-110">
-                <i class="fas fa-paper-plane text-xl"></i>
+    <header class="bg-[#075e54] text-white p-3 flex items-center justify-between shadow-md z-50 flex-shrink-0 h-16">
+        <div class="flex items-center gap-3">
+            <button onclick="window.history.back()" class="md:hidden">
+                <i class="fas fa-arrow-right text-xl"></i>
             </button>
-        </footer>
+            <div class="flex items-center gap-2">
+                <img id="chatAvatar" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-white/20">
+                <div>
+                    <h3 id="chatName" class="font-bold text-sm leading-tight">جاري التحميل...</h3>
+                    <p class="text-[10px] text-white/80 flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> متصل الآن
+                    </p>
+                </div>
+            </div>
+        </div>
+        <button onclick="document.getElementById('invoiceModal').classList.remove('hidden')" class="bg-white/10 hover:bg-white/20 p-2 rounded-full transition">
+            <i class="fas fa-file-invoice-dollar text-lg"></i>
+        </button>
+    </header>
+
+    <main id="chatBody" class="flex-1 overflow-y-auto p-4 space-y-3 chat-bg relative scroll-smooth no-scrollbar">
+        <div id="loader" class="flex justify-center mt-10">
+            <i class="fas fa-circle-notch fa-spin text-gray-400 text-2xl"></i>
+        </div>
     </main>
 
-    <div id="invoiceModal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 relative">
-            <button onclick="document.getElementById('invoiceModal').classList.add('hidden')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500">
-                <i class="fas fa-times text-lg"></i>
-            </button>
-            
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                    <i class="fas fa-receipt"></i>
-                </div>
-                <h3 class="font-bold text-xl text-gray-800">إصدار فاتورة</h3>
-                <p class="text-gray-500 text-xs mt-1">سيتم تعليق المبلغ حتى إتمام الخدمة (Escrow)</p>
-            </div>
+    <footer class="bg-white p-2 flex items-center gap-2 border-t flex-shrink-0 z-50 pb-safe">
+        <button class="text-gray-500 p-2"><i class="fas fa-plus text-xl"></i></button>
+        
+        <div class="flex-1 bg-gray-100 rounded-full flex items-center px-4 py-2">
+            <input id="msgInput" type="text" placeholder="اكتب رسالة..." 
+                   class="w-full bg-transparent border-none outline-none text-gray-800 text-sm h-8"
+                   onkeypress="if(event.key === 'Enter') sendMsg('text')">
+        </div>
 
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
-                <label class="block text-xs font-bold text-gray-500 mb-2">المبلغ الإجمالي ($)</label>
-                <div class="flex items-center border-b-2 border-gray-300 focus-within:border-green-500 transition">
-                    <span class="text-xl font-bold text-gray-400 ml-2">$</span>
-                    <input id="invAmount" type="number" class="w-full bg-transparent text-2xl font-bold text-gray-800 outline-none h-10" placeholder="0.00">
-                </div>
-            </div>
+        <button onclick="sendMsg('text')" class="bg-[#008a7c] text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-[#006b60] transition transform active:scale-90">
+            <i class="fas fa-paper-plane text-sm pt-1 pr-1"></i>
+        </button>
+    </footer>
 
-            <button onclick="sendMsg('invoice')" class="w-full bg-[#00a884] hover:bg-[#008f6f] text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-200">
-                إرسال الفاتورة
-            </button>
+    <div id="invoiceModal" class="hidden fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs rounded-xl p-5 animate-scaleIn">
+            <h3 class="text-center font-bold mb-4">إنشاء فاتورة</h3>
+            <input id="invAmount" type="number" placeholder="المبلغ (دج)" class="w-full bg-gray-50 p-3 rounded-lg border mb-3 text-center text-xl font-bold">
+            <button onclick="sendMsg('invoice')" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold mb-2">إرسال</button>
+            <button onclick="document.getElementById('invoiceModal').classList.add('hidden')" class="w-full text-gray-500 py-2">إلغاء</button>
         </div>
     </div>
 
     <script>
         let USER = null;
-        let CURRENT_CHAT_ID = null;
-        let POLLING_INTERVAL = null;
-
-        // 1. Initialization
+        let CHAT_ID = null;
+        
+        // 1. التهيئة عند التشغيل
         window.onload = () => {
             const u = localStorage.getItem('dz_user');
             if(!u) return window.location.href = '/';
             USER = JSON.parse(u);
-            
-            // Set User Avatar
-            document.getElementById('myAvatar').src = USER.avatar || `https://ui-avatars.com/api/?name=${USER.name}&background=00a884&color=fff`;
 
-            loadInbox();
-            
-            // Handle URL params
+            // جلب ID المحادثة من الرابط أو الهاش
             const urlParams = new URLSearchParams(window.location.search);
-            const urlId = urlParams.get('id'); // e.g. chat.html?id=123
+            CHAT_ID = urlParams.get('id') || urlParams.get('chatId');
             
-            // Handle Hash params (fallback)
-            const hashId = window.location.hash.includes('id=') ? window.location.hash.split('=')[1] : null;
-
-            if (urlId || hashId) {
-                openChat(urlId || hashId);
+            if(window.location.hash.includes('id=')) {
+                CHAT_ID = window.location.hash.split('id=')[1];
             }
 
-            // Global Polling
-            startPolling();
+            if(!CHAT_ID) {
+                alert('رابط المحادثة غير صحيح');
+                window.location.href = '/dashboard';
+                return;
+            }
+
+            // إعداد الواجهة
+            document.getElementById('chatName').innerText = "محادثة #" + CHAT_ID.substr(-4);
+            document.getElementById('chatAvatar').src = `https://ui-avatars.com/api/?name=${CHAT_ID}&background=random`;
+
+            // بدء النظام
+            loadMessages();
+            setInterval(loadMessages, 2000); // تحديث كل ثانيتين
         };
 
-        // 2. Load Inbox (Sidebar)
-        async function loadInbox() {
+        // 2. دالة جلب الرسائل (Polling)
+        async function loadMessages() {
+            if(!CHAT_ID) return;
             try {
-                const res = await fetch('/api/chats/' + USER._id);
-                const chats = await res.json();
-                const list = document.getElementById('chatList');
+                // نستخدم الرابط الصحيح الذي أكدت لي وجوده في Server.js
+                const res = await fetch(`/api/chat/history/${CHAT_ID}`);
+                const msgs = await res.json();
+                
+                const container = document.getElementById('chatBody');
+                document.getElementById('loader').classList.add('hidden');
 
-                if(!chats.length) {
-                    list.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-gray-400 p-6 text-center">
-                            <i class="far fa-comments text-4xl mb-3 opacity-50"></i>
-                            <p class="text-sm">لا توجد محادثات جارية.<br>ابدأ التواصل مع البائعين الآن!</p>
-                        </div>`;
-                    return;
-                }
-
-                list.innerHTML = chats.map(c => {
-                    const isActive = CURRENT_CHAT_ID === c._id ? 'bg-[#f0f2f5]' : 'hover:bg-[#f5f6f6]';
-                    const isUnread = c.unreadCounts && c.unreadCounts[USER._id] > 0;
+                // بناء HTML الرسائل
+                const html = msgs.map(m => {
+                    const isMe = m.senderId === USER._id;
                     
-                    return `
-                    <div onclick="openChat('${c._id}', '${c.listingTitle}')" class="flex items-center gap-3 p-3 cursor-pointer border-b border-gray-100 transition ${isActive}">
-                        <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-                            <img src="https://ui-avatars.com/api/?name=${c.listingTitle}&background=random" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <h4 class="font-semibold text-gray-900 truncate text-[15px]">${c.listingTitle || 'مستخدم'}</h4>
-                                <span class="text-[11px] ${isUnread ? 'text-[#00a884] font-bold' : 'text-gray-400'}">
-                                    ${new Date(c.lastMessageDate).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                                </span>
+                    // تصميم الفقاعة (Bubble)
+                    let content = m.content;
+                    if(m.type === 'invoice') {
+                        const isPaid = m.meta.status === 'paid';
+                        content = `
+                        <div class="bg-white/90 p-2 rounded border-l-4 border-green-500 w-48">
+                            <div class="text-xs font-bold text-green-700 mb-1">🧾 فاتورة خدمة</div>
+                            <div class="text-2xl font-black text-gray-800">${m.meta.amount} دج</div>
+                            <div class="text-[10px] mt-1 ${isPaid?'text-green-600':'text-orange-500'} font-bold">
+                                ${isPaid ? '✅ تم الدفع' : '⏳ بانتظار الدفع'}
                             </div>
-                            <div class="flex justify-between items-center">
-                                <p class="text-[13px] truncate ${isUnread ? 'text-gray-800 font-semibold' : 'text-gray-500'} max-w-[85%]">
-                                    ${c.lastMessage || '📎 مرفق'}
-                                </p>
-                                ${isUnread ? `<div class="w-5 h-5 bg-[#25d366] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">1</div>` : ''}
+                            ${!isMe && !isPaid ? `<button onclick="payInvoice('${m._id}',${m.meta.amount})" class="w-full mt-2 bg-green-600 text-white text-xs py-1 rounded">دفع الآن</button>` : ''}
+                        </div>`;
+                    }
+
+                    return `
+                    <div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'} mb-2">
+                        <div class="max-w-[75%] px-3 py-2 rounded-lg shadow-sm text-sm relative ${isMe ? 'bg-[#dcf8c6] rounded-tl-lg rounded-tr-none' : 'bg-white rounded-tl-none rounded-tr-lg'}">
+                            ${content}
+                            <div class="text-[9px] text-gray-500 mt-1 text-left flex items-center justify-end gap-1">
+                                ${new Date(m.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+                                ${isMe ? '<i class="fas fa-check-double text-blue-500"></i>' : ''}
                             </div>
                         </div>
                     </div>`;
                 }).join('');
 
-            } catch(e) { console.error(e); }
-        }
-
-        // 3. Open Chat Room
-        async function openChat(chatId, title) {
-            CURRENT_CHAT_ID = chatId;
-            
-            // Toggle UI for Mobile
-            const inbox = document.getElementById('inboxView');
-            const room = document.getElementById('roomView');
-            
-            if (window.innerWidth < 768) {
-                inbox.classList.add('-translate-x-full'); // Hide sidebar
-                room.classList.remove('translate-x-full'); // Show room
-            }
-
-            // Set Header
-            document.getElementById('chatName').innerText = title || 'جاري التحميل...';
-            document.getElementById('chatAvatar').src = `https://ui-avatars.com/api/?name=${title || 'U'}&background=random`;
-
-            // Load Messages immediately
-            await loadMessages();
-            
-            // Update URL without reloading
-            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + chatId;
-            window.history.pushState({path:newUrl},'',newUrl);
-        }
-
-        function closeChat() {
-            CURRENT_CHAT_ID = null;
-            const inbox = document.getElementById('inboxView');
-            const room = document.getElementById('roomView');
-            
-            inbox.classList.remove('-translate-x-full'); // Show sidebar
-            room.classList.add('translate-x-full'); // Hide room
-            
-            // Reset URL
-            window.history.pushState({}, '', window.location.pathname);
-        }
-
-        // 4. Load Messages (Smart Polling)
-        async function loadMessages() {
-            if (!CURRENT_CHAT_ID) return;
-            try {
-                const res = await fetch(`/api/chat/history/${CURRENT_CHAT_ID}`);
-                const msgs = await res.json();
-                const container = document.getElementById('chatBody');
-
-                // Generate HTML
-                const newHTML = msgs.map(m => renderBubble(m)).join('');
-
-                // Only update DOM if content changed (Prevents flickering)
-                if (container.innerHTML !== newHTML) {
-                    const wasAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
-                    
-                    container.innerHTML = newHTML;
-                    
-                    // Auto scroll to bottom only if user was already at bottom or it's first load
-                    if (wasAtBottom || msgs.length > 0) {
-                        container.scrollTop = container.scrollHeight;
-                    }
+                // تحديث فقط إذا تغير المحتوى (لتجنب الوميض)
+                // نقوم بإزالة اللودر من المقارنة
+                const currentContent = container.innerHTML.replace(/<div id="loader".*?<\/div>/, ''); 
+                
+                if (container.querySelectorAll('.flex').length !== msgs.length) {
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight; // نزول للأسفل
                 }
-            } catch (e) { console.error(e); }
+
+            } catch(e) { console.error("Polling Error:", e); }
         }
 
-        // 5. Render Single Message Bubble (WhatsApp Style)
-        function renderBubble(m) {
-            const isMe = m.senderId === USER._id;
-            const time = new Date(m.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            
-            // Bubble Styles
-            const bubbleClass = isMe 
-                ? 'bg-[#d9fdd3] ml-auto rounded-tr-none' 
-                : 'bg-white mr-auto rounded-tl-none';
-            
-            // Invoice Content
-            let content = m.content;
-            if (m.type === 'invoice') {
-                const isPaid = m.meta.status === 'paid';
-                content = `
-                <div class="bg-opacity-10 bg-black rounded-lg p-3 w-64 border border-green-100">
-                    <div class="flex items-center justify-between mb-2 pb-2 border-b border-black/10">
-                        <span class="font-bold text-xs uppercase tracking-wider text-green-800">فاتورة خدمة</span>
-                        <i class="fas fa-receipt text-green-600"></i>
-                    </div>
-                    <div class="text-center py-2">
-                        <span class="block text-3xl font-black text-gray-800">${m.meta.amount}<span class="text-sm text-gray-500">$</span></span>
-                        <span class="text-[10px] font-bold ${isPaid ? 'text-green-600 bg-green-100 px-2 py-0.5 rounded' : 'text-orange-500'}">
-                            ${isPaid ? '✅ تم الدفع' : '⏳ بانتظار الدفع'}
-                        </span>
-                    </div>
-                    ${!isMe && !isPaid ? `<button onclick="payInvoice('${m._id}', ${m.meta.amount})" class="w-full mt-2 bg-[#00a884] text-white py-2 rounded text-xs font-bold shadow hover:shadow-md transition">دفع الآن</button>` : ''}
-                </div>`;
-            } else {
-                // Regular Text formatting
-                content = `<span class="text-[14.2px] text-gray-800 leading-snug">${m.content}</span>`;
-            }
-
-            return `
-            <div class="flex flex-col mb-1 max-w-[85%] md:max-w-[70%] fade-in ${isMe ? 'items-end' : 'items-start'}">
-                <div class="${bubbleClass} px-2 py-1.5 rounded-lg shadow-sm relative min-w-[80px]">
-                    ${content}
-                    <div class="flex items-center justify-end gap-1 mt-1 select-none">
-                        <span class="text-[10px] text-gray-500 min-w-fit">${time}</span>
-                        ${isMe ? '<i class="fas fa-check-double text-[10px] text-[#53bdeb]"></i>' : ''}
-                    </div>
-                </div>
-            </div>`;
-        }
-
-        // 6. Send Message
+        // 3. دالة الإرسال
         async function sendMsg(type) {
-            let content = '', amount = 0;
+            let content = '';
+            let amount = 0;
 
             if(type === 'text') {
                 const input = document.getElementById('msgInput');
                 content = input.value.trim();
                 if(!content) return;
-                input.value = ''; // Clear immediately for UX
+                input.value = ''; // تفريغ الحقل فوراً
             } else {
                 amount = document.getElementById('invAmount').value;
                 if(!amount) return alert('أدخل المبلغ');
                 content = 'فاتورة';
+                document.getElementById('invoiceModal').classList.add('hidden');
             }
 
-            // Optimistic Update (Show message immediately before server confirmation)
-            // (Optional: can be added here for even faster feel)
-
             try {
+                // إرسال للسيرفر
                 await fetch('/api/chat/send', {
-                    method: 'POST', 
+                    method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chatId: CURRENT_CHAT_ID, senderId: USER._id, type, content, amount })
+                    body: JSON.stringify({
+                        chatId: CHAT_ID,
+                        senderId: USER._id,
+                        type: type,
+                        content: content,
+                        amount: amount
+                    })
                 });
                 
-                if(type === 'invoice') document.getElementById('invoiceModal').classList.add('hidden');
-                loadMessages(); // Force refresh
-                loadInbox(); // Refresh sidebar to show last message
+                loadMessages(); // تحديث فوري
             } catch(e) { alert('فشل الإرسال'); }
         }
 
-        // 7. Pay Invoice
+        // 4. دالة دفع الفاتورة
         async function payInvoice(msgId, amount) {
-            if(!confirm(`تأكيد دفع ${amount}$ ؟`)) return;
+            if(!confirm(`دفع ${amount} دج؟`)) return;
             try {
-                const res = await fetch('/api/order/pay-invoice', { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify({ messageId: msgId, buyerId: USER._id }) 
+                const res = await fetch('/api/order/pay-invoice', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ messageId: msgId, buyerId: USER._id })
                 });
                 const d = await res.json();
                 if(d.success) { 
                     loadMessages(); 
+                    alert('تم الدفع بنجاح ✅');
                 } else {
-                    alert(d.msg || 'رصيدك غير كافٍ');
+                    alert(d.msg || 'خطأ');
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) { alert('خطأ في الاتصال'); }
         }
-
-        // 8. Polling System
-        function startPolling() {
-            // Poll Messages every 2 seconds
-            setInterval(() => {
-                if(CURRENT_CHAT_ID) loadMessages();
-            }, 2000);
-
-            // Poll Inbox every 5 seconds (Less frequent)
-            setInterval(() => {
-                if(!document.hidden) loadInbox();
-            }, 5000);
-        }
-
-        // Helpers
-        function openInvoiceModal() { document.getElementById('invoiceModal').classList.remove('hidden'); }
     </script>
 </body>
 </html>
