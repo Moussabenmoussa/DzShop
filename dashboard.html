@@ -1,228 +1,248 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket | السوق</title>
+    <title>DzMarket</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --brand: #fb2e2e; --bg: #f2f2f2; }
         * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: #333; padding-bottom: 70px; }
-        
-        /* تصميم البطاقة الاحترافي (Temu Style) */
-        .product-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .product-card:active { transform: scale(0.98); }
+        body { background-color: #f5f5f5; padding-bottom: 70px; }
+        .hidden { display: none !important; }
+        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
-        
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--brand); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .chat-bubble { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 13px; margin-bottom: 5px; }
+        .me { background: #fb2e2e; color: white; align-self: flex-end; }
+        .other { background: #e5e7eb; color: black; align-self: flex-start; }
     </style>
 </head>
 <body>
 
-    <!-- 1. AUTH SCREEN -->
-    <div id="authOverlay" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
-        <h1 class="text-4xl font-black text-[#fb2e2e] mb-2">DZ</h1>
-        <p class="text-gray-400 text-sm mb-8">سوق الخدمات الرقمية</p>
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
+        <h1 class="text-4xl font-black text-red-600 mb-4">DZ</h1>
         
-        <div id="loginForm" class="w-full max-w-sm space-y-3">
-            <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
-            <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
-            <button onclick="login()" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">دخول</button>
-            <p class="text-center text-sm mt-4" onclick="toggleAuth()">ليس لديك حساب؟ <span class="text-red-500 font-bold">سجل الآن</span></p>
+        <!-- Login -->
+        <div id="loginBox" class="w-full max-w-sm space-y-3">
+            <input id="lEmail" type="email" placeholder="البريد" class="w-full p-4 bg-gray-100 rounded-xl">
+            <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-100 rounded-xl">
+            <button onclick="doLogin()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold">دخول</button>
+            <p class="text-center mt-4 text-sm text-gray-500" onclick="showReg()">جديد؟ <span class="text-red-600 font-bold">سجل الآن</span></p>
         </div>
 
-        <div id="regForm" class="w-full max-w-sm space-y-3 hidden">
-            <input id="rName" type="text" placeholder="الاسم" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-            <input id="rEmail" type="email" placeholder="البريد" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-            <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-            <button onclick="register()" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">تسجيل</button>
-            <p class="text-center text-sm mt-4" onclick="toggleAuth()">لديك حساب؟ دخول</p>
+        <!-- Register -->
+        <div id="regBox" class="w-full max-w-sm space-y-3 hidden">
+            <input id="rName" type="text" placeholder="الاسم" class="w-full p-4 bg-gray-100 rounded-xl">
+            <input id="rEmail" type="email" placeholder="البريد" class="w-full p-4 bg-gray-100 rounded-xl">
+            <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-100 rounded-xl">
+            <button onclick="doRegister()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold">تسجيل</button>
+            <p class="text-center mt-4 text-sm text-gray-500" onclick="showLogin()">لديك حساب؟ <span class="text-red-600 font-bold">دخول</span></p>
+        </div>
+
+        <!-- OTP -->
+        <div id="otpBox" class="w-full max-w-sm space-y-3 hidden text-center">
+            <h3 class="font-bold">أدخل كود التفعيل المرسل للإيميل</h3>
+            <input id="otpCode" type="number" class="w-full p-4 bg-gray-100 rounded-xl text-center text-xl tracking-widest">
+            <button onclick="doVerify()" class="w-full bg-black text-white py-4 rounded-xl font-bold">تفعيل</button>
+            <input type="hidden" id="tempId">
         </div>
     </div>
 
-    <!-- 2. MAIN APP -->
-    <div id="appContainer" class="hidden">
-        <!-- Header -->
-        <header class="fixed top-0 w-full bg-white z-40 border-b h-14 flex items-center justify-between px-4 shadow-sm">
-            <div class="font-black text-xl text-[#fb2e2e]">DZ</div>
-            <div class="flex items-center gap-2">
-                <span id="userName" class="text-xs font-bold">...</span>
-                <button onclick="logout()" class="text-gray-400"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
-        </header>
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden">
+        
+        <!-- Navbar -->
+        <div class="fixed top-0 w-full bg-white h-14 border-b flex items-center justify-between px-4 z-40">
+            <div class="font-black text-xl text-red-600">DZ</div>
+            <button onclick="logout()" class="text-xs text-gray-500">خروج</button>
+        </div>
 
-        <!-- Market Grid -->
-        <main class="pt-16 px-2">
-            <!-- زر الإضافة -->
-            <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="w-full mb-4 bg-black text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
-                <i class="fas fa-plus-circle"></i> إضافة خدمة / حساب للبيع
-            </button>
-
-            <div id="marketGrid" class="grid grid-cols-2 gap-2 pb-20">
-                <div class="loader mx-auto col-span-full"></div>
+        <!-- Pages -->
+        <div class="pt-16 px-2">
+            
+            <!-- Market View -->
+            <div id="page-market">
+                <button onclick="openAdd()" class="w-full bg-black text-white py-3 rounded-xl mb-4 font-bold shadow-lg">+ إضافة خدمة</button>
+                <div id="marketGrid" class="grid grid-cols-2 gap-2"></div>
             </div>
-        </main>
+
+            <!-- Chat List View -->
+            <div id="page-chat" class="hidden">
+                <h2 class="font-bold mb-4 px-2">المحادثات</h2>
+                <div id="chatList" class="space-y-2"></div>
+            </div>
+
+            <!-- Account View -->
+            <div id="page-account" class="hidden text-center pt-10">
+                <img id="myAvatar" src="" class="w-20 h-20 rounded-full mx-auto bg-gray-200 mb-2">
+                <h2 id="myName" class="font-bold text-xl">...</h2>
+                <div class="bg-black text-white p-4 rounded-xl m-4">
+                    <p class="text-xs opacity-70">الرصيد</p>
+                    <h1 class="text-3xl font-black"><span id="myBalance">0</span> $</h1>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chat Room Overlay -->
+        <div id="chatRoom" class="fixed inset-0 bg-white z-50 hidden flex flex-col">
+            <div class="h-14 border-b flex items-center px-4 gap-3 bg-white">
+                <button onclick="closeChat()"><i class="fas fa-arrow-right"></i></button>
+                <h3 id="chatTitle" class="font-bold text-sm">...</h3>
+                <button onclick="sendInvoice()" class="mr-auto bg-green-100 text-green-700 px-3 py-1 rounded text-xs font-bold">فاتورة</button>
+            </div>
+            <div id="msgs" class="flex-1 overflow-y-auto p-4 flex flex-col bg-gray-50"></div>
+            <div class="p-3 border-t bg-white flex gap-2">
+                <input id="msgInput" class="flex-1 bg-gray-100 p-2 rounded-full px-4" placeholder="اكتب...">
+                <button onclick="sendText()" class="w-10 h-10 bg-red-600 text-white rounded-full"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
 
         <!-- Bottom Nav -->
-        <nav class="fixed bottom-0 w-full bg-white border-t h-16 flex justify-around items-center z-30">
-            <button class="flex flex-col items-center text-[#fb2e2e]"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">السوق</span></button>
-            <button class="flex flex-col items-center text-gray-400"><i class="fas fa-comments text-lg"></i><span class="text-[9px] font-bold">شات</span></button>
-            <button class="flex flex-col items-center text-gray-400"><i class="fas fa-user text-lg"></i><span class="text-[9px] font-bold">حسابي</span></button>
-        </nav>
-    </div>
-
-    <!-- 3. ADD MODAL (With Image Upload) -->
-    <div id="addModal" class="hidden fixed inset-0 z-[60] bg-white flex flex-col">
-        <div class="h-14 border-b flex px-4 justify-between items-center bg-gray-50">
-            <h3 class="font-bold">نشر خدمة جديدة</h3>
-            <button onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 bg-gray-200 rounded-full"><i class="fas fa-times"></i></button>
+        <div class="fixed bottom-0 w-full bg-white h-16 border-t flex justify-around items-center z-40">
+            <button onclick="nav('market')" class="flex flex-col items-center text-red-600"><i class="fas fa-home text-xl"></i><span class="text-[10px]">السوق</span></button>
+            <button onclick="nav('chat')" class="flex flex-col items-center text-gray-400"><i class="fas fa-comments text-xl"></i><span class="text-[10px]">شات</span></button>
+            <button onclick="nav('account')" class="flex flex-col items-center text-gray-400"><i class="fas fa-user text-xl"></i><span class="text-[10px]">حسابي</span></button>
         </div>
-        
-        <div class="p-5 space-y-4 overflow-y-auto">
-            <!-- رفع الصورة -->
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer bg-gray-50" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
-                <p class="text-xs text-gray-500 font-bold">اضغط لإضافة صورة (إجباري)</p>
-                <img id="previewImg" class="hidden w-full h-32 object-cover rounded-lg mt-2 mx-auto">
-                <div id="uploadLoader" class="hidden text-xs text-blue-500 mt-2 font-bold">جاري الرفع...</div>
+
+        <!-- Add Modal -->
+        <div id="addModal" class="fixed inset-0 z-50 bg-white hidden flex flex-col">
+            <div class="h-14 border-b flex items-center px-4 justify-between"><h3 class="font-bold">نشر خدمة</h3><button onclick="closeAdd()">✕</button></div>
+            <div class="p-4 space-y-4">
+                <div onclick="document.getElementById('fileIn').click()" class="border-2 border-dashed p-6 text-center rounded-xl text-gray-400">اضغط لرفع صورة</div>
+                <input type="file" id="fileIn" class="hidden" onchange="uploadImg()">
+                <input type="hidden" id="imgUrl">
+                <input id="pTit" placeholder="العنوان" class="w-full p-3 bg-gray-100 rounded-xl">
+                <input id="pPrc" type="number" placeholder="السعر" class="w-full p-3 bg-gray-100 rounded-xl">
+                <button onclick="pub()" class="w-full bg-black text-white py-3 rounded-xl font-bold">نشر</button>
             </div>
-            <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="uploadImage()">
-            <input type="hidden" id="pImgUrl">
-
-            <input id="pTitle" type="text" placeholder="عنوان الخدمة (مثال: حساب أدسنس 2023)" class="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm">
-            <textarea id="pDesc" rows="4" placeholder="وصف التفاصيل..." class="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm"></textarea>
-            <input id="pPrice" type="number" placeholder="السعر ($)" class="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm">
-            
-            <button onclick="publishListing()" id="pubBtn" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg opacity-50" disabled>نشر الخدمة</button>
         </div>
+
     </div>
 
     <script>
-        // CONFIG
-        const CLOUD_NAME = 'dvtuocsxs'; 
-        const UPLOAD_PRESET = 'DZmarket';
         let USER = null;
+        let CUR_CHAT = null;
 
-        // AUTH Logic
-        function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('regForm').classList.toggle('hidden'); }
-        
-        async function login() {
-            const email = document.getElementById('lEmail').value;
-            const password = document.getElementById('lPass').value;
-            try {
-                const res = await fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email, password }) });
-                const d = await res.json();
-                if(d.success) initApp(d.user); else alert(d.msg);
-            } catch(e) { alert('خطأ في الاتصال'); }
+        // --- AUTH ---
+        function showReg() { document.getElementById('loginBox').classList.add('hidden'); document.getElementById('regBox').classList.remove('hidden'); }
+        function showLogin() { document.getElementById('regBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); }
+
+        async function doLogin() {
+            const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:el('lEmail').value, password:el('lPass').value}) });
+            const d = await res.json();
+            if(d.success) init(d.user);
+            else if(d.needsVerification) { document.getElementById('loginBox').classList.add('hidden'); document.getElementById('otpBox').classList.remove('hidden'); document.getElementById('tempId').value = d.userId; }
+            else alert(d.msg);
         }
 
-        async function register() {
-            const name = document.getElementById('rName').value;
-            const email = document.getElementById('rEmail').value;
-            const password = document.getElementById('rPass').value;
-            try {
-                const res = await fetch('/api/auth/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, email, password }) });
-                const d = await res.json();
-                if(d.success) initApp(d.user); else alert('خطأ في التسجيل');
-            } catch(e) { alert('خطأ'); }
+        async function doRegister() {
+            const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:el('rName').value, email:el('rEmail').value, password:el('rPass').value}) });
+            const d = await res.json();
+            if(d.success) { document.getElementById('regBox').classList.add('hidden'); document.getElementById('otpBox').classList.remove('hidden'); document.getElementById('tempId').value = d.userId; }
+            else alert(d.msg);
         }
 
-        function initApp(user) {
-            USER = user;
-            localStorage.setItem('dz_user', JSON.stringify(user));
-            document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('appContainer').classList.remove('hidden');
-            document.getElementById('userName').innerText = user.name;
+        async function doVerify() {
+            const res = await fetch('/api/auth/verify', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId:el('tempId').value, code:el('otpCode').value}) });
+            const d = await res.json();
+            if(d.success) init(d.user); else alert(d.msg);
+        }
+
+        function init(user) {
+            USER = user; localStorage.setItem('dz_user', JSON.stringify(user));
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('myName').innerText = user.name;
+            document.getElementById('myBalance').innerText = user.balance;
+            document.getElementById('myAvatar').src = user.avatar || 'https://via.placeholder.com/100';
             loadMarket();
+            
+            // Check for redirect hash
+            if(window.location.hash.includes('chat=')) {
+                openChat(window.location.hash.split('=')[1], 'المحادثة');
+            }
+        }
+
+        // --- NAVIGATION ---
+        function nav(page) {
+            ['market','chat','account'].forEach(p => document.getElementById('page-'+p).classList.add('hidden'));
+            document.getElementById('page-'+page).classList.remove('hidden');
+            if(page === 'chat') loadChats();
+        }
+
+        // --- MARKET ---
+        async function loadMarket() {
+            const res = await fetch('/api/market'); const data = await res.json();
+            document.getElementById('marketGrid').innerHTML = data.map(i => `
+                <div class="product-card" onclick="window.location.href='/p/${i._id}'">
+                    <img src="${i.image || 'https://via.placeholder.com/200'}" class="product-img">
+                    <div class="p-2">
+                        <div class="font-bold text-sm truncate">${i.title}</div>
+                        <div class="text-red-600 font-black">${i.price} $</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- ADD LISTING ---
+        function openAdd() { document.getElementById('addModal').classList.remove('hidden'); }
+        function closeAdd() { document.getElementById('addModal').classList.add('hidden'); }
+        async function uploadImg() {
+            const fd = new FormData(); fd.append('file', el('fileIn').files[0]); fd.append('upload_preset', 'DZmarket');
+            const res = await fetch('https://api.cloudinary.com/v1_1/dvtuocsxs/image/upload', {method:'POST', body:fd});
+            const d = await res.json(); el('imgUrl').value = d.secure_url; alert('تم رفع الصورة');
+        }
+        async function pub() {
+            await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId:USER._id, title:el('pTit').value, price:el('pPrc').value, image:el('imgUrl').value }) });
+            closeAdd(); loadMarket();
+        }
+
+        // --- CHAT ---
+        async function loadChats() {
+            const res = await fetch('/api/chats/'+USER._id); const data = await res.json();
+            document.getElementById('chatList').innerHTML = data.map(c => `
+                <div class="bg-white p-4 rounded-xl border flex justify-between" onclick="openChat('${c._id}', '${c.listingTitle}')">
+                    <span class="font-bold">${c.listingTitle}</span>
+                    <span class="text-xs text-gray-400">فتح</span>
+                </div>
+            `).join('');
+        }
+
+        async function openChat(id, title) {
+            CUR_CHAT = id; document.getElementById('chatRoom').classList.remove('hidden'); document.getElementById('chatTitle').innerText = title;
+            loadMsgs();
+        }
+        function closeChat() { document.getElementById('chatRoom').classList.add('hidden'); CUR_CHAT = null; }
+
+        async function loadMsgs() {
+            if(!CUR_CHAT) return;
+            const res = await fetch('/api/chat/history/'+CUR_CHAT); const msgs = await res.json();
+            document.getElementById('msgs').innerHTML = msgs.map(m => {
+                if(m.type==='invoice') return `<div class="w-full flex justify-center"><div class="bg-white border p-3 rounded-xl text-center mb-2">فاتورة: ${m.meta.amount}$</div></div>`;
+                return `<div class="w-full flex ${m.senderId===USER._id?'justify-end':'justify-start'}"><div class="chat-bubble ${m.senderId===USER._id?'me':'other'}">${m.content}</div></div>`;
+            }).join('');
+        }
+
+        async function sendText() {
+            await fetch('/api/chat/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId:CUR_CHAT, senderId:USER._id, type:'text', content:el('msgInput').value}) });
+            el('msgInput').value = ''; loadMsgs();
+        }
+        
+        async function sendInvoice() {
+            const amt = prompt('المبلغ؟'); if(!amt) return;
+            await fetch('/api/chat/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chatId:CUR_CHAT, senderId:USER._id, type:'invoice', amount:amt}) }); loadMsgs();
         }
 
         function logout() { localStorage.removeItem('dz_user'); location.reload(); }
-
-        // IMAGE UPLOAD (Cloudinary)
-        async function uploadImage() {
-            const file = document.getElementById('fileInput').files[0];
-            if(!file) return;
-            
-            document.getElementById('uploadLoader').classList.remove('hidden');
-            const fd = new FormData();
-            fd.append('file', file);
-            fd.append('upload_preset', UPLOAD_PRESET);
-
-            try {
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-                const data = await res.json();
-                
-                if(data.secure_url) {
-                    document.getElementById('pImgUrl').value = data.secure_url;
-                    document.getElementById('previewImg').src = data.secure_url;
-                    document.getElementById('previewImg').classList.remove('hidden');
-                    // تفعيل زر النشر
-                    document.getElementById('pubBtn').disabled = false;
-                    document.getElementById('pubBtn').classList.remove('opacity-50');
-                }
-            } catch(e) { alert('فشل رفع الصورة'); }
-            document.getElementById('uploadLoader').classList.add('hidden');
-        }
-
-        // MARKET LOGIC
-        async function publishListing() {
-            const data = {
-                userId: USER._id,
-                title: document.getElementById('pTitle').value,
-                desc: document.getElementById('pDesc').value,
-                price: Number(document.getElementById('pPrice').value),
-                image: document.getElementById('pImgUrl').value
-            };
-            
-            if(!data.title || !data.price || !data.image) return alert('جميع الحقول والصورة مطلوبة');
-
-            await fetch('/api/listing/create', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            document.getElementById('addModal').classList.add('hidden');
-            loadMarket();
-        }
-
-        async function loadMarket() {
-            try {
-                const res = await fetch('/api/market');
-                const items = await res.json();
-                const grid = document.getElementById('marketGrid');
-                
-                if(items.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد خدمات بعد</div>';
-                    return;
-                }
-
-                grid.innerHTML = items.map(i => `
-                    <div class="product-card" onclick="window.location.href='/p/${i._id}'">
-                        <img src="${i.image || 'https://via.placeholder.com/300'}" class="product-img">
-                        <div class="p-2">
-                            <h3 class="text-xs font-bold truncate mb-1">${i.title}</h3>
-                            <div class="flex justify-between items-center">
-                                <span class="font-black text-[#fb2e2e]">${i.price} $</span>
-                                <span class="text-[9px] text-gray-400">${new Date(i.date).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch(e) { console.error(e); }
-        }
-
-        // Auto Login
-        window.onload = () => {
-            const u = localStorage.getItem('dz_user');
-            if(u) initApp(JSON.parse(u));
-        };
+        function el(id) { return document.getElementById(id); }
+        
+        // Auto Load
+        const u = localStorage.getItem('dz_user');
+        if(u) init(JSON.parse(u));
     </script>
 </body>
 </html>
-
