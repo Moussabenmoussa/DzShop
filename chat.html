@@ -273,6 +273,16 @@
         }
 
         function openInvoiceModal() { document.getElementById('invoiceModal').classList.remove('hidden'); }
+
+// هذا السطر يخبر المتصفح أن ينفذ دالة جلب الرسائل كل 2000 مللي ثانية (ثانيتين)
+setInterval(() => {
+    if(CURRENT_CHAT_ID) loadMessages();
+}, 2000);
+
+
+
+
+        
     </script>
 </body>
 </html>
