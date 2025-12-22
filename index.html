@@ -3,274 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket | لوحة التحكم</title>
+    <title>DzMarket | السوق</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --brand: #fb2e2e; --bg: #f5f5f5; --surface: #ffffff; --text: #333; }
+        :root { --brand: #fb2e2e; --bg: #f2f2f2; }
         * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
-        .card { background: var(--surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
-        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 13px; position: relative; word-wrap: break-word; }
-        .chat-me { background: var(--brand); color: white; border-bottom-left-radius: 4px; align-self: flex-end; }
-        .chat-other { background: #f0f0f0; color: #333; border-bottom-right-radius: 4px; align-self: flex-start; }
-        .online-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: 0; }
+        body { background-color: var(--bg); color: #333; padding-bottom: 70px; }
+        
+        /* تصميم البطاقة الاحترافي (Temu Style) */
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .product-card:active { transform: scale(0.98); }
+        .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
+        
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--brand); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="pb-16 md:pb-0">
+<body>
 
-    <!-- Auth Overlay -->
+    <!-- 1. AUTH SCREEN -->
     <div id="authOverlay" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-black text-[#fb2e2e] mb-2">DZ</h1>
-            <p class="text-gray-400 text-sm">سجل دخولك للبدء</p>
-        </div>
-        <div id="loginForm" class="w-full max-w-sm space-y-4">
+        <h1 class="text-4xl font-black text-[#fb2e2e] mb-2">DZ</h1>
+        <p class="text-gray-400 text-sm mb-8">سوق الخدمات الرقمية</p>
+        
+        <div id="loginForm" class="w-full max-w-sm space-y-3">
             <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
             <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
-            <button onclick="auth('login')" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">دخول</button>
-            <p class="text-center text-sm text-gray-400 mt-4 cursor-pointer" onclick="toggleAuthMode()">إنشاء حساب جديد</p>
+            <button onclick="login()" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">دخول</button>
+            <p class="text-center text-sm mt-4" onclick="toggleAuth()">ليس لديك حساب؟ <span class="text-red-500 font-bold">سجل الآن</span></p>
         </div>
-        <div id="regForm" class="w-full max-w-sm space-y-4 hidden">
+
+        <div id="regForm" class="w-full max-w-sm space-y-3 hidden">
             <input id="rName" type="text" placeholder="الاسم" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
             <input id="rEmail" type="email" placeholder="البريد" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
             <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-            <button onclick="auth('register')" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">تسجيل</button>
-            <p class="text-center text-sm text-gray-400 mt-4 cursor-pointer" onclick="toggleAuthMode()">لديك حساب؟ دخول</p>
-        </div>
-        <div id="otpForm" class="w-full max-w-sm space-y-4 hidden text-center">
-            <h3 class="font-bold text-lg">أدخل كود التفعيل</h3>
-            <input id="otpInput" type="number" class="w-full p-4 bg-gray-50 rounded-xl font-black text-center text-xl tracking-widest">
-            <button onclick="verifyOtp()" class="w-full bg-black text-white py-4 rounded-xl font-bold">تفعيل</button>
-            <input type="hidden" id="tempUserId">
+            <button onclick="register()" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">تسجيل</button>
+            <p class="text-center text-sm mt-4" onclick="toggleAuth()">لديك حساب؟ دخول</p>
         </div>
     </div>
 
-    <!-- App Container -->
-    <div id="appContainer" class="hidden min-h-screen">
-        <header class="fixed top-0 w-full bg-white z-40 border-b border-gray-100 h-16 flex items-center justify-between px-4 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-gray-100 rounded-full overflow-hidden relative">
-                    <img id="headerAvatar" src="" class="w-full h-full object-cover">
-                    <div class="online-dot"></div>
-                </div>
-                <div><h2 id="headerName" class="font-bold text-sm">...</h2><p class="text-[10px] text-gray-400 font-mono" id="headerBalance">0.00 $</p></div>
+    <!-- 2. MAIN APP -->
+    <div id="appContainer" class="hidden">
+        <!-- Header -->
+        <header class="fixed top-0 w-full bg-white z-40 border-b h-14 flex items-center justify-between px-4 shadow-sm">
+            <div class="font-black text-xl text-[#fb2e2e]">DZ</div>
+            <div class="flex items-center gap-2">
+                <span id="userName" class="text-xs font-bold">...</span>
+                <button onclick="logout()" class="text-gray-400"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            <button onclick="logout()" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button>
         </header>
 
-        <main class="pt-20 px-3 md:px-0 md:max-w-2xl md:mx-auto min-h-screen">
-            
-            <!-- MARKET -->
-            <div id="view-market">
-                <div class="bg-white p-2 rounded-full border flex items-center mb-4">
-                    <i class="fas fa-search text-gray-400 ml-3 mr-2"></i>
-                    <input type="text" placeholder="بحث..." class="flex-1 outline-none text-sm font-medium">
-                </div>
-                <div id="marketGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-20">
-                    <div class="loader mx-auto col-span-full"></div>
-                </div>
-                <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="fixed bottom-20 left-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-xl z-30">
-                    <i class="fas fa-plus text-lg"></i>
-                </button>
-            </div>
+        <!-- Market Grid -->
+        <main class="pt-16 px-2">
+            <!-- زر الإضافة -->
+            <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="w-full mb-4 bg-black text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
+                <i class="fas fa-plus-circle"></i> إضافة خدمة / حساب للبيع
+            </button>
 
-            <!-- CHAT -->
-            <div id="view-chat" class="hidden">
-                <div id="chatList" class="space-y-2 pb-20"></div>
-                
-                <!-- Active Chat Room -->
-                <div id="activeChatRoom" class="hidden fixed inset-0 bg-white z-50 flex flex-col">
-                    <div class="h-16 border-b flex items-center px-4 justify-between bg-white shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <button onclick="closeChat()" class="text-gray-500"><i class="fas fa-arrow-right"></i></button>
-                            <div><h3 id="chatName" class="font-bold text-sm">...</h3></div>
-                        </div>
-                        <button onclick="document.getElementById('invoiceModal').classList.remove('hidden')" class="bg-green-50 text-green-600 px-3 py-1.5 rounded-full text-xs font-bold border border-green-100"><i class="fas fa-file-invoice-dollar mr-1"></i> فاتورة</button>
-                    </div>
-                    <div id="messagesArea" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f0f2f5]"></div>
-                    <div class="p-3 bg-white border-t flex items-center gap-2">
-                        <input id="msgInput" type="text" placeholder="اكتب..." class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm outline-none">
-                        <button onclick="sendMsg('text')" class="w-10 h-10 bg-[#fb2e2e] text-white rounded-full flex items-center justify-center"><i class="fas fa-paper-plane text-xs"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ORDERS -->
-            <div id="view-orders" class="hidden">
-                <div class="flex border-b mb-4">
-                    <button onclick="loadOrders('buying')" id="tabBuy" class="flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500">مشترياتي</button>
-                    <button onclick="loadOrders('selling')" id="tabSell" class="flex-1 py-3 text-sm font-bold text-gray-400">مبيعاتي</button>
-                </div>
-                <div id="ordersList" class="space-y-3 pb-20"></div>
-            </div>
-
-            <!-- WALLET -->
-            <div id="view-wallet" class="hidden">
-                <div class="bg-gradient-to-r from-gray-900 to-black text-white p-6 rounded-2xl mb-6 shadow-xl">
-                    <p class="text-xs text-gray-400 mb-1">الرصيد</p>
-                    <h1 class="text-4xl font-black mb-4"><span id="walletBalance">0.00</span> $</h1>
-                </div>
+            <div id="marketGrid" class="grid grid-cols-2 gap-2 pb-20">
+                <div class="loader mx-auto col-span-full"></div>
             </div>
         </main>
 
-        <nav class="fixed bottom-0 w-full bg-white border-t border-gray-100 h-16 flex justify-around items-center z-30 md:hidden">
-            <button onclick="nav('market')" class="nav-btn active text-[#fb2e2e]" data-target="market"><i class="fas fa-home text-lg"></i></button>
-            <button onclick="nav('orders')" class="nav-btn text-gray-400" data-target="orders"><i class="fas fa-box text-lg"></i></button>
-            <button onclick="nav('chat')" class="nav-btn text-gray-400" data-target="chat"><i class="fas fa-comments text-lg"></i></button>
-            <button onclick="nav('wallet')" class="nav-btn text-gray-400" data-target="wallet"><i class="fas fa-user text-lg"></i></button>
+        <!-- Bottom Nav -->
+        <nav class="fixed bottom-0 w-full bg-white border-t h-16 flex justify-around items-center z-30">
+            <button class="flex flex-col items-center text-[#fb2e2e]"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">السوق</span></button>
+            <button class="flex flex-col items-center text-gray-400"><i class="fas fa-comments text-lg"></i><span class="text-[9px] font-bold">شات</span></button>
+            <button class="flex flex-col items-center text-gray-400"><i class="fas fa-user text-lg"></i><span class="text-[9px] font-bold">حسابي</span></button>
         </nav>
     </div>
 
-    <!-- Modals -->
-    <div id="invoiceModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xs p-5 rounded-2xl">
-            <h3 class="font-bold text-center mb-4">إنشاء فاتورة</h3>
-            <input id="invAmount" type="number" placeholder="المبلغ ($)" class="w-full p-3 bg-gray-50 rounded-xl font-bold mb-3 text-center">
-            <button onclick="sendMsg('invoice')" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">إرسال</button>
-            <button onclick="document.getElementById('invoiceModal').classList.add('hidden')" class="w-full mt-2 text-xs font-bold text-gray-400">إلغاء</button>
-        </div>
-    </div>
-
+    <!-- 3. ADD MODAL (With Image Upload) -->
     <div id="addModal" class="hidden fixed inset-0 z-[60] bg-white flex flex-col">
-        <div class="h-14 border-b flex px-4 justify-between items-center"><h3 class="font-bold">خدمة جديدة</h3><button onclick="document.getElementById('addModal').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
-        <div class="p-4 space-y-4 overflow-y-auto">
-            <input id="pTitle" placeholder="العنوان" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold">
-            <textarea id="pDesc" rows="3" placeholder="الوصف" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold"></textarea>
-            <input id="pPrice" type="number" placeholder="السعر ($)" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold">
-            <button onclick="createListing()" class="w-full bg-black text-white py-4 rounded-xl font-bold">نشر</button>
+        <div class="h-14 border-b flex px-4 justify-between items-center bg-gray-50">
+            <h3 class="font-bold">نشر خدمة جديدة</h3>
+            <button onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 bg-gray-200 rounded-full"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="p-5 space-y-4 overflow-y-auto">
+            <!-- رفع الصورة -->
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer bg-gray-50" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
+                <p class="text-xs text-gray-500 font-bold">اضغط لإضافة صورة (إجباري)</p>
+                <img id="previewImg" class="hidden w-full h-32 object-cover rounded-lg mt-2 mx-auto">
+                <div id="uploadLoader" class="hidden text-xs text-blue-500 mt-2 font-bold">جاري الرفع...</div>
+            </div>
+            <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="uploadImage()">
+            <input type="hidden" id="pImgUrl">
+
+            <input id="pTitle" type="text" placeholder="عنوان الخدمة (مثال: حساب أدسنس 2023)" class="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm">
+            <textarea id="pDesc" rows="4" placeholder="وصف التفاصيل..." class="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm"></textarea>
+            <input id="pPrice" type="number" placeholder="السعر ($)" class="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm">
+            
+            <button onclick="publishListing()" id="pubBtn" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg opacity-50" disabled>نشر الخدمة</button>
         </div>
     </div>
-
-    <div id="toast" class="fixed top-[-100px] left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full text-xs font-bold shadow-2xl transition-all duration-300 z-[100]"></div>
 
     <script>
-        let USER = null; let CURRENT_CHAT = null;
+        // CONFIG
+        const CLOUD_NAME = 'dvtuocsxs'; 
+        const UPLOAD_PRESET = 'DZmarket';
+        let USER = null;
 
-        // AUTH
-        async function auth(type) {
-            const endpoint = type === 'login' ? '/api/auth/login' : '/api/auth/register';
-            const data = type === 'login' ? { email: document.getElementById('lEmail').value, password: document.getElementById('lPass').value } : { name: document.getElementById('rName').value, email: document.getElementById('rEmail').value, password: document.getElementById('rPass').value };
-            const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            const d = await res.json();
-            if(d.success) { if(type==='register' || d.needsVerification) { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.add('hidden'); document.getElementById('otpForm').classList.remove('hidden'); document.getElementById('tempUserId').value = d.userId; } else loginSuccess(d.user); } else showToast(d.msg);
+        // AUTH Logic
+        function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('regForm').classList.toggle('hidden'); }
+        
+        async function login() {
+            const email = document.getElementById('lEmail').value;
+            const password = document.getElementById('lPass').value;
+            try {
+                const res = await fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email, password }) });
+                const d = await res.json();
+                if(d.success) initApp(d.user); else alert(d.msg);
+            } catch(e) { alert('خطأ في الاتصال'); }
         }
 
-        async function verifyOtp() {
-            const res = await fetch('/api/auth/verify', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId: document.getElementById('tempUserId').value, code: document.getElementById('otpInput').value }) });
-            const d = await res.json(); if(d.success) loginSuccess(d.user); else showToast(d.msg);
+        async function register() {
+            const name = document.getElementById('rName').value;
+            const email = document.getElementById('rEmail').value;
+            const password = document.getElementById('rPass').value;
+            try {
+                const res = await fetch('/api/auth/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name, email, password }) });
+                const d = await res.json();
+                if(d.success) initApp(d.user); else alert('خطأ في التسجيل');
+            } catch(e) { alert('خطأ'); }
         }
 
-        function loginSuccess(user) {
-            USER = user; localStorage.setItem('dz_user_v2', JSON.stringify(user));
-            document.getElementById('authOverlay').classList.add('hidden'); document.getElementById('appContainer').classList.remove('hidden');
-            updateUI(); loadMarket(); setInterval(heartbeat, 60000);
+        function initApp(user) {
+            USER = user;
+            localStorage.setItem('dz_user', JSON.stringify(user));
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('userName').innerText = user.name;
+            loadMarket();
+        }
+
+        function logout() { localStorage.removeItem('dz_user'); location.reload(); }
+
+        // IMAGE UPLOAD (Cloudinary)
+        async function uploadImage() {
+            const file = document.getElementById('fileInput').files[0];
+            if(!file) return;
             
-            // التحقق من وجود توجيه للشات
-            if(window.location.hash.includes('chat=')) {
-                const chatId = window.location.hash.split('=')[1];
-                openChat(chatId, 'المحادثة');
-            }
-        }
+            document.getElementById('uploadLoader').classList.remove('hidden');
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', UPLOAD_PRESET);
 
-        function updateUI() {
-            document.getElementById('headerName').innerText = USER.name;
-            document.getElementById('headerAvatar').src = USER.avatar || 'https://ui-avatars.com/api/?name=' + USER.name;
-            document.getElementById('headerBalance').innerText = (USER.balance||0).toFixed(2) + ' $';
-            document.getElementById('walletBalance').innerText = (USER.balance||0).toFixed(2);
-        }
-
-        async function heartbeat() { await fetch('/api/user/heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId:USER._id}) }); }
-
-        function nav(view) {
-            ['market', 'chat', 'orders', 'wallet'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-            document.getElementById(`view-${view}`).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active', 'text-[#fb2e2e]'); b.classList.add('text-gray-400'); if(b.dataset.target===view){ b.classList.add('active', 'text-[#fb2e2e]'); b.classList.remove('text-gray-400'); }});
-            if(view==='chat') loadChatList(); if(view==='orders') loadOrders('buying');
-        }
-
-        // MARKET
-        async function loadMarket() {
-            const res = await fetch('/api/market'); const items = await res.json();
-            document.getElementById('marketGrid').innerHTML = items.length ? items.map(i => `<div class="card p-3" onclick="window.location.href='/p/${i._id}'"><h3 class="font-bold text-sm truncate">${i.title}</h3><div class="flex justify-between mt-2"><span class="text-red-500 font-black">${i.price}$</span><span class="text-xs text-gray-400">${i.userName}</span></div></div>`).join('') : '<div class="col-span-full text-center py-10 text-gray-400">لا يوجد خدمات</div>';
-        }
-
-        async function createListing() {
-            await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId:USER._id, userName:USER.name, title:document.getElementById('pTitle').value, desc:document.getElementById('pDesc').value, price:Number(document.getElementById('pPrice').value) }) });
-            document.getElementById('addModal').classList.add('hidden'); showToast('تم النشر'); loadMarket();
-        }
-
-        // CHAT
-        async function loadChatList() {
-            const res = await fetch('/api/chats/' + USER._id); const chats = await res.json();
-            document.getElementById('chatList').innerHTML = chats.length ? chats.map(c => `<div class="card p-3 flex gap-3" onclick="openChat('${c._id}', '${c.listingTitle}')"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center font-bold">${c.listingTitle[0]}</div><div class="flex-1"><h3 class="font-bold text-sm">${c.listingTitle}</h3><p class="text-xs text-gray-400 truncate">${c.lastMessage}</p></div></div>`).join('') : '<div class="text-center py-10 text-gray-400">لا توجد محادثات</div>';
-        }
-
-        async function openChat(chatId, title) {
-            CURRENT_CHAT = chatId; document.getElementById('activeChatRoom').classList.remove('hidden'); document.getElementById('chatName').innerText = title; loadMessages();
-        }
-        function closeChat() { document.getElementById('activeChatRoom').classList.add('hidden'); CURRENT_CHAT = null; }
-
-        async function loadMessages() {
-            if(!CURRENT_CHAT) return;
-            const res = await fetch(`/api/chat/history/${CURRENT_CHAT}?userId=${USER._id}`); const msgs = await res.json();
-            document.getElementById('messagesArea').innerHTML = msgs.map(m => {
-                const isMe = m.senderId === USER._id;
-                if(m.type==='invoice') {
-                    return `<div class="flex w-full ${isMe?'justify-end':'justify-start'}"><div class="bg-white border p-3 rounded-xl w-48 text-center"><div class="font-bold mb-1">فاتورة ${m.meta.amount}$</div>${!isMe && m.meta.status==='pending' ? `<button onclick="payInvoice('${m._id}', ${m.meta.amount})" class="bg-green-500 text-white w-full py-1 rounded text-xs">دفع</button>` : `<span class="text-xs text-green-600 font-bold">${m.meta.status==='paid'?'مدفوع':'انتظار'}</span>`}</div></div>`;
+            try {
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if(data.secure_url) {
+                    document.getElementById('pImgUrl').value = data.secure_url;
+                    document.getElementById('previewImg').src = data.secure_url;
+                    document.getElementById('previewImg').classList.remove('hidden');
+                    // تفعيل زر النشر
+                    document.getElementById('pubBtn').disabled = false;
+                    document.getElementById('pubBtn').classList.remove('opacity-50');
                 }
-                return `<div class="flex w-full ${isMe?'justify-end':'justify-start'}"><div class="chat-bubble ${isMe?'chat-me':'chat-other'}">${m.content}</div></div>`;
-            }).join('');
+            } catch(e) { alert('فشل رفع الصورة'); }
+            document.getElementById('uploadLoader').classList.add('hidden');
         }
 
-        async function sendMsg(type) {
-            const content = type==='text' ? document.getElementById('msgInput').value : 'فاتورة';
-            const amount = type==='invoice' ? document.getElementById('invAmount').value : 0;
-            if(!content) return;
-            await fetch('/api/chat/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatId:CURRENT_CHAT, senderId:USER._id, type, content, amount }) });
-            if(type==='text') document.getElementById('msgInput').value=''; else document.getElementById('invoiceModal').classList.add('hidden');
-            loadMessages();
-        }
-
-        async function payInvoice(msgId, amount) {
-            if(!confirm(`دفع ${amount}$؟`)) return;
-            const res = await fetch('/api/order/pay-invoice', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ messageId:msgId, buyerId:USER._id }) });
-            const d = await res.json(); if(d.success) { showToast('تم الدفع'); loadMessages(); } else showToast(d.msg);
-        }
-
-        // ORDERS
-        async function loadOrders(tab) {
-            document.getElementById('tabBuy').className = tab==='buying'?'flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500':'flex-1 py-3 text-sm font-bold text-gray-400';
-            document.getElementById('tabSell').className = tab==='selling'?'flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500':'flex-1 py-3 text-sm font-bold text-gray-400';
+        // MARKET LOGIC
+        async function publishListing() {
+            const data = {
+                userId: USER._id,
+                title: document.getElementById('pTitle').value,
+                desc: document.getElementById('pDesc').value,
+                price: Number(document.getElementById('pPrice').value),
+                image: document.getElementById('pImgUrl').value
+            };
             
-            const res = await fetch(`/api/orders/${USER._id}`); const all = await res.json();
-            const orders = all.filter(o => tab==='buying' ? o.buyerId===USER._id : o.sellerId===USER._id);
-            
-            document.getElementById('ordersList').innerHTML = orders.length ? orders.map(o => {
-                let status = ''; let action = '';
-                if(o.status==='active') { status='<span class="text-blue-500 text-xs font-bold">جاري العمل</span>'; if(tab==='selling') action=`<button onclick="deliverOrder('${o._id}')" class="w-full mt-2 bg-blue-600 text-white py-2 rounded text-xs font-bold">تسليم</button>`; }
-                else if(o.status==='delivered') { status='<span class="text-purple-500 text-xs font-bold">تم التسليم</span>'; if(tab==='buying') action=`<button onclick="acceptOrder('${o._id}')" class="w-full mt-2 bg-green-500 text-white py-2 rounded text-xs font-bold">استلام وموافقة</button>`; else action='<p class="text-xs text-gray-400 mt-2">بانتظار الموافقة...</p>'; }
-                else if(o.status==='completed') { status='<span class="text-green-500 text-xs font-bold">مكتمل</span>'; }
-                return `<div class="card p-4"><div class="flex justify-between mb-2"><span class="font-bold text-sm">${o.listingTitle}</span><span class="font-black text-red-500">${o.amount}$</span></div><div class="flex justify-between">${status}<span class="text-[10px] text-gray-400">${new Date(o.createdAt).toLocaleDateString()}</span></div>${action}</div>`;
-            }).join('') : '<div class="text-center py-10 text-gray-400">لا توجد طلبات</div>';
+            if(!data.title || !data.price || !data.image) return alert('جميع الحقول والصورة مطلوبة');
+
+            await fetch('/api/listing/create', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            document.getElementById('addModal').classList.add('hidden');
+            loadMarket();
         }
 
-        async function deliverOrder(id) {
-            const content = prompt('أدخل تفاصيل التسليم (رابط، بيانات...):');
-            if(content) await fetch('/api/order/deliver', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ orderId:id, sellerId:USER._id, content }) }); loadOrders('selling');
-        }
-        async function acceptOrder(id) {
-            if(confirm('تأكيد الاستلام؟')) await fetch('/api/order/complete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ orderId:id, buyerId:USER._id }) }); loadOrders('buying');
+        async function loadMarket() {
+            try {
+                const res = await fetch('/api/market');
+                const items = await res.json();
+                const grid = document.getElementById('marketGrid');
+                
+                if(items.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد خدمات بعد</div>';
+                    return;
+                }
+
+                grid.innerHTML = items.map(i => `
+                    <div class="product-card" onclick="window.location.href='/p/${i._id}'">
+                        <img src="${i.image || 'https://via.placeholder.com/300'}" class="product-img">
+                        <div class="p-2">
+                            <h3 class="text-xs font-bold truncate mb-1">${i.title}</h3>
+                            <div class="flex justify-between items-center">
+                                <span class="font-black text-[#fb2e2e]">${i.price} $</span>
+                                <span class="text-[9px] text-gray-400">${new Date(i.date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error(e); }
         }
 
-        function toggleAuthMode() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('regForm').classList.toggle('hidden'); }
-        function logout() { localStorage.removeItem('dz_user_v2'); location.reload(); }
-        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.top = '20px'; setTimeout(()=>t.style.top='-100px', 3000); }
-        window.onload = () => { const u = localStorage.getItem('dz_user_v2'); if(u) loginSuccess(JSON.parse(u)); }
+        // Auto Login
+        window.onload = () => {
+            const u = localStorage.getItem('dz_user');
+            if(u) initApp(JSON.parse(u));
+        };
     </script>
 </body>
 </html>
