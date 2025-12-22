@@ -3,178 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket | المنصة الاجتماعية</title>
-    
-    <!-- مكتبات خفيفة وسريعة (CDN) -->
+    <title>DzMarket | لوحة التحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        :root {
-            --brand: #fb2e2e; /* أحمر تيمو */
-            --bg: #f5f5f5;
-            --surface: #ffffff;
-            --text: #333;
-        }
-        
-        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        :root { --brand: #fb2e2e; --bg: #f5f5f5; --surface: #ffffff; --text: #333; }
+        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
-        
-        /* تصميم البطاقات النظيف */
-        .card { background: var(--surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s; overflow: hidden; border: 1px solid transparent; }
-        .card:active { transform: scale(0.98); }
-        
-        /* الشات */
+        .card { background: var(--surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
         .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 13px; position: relative; word-wrap: break-word; }
         .chat-me { background: var(--brand); color: white; border-bottom-left-radius: 4px; align-self: flex-end; }
         .chat-other { background: #f0f0f0; color: #333; border-bottom-right-radius: 4px; align-self: flex-start; }
-        
-        /* الفاتورة داخل الشات */
-        .invoice-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 12px; width: 220px; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-        /* حالة الاتصال */
         .online-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: 0; }
-        
-        /* التحميل */
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--brand); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* إخفاء السكرول بار */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="pb-16 md:pb-0">
 
-    <!-- 1. شاشة التحميل والدخول -->
+    <!-- Auth Overlay -->
     <div id="authOverlay" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-black text-[#fb2e2e] tracking-tighter mb-2">DZ</h1>
-            <p class="text-gray-400 text-sm">سوق الخدمات والأصول الرقمية</p>
+            <h1 class="text-4xl font-black text-[#fb2e2e] mb-2">DZ</h1>
+            <p class="text-gray-400 text-sm">سجل دخولك للبدء</p>
         </div>
-
-        <!-- فورم تسجيل الدخول -->
         <div id="loginForm" class="w-full max-w-sm space-y-4">
-            <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none outline-none focus:ring-2 focus:ring-red-100">
-            <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none outline-none focus:ring-2 focus:ring-red-100">
-            <button onclick="auth('login')" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg shadow-red-200 active:scale-95 transition">دخول</button>
-            <p class="text-center text-sm text-gray-400 mt-4 cursor-pointer" onclick="toggleAuthMode()">ليس لديك حساب؟ <span class="text-red-500 font-bold">سجل الآن</span></p>
+            <input id="lEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
+            <input id="lPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
+            <button onclick="auth('login')" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">دخول</button>
+            <p class="text-center text-sm text-gray-400 mt-4 cursor-pointer" onclick="toggleAuthMode()">إنشاء حساب جديد</p>
         </div>
-
-        <!-- فورم التسجيل -->
         <div id="regForm" class="w-full max-w-sm space-y-4 hidden">
-            <input id="rName" type="text" placeholder="الاسم الكامل" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-            <input id="rEmail" type="email" placeholder="البريد الإلكتروني" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
+            <input id="rName" type="text" placeholder="الاسم" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
+            <input id="rEmail" type="email" placeholder="البريد" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
             <input id="rPass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-            <button onclick="auth('register')" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">إنشاء حساب</button>
-            <p class="text-center text-sm text-gray-400 mt-4 cursor-pointer" onclick="toggleAuthMode()">لديك حساب؟ <span class="text-red-500 font-bold">دخول</span></p>
+            <button onclick="auth('register')" class="w-full bg-[#fb2e2e] text-white py-4 rounded-xl font-black shadow-lg">تسجيل</button>
+            <p class="text-center text-sm text-gray-400 mt-4 cursor-pointer" onclick="toggleAuthMode()">لديك حساب؟ دخول</p>
         </div>
-
-        <!-- فورم التحقق OTP -->
         <div id="otpForm" class="w-full max-w-sm space-y-4 hidden text-center">
-            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500 text-2xl"><i class="fas fa-envelope-open-text"></i></div>
-            <h3 class="font-bold text-lg">تحقق من بريدك</h3>
-            <p class="text-xs text-gray-500 mb-4">أرسلنا كود تفعيل إلى بريدك الإلكتروني</p>
-            <input id="otpInput" type="number" placeholder="أدخل الكود (6 أرقام)" class="w-full p-4 bg-gray-50 rounded-xl font-black text-center text-xl tracking-widest">
-            <button onclick="verifyOtp()" class="w-full bg-black text-white py-4 rounded-xl font-bold">تفعيل الحساب</button>
+            <h3 class="font-bold text-lg">أدخل كود التفعيل</h3>
+            <input id="otpInput" type="number" class="w-full p-4 bg-gray-50 rounded-xl font-black text-center text-xl tracking-widest">
+            <button onclick="verifyOtp()" class="w-full bg-black text-white py-4 rounded-xl font-bold">تفعيل</button>
             <input type="hidden" id="tempUserId">
         </div>
     </div>
 
-    <!-- 2. واجهة التطبيق الرئيسية -->
+    <!-- App Container -->
     <div id="appContainer" class="hidden min-h-screen">
-        
-        <!-- Header -->
         <header class="fixed top-0 w-full bg-white z-40 border-b border-gray-100 h-16 flex items-center justify-between px-4 shadow-sm">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-gray-100 rounded-full overflow-hidden border border-gray-200 relative">
-                    <img id="headerAvatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover">
+                <div class="w-9 h-9 bg-gray-100 rounded-full overflow-hidden relative">
+                    <img id="headerAvatar" src="" class="w-full h-full object-cover">
                     <div class="online-dot"></div>
                 </div>
-                <div>
-                    <h2 id="headerName" class="font-bold text-sm leading-tight">...</h2>
-                    <p class="text-[10px] text-gray-400 font-mono" id="headerBalance">0.00 $</p>
-                </div>
+                <div><h2 id="headerName" class="font-bold text-sm">...</h2><p class="text-[10px] text-gray-400 font-mono" id="headerBalance">0.00 $</p></div>
             </div>
-            
-            <div class="flex items-center gap-3">
-                <button onclick="nav('wallet')" class="bg-red-50 text-red-500 px-3 py-1.5 rounded-full text-xs font-bold border border-red-100">
-                    <i class="fas fa-wallet mr-1"></i> إيداع
-                </button>
-                <button onclick="logout()" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
+            <button onclick="logout()" class="text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button>
         </header>
 
-        <!-- Main Content -->
         <main class="pt-20 px-3 md:px-0 md:max-w-2xl md:mx-auto min-h-screen">
             
-            <!-- VIEW: Market (السوق) -->
+            <!-- MARKET -->
             <div id="view-market">
-                <!-- شريط البحث -->
-                <div class="bg-white p-2 rounded-full border border-gray-200 flex items-center mb-4 shadow-sm">
+                <div class="bg-white p-2 rounded-full border flex items-center mb-4">
                     <i class="fas fa-search text-gray-400 ml-3 mr-2"></i>
-                    <input type="text" placeholder="ابحث عن خدمة، حساب، أو أداة..." class="flex-1 outline-none text-sm font-medium">
+                    <input type="text" placeholder="بحث..." class="flex-1 outline-none text-sm font-medium">
                 </div>
-
-                <!-- الفلاتر -->
-                <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4">
-                    <button class="bg-black text-white px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">الكل</button>
-                    <button class="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">أدسنس</button>
-                    <button class="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">خدمات ويب</button>
-                    <button class="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">قوالب</button>
-                </div>
-
-                <!-- الشبكة -->
                 <div id="marketGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-20">
-                    <!-- سيتم تعبئة الخدمات هنا -->
-                    <div class="text-center col-span-full py-10"><div class="loader mx-auto"></div></div>
+                    <div class="loader mx-auto col-span-full"></div>
                 </div>
-
-                <!-- زر عائم للإضافة -->
-                <button onclick="openAddModal()" class="fixed bottom-20 left-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-xl z-30 active:scale-90 transition">
+                <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="fixed bottom-20 left-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-xl z-30">
                     <i class="fas fa-plus text-lg"></i>
                 </button>
             </div>
 
-            <!-- VIEW: Chat (المحادثات) -->
-            <div id="view-chat" class="hidden h-[calc(100vh-80px)] flex flex-col">
-                <!-- قائمة المحادثات -->
-                <div id="chatList" class="space-y-2"></div>
+            <!-- CHAT -->
+            <div id="view-chat" class="hidden">
+                <div id="chatList" class="space-y-2 pb-20"></div>
                 
-                <!-- غرفة المحادثة النشطة -->
+                <!-- Active Chat Room -->
                 <div id="activeChatRoom" class="hidden fixed inset-0 bg-white z-50 flex flex-col">
-                    <!-- رأس المحادثة -->
                     <div class="h-16 border-b flex items-center px-4 justify-between bg-white shadow-sm">
                         <div class="flex items-center gap-3">
                             <button onclick="closeChat()" class="text-gray-500"><i class="fas fa-arrow-right"></i></button>
-                            <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden relative">
-                                <img id="chatAvatar" src="" class="w-full h-full object-cover">
-                                <div id="chatOnlineDot" class="online-dot hidden"></div>
-                            </div>
-                            <div>
-                                <h3 id="chatName" class="font-bold text-sm">...</h3>
-                                <p id="chatStatus" class="text-[10px] text-gray-400">جار الاتصال...</p>
-                            </div>
+                            <div><h3 id="chatName" class="font-bold text-sm">...</h3></div>
                         </div>
-                        <button onclick="openInvoiceModal()" class="bg-green-50 text-green-600 px-3 py-1.5 rounded-full text-xs font-bold border border-green-100 shadow-sm">
-                            <i class="fas fa-file-invoice-dollar mr-1"></i> فاتورة
-                        </button>
+                        <button onclick="document.getElementById('invoiceModal').classList.remove('hidden')" class="bg-green-50 text-green-600 px-3 py-1.5 rounded-full text-xs font-bold border border-green-100"><i class="fas fa-file-invoice-dollar mr-1"></i> فاتورة</button>
                     </div>
-
-                    <!-- منطقة الرسائل -->
                     <div id="messagesArea" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f0f2f5]"></div>
-
-                    <!-- الإدخال -->
                     <div class="p-3 bg-white border-t flex items-center gap-2">
-                        <button class="text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-paperclip"></i></button>
-                        <input id="msgInput" type="text" placeholder="اكتب رسالة..." class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-green-500">
-                        <button onclick="sendMsg('text')" class="w-10 h-10 bg-[#fb2e2e] text-white rounded-full flex items-center justify-center shadow-md"><i class="fas fa-paper-plane text-xs"></i></button>
+                        <input id="msgInput" type="text" placeholder="اكتب..." class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm outline-none">
+                        <button onclick="sendMsg('text')" class="w-10 h-10 bg-[#fb2e2e] text-white rounded-full flex items-center justify-center"><i class="fas fa-paper-plane text-xs"></i></button>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW: Orders (الطلبات) -->
+            <!-- ORDERS -->
             <div id="view-orders" class="hidden">
                 <div class="flex border-b mb-4">
                     <button onclick="loadOrders('buying')" id="tabBuy" class="flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500">مشترياتي</button>
@@ -183,367 +109,168 @@
                 <div id="ordersList" class="space-y-3 pb-20"></div>
             </div>
 
-            <!-- VIEW: Wallet (المحفظة) -->
+            <!-- WALLET -->
             <div id="view-wallet" class="hidden">
-                <div class="bg-gradient-to-r from-gray-900 to-black text-white p-6 rounded-2xl mb-6 shadow-xl relative overflow-hidden">
-                    <div class="relative z-10">
-                        <p class="text-xs text-gray-400 mb-1">الرصيد المتاح</p>
-                        <h1 class="text-4xl font-black mb-4"><span id="walletBalance">0.00</span> $</h1>
-                        <div class="flex gap-3">
-                            <button class="flex-1 bg-white/10 py-2 rounded-lg text-xs font-bold hover:bg-white/20">سحب الأرباح</button>
-                            <button class="flex-1 bg-[#fb2e2e] py-2 rounded-lg text-xs font-bold shadow-lg">إيداع رصيد</button>
-                        </div>
-                    </div>
-                    <i class="fas fa-coins absolute -bottom-4 -left-4 text-8xl text-white/5"></i>
+                <div class="bg-gradient-to-r from-gray-900 to-black text-white p-6 rounded-2xl mb-6 shadow-xl">
+                    <p class="text-xs text-gray-400 mb-1">الرصيد</p>
+                    <h1 class="text-4xl font-black mb-4"><span id="walletBalance">0.00</span> $</h1>
                 </div>
-                <h3 class="font-bold text-sm mb-3">سجل المعاملات</h3>
-                <div id="transList" class="space-y-2"></div>
             </div>
-
         </main>
 
-        <!-- Bottom Navigation -->
         <nav class="fixed bottom-0 w-full bg-white border-t border-gray-100 h-16 flex justify-around items-center z-30 md:hidden">
-            <button onclick="nav('market')" class="nav-btn active flex flex-col items-center gap-1 text-[#fb2e2e]" data-target="market">
-                <i class="fas fa-home text-lg"></i>
-                <span class="text-[9px] font-bold">السوق</span>
-            </button>
-            <button onclick="nav('orders')" class="nav-btn flex flex-col items-center gap-1 text-gray-400" data-target="orders">
-                <i class="fas fa-box text-lg"></i>
-                <span class="text-[9px] font-bold">طلباتي</span>
-            </button>
-            <button onclick="nav('chat')" class="nav-btn flex flex-col items-center gap-1 text-gray-400 relative" data-target="chat">
-                <i class="fas fa-comments text-lg"></i>
-                <span class="text-[9px] font-bold">شات</span>
-                <div id="navUnread" class="hidden w-2 h-2 bg-red-500 rounded-full absolute top-0 right-3"></div>
-            </button>
-            <button onclick="nav('wallet')" class="nav-btn flex flex-col items-center gap-1 text-gray-400" data-target="wallet">
-                <i class="fas fa-user text-lg"></i>
-                <span class="text-[9px] font-bold">حسابي</span>
-            </button>
+            <button onclick="nav('market')" class="nav-btn active text-[#fb2e2e]" data-target="market"><i class="fas fa-home text-lg"></i></button>
+            <button onclick="nav('orders')" class="nav-btn text-gray-400" data-target="orders"><i class="fas fa-box text-lg"></i></button>
+            <button onclick="nav('chat')" class="nav-btn text-gray-400" data-target="chat"><i class="fas fa-comments text-lg"></i></button>
+            <button onclick="nav('wallet')" class="nav-btn text-gray-400" data-target="wallet"><i class="fas fa-user text-lg"></i></button>
         </nav>
     </div>
 
-    <!-- MODALS -->
-    
-    <!-- إنشاء فاتورة -->
-    <div id="invoiceModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-xs p-5 rounded-2xl animate-bounce-in">
-            <h3 class="font-bold text-center mb-4">إنشاء فاتورة بيع 💰</h3>
-            <input id="invAmount" type="number" placeholder="المبلغ ($)" class="w-full p-3 bg-gray-50 rounded-xl font-bold mb-3 text-center text-lg">
-            <button onclick="sendMsg('invoice')" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">إرسال الفاتورة</button>
-            <button onclick="document.getElementById('invoiceModal').classList.add('hidden')" class="w-full mt-2 py-2 text-xs font-bold text-gray-400">إلغاء</button>
+    <!-- Modals -->
+    <div id="invoiceModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs p-5 rounded-2xl">
+            <h3 class="font-bold text-center mb-4">إنشاء فاتورة</h3>
+            <input id="invAmount" type="number" placeholder="المبلغ ($)" class="w-full p-3 bg-gray-50 rounded-xl font-bold mb-3 text-center">
+            <button onclick="sendMsg('invoice')" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">إرسال</button>
+            <button onclick="document.getElementById('invoiceModal').classList.add('hidden')" class="w-full mt-2 text-xs font-bold text-gray-400">إلغاء</button>
         </div>
     </div>
 
-    <!-- إضافة خدمة -->
     <div id="addModal" class="hidden fixed inset-0 z-[60] bg-white flex flex-col">
-        <div class="h-14 border-b flex items-center justify-between px-4">
-            <h3 class="font-bold">إضافة خدمة جديدة</h3>
-            <button onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 bg-gray-100 rounded-full"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="p-4 space-y-4 overflow-y-auto flex-1">
-            <input id="pTitle" type="text" placeholder="عنوان الخدمة (مثال: حساب أدسنس جاهز)" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-sm">
-            <textarea id="pDesc" rows="4" placeholder="وصف الخدمة..." class="w-full p-3 bg-gray-50 rounded-xl font-bold text-sm"></textarea>
-            <div class="flex gap-4">
-                <input id="pPrice" type="number" placeholder="السعر ($)" class="flex-1 p-3 bg-gray-50 rounded-xl font-bold text-sm">
-                <input id="pCategory" type="text" placeholder="القسم" class="flex-1 p-3 bg-gray-50 rounded-xl font-bold text-sm">
-            </div>
-            <input id="pImg" type="text" placeholder="رابط الصورة (اختياري)" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-sm">
-            <button onclick="createListing()" class="w-full bg-black text-white py-4 rounded-xl font-bold shadow-lg">نشر الآن</button>
+        <div class="h-14 border-b flex px-4 justify-between items-center"><h3 class="font-bold">خدمة جديدة</h3><button onclick="document.getElementById('addModal').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+        <div class="p-4 space-y-4 overflow-y-auto">
+            <input id="pTitle" placeholder="العنوان" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold">
+            <textarea id="pDesc" rows="3" placeholder="الوصف" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold"></textarea>
+            <input id="pPrice" type="number" placeholder="السعر ($)" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold">
+            <button onclick="createListing()" class="w-full bg-black text-white py-4 rounded-xl font-bold">نشر</button>
         </div>
     </div>
 
-    <!-- تسليم العمل -->
-    <div id="deliverModal" class="hidden fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm p-5 rounded-2xl">
-            <h3 class="font-bold mb-2">تسليم العمل 📤</h3>
-            <p class="text-xs text-gray-500 mb-3">سيتم إشعار المشتري بالمراجعة.</p>
-            <textarea id="devContent" rows="4" class="w-full p-3 bg-gray-50 rounded-xl text-sm mb-3" placeholder="بيانات الحساب، روابط، أو تفاصيل..."></textarea>
-            <input type="hidden" id="devOrderId">
-            <button onclick="submitDelivery()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">إرسال التسليم</button>
-            <button onclick="document.getElementById('deliverModal').classList.add('hidden')" class="w-full mt-2 text-xs font-bold text-gray-400">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- TOAST Notification -->
-    <div id="toast" class="fixed top-[-100px] left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full text-xs font-bold shadow-2xl transition-all duration-300 z-[100]">تم بنجاح</div>
+    <div id="toast" class="fixed top-[-100px] left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full text-xs font-bold shadow-2xl transition-all duration-300 z-[100]"></div>
 
     <script>
-        // ============ STATE ============
-        let USER = null;
-        let CURRENT_CHAT = null;
-        let CHECK_INTERVAL = null;
+        let USER = null; let CURRENT_CHAT = null;
 
-        // ============ AUTH ============
+        // AUTH
         async function auth(type) {
             const endpoint = type === 'login' ? '/api/auth/login' : '/api/auth/register';
-            const data = type === 'login' 
-                ? { email: getValue('lEmail'), password: getValue('lPass') }
-                : { name: getValue('rName'), email: getValue('rEmail'), password: getValue('rPass') };
-
-            try {
-                const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-                const d = await res.json();
-                
-                if (d.success) {
-                    if (type === 'register' || d.needsVerification) {
-                        document.getElementById('loginForm').classList.add('hidden');
-                        document.getElementById('regForm').classList.add('hidden');
-                        document.getElementById('otpForm').classList.remove('hidden');
-                        document.getElementById('tempUserId').value = d.userId;
-                    } else {
-                        loginSuccess(d.user);
-                    }
-                } else {
-                    showToast(d.msg);
-                }
-            } catch (e) { showToast('خطأ في الاتصال'); }
+            const data = type === 'login' ? { email: document.getElementById('lEmail').value, password: document.getElementById('lPass').value } : { name: document.getElementById('rName').value, email: document.getElementById('rEmail').value, password: document.getElementById('rPass').value };
+            const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            const d = await res.json();
+            if(d.success) { if(type==='register' || d.needsVerification) { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.add('hidden'); document.getElementById('otpForm').classList.remove('hidden'); document.getElementById('tempUserId').value = d.userId; } else loginSuccess(d.user); } else showToast(d.msg);
         }
 
         async function verifyOtp() {
-            const userId = document.getElementById('tempUserId').value;
-            const code = document.getElementById('otpInput').value;
-            const res = await fetch('/api/auth/verify', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId, code }) });
-            const d = await res.json();
-            if (d.success) loginSuccess(d.user); else showToast(d.msg);
+            const res = await fetch('/api/auth/verify', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId: document.getElementById('tempUserId').value, code: document.getElementById('otpInput').value }) });
+            const d = await res.json(); if(d.success) loginSuccess(d.user); else showToast(d.msg);
         }
 
         function loginSuccess(user) {
-            USER = user;
-            localStorage.setItem('dz_user_v2', JSON.stringify(user));
-            document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('appContainer').classList.remove('hidden');
-            updateHeader();
-            loadMarket();
-            startHeartbeat();
+            USER = user; localStorage.setItem('dz_user_v2', JSON.stringify(user));
+            document.getElementById('authOverlay').classList.add('hidden'); document.getElementById('appContainer').classList.remove('hidden');
+            updateUI(); loadMarket(); setInterval(heartbeat, 60000);
+            
+            // التحقق من وجود توجيه للشات
+            if(window.location.hash.includes('chat=')) {
+                const chatId = window.location.hash.split('=')[1];
+                openChat(chatId, 'المحادثة');
+            }
         }
 
-        function toggleAuthMode() {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('regForm').classList.toggle('hidden');
-        }
-
-        function updateHeader() {
+        function updateUI() {
             document.getElementById('headerName').innerText = USER.name;
             document.getElementById('headerAvatar').src = USER.avatar || 'https://ui-avatars.com/api/?name=' + USER.name;
-            document.getElementById('headerBalance').innerText = (USER.balance || 0).toFixed(2) + ' $';
-            document.getElementById('walletBalance').innerText = (USER.balance || 0).toFixed(2);
+            document.getElementById('headerBalance').innerText = (USER.balance||0).toFixed(2) + ' $';
+            document.getElementById('walletBalance').innerText = (USER.balance||0).toFixed(2);
         }
 
-        function logout() {
-            localStorage.removeItem('dz_user_v2');
-            location.reload();
-        }
+        async function heartbeat() { await fetch('/api/user/heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId:USER._id}) }); }
 
-        // ============ HEARTBEAT & INIT ============
-        function startHeartbeat() {
-            if (CHECK_INTERVAL) clearInterval(CHECK_INTERVAL);
-            CHECK_INTERVAL = setInterval(async () => {
-                await fetch('/api/user/heartbeat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId: USER._id }) });
-                // تحديث الرسائل إذا كان الشات مفتوحاً
-                if (CURRENT_CHAT) loadMessages(CURRENT_CHAT);
-            }, 3000); // كل 3 ثواني لتحديث الشات
-        }
-
-        window.onload = () => {
-            const stored = localStorage.getItem('dz_user_v2');
-            if (stored) loginSuccess(JSON.parse(stored));
-        };
-
-        // ============ NAVIGATION ============
         function nav(view) {
             ['market', 'chat', 'orders', 'wallet'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
             document.getElementById(`view-${view}`).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('active', 'text-[#fb2e2e]');
-                b.classList.add('text-gray-400');
-                if (b.dataset.target === view) {
-                    b.classList.add('active', 'text-[#fb2e2e]');
-                    b.classList.remove('text-gray-400');
-                }
-            });
-
-            if (view === 'market') loadMarket();
-            if (view === 'chat') loadChatList();
-            if (view === 'orders') loadOrders('buying');
-            if (view === 'wallet') loadWallet();
+            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active', 'text-[#fb2e2e]'); b.classList.add('text-gray-400'); if(b.dataset.target===view){ b.classList.add('active', 'text-[#fb2e2e]'); b.classList.remove('text-gray-400'); }});
+            if(view==='chat') loadChatList(); if(view==='orders') loadOrders('buying');
         }
 
-        // ============ MARKET LOGIC ============
+        // MARKET
         async function loadMarket() {
-            const res = await fetch('/api/market');
-            const items = await res.json();
-            const grid = document.getElementById('marketGrid');
-            
-            if (!items.length) { grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد خدمات حالياً</div>'; return; }
-
-            grid.innerHTML = items.map(i => `
-                <div class="card p-3 relative group">
-                    <div class="flex items-start justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <img src="${i.userAvatar || 'https://ui-avatars.com/api/?name='+i.userName}" class="w-6 h-6 rounded-full bg-gray-100">
-                            <span class="text-xs font-bold text-gray-700">${i.userName}</span>
-                        </div>
-                        <span class="text-xs text-gray-400">${new Date(i.date).toLocaleDateString()}</span>
-                    </div>
-                    <h3 class="font-bold text-sm mb-1 line-clamp-2">${i.title}</h3>
-                    <p class="text-xs text-gray-500 line-clamp-2 mb-3 h-8 overflow-hidden">${i.desc || ''}</p>
-                    <div class="flex items-center justify-between mt-auto">
-                        <span class="text-lg font-black text-[#fb2e2e]">${i.price} $</span>
-                        ${i.userId !== USER._id ? 
-                        `<button onclick="startChat('${i.userId}', '${i._id}')" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hover:bg-gray-800 transition">
-                            أنا مهتم 👋
-                        </button>` : '<span class="text-xs bg-gray-100 px-2 rounded">خدمتك</span>'}
-                    </div>
-                </div>
-            `).join('');
+            const res = await fetch('/api/market'); const items = await res.json();
+            document.getElementById('marketGrid').innerHTML = items.length ? items.map(i => `<div class="card p-3" onclick="window.location.href='/p/${i._id}'"><h3 class="font-bold text-sm truncate">${i.title}</h3><div class="flex justify-between mt-2"><span class="text-red-500 font-black">${i.price}$</span><span class="text-xs text-gray-400">${i.userName}</span></div></div>`).join('') : '<div class="col-span-full text-center py-10 text-gray-400">لا يوجد خدمات</div>';
         }
 
         async function createListing() {
-            const data = {
-                userId: USER._id, userName: USER.name, userAvatar: USER.avatar,
-                title: getValue('pTitle'), desc: getValue('pDesc'), 
-                price: Number(getValue('pPrice')), category: getValue('pCategory'), image: getValue('pImg')
-            };
-            await fetch('/api/listing/create', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            document.getElementById('addModal').classList.add('hidden');
-            showToast('تم النشر بنجاح');
-            loadMarket();
+            await fetch('/api/listing/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ userId:USER._id, userName:USER.name, title:document.getElementById('pTitle').value, desc:document.getElementById('pDesc').value, price:Number(document.getElementById('pPrice').value) }) });
+            document.getElementById('addModal').classList.add('hidden'); showToast('تم النشر'); loadMarket();
         }
 
-        // ============ CHAT LOGIC ============
-        async function startChat(sellerId, listingId) {
-            const res = await fetch('/api/chat/start', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ buyerId: USER._id, sellerId, listingId }) });
-            const d = await res.json();
-            if (d.success) {
-                CURRENT_CHAT = d.chatId;
-                nav('chat');
-                openChat(d.chatId, 'البائع', true); // تحسين: جلب الاسم الحقيقي
-            }
-        }
-
+        // CHAT
         async function loadChatList() {
-            // (في النسخة الكاملة نحتاج endpoint لجلب قائمة الشات، هنا سنعتمد على الفكرة)
-            // هذا الجزء يحتاج endpoint /api/chats/:userId في السيرفر (موجود في الكود السابق)
-            // سأفترض وجوده
-            /* 
-            const res = await fetch('/api/chats/' + USER._id); 
-            const chats = await res.json(); 
-            // Render chats...
-            */
-           // للتسهيل في هذا المثال، سنعتمد على التفاعل المباشر
-           document.getElementById('chatList').innerHTML = '<div class="text-center p-4 text-xs text-gray-400">ابدأ محادثة من السوق</div>';
+            const res = await fetch('/api/chats/' + USER._id); const chats = await res.json();
+            document.getElementById('chatList').innerHTML = chats.length ? chats.map(c => `<div class="card p-3 flex gap-3" onclick="openChat('${c._id}', '${c.listingTitle}')"><div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center font-bold">${c.listingTitle[0]}</div><div class="flex-1"><h3 class="font-bold text-sm">${c.listingTitle}</h3><p class="text-xs text-gray-400 truncate">${c.lastMessage}</p></div></div>`).join('') : '<div class="text-center py-10 text-gray-400">لا توجد محادثات</div>';
         }
 
-        async function openChat(chatId, name, online) {
-            CURRENT_CHAT = chatId;
-            document.getElementById('activeChatRoom').classList.remove('hidden');
-            document.getElementById('chatName').innerText = name;
-            document.getElementById('chatStatus').innerText = online ? 'متصل الآن' : 'غير متصل';
-            document.getElementById('chatOnlineDot').style.display = online ? 'block' : 'none';
-            loadMessages(chatId);
+        async function openChat(chatId, title) {
+            CURRENT_CHAT = chatId; document.getElementById('activeChatRoom').classList.remove('hidden'); document.getElementById('chatName').innerText = title; loadMessages();
         }
+        function closeChat() { document.getElementById('activeChatRoom').classList.add('hidden'); CURRENT_CHAT = null; }
 
-        function closeChat() {
-            document.getElementById('activeChatRoom').classList.add('hidden');
-            CURRENT_CHAT = null;
-        }
-
-        async function loadMessages(chatId) {
-            const res = await fetch(`/api/chat/history/${chatId}?userId=${USER._id}`);
-            const msgs = await res.json();
-            const area = document.getElementById('messagesArea');
-            area.innerHTML = msgs.map(m => {
+        async function loadMessages() {
+            if(!CURRENT_CHAT) return;
+            const res = await fetch(`/api/chat/history/${CURRENT_CHAT}?userId=${USER._id}`); const msgs = await res.json();
+            document.getElementById('messagesArea').innerHTML = msgs.map(m => {
                 const isMe = m.senderId === USER._id;
-                
-                // عرض الفاتورة
-                if (m.type === 'invoice') {
-                    const isPending = m.meta.status === 'pending';
-                    const actionBtn = (!isMe && isPending) 
-                        ? `<button onclick="payInvoice('${m._id}', ${m.meta.amount})" class="w-full mt-2 bg-green-500 text-white py-2 rounded-lg font-bold text-xs">دفع وحجز (${m.meta.amount}$)</button>`
-                        : `<div class="mt-2 text-center text-xs font-bold ${isPending ? 'text-gray-400' : 'text-green-600'}">${isPending ? 'في انتظار الدفع' : '✅ مدفوعة'}</div>`;
-                    
-                    return `
-                    <div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'}">
-                        <div class="invoice-card">
-                            <div class="flex items-center gap-2 border-b pb-2 mb-2">
-                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600"><i class="fas fa-file-invoice-dollar"></i></div>
-                                <div><div class="font-bold text-sm">فاتورة خدمة</div><div class="text-[10px] text-gray-500">منصة آمنة</div></div>
-                            </div>
-                            <div class="text-center text-2xl font-black mb-2">${m.meta.amount} $</div>
-                            ${actionBtn}
-                        </div>
-                    </div>`;
+                if(m.type==='invoice') {
+                    return `<div class="flex w-full ${isMe?'justify-end':'justify-start'}"><div class="bg-white border p-3 rounded-xl w-48 text-center"><div class="font-bold mb-1">فاتورة ${m.meta.amount}$</div>${!isMe && m.meta.status==='pending' ? `<button onclick="payInvoice('${m._id}', ${m.meta.amount})" class="bg-green-500 text-white w-full py-1 rounded text-xs">دفع</button>` : `<span class="text-xs text-green-600 font-bold">${m.meta.status==='paid'?'مدفوع':'انتظار'}</span>`}</div></div>`;
                 }
-                
-                // عرض النص العادي
-                return `
-                <div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'}">
-                    <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
-                        ${m.content}
-                        <span class="text-[9px] opacity-70 block text-right mt-1">${new Date(m.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                    </div>
-                </div>`;
+                return `<div class="flex w-full ${isMe?'justify-end':'justify-start'}"><div class="chat-bubble ${isMe?'chat-me':'chat-other'}">${m.content}</div></div>`;
             }).join('');
-            // Scroll to bottom only if new message (simple logic)
         }
 
         async function sendMsg(type) {
-            let content = '';
-            let amount = 0;
-            
-            if (type === 'text') {
-                content = document.getElementById('msgInput').value;
-                if (!content) return;
-                document.getElementById('msgInput').value = '';
-            } else if (type === 'invoice') {
-                amount = document.getElementById('invAmount').value;
-                content = 'فاتورة';
-                document.getElementById('invoiceModal').classList.add('hidden');
-            }
-
-            await fetch('/api/chat/send', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ chatId: CURRENT_CHAT, senderId: USER._id, type, content, amount })
-            });
-            loadMessages(CURRENT_CHAT);
+            const content = type==='text' ? document.getElementById('msgInput').value : 'فاتورة';
+            const amount = type==='invoice' ? document.getElementById('invAmount').value : 0;
+            if(!content) return;
+            await fetch('/api/chat/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ chatId:CURRENT_CHAT, senderId:USER._id, type, content, amount }) });
+            if(type==='text') document.getElementById('msgInput').value=''; else document.getElementById('invoiceModal').classList.add('hidden');
+            loadMessages();
         }
 
-        function openInvoiceModal() { document.getElementById('invoiceModal').classList.remove('hidden'); }
-
-        // ============ ORDER/ESCROW LOGIC ============
         async function payInvoice(msgId, amount) {
-            if (!confirm(`هل أنت متأكد من دفع ${amount}$؟ سيتم حجز المبلغ.`)) return;
-            const res = await fetch('/api/order/pay-invoice', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ messageId: msgId, buyerId: USER._id }) });
-            const d = await res.json();
-            if (d.success) { showToast('تم الدفع بنجاح'); updateHeader(); loadMessages(CURRENT_CHAT); } else showToast(d.msg);
+            if(!confirm(`دفع ${amount}$؟`)) return;
+            const res = await fetch('/api/order/pay-invoice', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ messageId:msgId, buyerId:USER._id }) });
+            const d = await res.json(); if(d.success) { showToast('تم الدفع'); loadMessages(); } else showToast(d.msg);
         }
 
-        async function loadOrders(tab) { // tab = 'buying' or 'selling'
-            document.getElementById('tabBuy').className = tab === 'buying' ? 'flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500' : 'flex-1 py-3 text-sm font-bold text-gray-400';
-            document.getElementById('tabSell').className = tab === 'selling' ? 'flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500' : 'flex-1 py-3 text-sm font-bold text-gray-400';
-
-            // (ملاحظة: نحتاج Endpoint لجلب الطلبات /api/orders/:userId - موجود في السيرفر)
-            /*
-            const res = await fetch(`/api/orders/${USER._id}`);
-            const allOrders = await res.json();
-            const orders = allOrders.filter(o => tab === 'buying' ? o.buyerId === USER._id : o.sellerId === USER._id);
-            // Render orders with logic (Deliver / Accept)...
-            */
-            document.getElementById('ordersList').innerHTML = '<div class="text-center py-10 text-xs text-gray-400">لا توجد طلبات</div>';
+        // ORDERS
+        async function loadOrders(tab) {
+            document.getElementById('tabBuy').className = tab==='buying'?'flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500':'flex-1 py-3 text-sm font-bold text-gray-400';
+            document.getElementById('tabSell').className = tab==='selling'?'flex-1 py-3 text-sm font-bold border-b-2 border-red-500 text-red-500':'flex-1 py-3 text-sm font-bold text-gray-400';
+            
+            const res = await fetch(`/api/orders/${USER._id}`); const all = await res.json();
+            const orders = all.filter(o => tab==='buying' ? o.buyerId===USER._id : o.sellerId===USER._id);
+            
+            document.getElementById('ordersList').innerHTML = orders.length ? orders.map(o => {
+                let status = ''; let action = '';
+                if(o.status==='active') { status='<span class="text-blue-500 text-xs font-bold">جاري العمل</span>'; if(tab==='selling') action=`<button onclick="deliverOrder('${o._id}')" class="w-full mt-2 bg-blue-600 text-white py-2 rounded text-xs font-bold">تسليم</button>`; }
+                else if(o.status==='delivered') { status='<span class="text-purple-500 text-xs font-bold">تم التسليم</span>'; if(tab==='buying') action=`<button onclick="acceptOrder('${o._id}')" class="w-full mt-2 bg-green-500 text-white py-2 rounded text-xs font-bold">استلام وموافقة</button>`; else action='<p class="text-xs text-gray-400 mt-2">بانتظار الموافقة...</p>'; }
+                else if(o.status==='completed') { status='<span class="text-green-500 text-xs font-bold">مكتمل</span>'; }
+                return `<div class="card p-4"><div class="flex justify-between mb-2"><span class="font-bold text-sm">${o.listingTitle}</span><span class="font-black text-red-500">${o.amount}$</span></div><div class="flex justify-between">${status}<span class="text-[10px] text-gray-400">${new Date(o.createdAt).toLocaleDateString()}</span></div>${action}</div>`;
+            }).join('') : '<div class="text-center py-10 text-gray-400">لا توجد طلبات</div>';
         }
 
-        // ============ UTILS ============
-        function getValue(id) { return document.getElementById(id).value; }
-        function openAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.top = '20px';
-            setTimeout(() => t.style.top = '-100px', 3000);
+        async function deliverOrder(id) {
+            const content = prompt('أدخل تفاصيل التسليم (رابط، بيانات...):');
+            if(content) await fetch('/api/order/deliver', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ orderId:id, sellerId:USER._id, content }) }); loadOrders('selling');
+        }
+        async function acceptOrder(id) {
+            if(confirm('تأكيد الاستلام؟')) await fetch('/api/order/complete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ orderId:id, buyerId:USER._id }) }); loadOrders('buying');
         }
 
+        function toggleAuthMode() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('regForm').classList.toggle('hidden'); }
+        function logout() { localStorage.removeItem('dz_user_v2'); location.reload(); }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.top = '20px'; setTimeout(()=>t.style.top='-100px', 3000); }
+        window.onload = () => { const u = localStorage.getItem('dz_user_v2'); if(u) loginSuccess(JSON.parse(u)); }
     </script>
 </body>
 </html>
