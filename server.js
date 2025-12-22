@@ -1,93 +1,166 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفاصيل الخدمة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>body { font-family: 'Cairo', sans-serif; background: #f5f5f5; }</style>
-</head>
-<body>
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
+const cors = require('cors');
+const app = express();
 
-    <div class="fixed top-0 w-full bg-white h-14 border-b flex items-center px-4 justify-between z-40">
-        <button onclick="history.back()"><i class="fas fa-arrow-right"></i></button>
-        <span class="font-bold">تفاصيل</span>
-        <button onclick="window.location.href='/'"><i class="fas fa-home"></i></button>
-    </div>
+const PORT = process.env.PORT || 3000;
 
-    <div class="pt-16 px-4 pb-20">
-        <img id="pImg" src="" class="w-full h-64 object-cover rounded-xl mb-4 bg-gray-200">
-        <h1 id="pTitle" class="text-xl font-black mb-2">...</h1>
-        <div class="text-2xl font-black text-red-600 mb-4"><span id="pPrice">0</span> $</div>
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+const mongoUri = process.env.MONGO_URI;
+if (mongoUri) mongoose.connect(mongoUri).then(() => console.log('✅ DB Connected'));
+
+// --- MODELS ---
+const UserSchema = new mongoose.Schema({
+    name: String,
+    email: { type: String, unique: true, lowercase: true },
+    password: String,
+    avatar: { type: String, default: '' },
+    isVerified: { type: Boolean, default: false }, // يجب التفعيل
+    otpCode: String,
+    balance: { type: Number, default: 0 },
+    lastSeen: { type: Date, default: Date.now }
+});
+const User = mongoose.model('User', UserSchema);
+
+const ListingSchema = new mongoose.Schema({
+    userId: String, userName: String, userAvatar: String,
+    title: String, desc: String, price: Number, image: String,
+    category: String, active: { type: Boolean, default: true },
+    date: { type: Date, default: Date.now }
+});
+const Listing = mongoose.model('Listing', ListingSchema);
+
+const ChatSchema = new mongoose.Schema({
+    participants: [String], listingId: String, listingTitle: String,
+    lastMessage: String, lastMessageDate: { type: Date, default: Date.now }
+});
+const Chat = mongoose.model('Chat', ChatSchema);
+
+const MessageSchema = new mongoose.Schema({
+    chatId: String, senderId: String, type: String, content: String,
+    meta: mongoose.Schema.Types.Mixed, date: { type: Date, default: Date.now }
+});
+const Message = mongoose.model('Message', MessageSchema);
+
+// --- EMAIL FUNCTION ---
+async function sendEmail(to, code) {
+    if (!process.env.BREVO_API_KEY) return;
+    await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            sender: { name: 'DzMarket', email: process.env.SENDER_EMAIL || 'verify@dzshop.com' },
+            to: [{ email: to }],
+            subject: 'كود تفعيل حسابك',
+            htmlContent: `<h1>كود التفعيل: ${code}</h1>`
+        })
+    });
+}
+
+// --- AUTH ROUTES ---
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        const exists = await User.findOne({ email });
+        if (exists) return res.json({ success: false, msg: 'البريد مستخدم' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const user = await User.create({ name, email, password, otpCode: otp, isVerified: false });
         
-        <div class="bg-white p-4 rounded-xl border mb-4 flex items-center gap-3">
-            <img id="sAvatar" src="" class="w-12 h-12 rounded-full bg-gray-200">
-            <div>
-                <div class="font-bold text-sm" id="sName">...</div>
-                <div class="text-xs text-gray-500">بائع</div>
-            </div>
-        </div>
+        // إرسال الكود
+        await sendEmail(email, otp);
+        
+        res.json({ success: true, userId: user._id, needsVerification: true });
+    } catch (e) { res.json({ success: false, msg: 'خطأ' }); }
+});
 
-        <div class="bg-white p-4 rounded-xl border">
-            <h3 class="font-bold mb-2">الوصف</h3>
-            <p id="pDesc" class="text-gray-600 text-sm whitespace-pre-line">...</p>
-        </div>
-    </div>
+app.post('/api/auth/verify', async (req, res) => {
+    const { userId, code } = req.body;
+    const user = await User.findById(userId);
+    if (user && user.otpCode === code) {
+        user.isVerified = true;
+        user.otpCode = null;
+        await user.save();
+        res.json({ success: true, user });
+    } else {
+        res.json({ success: false, msg: 'كود خاطئ' });
+    }
+});
 
-    <div class="fixed bottom-0 w-full bg-white p-3 border-t flex gap-3">
-        <button onclick="startChat()" class="flex-1 bg-black text-white py-3 rounded-xl font-bold shadow-lg">
-            <i class="fas fa-comments mr-2"></i> تواصل للتفاوض
-        </button>
-    </div>
+app.post('/api/auth/login', async (req, res) => {
+    const user = await User.findOne({ email: req.body.email, password: req.body.password });
+    if (!user) return res.json({ success: false, msg: 'بيانات خاطئة' });
+    if (!user.isVerified) return res.json({ success: false, msg: 'غير مفعل', needsVerification: true, userId: user._id });
+    res.json({ success: true, user });
+});
 
-    <script>
-        const id = window.location.pathname.split('/').pop();
-        let sellerId = null;
+app.post('/api/user/heartbeat', async (req, res) => {
+    await User.findByIdAndUpdate(req.body.userId, { lastSeen: new Date() });
+    res.json({ success: true });
+});
 
-        window.onload = async () => {
-            const res = await fetch(`/api/public/product/${id}`);
-            const d = await res.json();
-            
-            if (d._id) {
-                document.getElementById('pTitle').innerText = d.title;
-                document.getElementById('pPrice').innerText = d.price;
-                document.getElementById('pDesc').innerText = d.desc || 'لا يوجد وصف';
-                document.getElementById('pImg').src = d.image || 'https://via.placeholder.com/300';
-                
-                if (d.seller) {
-                    sellerId = d.seller._id;
-                    document.getElementById('sName').innerText = d.seller.name;
-                    document.getElementById('sAvatar').src = d.seller.avatar || 'https://via.placeholder.com/50';
-                }
-            }
-        };
+// --- MARKET ROUTES ---
+app.post('/api/listing/create', async (req, res) => {
+    const { userId, ...data } = req.body;
+    const user = await User.findById(userId);
+    await Listing.create({ userId, userName: user.name, userAvatar: user.avatar, ...data });
+    res.json({ success: true });
+});
 
-        async function startChat() {
-            const userStr = localStorage.getItem('dz_user');
-            if (!userStr) {
-                alert('يجب عليك تسجيل الدخول أولاً');
-                window.location.href = '/';
-                return;
-            }
-            const user = JSON.parse(userStr);
-            
-            if (user._id === sellerId) return alert('لا يمكنك التفاوض مع نفسك');
+app.get('/api/market', async (req, res) => {
+    const list = await Listing.find({ active: true }).sort({ date: -1 });
+    res.json(list);
+});
 
-            try {
-                const res = await fetch('/api/chat/start', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buyerId: user._id, sellerId, listingId: id })
-                });
-                const d = await res.json();
-                if (d.success) {
-                    // توجيه إلى الداشبورد مع كود الشات
-                    window.location.href = '/#chat=' + d.chatId;
-                }
-            } catch(e) { alert('خطأ'); }
-        }
-    </script>
-</body>
-</html>
+app.get('/api/public/product/:id', async (req, res) => {
+    try {
+        const p = await Listing.findById(req.params.id);
+        if(!p) return res.json({});
+        const seller = await User.findById(p.userId);
+        res.json({ ...p.toObject(), seller });
+    } catch(e) { res.json({}); }
+});
+
+// --- CHAT ROUTES ---
+app.post('/api/chat/start', async (req, res) => {
+    const { buyerId, sellerId, listingId } = req.body;
+    let chat = await Chat.findOne({ participants: { $all: [buyerId, sellerId] }, listingId });
+    if (!chat) {
+        const listing = await Listing.findById(listingId);
+        chat = await Chat.create({ participants: [buyerId, sellerId], listingId, listingTitle: listing.title, lastMessage: 'بداية التفاوض' });
+    }
+    res.json({ success: true, chatId: chat._id });
+});
+
+app.get('/api/chats/:userId', async (req, res) => {
+    const chats = await Chat.find({ participants: req.params.userId }).sort({ lastMessageDate: -1 });
+    res.json(chats);
+});
+
+app.get('/api/chat/history/:chatId', async (req, res) => {
+    const msgs = await Message.find({ chatId: req.params.chatId }).sort({ date: 1 });
+    res.json(msgs);
+});
+
+app.post('/api/chat/send', async (req, res) => {
+    const { chatId, senderId, type, content, amount } = req.body;
+    const meta = type === 'invoice' ? { amount, status: 'pending' } : null;
+    await Message.create({ chatId, senderId, type, content, meta });
+    await Chat.findByIdAndUpdate(chatId, { lastMessage: type === 'invoice' ? 'فاتورة' : content, lastMessageDate: new Date() });
+    res.json({ success: true });
+});
+
+// --- FILES ---
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html')));
+app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html')));
+
+// 👇👇 أضف هذا السطر لكي تعمل لوحة الأدمن 👇👇
+app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
+
+app.listen(PORT, () => console.log(`🚀 Server OK`));
