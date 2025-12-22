@@ -3,209 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DzMarket - سوق الخدمات الرقمية</title>
+    <title>DzMarket - السوق</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
-        .input-field { font-size: 16px !important; }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #f5f5f5; padding-bottom: 80px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card:active { transform: scale(0.98); }
+        .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
+        .nav-item.active { color: #7c3aed; }
+        .nav-item.active i { transform: scale(1.1); }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
+<body>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed top-4 right-4 left-4 md:left-auto md:w-80 z-50 p-4 rounded-xl shadow-lg animate-fade-in"></div>
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed top-4 right-4 left-4 md:left-auto md:w-80 z-50 p-4 rounded-xl shadow-lg"></div>
 
-    <!-- Main Container -->
-    <div class="w-full max-w-md animate-fade-in">
-
-        <!-- Logo -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-xl mb-4">
-                <span class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">DZ</span>
+    <!-- Header -->
+    <div class="fixed top-0 w-full bg-white/95 backdrop-blur-md h-14 border-b flex items-center justify-between px-4 z-40 shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="font-black text-xl bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">DzMarket</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                <i class="fas fa-wallet"></i>
+                <span id="headerBal">0.00</span> $
             </div>
-            <h1 class="text-3xl font-black text-white">DzMarket</h1>
-            <p class="text-white/80 text-sm mt-2">سوق الخدمات والأصول الرقمية</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="pt-16 px-3">
+        
+        <!-- Welcome Banner -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-4 mb-4 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/80 text-sm">مرحباً بك 👋</p>
+                    <h2 class="font-bold text-lg" id="welcomeName">...</h2>
+                </div>
+                <button onclick="window.location.href='/add'" class="bg-white text-purple-600 px-4 py-2 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i>
+                    <span>أضف خدمة</span>
+                </button>
+            </div>
         </div>
 
-        <!-- Auth Card -->
-        <div class="glass rounded-3xl shadow-2xl overflow-hidden">
-
-            <!-- Tabs -->
-            <div class="flex border-b border-gray-100">
-                <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-4 font-bold text-purple-600 border-b-2 border-purple-600 transition">تسجيل الدخول</button>
-                <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent transition">حساب جديد</button>
-            </div>
-
-            <!-- Login Form -->
-            <div id="form-login" class="p-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-2">البريد الإلكتروني</label>
-                        <input type="email" id="login-email" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="example@email.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-2">كلمة المرور</label>
-                        <div class="relative">
-                            <input type="password" id="login-password" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="••••••••">
-                            <button type="button" onclick="togglePassword('login-password')" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </div>
-                    <button onclick="login()" id="btn-login" class="w-full btn-primary text-white py-4 rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2">
-                        <span>دخول</span>
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Register Form -->
-            <div id="form-register" class="p-6 hidden">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-2">الاسم الكامل</label>
-                        <input type="text" id="reg-name" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="أحمد محمد">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-2">البريد الإلكتروني</label>
-                        <input type="email" id="reg-email" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="example@email.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-2">كلمة المرور</label>
-                        <div class="relative">
-                            <input type="password" id="reg-password" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="6 أحرف على الأقل">
-                            <button type="button" onclick="togglePassword('reg-password')" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </div>
-                    <button onclick="register()" id="btn-register" class="w-full btn-primary text-white py-4 rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2">
-                        <span>إنشاء حساب</span>
-                        <i class="fas fa-user-plus"></i>
-                    </button>
-                </div>
-            </div>
-
+        <!-- Categories -->
+        <div class="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+            <button onclick="filterCategory('all')" class="cat-btn active flex-shrink-0 bg-black text-white px-4 py-2 rounded-full text-xs font-bold">الكل</button>
+            <button onclick="filterCategory('accounts')" class="cat-btn flex-shrink-0 bg-white text-gray-600 px-4 py-2 rounded-full text-xs font-bold border">حسابات</button>
+            <button onclick="filterCategory('services')" class="cat-btn flex-shrink-0 bg-white text-gray-600 px-4 py-2 rounded-full text-xs font-bold border">خدمات</button>
+            <button onclick="filterCategory('designs')" class="cat-btn flex-shrink-0 bg-white text-gray-600 px-4 py-2 rounded-full text-xs font-bold border">تصميم</button>
+            <button onclick="filterCategory('programming')" class="cat-btn flex-shrink-0 bg-white text-gray-600 px-4 py-2 rounded-full text-xs font-bold border">برمجة</button>
         </div>
 
-        <!-- Footer -->
-        <p class="text-center text-white/60 text-xs mt-6">
-            نظام Escrow آمن للبيع والشراء 🔒
-        </p>
+        <!-- Products Grid -->
+        <div id="marketGrid" class="grid grid-cols-2 gap-3">
+            <!-- Skeleton Loading -->
+            <div class="product-card"><div class="skeleton product-img"></div><div class="p-3"><div class="skeleton h-4 w-3/4 rounded mb-2"></div><div class="skeleton h-5 w-1/2 rounded"></div></div></div>
+            <div class="product-card"><div class="skeleton product-img"></div><div class="p-3"><div class="skeleton h-4 w-3/4 rounded mb-2"></div><div class="skeleton h-5 w-1/2 rounded"></div></div></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-store text-3xl text-gray-300"></i>
+            </div>
+            <h3 class="font-bold text-gray-600 mb-2">لا توجد منتجات</h3>
+            <p class="text-gray-400 text-sm mb-4">كن أول من يضيف خدمة في السوق!</p>
+            <button onclick="window.location.href='/add'" class="bg-purple-600 text-white px-6 py-2 rounded-xl font-bold">أضف خدمتك الأولى</button>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="fixed bottom-0 w-full bg-white h-16 border-t flex justify-around items-center z-40 shadow-lg">
+        <button class="nav-item active flex flex-col items-center py-2 px-4">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">السوق</span>
+        </button>
+        <button onclick="window.location.href='/chat'" class="nav-item flex flex-col items-center py-2 px-4 text-gray-400 relative">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">الرسائل</span>
+            <span id="msgBadge" class="hidden absolute -top-1 right-2 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+        <button onclick="window.location.href='/profile/me'" class="nav-item flex flex-col items-center py-2 px-4 text-gray-400">
+            <i class="fas fa-user text-xl mb-1"></i>
+            <span class="text-[10px] font-bold">حسابي</span>
+        </button>
     </div>
 
     <script>
-        // Check if already logged in
+        let USER = null;
+        let allListings = [];
+
         window.onload = () => {
-            const user = localStorage.getItem('dz_user');
-            if (user) window.location.href = '/dashboard';
+            const u = localStorage.getItem('dz_user');
+            if (!u) return window.location.href = '/';
+            
+            USER = JSON.parse(u);
+            document.getElementById('headerBal').innerText = (USER.balance || 0).toFixed(2);
+            document.getElementById('welcomeName').innerText = USER.name;
+            
+            loadMarket();
+            startHeartbeat();
         };
-
-        function switchTab(tab) {
-            document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
-            document.getElementById('form-register').classList.toggle('hidden', tab !== 'register');
-            document.getElementById('tab-login').classList.toggle('text-purple-600', tab === 'login');
-            document.getElementById('tab-login').classList.toggle('border-purple-600', tab === 'login');
-            document.getElementById('tab-login').classList.toggle('text-gray-400', tab !== 'login');
-            document.getElementById('tab-login').classList.toggle('border-transparent', tab !== 'login');
-            document.getElementById('tab-register').classList.toggle('text-purple-600', tab === 'register');
-            document.getElementById('tab-register').classList.toggle('border-purple-600', tab === 'register');
-            document.getElementById('tab-register').classList.toggle('text-gray-400', tab !== 'register');
-            document.getElementById('tab-register').classList.toggle('border-transparent', tab !== 'register');
-        }
-
-        function togglePassword(id) {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
 
         function showToast(message, type = 'error') {
             const toast = document.getElementById('toast');
-            toast.className = `fixed top-4 right-4 left-4 md:left-auto md:w-80 z-50 p-4 rounded-xl shadow-lg animate-fade-in ${type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`;
-            toast.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${message}</span></div>`;
+            toast.className = `fixed top-4 right-4 left-4 md:left-auto md:w-80 z-50 p-4 rounded-xl shadow-lg ${type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} mr-2"></i>${message}`;
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
-        function setLoading(btnId, loading) {
-            const btn = document.getElementById(btnId);
-            if (loading) {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+        async function loadMarket() {
+            try {
+                const res = await fetch('/api/market');
+                allListings = await res.json();
+                renderListings(allListings);
+            } catch (e) {
+                showToast('خطأ في تحميل السوق');
+            }
+        }
+
+        function renderListings(listings) {
+            const grid = document.getElementById('marketGrid');
+            const empty = document.getElementById('emptyState');
+
+            if (!listings.length) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = listings.map(i => `
+                <div class="product-card cursor-pointer" onclick="window.location.href='/p/${i._id}'">
+                    <div class="relative">
+                        <img src="${i.image || 'https://via.placeholder.com/300/f3f4f6/9ca3af?text=لا+صورة'}" class="product-img" onerror="this.src='https://via.placeholder.com/300/f3f4f6/9ca3af?text=لا+صورة'">
+                        ${i.category ? `<span class="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded-full">${getCategoryLabel(i.category)}</span>` : ''}
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm text-gray-800 line-clamp-2 mb-2 leading-tight">${i.title}</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-black text-purple-600">${i.price} $</span>
+                            <div class="flex items-center gap-1 text-gray-400 text-xs">
+                                <img src="${i.userAvatar || 'https://ui-avatars.com/api/?name=' + i.userName + '&background=random&size=20'}" class="w-5 h-5 rounded-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryLabel(cat) {
+            const labels = { accounts: 'حسابات', services: 'خدمات', designs: 'تصميم', programming: 'برمجة' };
+            return labels[cat] || cat;
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-black', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-600', 'border');
+            });
+            event.target.classList.remove('bg-white', 'text-gray-600', 'border');
+            event.target.classList.add('bg-black', 'text-white');
+
+            if (cat === 'all') {
+                renderListings(allListings);
             } else {
-                btn.disabled = false;
-                if (btnId === 'btn-login') btn.innerHTML = '<span>دخول</span><i class="fas fa-arrow-left"></i>';
-                else btn.innerHTML = '<span>إنشاء حساب</span><i class="fas fa-user-plus"></i>';
+                renderListings(allListings.filter(l => l.category === cat));
             }
         }
 
-        async function login() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-
-            if (!email || !password) return showToast('يرجى ملء جميع الحقول');
-
-            setLoading('btn-login', true);
-            try {
-                const res = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    localStorage.setItem('dz_user', JSON.stringify(data.user));
-                    showToast('تم تسجيل الدخول بنجاح!', 'success');
-                    setTimeout(() => window.location.href = '/dashboard', 500);
-                } else {
-                    showToast(data.msg || 'بيانات خاطئة');
-                }
-            } catch (e) {
-                showToast('خطأ في الاتصال بالسيرفر');
-            }
-            setLoading('btn-login', false);
+        function startHeartbeat() {
+            setInterval(() => {
+                if (USER) fetch('/api/user/heartbeat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: USER._id }) });
+            }, 60000);
         }
-
-        async function register() {
-            const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-password').value;
-
-            if (!name || !email || !password) return showToast('يرجى ملء جميع الحقول');
-            if (password.length < 6) return showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-
-            setLoading('btn-register', true);
-            try {
-                const res = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    localStorage.setItem('dz_user', JSON.stringify(data.user));
-                    showToast('تم إنشاء الحساب بنجاح!', 'success');
-                    setTimeout(() => window.location.href = '/dashboard', 500);
-                } else {
-                    showToast(data.msg || 'حدث خطأ');
-                }
-            } catch (e) {
-                showToast('خطأ في الاتصال بالسيرفر');
-            }
-            setLoading('btn-register', false);
-        }
-
-        // Enter key support
-        document.getElementById('login-password').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
-        document.getElementById('reg-password').addEventListener('keypress', e => { if (e.key === 'Enter') register(); });
     </script>
 </body>
 </html>
-
 
