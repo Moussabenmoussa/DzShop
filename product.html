@@ -73,20 +73,24 @@
             }
             const user = JSON.parse(userStr);
             
+            // منع البائع من محادثة نفسه
             if (user._id === sellerId) return alert('لا يمكنك التفاوض مع نفسك');
 
             try {
+                // إنشاء المحادثة في السيرفر
                 const res = await fetch('/api/chat/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ buyerId: user._id, sellerId, listingId: id })
                 });
                 const d = await res.json();
+                
                 if (d.success) {
-                    // توجيه إلى الداشبورد مع كود الشات
-                    window.location.href = '/#chat=' + d.chatId;
+                    // === التصحيح هنا ===
+                    // توجيه المستخدم لصفحة الشات الجديدة مع تمرير رقم المحادثة
+                    window.location.href = '/chat?id=' + d.chatId;
                 }
-            } catch(e) { alert('خطأ'); }
+            } catch(e) { alert('حدث خطأ في الاتصال'); }
         }
     </script>
 </body>
