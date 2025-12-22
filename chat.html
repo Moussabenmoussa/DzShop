@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الرسائل | DzMarket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #fff; height: 100vh; overflow: hidden; }
+        
+        /* Chat Styles */
+        .chat-item { transition: background 0.2s; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        .chat-item:hover { background-color: #f9fafb; }
+        .active-chat { background-color: #f0fdf4; border-right: 3px solid #22c55e; }
+        
+        .bubble { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 14px; position: relative; word-wrap: break-word; line-height: 1.4; }
+        .me { background: #0084ff; color: white; border-bottom-left-radius: 4px; margin-left: auto; }
+        .other { background: #f0f2f5; color: black; border-bottom-right-radius: 4px; margin-right: auto; }
+        
+        /* Invoice Card inside Chat */
+        .invoice-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; width: 240px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        
+        .online-dot { width: 12px; height: 12px; background: #31a24c; border: 2px solid white; border-radius: 50%; position: absolute; bottom: 0; right: 0; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row">
+
+    <!-- 1. قائمة المحادثات (Inbox) -->
+    <div id="inboxView" class="w-full md:w-1/3 md:border-l h-full flex flex-col bg-white z-10">
+        <!-- Header -->
+        <div class="h-16 flex items-center justify-between px-4 border-b">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='/dashboard'" class="md:hidden text-gray-600"><i class="fas fa-arrow-right"></i></button>
+                <h1 class="text-xl font-black">الدردشات</h1>
+            </div>
+            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"><i class="fas fa-edit text-gray-500"></i></div>
+        </div>
+        
+        <!-- Search -->
+        <div class="p-3">
+            <input type="text" placeholder="بحث في الرسائل..." class="w-full bg-gray-100 rounded-full px-4 py-2 text-sm outline-none">
+        </div>
+
+        <!-- Chat List -->
+        <div id="chatList" class="flex-1 overflow-y-auto">
+            <div class="text-center py-10 text-gray-400"><i class="fas fa-circle-notch fa-spin"></i> جاري التحميل...</div>
+        </div>
+    </div>
+
+    <!-- 2. غرفة المحادثة (Room) -->
+    <div id="roomView" class="hidden md:flex w-full md:w-2/3 h-full flex-col bg-white fixed md:relative inset-0 z-20">
+        
+        <!-- Room Header -->
+        <div class="h-16 border-b flex items-center justify-between px-4 bg-white shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="closeChat()" class="md:hidden text-gray-600"><i class="fas fa-arrow-right text-lg"></i></button>
+                <div class="relative">
+                    <img id="chatAvatar" src="https://via.placeholder.com/100" class="w-10 h-10 rounded-full object-cover border">
+                    <div class="online-dot"></div>
+                </div>
+                <div>
+                    <h3 id="chatName" class="font-bold text-sm leading-tight">...</h3>
+                    <p class="text-[10px] text-green-600 font-bold">متصل الآن</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="openInvoiceModal()" class="bg-green-50 text-green-600 px-3 py-1.5 rounded-full text-xs font-bold border border-green-200 hover:bg-green-100 transition">
+                    <i class="fas fa-file-invoice-dollar mr-1"></i> إنشاء فاتورة
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="messagesArea" class="flex-1 overflow-y-auto p-4 space-y-2 bg-white"></div>
+
+        <!-- Input Area -->
+        <div class="p-3 border-t bg-white flex items-center gap-2">
+            <button class="text-blue-500 p-2 hover:bg-blue-50 rounded-full"><i class="fas fa-image text-lg"></i></button>
+            <input id="msgInput" type="text" placeholder="اكتب رسالة..." class="flex-1 bg-gray-100 rounded-full px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition">
+            <button onclick="sendMsg('text')" class="text-blue-600 p-2 hover:bg-blue-50 rounded-full transition"><i class="fas fa-paper-plane text-xl"></i></button>
+        </div>
+    </div>
+
+    <!-- MODAL: Invoice -->
+    <div id="invoiceModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl animate-bounce-in">
+            <h3 class="font-bold text-center mb-1 text-lg">إنشاء فاتورة بيع 🧾</h3>
+            <p class="text-center text-xs text-gray-500 mb-4">سيتم حجز المبلغ عند الدفع (Escrow)</p>
+            
+            <div class="bg-gray-50 p-3 rounded-xl mb-4 border border-gray-200">
+                <label class="text-xs font-bold text-gray-500 block mb-1">المبلغ المطلوب ($)</label>
+                <input id="invAmount" type="number" class="w-full bg-transparent font-black text-2xl text-center outline-none text-gray-800" placeholder="0.00">
+            </div>
+            
+            <button onclick="sendMsg('invoice')" class="w-full bg-black text-white py-3 rounded-xl font-bold hover:opacity-90">إرسال الفاتورة</button>
+            <button onclick="document.getElementById('invoiceModal').classList.add('hidden')" class="w-full mt-3 text-gray-400 text-xs font-bold">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        let USER = null;
+        let CURRENT_CHAT_ID = null;
+        let POLLING_INTERVAL = null;
+
+        // Init
+        window.onload = () => {
+            const u = localStorage.getItem('dz_user');
+            if(!u) return window.location.href = '/';
+            USER = JSON.parse(u);
+            
+            loadInbox();
+            startPolling();
+
+            // Check if opened specific chat (via URL hash)
+            if(window.location.hash.includes('id=')) {
+                const id = window.location.hash.split('=')[1];
+                openChat(id);
+            }
+        };
+
+        // 1. Inbox Logic
+        async function loadInbox() {
+            try {
+                const res = await fetch('/api/chats/' + USER._id);
+                const chats = await res.json();
+                
+                const list = document.getElementById('chatList');
+                if(!chats.length) {
+                    list.innerHTML = '<div class="text-center py-20 text-gray-400 text-sm">لا توجد محادثات بعد</div>';
+                    return;
+                }
+
+                list.innerHTML = chats.map(c => {
+                    // Logic to find "The Other Person's Name" needed in real app
+                    // Here we use listingTitle as placeholder or fetch user details
+                    return `
+                    <div class="chat-item p-3 flex gap-3 ${CURRENT_CHAT_ID === c._id ? 'active-chat' : ''}" onclick="openChat('${c._id}', '${c.listingTitle}')">
+                        <div class="relative">
+                            <img src="https://ui-avatars.com/api/?name=${c.listingTitle}&background=random" class="w-12 h-12 rounded-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <h4 class="font-bold text-sm truncate text-gray-900">${c.listingTitle}</h4>
+                                <span class="text-[10px] text-gray-400">${new Date(c.lastMessageDate).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate ${c.unreadCounts && c.unreadCounts[USER._id] > 0 ? 'font-bold text-black' : ''}">
+                                ${c.lastMessage || 'مرفق'}
+                            </p>
+                        </div>
+                        ${c.unreadCounts && c.unreadCounts[USER._id] > 0 ? `<div class="w-2 h-2 bg-blue-600 rounded-full self-center"></div>` : ''}
+                    </div>
+                    `;
+                }).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        // 2. Chat Room Logic
+        async function openChat(chatId, title) {
+            CURRENT_CHAT_ID = chatId;
+            
+            // UI Toggle for Mobile
+            document.getElementById('inboxView').classList.add('hidden', 'md:flex');
+            document.getElementById('roomView').classList.remove('hidden');
+            
+            // Set Header Info
+            if(title) document.getElementById('chatName').innerText = title;
+            document.getElementById('chatAvatar').src = `https://ui-avatars.com/api/?name=${title || 'User'}&background=random`;
+
+            loadMessages();
+            // Refresh Inbox to highlight active
+            loadInbox();
+        }
+
+        function closeChat() {
+            CURRENT_CHAT_ID = null;
+            document.getElementById('roomView').classList.add('hidden');
+            document.getElementById('inboxView').classList.remove('hidden', 'md:flex');
+        }
+
+        async function loadMessages() {
+            if(!CURRENT_CHAT_ID) return;
+            try {
+                const res = await fetch(`/api/chat/history/${CURRENT_CHAT_ID}?userId=${USER._id}`);
+                const msgs = await res.json();
+                
+                const area = document.getElementById('messagesArea');
+                area.innerHTML = msgs.map(m => renderMessage(m)).join('');
+                area.scrollTop = area.scrollHeight; // Scroll to bottom
+            } catch(e) {}
+        }
+
+        function renderMessage(m) {
+            const isMe = m.senderId === USER._id;
+            
+            // Invoice Render
+            if (m.type === 'invoice') {
+                const statusColor = m.meta.status === 'paid' ? 'text-green-600' : 'text-gray-500';
+                const statusText = m.meta.status === 'paid' ? '✅ مدفوعة' : '⏳ بانتظار الدفع';
+                const btn = (!isMe && m.meta.status === 'pending') 
+                    ? `<button onclick="payInvoice('${m._id}', ${m.meta.amount})" class="w-full mt-3 bg-black text-white py-2 rounded-lg text-xs font-bold hover:bg-gray-800">دفع وحجز (${m.meta.amount}$)</button>` 
+                    : '';
+
+                return `
+                <div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'} mb-2">
+                    <div class="invoice-card">
+                        <div class="flex items-center justify-between border-b pb-2 mb-2">
+                            <span class="font-bold text-sm">فاتورة خدمة</span>
+                            <i class="fas fa-receipt text-gray-400"></i>
+                        </div>
+                        <div class="text-center py-2">
+                            <div class="text-3xl font-black text-gray-800">${m.meta.amount}<span class="text-sm text-gray-400">$</span></div>
+                            <div class="text-xs font-bold ${statusColor} mt-1">${statusText}</div>
+                        </div>
+                        ${btn}
+                    </div>
+                </div>`;
+            }
+
+            // Text Render
+            return `
+            <div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'} mb-1">
+                <div class="bubble ${isMe ? 'me' : 'other'}">
+                    ${m.content}
+                    <div class="text-[9px] opacity-60 text-right mt-1">${new Date(m.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                </div>
+            </div>`;
+        }
+
+        // 3. Actions
+        async function sendMsg(type) {
+            let content = '';
+            let amount = 0;
+
+            if(type === 'text') {
+                content = document.getElementById('msgInput').value;
+                if(!content.trim()) return;
+            } else {
+                amount = document.getElementById('invAmount').value;
+                if(!amount) return alert('أدخل المبلغ');
+                content = 'فاتورة';
+            }
+
+            await fetch('/api/chat/send', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ chatId: CURRENT_CHAT_ID, senderId: USER._id, type, content, amount })
+            });
+
+            document.getElementById('msgInput').value = '';
+            document.getElementById('invoiceModal').classList.add('hidden');
+            loadMessages();
+        }
+
+        async function payInvoice(msgId, amount) {
+            if(!confirm(`هل توافق على دفع ${amount}$ وحجز المبلغ؟`)) return;
+            const res = await fetch('/api/order/pay-invoice', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ messageId: msgId, buyerId: USER._id }) });
+            const d = await res.json();
+            if(d.success) { alert('تم الدفع بنجاح'); loadMessages(); } else alert(d.msg);
+        }
+
+        // Polling for new messages
+        function startPolling() {
+            POLLING_INTERVAL = setInterval(() => {
+                if(CURRENT_CHAT_ID) loadMessages();
+                loadInbox(); // To update last messages in list
+            }, 3000);
+        }
+
+        function openInvoiceModal() { document.getElementById('invoiceModal').classList.remove('hidden'); }
+    </script>
+</body>
+</html>
