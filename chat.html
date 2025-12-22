@@ -185,16 +185,37 @@
         }
 
         async function loadMessages() {
-            if(!CURRENT_CHAT_ID) return;
-            try {
-                const res = await fetch(`/api/chat/history/${CURRENT_CHAT_ID}?userId=${USER._id}`);
-                const msgs = await res.json();
-                
-                const area = document.getElementById('messagesArea');
-                area.innerHTML = msgs.map(m => renderMessage(m)).join('');
-                area.scrollTop = area.scrollHeight; // Scroll to bottom
-            } catch(e) {}
-        }
+    if (!CURRENT_CHAT_ID) return;
+    try {
+        // تأكدنا هنا أن الرابط يطابق الموجود في server.js تماماً
+        const res = await fetch(`/api/chat/history/${CURRENT_CHAT_ID}`);
+        const msgs = await res.json();
+        
+        // نقوم بتحديث الشاشة بالرسائل الجديدة
+        const container = document.getElementById('chatBody'); // تأكد أن معرف الحاوية في الـ HTML هو chatBody
+        
+        // هنا يمكنك استدعاء دالة الرسم الخاصة بك، سأضع لك كود رسم بسيط ومباشر
+        container.innerHTML = msgs.map(m => {
+            const isMe = m.senderId === USER._id;
+            return `
+                <div class="flex flex-col mb-4 ${isMe ? 'items-end' : 'items-start'}">
+                    <div class="${isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none'} px-4 py-2 rounded-2xl max-w-[75%] shadow-sm text-sm">
+                        ${m.type === 'invoice' ? `💰 فاتورة: ${m.meta.amount}$` : m.content}
+                    </div>
+                    <span class="text-[9px] text-gray-400 mt-1 mx-1">
+                        ${new Date(m.date).toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'})}
+                    </span>
+                </div>
+            `;
+        }).join('');
+        
+        // التمرير للأسفل تلقائياً لرؤية آخر رسالة
+        container.scrollTop = container.scrollHeight;
+
+    } catch (e) {
+        console.error("خطأ في جلب الرسائل:", e);
+    }
+}
 
         function renderMessage(m) {
             const isMe = m.senderId === USER._id;
