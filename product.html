@@ -18,63 +18,58 @@
     <!-- Header -->
     <div class="fixed top-0 w-full bg-white z-50 h-14 flex items-center px-4 shadow-sm">
         <button onclick="history.back()" class="text-gray-600"><i class="fas fa-arrow-right text-lg"></i></button>
-        <h1 class="font-bold text-sm mr-4 flex-1 truncate" id="pTitleNav">تفاصيل الخدمة</h1>
+        <h1 class="font-bold text-sm mr-4 flex-1 truncate" id="pTitleNav">جاري التحميل...</h1>
         <button onclick="window.location.href='/dashboard'" class="text-gray-600"><i class="fas fa-home text-lg"></i></button>
     </div>
 
     <!-- Main Content -->
-    <div class="pt-16 px-4 max-w-2xl mx-auto" id="mainContainer">
+    <div class="pt-16 px-4 max-w-2xl mx-auto hidden" id="mainContainer">
         
         <!-- Service Card -->
         <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-4">
-            <img id="pImg" src="" class="w-full h-48 object-cover hidden"> <!-- تظهر فقط إذا وجدت صورة -->
+            <img id="pImg" src="" class="w-full h-48 object-cover hidden">
             <div class="p-5">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-1 rounded font-bold" id="pCat">عام</span>
-                    <span class="text-xs text-gray-400" id="pDate">...</span>
+                    <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-1 rounded font-bold" id="pCat"></span>
+                    <span class="text-xs text-gray-400" id="pDate"></span>
                 </div>
-                <h1 class="text-xl font-black text-gray-800 mb-2 leading-tight" id="pTitle">...</h1>
-                <div class="text-2xl font-black text-[#fb2e2e] mb-4"><span id="pPrice">0</span> $ <span class="text-xs text-gray-400 font-normal line-through ml-2">قابل للتفاوض</span></div>
-                
+                <h1 class="text-xl font-black text-gray-800 mb-2 leading-tight" id="pTitle"></h1>
+                <div class="text-2xl font-black text-[#fb2e2e] mb-4"><span id="pPrice"></span> $ <span class="text-xs text-gray-400 font-normal line-through ml-2">قابل للتفاوض</span></div>
                 <hr class="border-gray-100 my-4">
-                
                 <h3 class="font-bold text-sm mb-2">تفاصيل الخدمة:</h3>
-                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line" id="pDesc">...</p>
+                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line" id="pDesc"></p>
             </div>
         </div>
 
         <!-- Seller Profile Card -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition">
             <div class="relative">
-                <img id="sAvatar" src="https://via.placeholder.com/50" class="w-14 h-14 rounded-full bg-gray-100 object-cover">
-                <div id="sStatus" class="absolute bottom-0 right-0 border-2 border-white online-badge"></div>
+                <img id="sAvatar" src="" class="w-14 h-14 rounded-full bg-gray-100 object-cover">
+                <div id="sStatus" class="absolute bottom-0 right-0 border-2 border-white offline-badge"></div>
             </div>
             <div class="flex-1">
                 <div class="flex items-center gap-1">
-                    <h3 class="font-bold text-sm" id="sName">...</h3>
-                    <i class="fas fa-check-circle text-blue-500 text-xs hidden" id="sVerified"></i>
+                    <h3 class="font-bold text-sm" id="sName"></h3>
+                    <i class="fas fa-check-circle text-blue-500 text-xs" id="sVerified" style="display:none"></i>
                 </div>
                 <p class="text-[10px] text-gray-400 mb-1" id="sBio">بائع في المنصة</p>
                 <div class="flex gap-3 text-[10px] font-bold">
                     <span class="text-yellow-500"><i class="fas fa-star"></i> <span id="sRating">0.0</span></span>
-                    <span class="text-gray-400"><i class="fas fa-shopping-bag"></i> <span id="sSales">0</span> بيعة</span>
+                    <span class="text-gray-400"><i class="fas fa-shopping-bag"></i> <span id="sSales">0</span> مبيعات</span>
                 </div>
             </div>
-            <i class="fas fa-chevron-left text-gray-300 text-xs"></i>
         </div>
-
     </div>
 
     <!-- Sticky Bottom Action Bar -->
-    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 p-3 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50 md:max-w-2xl md:left-1/2 md:-translate-x-1/2">
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 p-3 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50 md:max-w-2xl md:left-1/2 md:-translate-x-1/2 hidden" id="actionBar">
         <div class="flex gap-3">
             <button onclick="startChat()" class="flex-1 bg-black text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition">
-                <i class="fas fa-comments"></i>
-                تواصل للتفاوض
+                <i class="fas fa-comments"></i> تواصل للتفاوض
             </button>
             <div class="flex flex-col justify-center items-center px-4">
                 <span class="text-[10px] text-gray-400">السعر المبدئي</span>
-                <span class="font-black text-lg text-[#fb2e2e]"><span id="pPriceBottom">0</span>$</span>
+                <span class="font-black text-lg text-[#fb2e2e]"><span id="pPriceBottom"></span>$</span>
             </div>
         </div>
     </div>
@@ -85,57 +80,73 @@
     </div>
 
     <script>
-        // Get Listing ID from URL (Example: /p/65321...)
         const listingId = window.location.pathname.split('/').pop();
         let sellerId = null;
 
         window.onload = async () => {
-            if (!listingId) return alert('خطأ في الرابط');
+            if (!listingId) return alert('رابط غير صالح');
             
             try {
-                // جلب بيانات الخدمة (تحتاج endpoint واحد يجمع الخدمة + بيانات البائع)
-                // هنا سنستخدم endpoint وهمي للمثال، في التطبيق الحقيقي استخدم /api/public/product/:id
-                // لقد جهزت في السيرفر /api/profile/:id لكن نحتاج واحد خاص بالمنتج، 
-                // سأفترض أنك عدلت /p/:id ليرجع الـ HTML هذا، والبيانات نجلبها بـ Fetch.
-                
-                /* 
-                 * ملاحظة: بما أننا نستخدم نظام SPA، في الحقيقة index.html هو من يعالج الروابط.
-                 * لكن هذا الملف product.html يعمل كصفحة مستقلة لسهولة الفهم.
-                 */
-                
-                // Fetch Listing Data (هذا الكود يحتاج endpoint في السيرفر يجلب تفاصيل المنتج والبائع)
-                // سأقوم بمحاكاة البيانات الآن لكي يعمل التصميم
-                // في السيرفر الفعلي: app.get('/api/listing/:id', ...)
-                
-                /* Simulation Logic (استبدل هذا بـ fetch حقيقي) */
-                const res = await fetch(`/api/public/product/${listingId}`); // تأكد من وجود هذا المسار أو ما يشابهه
-                // إذا لم يوجد، سأكتب المنطق الأساسي:
-                
-                // بما أن السيرفر لا يملك endpoint عام للمنتج الفردي بعد، 
-                // سأضيفه لك في الملاحظة بالأسفل. الآن لنفترض أننا جلبنا البيانات.
-            } catch (e) { console.error(e); }
-            
-            // إخفاء اللودر (مؤقت للعرض)
-            setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
+                // 1. جلب البيانات الحقيقية من السيرفر
+                const res = await fetch(`/api/public/product/${listingId}`);
+                const data = await res.json();
+
+                if (data._id) {
+                    // تعبئة البيانات في الصفحة
+                    document.getElementById('pTitle').innerText = data.title;
+                    document.getElementById('pTitleNav').innerText = data.title;
+                    document.getElementById('pDesc').innerText = data.desc || 'لا يوجد وصف';
+                    document.getElementById('pPrice').innerText = data.price;
+                    document.getElementById('pPriceBottom').innerText = data.price;
+                    document.getElementById('pCat').innerText = data.category;
+                    document.getElementById('pDate').innerText = new Date(data.date).toLocaleDateString();
+                    
+                    if(data.image) {
+                        const img = document.getElementById('pImg');
+                        img.src = data.image;
+                        img.classList.remove('hidden');
+                    }
+
+                    // بيانات البائع الحقيقية
+                    if (data.seller) {
+                        sellerId = data.seller._id;
+                        document.getElementById('sName').innerText = data.seller.name;
+                        document.getElementById('sAvatar').src = data.seller.avatar || 'https://ui-avatars.com/api/?name=' + data.seller.name;
+                        if(data.seller.isVerified) document.getElementById('sVerified').style.display = 'inline';
+                        
+                        // التحقق من حالة الاتصال الحقيقية
+                        if (data.seller.lastSeen) {
+                            const isOnline = (new Date() - new Date(data.seller.lastSeen)) < 2 * 60 * 1000;
+                            document.getElementById('sStatus').className = isOnline ? 'absolute bottom-0 right-0 border-2 border-white online-badge' : 'absolute bottom-0 right-0 border-2 border-white offline-badge';
+                        }
+                    }
+
+                    // إظهار المحتوى
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('mainContainer').classList.remove('hidden');
+                    document.getElementById('actionBar').classList.remove('hidden');
+                } else {
+                    alert('الخدمة غير موجودة أو تم حذفها');
+                    window.location.href = '/dashboard';
+                }
+            } catch (e) {
+                console.error(e);
+                alert('خطأ في الاتصال بالسيرفر');
+            }
         };
 
-        // دالة بدء الشات (الأهم)
         async function startChat() {
-            const user = JSON.parse(localStorage.getItem('dz_user_v2'));
-            if (!user) {
-                alert('يجب عليك تسجيل الدخول أولاً');
+            const userStr = localStorage.getItem('dz_user_v2');
+            if (!userStr) {
+                alert('يجب عليك تسجيل الدخول أولاً للتفاوض');
                 window.location.href = '/dashboard';
                 return;
             }
+            const user = JSON.parse(userStr);
             
-            // الاتصال بـ API بدء الشات
+            if (user._id === sellerId) return alert('لا يمكنك التفاوض مع نفسك!');
+
             try {
-                // ملاحظة: نحتاج sellerId. سنفترض أنه مخزن في الصفحة بعد تحميل البيانات
-                // sellerId = "Fetched_Seller_ID"; 
-                
-                // في الكود الحقيقي، يجب أن يكون sellerId متاحاً.
-                // هذا زر وهمي الآن حتى تربطه ببيانات حقيقية
-                
                 const res = await fetch('/api/chat/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -144,14 +155,12 @@
                 const d = await res.json();
                 
                 if (d.success) {
-                    window.location.href = '/dashboard'; // سيذهب للداشبورد ويفتح الشات هناك
+                    // توجيه للمحادثة في الداشبورد
+                    window.location.href = '/dashboard#chat=' + d.chatId;
                 } else {
                     alert('خطأ في بدء المحادثة');
                 }
-            } catch(e) {
-                // للتجربة الآن:
-                window.location.href = '/dashboard';
-            }
+            } catch(e) { alert('خطأ في الاتصال'); }
         }
     </script>
 </body>
