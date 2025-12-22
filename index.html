@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DzMarket - سوق الخدمات الرقمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
+        .input-field { font-size: 16px !important; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed top-4 right-4 left-4 md:left-auto md:w-80 z-50 p-4 rounded-xl shadow-lg animate-fade-in"></div>
+
+    <!-- Main Container -->
+    <div class="w-full max-w-md animate-fade-in">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-xl mb-4">
+                <span class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">DZ</span>
+            </div>
+            <h1 class="text-3xl font-black text-white">DzMarket</h1>
+            <p class="text-white/80 text-sm mt-2">سوق الخدمات والأصول الرقمية</p>
+        </div>
+
+        <!-- Auth Card -->
+        <div class="glass rounded-3xl shadow-2xl overflow-hidden">
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-100">
+                <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-4 font-bold text-purple-600 border-b-2 border-purple-600 transition">تسجيل الدخول</button>
+                <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent transition">حساب جديد</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="form-login" class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="login-email" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="example@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">كلمة المرور</label>
+                        <div class="relative">
+                            <input type="password" id="login-password" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="••••••••">
+                            <button type="button" onclick="togglePassword('login-password')" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button onclick="login()" id="btn-login" class="w-full btn-primary text-white py-4 rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2">
+                        <span>دخول</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="form-register" class="p-6 hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">الاسم الكامل</label>
+                        <input type="text" id="reg-name" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="أحمد محمد">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="reg-email" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="example@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">كلمة المرور</label>
+                        <div class="relative">
+                            <input type="password" id="reg-password" class="input-field w-full bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" placeholder="6 أحرف على الأقل">
+                            <button type="button" onclick="togglePassword('reg-password')" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button onclick="register()" id="btn-register" class="w-full btn-primary text-white py-4 rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2">
+                        <span>إنشاء حساب</span>
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-white/60 text-xs mt-6">
+            نظام Escrow آمن للبيع والشراء 🔒
+        </p>
+    </div>
+
+    <script>
+        // Check if already logged in
+        window.onload = () => {
+            const user = localStorage.getItem('dz_user');
+            if (user) window.location.href = '/dashboard';
+        };
+
+        function switchTab(tab) {
+            document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('form-register').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('tab-login').classList.toggle('text-purple-600', tab === 'login');
+            document.getElementById('tab-login').classList.toggle('border-purple-600', tab === 'login');
+            document.getElementById('tab-login').classList.toggle('text-gray-400', tab !== 'login');
+            document.getElementById('tab-login').classList.toggle('border-transparent', tab !== 'login');
+            document.getElementById('tab-register').classList.toggle('text-purple-600', tab === 'register');
+            document.getElementById('tab-register').classList.toggle('border-purple-600', tab === 'register');
+            document.getElementById('tab-register').classList.toggle('text-gray-400', tab !== 'register');
+            document.getElementById('tab-register').classList.toggle('border-transparent', tab !== 'register');
+        }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            toast.className = `fixed top-4 right-4 left-4 md:left-auto md:w-80 z-50 p-4 rounded-xl shadow-lg animate-fade-in ${type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`;
+            toast.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${message}</span></div>`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (loading) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+            } else {
+                btn.disabled = false;
+                if (btnId === 'btn-login') btn.innerHTML = '<span>دخول</span><i class="fas fa-arrow-left"></i>';
+                else btn.innerHTML = '<span>إنشاء حساب</span><i class="fas fa-user-plus"></i>';
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) return showToast('يرجى ملء جميع الحقول');
+
+            setLoading('btn-login', true);
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('dz_user', JSON.stringify(data.user));
+                    showToast('تم تسجيل الدخول بنجاح!', 'success');
+                    setTimeout(() => window.location.href = '/dashboard', 500);
+                } else {
+                    showToast(data.msg || 'بيانات خاطئة');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال بالسيرفر');
+            }
+            setLoading('btn-login', false);
+        }
+
+        async function register() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+
+            if (!name || !email || !password) return showToast('يرجى ملء جميع الحقول');
+            if (password.length < 6) return showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+
+            setLoading('btn-register', true);
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('dz_user', JSON.stringify(data.user));
+                    showToast('تم إنشاء الحساب بنجاح!', 'success');
+                    setTimeout(() => window.location.href = '/dashboard', 500);
+                } else {
+                    showToast(data.msg || 'حدث خطأ');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال بالسيرفر');
+            }
+            setLoading('btn-register', false);
+        }
+
+        // Enter key support
+        document.getElementById('login-password').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+        document.getElementById('reg-password').addEventListener('keypress', e => { if (e.key === 'Enter') register(); });
+    </script>
+</body>
+</html>
+
