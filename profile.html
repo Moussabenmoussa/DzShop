@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>البروفايل | DzMarket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --brand: #fb2e2e; --bg: #f0f2f5; --surface: #ffffff; }
+        * { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: #1c1e21; padding-bottom: 80px; }
+
+        .profile-cover { height: 180px; background: linear-gradient(to bottom right, #333, #555); position: relative; overflow: hidden; }
+        .profile-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-container { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--surface); position: relative; margin-top: -60px; background: var(--surface); z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        .online-badge { width: 18px; height: 18px; background: #31a24c; border: 3px solid var(--surface); border-radius: 50%; position: absolute; bottom: 5px; right: 5px; z-index: 12; }
+        .offline-badge { width: 18px; height: 18px; background: #ccc; border: 3px solid var(--surface); border-radius: 50%; position: absolute; bottom: 5px; right: 5px; z-index: 12; }
+
+        .nav-tab { padding: 12px 20px; font-weight: 700; color: #65676b; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+        .nav-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+        .temu-card { background: white; border-radius: 8px; overflow: hidden; position: relative; transition: transform 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .temu-card:active { transform: scale(0.98); }
+        .img-wrapper { width: 100%; aspect-ratio: 1/1; background: #eee; position: relative; }
+        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--brand); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="fixed top-0 w-full z-50 transition-all duration-300" id="mainHeader">
+        <div class="flex items-center justify-between px-4 h-14 bg-white/90 backdrop-blur-md shadow-sm">
+            <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-700"><i class="fas fa-arrow-right"></i></button>
+            <h1 class="font-bold text-sm" id="headerTitle">...</h1>
+            <button onclick="window.location.href='/'" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-700"><i class="fas fa-home"></i></button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="pageLoader" class="loader"></div>
+
+    <!-- PROFILE CONTAINER -->
+    <div id="profileContent" class="max-w-2xl mx-auto bg-white shadow-sm min-h-screen pb-4 hidden">
+        
+        <!-- Cover -->
+        <div class="profile-cover">
+            <img id="coverImg" src="https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=800&auto=format&fit=crop" alt="Cover">
+        </div>
+
+        <div class="px-4 pb-4 border-b border-gray-100">
+            <div class="flex justify-between items-start">
+                
+                <!-- Avatar & Info -->
+                <div class="flex flex-col">
+                    <div class="avatar-container">
+                        <img id="avatarImg" src="https://via.placeholder.com/150" class="avatar-img">
+                        <div id="statusDot" class="offline-badge"></div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h1 class="text-2xl font-black text-gray-800 flex items-center gap-1">
+                            <span id="pName">...</span>
+                            <i class="fas fa-check-circle text-blue-500 hidden" id="verifiedBadge"></i>
+                        </h1>
+                        <p class="text-sm text-gray-500 font-medium mt-1" id="pBio">...</p>
+                        
+                        <div class="flex items-center gap-4 mt-3 text-xs text-gray-500 font-bold">
+                            <span class="flex items-center gap-1"><i class="fas fa-map-marker-alt text-gray-400"></i> الجزائر</span>
+                            <span class="flex items-center gap-1"><i class="fas fa-calendar-alt text-gray-400"></i> عضو منذ <span id="joinDate">2024</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="mt-4">
+                    <button onclick="startDirectChat()" id="msgBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition flex items-center gap-2">
+                        <i class="fab fa-facebook-messenger"></i> تواصل
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-2 mt-6 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <div class="text-center">
+                    <div class="text-lg font-black text-gray-800" id="statSales">0</div>
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">مبيعات</div>
+                </div>
+                <div class="text-center border-r border-l border-gray-200">
+                    <div class="text-lg font-black text-yellow-500 flex items-center justify-center gap-1">
+                        <span id="statRating">5.0</span> <i class="fas fa-star text-xs"></i>
+                    </div>
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">تقييم</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-lg font-black text-gray-800" id="statServices">0</div>
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">خدمات</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 sticky top-14 bg-white z-40 shadow-sm">
+            <div onclick="switchTab('services')" class="nav-tab active flex-1 text-center text-sm" id="tab-services">الخدمات</div>
+            <div onclick="switchTab('reviews')" class="nav-tab flex-1 text-center text-sm" id="tab-reviews">التقييمات</div>
+            <div onclick="switchTab('about')" class="nav-tab flex-1 text-center text-sm" id="tab-about">حول</div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-2 bg-[#f0f2f5] min-h-[400px]">
+            
+            <!-- SERVICES -->
+            <div id="view-services" class="grid grid-cols-2 gap-2"></div>
+
+            <!-- REVIEWS -->
+            <div id="view-reviews" class="hidden space-y-3 p-2">
+                <div class="text-center py-10 text-gray-400 text-sm">لا توجد تقييمات بعد</div>
+            </div>
+
+            <!-- ABOUT -->
+            <div id="view-about" class="hidden p-4 bg-white rounded-lg shadow-sm m-2">
+                <h3 class="font-bold mb-2">نبذة عني</h3>
+                <p class="text-sm text-gray-600 leading-relaxed" id="aboutText">...</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const profileId = window.location.pathname.split('/').pop(); // Gets ID from /u/ID
+        let profileUser = null;
+
+        window.onload = async () => {
+            if (!profileId) return alert('رابط خاطئ');
+
+            try {
+                // جلب البيانات الحقيقية من السيرفر
+                const res = await fetch(`/api/public/profile/${profileId}`);
+                const data = await res.json();
+
+                if (data.user) {
+                    profileUser = data.user;
+                    renderProfile(data);
+                } else {
+                    document.body.innerHTML = '<div class="text-center mt-20 font-bold text-gray-500">المستخدم غير موجود</div>';
+                }
+            } catch (e) { alert('خطأ في الاتصال'); }
+        };
+
+        function renderProfile(data) {
+            const u = data.user;
+            const listings = data.listings || [];
+
+            // Header & Info
+            document.getElementById('pName').innerText = u.name;
+            document.getElementById('headerTitle').innerText = u.name;
+            document.getElementById('pBio').innerText = u.bio || 'بائع في DzMarket';
+            document.getElementById('aboutText').innerText = u.bio || 'لا توجد نبذة';
+            document.getElementById('avatarImg').src = u.avatar || `https://ui-avatars.com/api/?name=${u.name}&background=random`;
+            if (u.cover) document.getElementById('coverImg').src = u.cover;
+            
+            // Stats
+            document.getElementById('statSales').innerText = u.sales || 0;
+            document.getElementById('statRating').innerText = u.rating || '5.0';
+            document.getElementById('statServices').innerText = listings.length;
+            document.getElementById('joinDate').innerText = new Date(u.createdAt).getFullYear();
+
+            // Status & Badges
+            if (u.isVerified) document.getElementById('verifiedBadge').classList.remove('hidden');
+            if (u.isOnline) document.getElementById('statusDot').className = 'online-badge';
+
+            // Listings Grid
+            const grid = document.getElementById('view-services');
+            if (listings.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">لا توجد خدمات</div>';
+            } else {
+                grid.innerHTML = listings.map(i => `
+                    <div class="temu-card group cursor-pointer" onclick="window.location.href='/p/${i._id}'">
+                        <div class="img-wrapper">
+                            <img src="${i.image || 'https://via.placeholder.com/200'}" class="group-hover:scale-105 transition duration-500">
+                        </div>
+                        <div class="p-2">
+                            <h3 class="text-xs font-bold text-gray-800 line-clamp-2 mb-1">${i.title}</h3>
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-black text-[#fb2e2e]">${i.price} $</span>
+                                <span class="text-[9px] text-gray-400">${new Date(i.date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Hide Loader
+            document.getElementById('pageLoader').classList.add('hidden');
+            document.getElementById('profileContent').classList.remove('hidden');
+        }
+
+        function switchTab(tabName) {
+            ['services', 'reviews', 'about'].forEach(t => {
+                document.getElementById('view-'+t).classList.add('hidden');
+                document.getElementById('tab-'+t).classList.remove('active');
+            });
+            document.getElementById('view-'+tabName).classList.remove('hidden');
+            document.getElementById('tab-'+tabName).classList.add('active');
+        }
+
+        async function startDirectChat() {
+            const myUser = JSON.parse(localStorage.getItem('dz_user'));
+            if(!myUser) return window.location.href = '/'; // Go to login
+            if(myUser._id === profileId) return alert('هذا بروفايلك الشخصي!');
+
+            // Start chat with no specific listing (General Inquiry)
+            try {
+                const res = await fetch('/api/chat/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ buyerId: myUser._id, sellerId: profileId, listingId: null }) 
+                });
+                const d = await res.json();
+                if(d.success) window.location.href = '/#chat=' + d.chatId;
+            } catch(e) { alert('خطأ'); }
+        }
+    </script>
+</body>
+</html>
