@@ -162,4 +162,8 @@ app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.ht
 app.get('/u/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'profile.html')));
 app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
 
+// ... في نهاية server.js ...
+app.get('/chat', (req, res) => res.sendFile(path.resolve(__dirname, 'chat.html')));
+
+
 app.listen(PORT, () => console.log(`🚀 Server Live`));
