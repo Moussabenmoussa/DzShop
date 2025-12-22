@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -20,10 +21,15 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, unique: true, lowercase: true },
     password: String,
     avatar: { type: String, default: '' },
-    isVerified: { type: Boolean, default: false }, // يجب التفعيل
+    cover: { type: String, default: '' }, // صورة الغلاف الجديدة
+    bio: { type: String, default: 'بائع جديد في المنصة' }, // النبذة
+    isVerified: { type: Boolean, default: false },
     otpCode: String,
     balance: { type: Number, default: 0 },
-    lastSeen: { type: Date, default: Date.now }
+    sales: { type: Number, default: 0 }, // عدد المبيعات
+    rating: { type: Number, default: 5.0 }, // التقييم
+    lastSeen: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -47,55 +53,28 @@ const MessageSchema = new mongoose.Schema({
 });
 const Message = mongoose.model('Message', MessageSchema);
 
-// --- EMAIL FUNCTION ---
-async function sendEmail(to, code) {
-    if (!process.env.BREVO_API_KEY) return;
-    await fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            sender: { name: 'DzMarket', email: process.env.SENDER_EMAIL || 'verify@dzshop.com' },
-            to: [{ email: to }],
-            subject: 'كود تفعيل حسابك',
-            htmlContent: `<h1>كود التفعيل: ${code}</h1>`
-        })
-    });
-}
+const OrderSchema = new mongoose.Schema({
+    sellerId: String, buyerId: String, listingId: String, listingTitle: String,
+    amount: Number, netAmount: Number, status: { type: String, default: 'active' },
+    deliveryContent: String, createdAt: { type: Date, default: Date.now }
+});
+const Order = mongoose.model('Order', OrderSchema);
 
-// --- AUTH ROUTES ---
+// --- AUTH & USER API ---
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
         const exists = await User.findOne({ email });
         if (exists) return res.json({ success: false, msg: 'البريد مستخدم' });
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const user = await User.create({ name, email, password, otpCode: otp, isVerified: false });
-        
-        // إرسال الكود
-        await sendEmail(email, otp);
-        
-        res.json({ success: true, userId: user._id, needsVerification: true });
+        // إنشاء المستخدم مع تفعيل افتراضي لتسهيل الدخول (يمكنك تغييرها لاحقاً)
+        const user = await User.create({ name, email, password, isVerified: true });
+        res.json({ success: true, userId: user._id, user });
     } catch (e) { res.json({ success: false, msg: 'خطأ' }); }
-});
-
-app.post('/api/auth/verify', async (req, res) => {
-    const { userId, code } = req.body;
-    const user = await User.findById(userId);
-    if (user && user.otpCode === code) {
-        user.isVerified = true;
-        user.otpCode = null;
-        await user.save();
-        res.json({ success: true, user });
-    } else {
-        res.json({ success: false, msg: 'كود خاطئ' });
-    }
 });
 
 app.post('/api/auth/login', async (req, res) => {
     const user = await User.findOne({ email: req.body.email, password: req.body.password });
     if (!user) return res.json({ success: false, msg: 'بيانات خاطئة' });
-    if (!user.isVerified) return res.json({ success: false, msg: 'غير مفعل', needsVerification: true, userId: user._id });
     res.json({ success: true, user });
 });
 
@@ -104,7 +83,27 @@ app.post('/api/user/heartbeat', async (req, res) => {
     res.json({ success: true });
 });
 
-// --- MARKET ROUTES ---
+// ** API جلب البروفايل الحقيقي **
+app.get('/api/public/profile/:id', async (req, res) => {
+    try {
+        // جلب بيانات المستخدم (بدون الباسورد)
+        const user = await User.findById(req.params.id, '-password -email -otpCode -balance');
+        if (!user) return res.json({ error: 'User not found' });
+        
+        // جلب خدماته النشطة
+        const listings = await Listing.find({ userId: user._id, active: true }).sort({ date: -1 });
+        
+        // حساب حالة الاتصال (آخر دقيقتين)
+        const isOnline = (new Date() - new Date(user.lastSeen)) < 2 * 60 * 1000;
+
+        res.json({ 
+            user: { ...user.toObject(), isOnline }, 
+            listings 
+        });
+    } catch (e) { res.json({ error: 'Error' }); }
+});
+
+// --- MARKET API ---
 app.post('/api/listing/create', async (req, res) => {
     const { userId, ...data } = req.body;
     const user = await User.findById(userId);
@@ -126,13 +125,13 @@ app.get('/api/public/product/:id', async (req, res) => {
     } catch(e) { res.json({}); }
 });
 
-// --- CHAT ROUTES ---
+// --- CHAT API ---
 app.post('/api/chat/start', async (req, res) => {
     const { buyerId, sellerId, listingId } = req.body;
     let chat = await Chat.findOne({ participants: { $all: [buyerId, sellerId] }, listingId });
     if (!chat) {
         const listing = await Listing.findById(listingId);
-        chat = await Chat.create({ participants: [buyerId, sellerId], listingId, listingTitle: listing.title, lastMessage: 'بداية التفاوض' });
+        chat = await Chat.create({ participants: [buyerId, sellerId], listingId, listingTitle: listing ? listing.title : 'تواصل عام', lastMessage: 'بداية المحادثة' });
     }
     res.json({ success: true, chatId: chat._id });
 });
@@ -155,12 +154,12 @@ app.post('/api/chat/send', async (req, res) => {
     res.json({ success: true });
 });
 
-// --- FILES ---
+// --- SERVE FILES ---
 app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.resolve(__dirname, 'dashboard.html')));
 app.get('/p/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'product.html')));
-
-// 👇👇 أضف هذا السطر لكي تعمل لوحة الأدمن 👇👇
+// 👇 الرابط الجديد للبروفايل 👇
+app.get('/u/:id', (req, res) => res.sendFile(path.resolve(__dirname, 'profile.html')));
 app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, 'admin.html')));
 
-app.listen(PORT, () => console.log(`🚀 Server OK`));
+app.listen(PORT, () => console.log(`🚀 Server Live`));
