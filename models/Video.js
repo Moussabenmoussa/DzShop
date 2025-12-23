@@ -10,6 +10,12 @@ const VideoSchema = new mongoose.Schema({
     // إعدادات الحملة
     targetViews: { type: Number, required: true }, // العدد المطلوب
     completedViews: { type: Number, default: 0 },  // العدد المنفذ
+
+
+duration: { type: Number, default: 30 }, // المدة بالثواني (الافتراضي 30)
+
+
+
     
     // تكلفة المشاهدة (تتغير حسب الجودة)
     costPerView: { type: Number, default: 1 },
