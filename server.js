@@ -39,5 +39,39 @@ app.use('/', require('./routes/authRoutes'));
 app.use('/', require('./routes/dashboardRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 
+
+
+// === 🚑 كود الطوارئ لفك الحظر ===
+app.get('/rescue-me', async (req, res) => {
+    try {
+        const User = require('./models/User'); // استدعاء الموديل
+        
+        // ⚠️ استبدل هذا الإيميل بإيميلك الذي سجلت به
+        const myEmail = "mouniir1982@gmail.com"; 
+
+        const user = await User.findOneAndUpdate(
+            { email: myEmail },
+            { 
+                isBanned: false, 
+                fraudStrikes: 0, 
+                deviceFingerprint: null, // مسح البصمة
+                banReason: null 
+            },
+            { new: true }
+        );
+
+        if (user) {
+            res.send(`<h1>✅ تم فك الحظر عن: ${user.name}</h1><p>رصيد المخالفات عاد للصفر. يمكنك الدخول الآن.</p> <a href="/login">تسجيل الدخول</a>`);
+        } else {
+            res.send(`<h1>❌ لم يتم العثور على المستخدم: ${myEmail}</h1>`);
+        }
+    } catch (e) {
+        res.send("Error: " + e.message);
+    }
+});
+// =================================
+
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Hive Engine Running on Port ${PORT}`));
