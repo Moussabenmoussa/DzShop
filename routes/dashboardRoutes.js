@@ -17,47 +17,66 @@ router.get('/dashboard', isAuth, async (req, res) => {
     }
 });
 
+
+
+
+
+
+
 // 2. إضافة فيديو جديد (مع الحماية والتسعير)
+// ... (الاستدعاءات السابقة)
+
+// إضافة حملة جديدة (ذكي وشامل)
 router.post('/add-video', isAuth, async (req, res) => {
     try {
-        const { url, targetViews, duration } = req.body;
+        const { url, targetViews, duration, type, visitType, keyword } = req.body;
 
-        // 🛡️ [السر الجديد] التحقق من صحة الرابط قبل أي شيء
+        // 1. التحقق من الرابط (يعمل للفيديو والمواقع)
         const isValid = await checkVideoLink(url);
         if (!isValid) {
              return res.send(`
                 <script>
-                    alert("⚠️ الرابط لا يعمل أو الفيديو غير متاح!\\nتأكد أن الرابط صحيح وأن الفيديو عام (Public).");
+                    alert("⚠️ الرابط لا يعمل! تأكد أنه متاح للعامة.");
                     window.location.href="/dashboard";
                 </script>
             `);
         }
         
-        // 💰 منطق التسعير (حسب المدة)
-        let cost = 2; // الافتراضي
+        // 2. حساب التكلفة (الخوارزمية المالية)
+        let cost = 2; // السعر الأساسي
         let finalDuration = 30;
-
+        
+        // تسعير المدة
         const dur = parseInt(duration);
-        if (dur === 45) { cost = 3; finalDuration = 45; }
-        else if (dur === 60) { cost = 4; finalDuration = 60; }
-        else if (dur === 90) { cost = 6; finalDuration = 90; }
+        if (dur === 60) { cost += 2; finalDuration = 60; }
+        else if (dur === 90) { cost += 4; finalDuration = 90; }
 
-        // 🏦 التحقق من رصيد المستخدم
+        // تسعير النوع (بحث جوجل هو الأغلى)
+        if (type === 'website' && visitType === 'search') {
+            cost += 2; // ضريبة الـ SEO (لأنها خدمة نخبة)
+        }
+
+        // 3. التحقق من الرصيد
         const user = await User.findById(req.session.userId);
-        const minPoints = cost * 10; // يجب أن يكفي لـ 10 مشاهدات على الأقل
+        const totalCost = cost * targetViews;
 
-        if (user.points < minPoints) {
+        if (user.points < totalCost) {
             return res.send(`
                 <script>
-                    alert("🚫 رصيدك غير كافي!\\nتحتاج ${minPoints} نقطة على الأقل لبدء الحملة.");
+                    alert("🚫 رصيدك غير كافي!\\nتحتاج ${totalCost} نقطة لهذه الحملة القوية.");
                     window.location.href="/dashboard";
                 </script>
             `);
         }
 
-        // ✅ إنشاء الفيديو
+        // 4. الخصم والإنشاء
+        await User.findByIdAndUpdate(user._id, { $inc: { points: -totalCost } });
+
         await Video.create({
             userId: req.session.userId,
+            type: type || 'video',
+            visitType: (type === 'website') ? visitType : undefined,
+            keyword: (type === 'website' && visitType === 'search') ? keyword : undefined,
             url: url,
             targetViews: targetViews,
             duration: finalDuration,
@@ -69,9 +88,18 @@ router.post('/add-video', isAuth, async (req, res) => {
 
     } catch (e) {
         console.error(e);
-        res.send("Error adding video");
+        res.send("Error adding campaign");
     }
 });
+
+
+
+
+
+
+
+
+
 
 // 3. صفحة المشاهد الآلي (Viewer)
 // (هذا هو الرابط الصحيح الذي يستخدم تصميم الموبايل بدون Layout)
