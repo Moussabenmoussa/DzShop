@@ -147,18 +147,49 @@ timeLeft = data.video.duration || 30;
                     container.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${tkId}?lang=en-US" style="width: 100%; height: 80vh; border: none;" allow="encrypted-media;" referrerpolicy="no-referrer"></iframe>`;
                     startTimer();
                 } else {
-                    // === فيديو خارجي (موبايل) ===
+                    // === تصميم الموبايل الاحترافي للمهام الخارجية ===
                     isExternalMode = true;
                     timerDisplay.innerText = "انتظار";
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-64 text-center px-4 mt-20">
-                            <h2 class="text-xl font-bold text-white mb-4">🚀 مهمة خارجية</h2>
-                            <p class="text-gray-300 mb-6">شاهد في التطبيق لمدة 15 ثانية ثم عد</p>
+                    
+                    container.innerHTML = 
+                        <div class="flex flex-col items-center justify-center h-full px-6 text-center w-full max-w-md mx-auto">
+                            
+                            <!-- أيقونة كبيرة متحركة -->
+                            <div class="mb-6 relative">
+                                <div class="absolute inset-0 bg-pink-500 blur-xl opacity-20 rounded-full animate-pulse"></div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-pink-500 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+
+                            <!-- العناوين واضحة -->
+                            <h2 class="text-2xl font-bold text-white mb-3">مهمة تيك توك 🎵</h2>
+                            
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-700 w-full mb-8 backdrop-blur-sm">
+                                <ul class="text-gray-300 text-sm space-y-3 text-right" dir="rtl">
+                                    <li class="flex items-center gap-2">
+                                        <span class="bg-gray-700 p-1 rounded text-xs">1</span>
+                                        اضغط الزر بالأسفل لفتح التطبيق.
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="bg-gray-700 p-1 rounded text-xs">2</span>
+                                        شاهد الفيديو لمدة <b class="text-yellow-400">${timeLeft} ثانية</b> كاملة.
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="bg-gray-700 p-1 rounded text-xs">3</span>
+                                        عد هنا فوراً لاستلام النقاط.
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- زر ضخم (Full Width) مناسب للإبهام -->
                             <a id="external-btn" href="${videoUrl}" target="_blank" 
-                               class="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition">
-                                اضغط لبدء المهمة 🎵
+                               class="w-full bg-gradient-to-r from-pink-600 to-rose-600 active:scale-95 text-white py-5 rounded-2xl font-bold text-xl shadow-lg shadow-pink-900/30 flex items-center justify-center gap-3 transition-transform border border-pink-500/30">
+                                <span>🚀 تنفيذ المهمة</span>
                             </a>
-                        </div>`;
+                            
+                            <p class="mt-6 text-xs text-gray-500">لا تغلق هذه الصفحة أثناء المشاهدة</p>
+                        </div>;
                     
                     // حفظ الوقت في الذاكرة الدائمة عند الضغط
                     document.getElementById('external-btn').addEventListener('click', () => {
