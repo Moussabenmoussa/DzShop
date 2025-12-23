@@ -1,56 +1,67 @@
 const express = require('express');
+const router = express.Router();
 const User = require('../models/User');
 const Video = require('../models/Video');
-const { isAuth } = require('../utils/middleware'); // سننشئه في الدفعة القادمة
-const router = express.Router();
+const { isAuth } = require('../utils/middleware'); 
+// 👇 استدعاء أداة الفحص (TLS Fingerprint)
+const { checkVideoLink } = require('../utils/browserMock'); 
 
-// عرض لوحة التحكم
+// 1. عرض لوحة التحكم
 router.get('/dashboard', isAuth, async (req, res) => {
-    const user = await User.findById(req.session.userId);
-    const myVideos = await Video.find({ userId: user._id }).sort({ createdAt: -1 });
-    res.render('dashboard', { user, videos: myVideos });
+    try {
+        const user = await User.findById(req.session.userId);
+        const myVideos = await Video.find({ userId: user._id }).sort({ createdAt: -1 });
+        res.render('dashboard', { user, videos: myVideos });
+    } catch (e) {
+        res.redirect('/');
+    }
 });
 
-// إضافة فيديو جديد (مع منطق التسعير)
+// 2. إضافة فيديو جديد (مع الحماية والتسعير)
 router.post('/add-video', isAuth, async (req, res) => {
     try {
         const { url, targetViews, duration } = req.body;
+
+        // 🛡️ [السر الجديد] التحقق من صحة الرابط قبل أي شيء
+        const isValid = await checkVideoLink(url);
+        if (!isValid) {
+             return res.send(`
+                <script>
+                    alert("⚠️ الرابط لا يعمل أو الفيديو غير متاح!\\nتأكد أن الرابط صحيح وأن الفيديو عام (Public).");
+                    window.location.href="/dashboard";
+                </script>
+            `);
+        }
         
-        // 1. تحديد التكلفة بناءً على المدة المختارة
-        // المعادلة: كل 15 ثانية إضافية تزيد التكلفة
-        let cost = 2; // السعر الافتراضي لـ 30 ثانية
+        // 💰 منطق التسعير (حسب المدة)
+        let cost = 2; // الافتراضي
         let finalDuration = 30;
 
-        if (parseInt(duration) === 45) {
-            cost = 3;
-            finalDuration = 45;
-        } else if (parseInt(duration) === 60) {
-            cost = 4;
-            finalDuration = 60;
-        } else if (parseInt(duration) === 90) {
-            cost = 6;
-            finalDuration = 90;
-        }
+        const dur = parseInt(duration);
+        if (dur === 45) { cost = 3; finalDuration = 45; }
+        else if (dur === 60) { cost = 4; finalDuration = 60; }
+        else if (dur === 90) { cost = 6; finalDuration = 90; }
 
-        // 2. التحقق من رصيد المستخدم (اختياري، لكن مفضل)
-        // هل يملك المستخدم نقاطاً تكفي لأول 10 مشاهدات على الأقل؟
-        
+        // 🏦 التحقق من رصيد المستخدم
         const user = await User.findById(req.session.userId);
-        if (user.points < cost * 10) {
-            return res.send('<script>alert("رصيدك لا يكفي! تحتاج نقاطاً أكثر."); window.location.href="/dashboard";</script>');
-        }
-        
+        const minPoints = cost * 10; // يجب أن يكفي لـ 10 مشاهدات على الأقل
 
-        // 3. إنشاء الفيديو
+        if (user.points < minPoints) {
+            return res.send(`
+                <script>
+                    alert("🚫 رصيدك غير كافي!\\nتحتاج ${minPoints} نقطة على الأقل لبدء الحملة.");
+                    window.location.href="/dashboard";
+                </script>
+            `);
+        }
+
+        // ✅ إنشاء الفيديو
         await Video.create({
             userId: req.session.userId,
             url: url,
             targetViews: targetViews,
-            
-            // البيانات الجديدة
             duration: finalDuration,
             costPerView: cost,
-            
             active: true
         });
 
@@ -62,29 +73,18 @@ router.post('/add-video', isAuth, async (req, res) => {
     }
 });
 
-// صفحة المشاهدة (لبدء جمع النقاط)
-router.get('/view', isAuth, (req, res) => {
-    res.render('viewer', { user: req.session.userId });
-});
-
-// === صفحة السجن (للمحظورين فقط) ===
-router.get('/banned', isAuth, (req, res) => {
-    // إذا لم يكن محظوراً ودخل هنا بالخطأ، نرجعه للوحة التحكم
-    if (!req.user.isBanned) {
-        return res.redirect('/dashboard');
-    }
-    
-    // عرض صفحة السجن (بدون الـ Layout العادي)
-    res.render('banned', { layout: false }); 
-});
-
-
-// === صفحة المشاهد الآلي (Viewer) ===
+// 3. صفحة المشاهد الآلي (Viewer)
+// (هذا هو الرابط الصحيح الذي يستخدم تصميم الموبايل بدون Layout)
 router.get('/viewer', isAuth, (req, res) => {
-    // نستخدم layout: false لأن صفحة المشاهد لها تصميم خاص كامل ولا تحتاج القائمة العلوية
     res.render('viewer', { layout: false, user: req.user });
 });
 
-
+// 4. صفحة السجن (للمحظورين فقط)
+router.get('/banned', isAuth, (req, res) => {
+    if (!req.user.isBanned) {
+        return res.redirect('/dashboard');
+    }
+    res.render('banned', { layout: false }); 
+});
 
 module.exports = router;
