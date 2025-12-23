@@ -38,7 +38,8 @@ app.use(session({
 app.use('/', require('./routes/authRoutes'));
 app.use('/', require('./routes/dashboardRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
-
+app.use('/api', require('./routes/apiRoutes'));
+app.use('/api', require('./routes/harvestRoutes')); // 👈 أضف هذا السطر الجديد
 
 
 // === 🚑 كود الطوارئ لفك الحظر ===
