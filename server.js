@@ -28,9 +28,9 @@ app.use(session({
 }));
 
 // 4. استدعاء المسارات (سنقوم بإنشائها في الدفعات القادمة)
-// app.use('/', require('./routes/authRoutes'));
-// app.use('/', require('./routes/dashboardRoutes'));
-// app.use('/api', require('./routes/apiRoutes'));
+ app.use('/', require('./routes/authRoutes'));
+ app.use('/', require('./routes/dashboardRoutes'));
+ app.use('/api', require('./routes/apiRoutes'));
 
 // 5. التشغيل
 const PORT = process.env.PORT || 3000;
