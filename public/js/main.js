@@ -1,11 +1,15 @@
+// ==========================================
+// 🧠 Hive Engine Main Controller (Storage Version)
+// يدعم الذاكرة الدائمة لحل مشكلة تحديث الصفحة في الموبايل
+// ==========================================
 
 let currentVideoId = null;
 let timeLeft = 15;
 let timerInterval;
 let isPaused = false;
 let isExternalMode = false;
-let externalStartTime = 0;
 
+// عناصر الواجهة
 const timerDisplay = document.getElementById('timer');
 const container = document.getElementById('video-container');
 const toastContainer = document.getElementById('toast-container');
@@ -14,7 +18,7 @@ const thunderTitle = document.getElementById('thunder-title');
 const thunderMsg = document.getElementById('thunder-msg');
 const thunderBtn = document.getElementById('thunder-btn');
 
-// === نظام الأصوات ===
+// === 1. نظام الأصوات والإشعارات ===
 const sounds = {
     success: document.getElementById('sound-success'),
     error: document.getElementById('sound-error'),
@@ -29,7 +33,6 @@ function playSound(type) {
     }
 }
 
-// === دالة إظهار الإشعار (Toast) ===
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     let colors = type === 'success' ? 'border-green-500 bg-gray-900 text-green-400' : 
@@ -50,18 +53,16 @@ function showToast(message, type = 'success') {
     }, 4000);
 }
 
-// === توليد بصمة بسيطة للجهاز ===
+// === 2. نظام الرعد والحماية ===
 function getFingerprint() {
     return navigator.userAgent + "|" + screen.width + "x" + screen.height;
 }
 
-// === نظام الرعد (Thunder System) ===
 function showThunderWarning(title, msg, isBan = false) {
     if(!thunderModal) return;
     thunderModal.classList.remove('hidden');
     thunderTitle.innerText = title;
     thunderMsg.innerText = msg;
-    
     playSound('error');
 
     if (isBan) {
@@ -78,25 +79,51 @@ function showThunderWarning(title, msg, isBan = false) {
     }
 }
 
-// === استخراج معرفات الفيديو ===
+async function reportFraud() {
+    try {
+        const res = await fetch('/api/report-fraud', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                reason: 'Time Trap (Fast Return)',
+                fingerprint: getFingerprint()
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            if (data.action === 'banned') showThunderWarning("⛔ تم حظر الحساب", data.message, true);
+            else showThunderWarning("⚠️ تحذير أمني", data.message, false);
+        }
+    } catch (e) { console.error(e); }
+}
+
+// === 3. أدوات الفيديو ===
 function getTikTokID(url) {
     if (!url) return null;
     const match = url.match(/video\/(\d+)/);
     return match ? match[1] : null;
 }
-
 function getYouTubeID(url) {
     if (!url) return null;
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/))([^?&]+)/);
     return match ? match[1] : null;
 }
 
-// === تحميل الفيديو التالي ===
+// === 4. المنطق الرئيسي (التحميل) ===
 async function loadNextVideo() {
     try {
         clearInterval(timerInterval);
         isExternalMode = false;
-        externalStartTime = 0; // إعادة تعيين
+        
+        // تنظيف أي حالة قديمة
+        localStorage.removeItem('hive_mission_start');
+        
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-64 mt-20">
+                <div class="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-gray-400 animate-pulse">جاري جلب الفيديو...</p>
+            </div>`;
+        timerDisplay.innerText = "--:--";
         
         const res = await fetch('/api/next-video');
         const data = await res.json();
@@ -104,7 +131,8 @@ async function loadNextVideo() {
         if (data.success) {
             currentVideoId = data.video._id;
             const videoUrl = data.video.url;
-            
+            playSound('click');
+
             if (videoUrl.includes('youtu')) {
                 const ytId = getYouTubeID(videoUrl);
                 container.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&controls=0" style="width: 100%; height: 80vh; border: none;" allow="autoplay" referrerpolicy="no-referrer"></iframe>`;
@@ -115,37 +143,40 @@ async function loadNextVideo() {
                     container.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${tkId}?lang=en-US" style="width: 100%; height: 80vh; border: none;" allow="encrypted-media;" referrerpolicy="no-referrer"></iframe>`;
                     startTimer();
                 } else {
-                    // الوضع الخارجي
+                    // === فيديو خارجي (موبايل) ===
                     isExternalMode = true;
-                    timerDisplay.innerText = "انتظار...";
+                    timerDisplay.innerText = "انتظار";
                     container.innerHTML = `
                         <div class="flex flex-col items-center justify-center h-64 text-center px-4 mt-20">
-                            <h2 class="text-xl font-bold text-white mb-4">فيديو خارجي</h2>
-                            <p class="text-gray-300 mb-6">شاهد لمدة 15 ثانية في التطبيق ثم عد</p>
+                            <h2 class="text-xl font-bold text-white mb-4">🚀 مهمة خارجية</h2>
+                            <p class="text-gray-300 mb-6">شاهد في التطبيق لمدة 15 ثانية ثم عد</p>
                             <a id="external-btn" href="${videoUrl}" target="_blank" 
-                               class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 rounded-full font-bold text-lg animate-pulse shadow-lg border-2 border-pink-400">
-                                🚀 اضغط للمشاهدة
+                               class="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg transform hover:scale-105 transition">
+                                اضغط لبدء المهمة 🎵
                             </a>
-                            <p id="external-status" class="text-gray-500 mt-4 text-sm"></p>
                         </div>`;
                     
+                    // حفظ الوقت في الذاكرة الدائمة عند الضغط
                     document.getElementById('external-btn').addEventListener('click', () => {
-                        externalStartTime = Date.now();
-                        timerDisplay.innerText = "⏳ جاري التحقق...";
-                        timerDisplay.classList.remove('text-green-400');
+                        // 💾 هنا السر: الحفظ في LocalStorage
+                        localStorage.setItem('hive_mission_start', Date.now());
+                        localStorage.setItem('hive_mission_video', currentVideoId);
+                        
+                        playSound('click');
+                        timerDisplay.innerText = "تحقق...";
                         timerDisplay.classList.add('text-yellow-400');
-                        document.getElementById('external-status').innerText = "شاهد الفيديو لمدة 15 ثانية ثم عد هنا...";
+                        showToast("تم الحفظ! عد بعد 15 ثانية..", "info");
                     });
                 }
             }
         } else {
-            container.innerHTML = `<h2 class="text-white text-center mt-20">${data.message}</h2>`;
+            container.innerHTML = `<h2 class="text-white text-center mt-20 opacity-75">${data.message}</h2>`;
             timerDisplay.innerText = "--";
         }
     } catch (e) { console.error(e); }
 }
 
-// === بدء العداد ===
+// === 5. العداد (للمشاهدة الداخلية فقط) ===
 function startTimer() {
     timeLeft = 15;
     isPaused = false;
@@ -158,98 +189,107 @@ function startTimer() {
         timerDisplay.innerText = `00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            claimReward();
+            claimReward(currentVideoId);
         }
     }, 1000);
 }
 
-// === استلام المكافأة ===
-async function claimReward() {
+async function claimReward(videoId) {
     timerDisplay.innerText = "💰...";
     try {
         const res = await fetch('/api/reward', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ videoId: currentVideoId })
+            body: JSON.stringify({ videoId: videoId })
         });
         const data = await res.json();
         
         if (data.success) {
             showToast(`أحسنت! رصيدك الجديد: ${data.newPoints} نقطة`, 'success');
             timerDisplay.innerText = "✅";
-            setTimeout(loadNextVideo, 2000); 
+            // تنظيف الذاكرة
+            localStorage.removeItem('hive_mission_start');
+            setTimeout(loadNextVideo, 2000);
         } else {
-            showToast("حدث خطأ في استلام المكافأة", "error");
+             showToast("خطأ في المكافأة", "error");
         }
-    } catch (e) { 
-        console.error(e);
-        showToast("حدث خطأ في الاتصال", "error");
-    }
+    } catch (e) { showToast("خطأ في الاتصال", "error"); }
 }
 
-// === الإبلاغ عن الغش ===
-async function reportFraud(reason) {
-    try {
-        const res = await fetch('/api/report-fraud', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                reason: reason || 'Time Trap (Fast Return)',
-                fingerprint: getFingerprint()
-            })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            if (data.action === 'banned') {
-                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
-            } else {
-                showThunderWarning("⚠️ تحذير أمني", data.message, false);
-            }
-        }
-    } catch (e) { console.error(e); }
-}
 
-// === مراقبة النشاط (visibility change) ===
-document.addEventListener("visibilitychange", function() {
-    if (!isExternalMode) {
-        // الوضع العادي (يوتيوب / تيك توك مضمن)
-        if (document.hidden) {
-            isPaused = true;
-            document.title = "⚠️ عد فوراً!";
+// === 6. فحص المهام الخارجية (Check Logic) ===
+// هذه الدالة تعمل عند العودة أو تحديث الصفحة
+function checkExternalMission() {
+    const savedTime = localStorage.getItem('hive_mission_start');
+    const savedVideo = localStorage.getItem('hive_mission_video');
+
+    if (savedTime && savedVideo) {
+        const timeNow = Date.now();
+        const timeSpent = (timeNow - parseInt(savedTime)) / 1000;
+
+        console.log(`⏱️ وجدنا مهمة محفوظة: مرت ${timeSpent} ثانية`);
+
+        if (timeSpent >= 15) {
+            // ✅ نجاح - مر الوقت الكافي
+            timerDisplay.innerText = "✅ جاري المعالجة...";
+            timerDisplay.classList.add('text-green-400');
+            
+            // مسح الذاكرة فوراً لمنع التكرار
+            localStorage.removeItem('hive_mission_start');
+            
+            // طلب المكافأة للفيديو المحفوظ
+            claimReward(savedVideo);
+            return true; // تمت المعالجة
+        } else {
+            // ❌ فشل - عاد بسرعة
+            localStorage.removeItem('hive_mission_start'); // مسح المهمة (عقاب)
+            
+            showToast("عدت بسرعة كبيرة! يجب الانتظار 15 ثانية", "error");
+            timerDisplay.innerText = "فشل";
             timerDisplay.classList.add('text-red-500');
-        } else {
+            reportFraud(); // تسجيل مخالفة
+            
+            // تحميل فيديو جديد بعد قليل
+            setTimeout(loadNextVideo, 3000);
+            return true; // تمت المعالجة
+        }
+    }
+    return false; // لا توجد مهام محفوظة
+}
+
+
+// === 7. المراقبة والتشغيل ===
+
+// عند تغيير التبويب أو العودة للتطبيق
+document.addEventListener("visibilitychange", function() {
+    if (!document.hidden) {
+        // المستخدم عاد للصفحة -> نفحص هل كان في مهمة؟
+        const handled = checkExternalMission();
+        if (handled) return; // إذا عالجنا مهمة خارجية لا نفعل شيئاً آخر
+        
+        // إذا لم تكن مهمة خارجية وكان الفيديو داخلي
+        if (!isExternalMode) {
             isPaused = false;
             document.title = "Hive Viewer 👁️";
             timerDisplay.classList.remove('text-red-500');
         }
     } else {
-        // الوضع الخارجي - فقط عند العودة للصفحة
-        if (!document.hidden && externalStartTime > 0) {
-            const timeSpent = (Date.now() - externalStartTime) / 1000;
-            
-            console.log("Time spent outside:", timeSpent, "seconds"); // للتصحيح
-            
-            // إعادة تعيين فوراً لمنع التكرار
-            externalStartTime = 0;
-            
-            if (timeSpent >= 15) {
-                // ✅ نجاح - شاهد لمدة كافية
-                timerDisplay.innerText = "✅ تم التحقق!";
-                timerDisplay.classList.remove('text-yellow-400');
-                timerDisplay.classList.add('text-green-400');
-                claimReward();
-            } else if (timeSpent >= 3) {
-                // ⚠️ عاد مبكراً - تحذير بدون حظر
-                showToast(`يجب المشاهدة لمدة 15 ثانية! (شاهدت ${Math.floor(timeSpent)} ثواني فقط)`, "error");
-                timerDisplay.innerText = "❌ أعد المحاولة";
-                // إعادة تحميل بعد 3 ثواني
-                setTimeout(loadNextVideo, 3000);
-            }
-            // إذا أقل من 3 ثواني = تجاهل (قد يكون تبديل سريع للتبويبات)
+        // المستخدم غادر
+        if (!isExternalMode) {
+            isPaused = true;
+            document.title = "⚠️ عد فوراً!";
+            timerDisplay.classList.add('text-red-500');
         }
     }
 });
 
-// === بدء التشغيل ===
-loadNextVideo();
+// عند فتح الصفحة لأول مرة
+document.addEventListener('DOMContentLoaded', () => {
+    // نفحص أولاً: هل الصفحة أُعيد تحميلها بعد مهمة تيك توك؟
+    const handled = checkExternalMission();
+    
+    // إذا لم نجد مهمة سابقة، نحمل فيديو جديد
+    if (!handled) {
+        loadNextVideo();
+    }
+});
