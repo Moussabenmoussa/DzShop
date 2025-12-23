@@ -147,71 +147,58 @@ timeLeft = data.video.duration || 30;
                 if (tkId) {
                     container.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${tkId}?lang=en-US" style="width: 100%; height: 80vh; border: none;" allow="encrypted-media;" referrerpolicy="no-referrer"></iframe>`;
                     startTimer();
+
+
+
+
+                    
                 } else {
-                    // === تصميم "تطبيق الموبايل" الاحترافي (Full Screen UI) ===
+                    // === تصميم الهاتف الحقيقي (Full Screen Overlay) ===
                     isExternalMode = true;
                     timerDisplay.innerText = "انتظار";
                     
-                    // استخدام flex-col justify-between لتوزيع العناصر على طول الشاشة
+                    // استخدام 'fixed inset-0' يجبر التصميم على ملء شاشة الهاتف بالكامل
+                    // z-[60] يجعله يغطي حتى القوائم العلوية
                     container.innerHTML = `
-                        <div class="flex flex-col justify-between h-full p-6 pb-12 bg-gradient-to-b from-gray-900 to-black w-full">
+                        <div class="fixed inset-0 z-[60] bg-gray-900 flex flex-col justify-between p-6 pb-10 w-screen h-screen overflow-hidden">
                             
-                            <!-- 1. القسم العلوي: الأيقونة والعنوان -->
-                            <div class="flex flex-col items-center pt-8">
-                                <div class="relative w-24 h-24 mb-4">
-                                    <div class="absolute inset-0 bg-pink-600 rounded-full blur-2xl opacity-20 animate-pulse"></div>
-                                    <div class="relative z-10 bg-gray-800/80 rounded-2xl p-5 border border-gray-700 shadow-2xl backdrop-blur-md">
-                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
+                            <!-- 1. الرأس: مساحة كبيرة في الأعلى -->
+                            <div class="flex flex-col items-center justify-center mt-10">
+                                <div class="w-28 h-28 bg-gray-800 rounded-full flex items-center justify-center mb-4 shadow-2xl border border-gray-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
                                 </div>
-                                <h2 class="text-3xl font-bold text-white tracking-wide">مهمة خارجية</h2>
+                                <h1 class="text-4xl font-bold text-white mb-2">مهمة خارجية</h1>
+                                <p class="text-gray-400 text-lg">TikTok App</p>
                             </div>
 
-                            <!-- 2. القسم الأوسط: بطاقة التعليمات (خطوات واضحة) -->
-                            <div class="bg-gray-800/40 rounded-3xl p-6 border border-gray-700/50 backdrop-blur-sm mx-1">
-                                <div class="space-y-6">
-                                    <!-- خطوة 1 -->
-                                    <div class="flex items-center gap-4 text-right" dir="rtl">
-                                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-full font-bold text-lg border border-gray-600">1</div>
-                                        <div>
-                                            <h4 class="text-white font-bold text-lg">فتح التطبيق</h4>
-                                            <p class="text-gray-400 text-xs">اضغط الزر بالأسفل للانتقال</p>
-                                        </div>
-                                    </div>
-                                    <!-- خطوة 2 -->
-                                    <div class="flex items-center gap-4 text-right" dir="rtl">
-                                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-yellow-500/20 text-yellow-400 rounded-full font-bold text-lg border border-yellow-500/30">2</div>
-                                        <div>
-                                            <h4 class="text-white font-bold text-lg">المشاهدة</h4>
-                                            <p class="text-gray-400 text-xs">شاهد لمدة <span class="text-yellow-400 font-bold text-base border-b border-yellow-500">${timeLeft} ثانية</span> كاملة</p>
-                                        </div>
-                                    </div>
-                                    <!-- خطوة 3 -->
-                                    <div class="flex items-center gap-4 text-right" dir="rtl">
-                                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green-500/20 text-green-400 rounded-full font-bold text-lg border border-green-500/30">3</div>
-                                        <div>
-                                            <h4 class="text-white font-bold text-lg">العودة</h4>
-                                            <p class="text-gray-400 text-xs">ارجع هنا فوراً لاستلام النقاط</p>
-                                        </div>
-                                    </div>
+                            <!-- 2. الوسط: التعليمات بخط كبير جداً -->
+                            <div class="bg-gray-800/50 p-6 rounded-3xl border border-gray-700">
+                                <div class="flex items-center gap-4 mb-6">
+                                    <span class="bg-gray-700 w-12 h-12 flex items-center justify-center rounded-full text-xl font-bold text-white">1</span>
+                                    <p class="text-white text-xl">اضغط الزر بالأسفل</p>
+                                </div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <span class="bg-yellow-900/50 w-12 h-12 flex items-center justify-center rounded-full text-xl font-bold text-yellow-500">2</span>
+                                    <p class="text-white text-xl">شاهد <span class="text-yellow-400 font-bold text-2xl">${timeLeft}</span> ثانية</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="bg-green-900/50 w-12 h-12 flex items-center justify-center rounded-full text-xl font-bold text-green-500">3</span>
+                                    <p class="text-white text-xl">عد هنا لاستلام النقاط</p>
                                 </div>
                             </div>
 
-                            <!-- 3. القسم السفلي: الزر العريض -->
-                            <div class="w-full mt-4">
+                            <!-- 3. الأسفل: زر ضخم يملأ العرض -->
+                            <div class="w-full">
                                 <a id="external-btn" href="${videoUrl}" target="_blank" 
-                                   class="block w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white py-5 rounded-2xl font-bold text-2xl text-center shadow-lg shadow-pink-900/40 active:scale-95 transition-transform border border-pink-500/30 relative overflow-hidden">
-                                   <span class="relative z-10 flex items-center justify-center gap-3">
-                                        🚀 تنفيذ المهمة
-                                   </span>
+                                   class="flex items-center justify-center w-full bg-pink-600 active:bg-pink-700 text-white py-6 rounded-2xl font-bold text-2xl shadow-xl transition-transform active:scale-95">
+                                    🚀 تنفيذ المهمة
                                 </a>
-                                <p class="text-center text-gray-500 text-xs mt-4 opacity-60">سيقوم النظام بالتحقق تلقائياً</p>
                             </div>
                         </div>`;
                     
-                    // (لا تنس نسخ كود المستمع للزر eventListener الذي تحته أيضاً)
+                    // كود الزر
                     document.getElementById('external-btn').addEventListener('click', () => {
                          localStorage.setItem('hive_mission_start', Date.now());
                          localStorage.setItem('hive_mission_video', currentVideoId);
@@ -220,9 +207,13 @@ timeLeft = data.video.duration || 30;
                          playSound('click');
                          timerDisplay.innerText = "تحقق...";
                          timerDisplay.classList.add('text-yellow-400');
-                         showToast(`العداد بدأ.. عد بعد ${timeLeft} ثانية!`, "info");
+                         showToast(`ابدأ المشاهدة الآن (${timeLeft} ثانية)`, "info");
                     });
                 }
+
+
+
+                
             }
         } else {
             container.innerHTML = `<h2 class="text-white text-center mt-20 opacity-75">${data.message}</h2>`;
