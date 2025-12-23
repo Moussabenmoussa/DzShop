@@ -1,3 +1,5 @@
+
+// === المتغيرات الأساسية ===
 let currentVideoId = null;
 let timeLeft = 15;
 let timerInterval;
@@ -5,14 +7,16 @@ let isPaused = false;
 let isExternalMode = false;
 let externalStartTime = 0;
 
+// === عناصر الصفحة ===
 const timerDisplay = document.getElementById('timer');
-
-
-
-// === 1. تعريف عناصر الإشعارات ونظام الرعد ===
+const container = document.getElementById('video-container');
 const toastContainer = document.getElementById('toast-container');
+const thunderModal = document.getElementById('thunder-modal');
+const thunderTitle = document.getElementById('thunder-title');
+const thunderMsg = document.getElementById('thunder-msg');
+const thunderBtn = document.getElementById('thunder-btn');
 
-// === 2. نظام الأصوات ===
+// === نظام الأصوات ===
 const sounds = {
     success: document.getElementById('sound-success'),
     error: document.getElementById('sound-error'),
@@ -27,7 +31,7 @@ function playSound(type) {
     }
 }
 
-// === 3. دالة إظهار الإشعار (Toast) ===
+// === دالة إظهار الإشعار (Toast) ===
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     let colors = type === 'success' ? 'border-green-500 bg-gray-900 text-green-400' : 
@@ -48,60 +52,118 @@ function showToast(message, type = 'success') {
     }, 4000);
 }
 
-
-
-
-const container = document.getElementById('video-container');
-
-// === دوال نظام الرعد (UI) ===
-const thunderModal = document.getElementById('thunder-modal');
-const thunderTitle = document.getElementById('thunder-title');
-const thunderMsg = document.getElementById('thunder-msg');
-const thunderBtn = document.getElementById('thunder-btn');
-
-function showThunderWarning(title, msg, isBan = false) {
-    thunderModal.classList.remove('hidden');
-    thunderTitle.innerText = title;
-    thunderMsg.innerText = msg;
-    
-    if (isBan) {
-        // تصميم الحظر (أحمر + زر خروج)
-        thunderBtn.innerText = "تسجيل الخروج";
-        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-[0_0_20px_rgba(220,38,38,0.5)]";
-        thunderBtn.onclick = () => location.href = '/logout';
-        // منع إغلاق النافذة
-    } else {
-        // تصميم التحذير (برتقالي)
-        thunderBtn.innerText = "أعتذر، سألتزم بالقواعد";
-        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-yellow-600 hover:bg-yellow-700";
-        thunderBtn.onclick = closeThunderModal;
-    }
-}
-
-function closeThunderModal() {
-    thunderModal.classList.add('hidden');
-    location.reload(); // إعادة تحميل الصفحة لتصفير العدادات
-}
-
-// === توليد بصمة بسيطة للجهاز ===
+// === توليد بصمة الجهاز ===
 function getFingerprint() {
     return navigator.userAgent + "|" + screen.width + "x" + screen.height;
 }
 
-// === الدوال الأساسية (تم دمجها مع الحماية) ===
+// === دوال نظام الرعد (Thunder System) ===
+function showThunderWarning(title, msg, isBan = false) {
+    if(!thunderModal) return;
+    thunderModal.classList.remove('hidden');
+    thunderTitle.innerText = title;
+    thunderMsg.innerText = msg;
+    
+    playSound('error');
 
+    if (isBan) {
+        thunderBtn.innerText = "تسجيل الخروج (أنت محظور)";
+        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-[0_0_20px_rgba(220,38,38,0.5)]";
+        thunderBtn.onclick = () => location.href = '/logout';
+    } else {
+        thunderBtn.innerText = "فهمت، سألتزم بالقواعد";
+        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-yellow-600 hover:bg-yellow-700";
+        thunderBtn.onclick = () => {
+            thunderModal.classList.add('hidden');
+            location.reload();
+        };
+    }
+}
+
+// === الإبلاغ عن الغش ===
+async function reportFraud() {
+    try {
+        const res = await fetch('/api/report-fraud', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                reason: 'Time Trap (Fast Return)',
+                fingerprint: getFingerprint()
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            if (data.action === 'banned') {
+                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
+            } else {
+                showThunderWarning("⚠️ تحذير أمني", data.message, false);
+            }
+        }
+    } catch (e) { console.error(e); }
+}
+
+// === دالة استخراج معرف TikTok المحسّنة ===
 function getTikTokID(url) {
     if (!url) return null;
-    const match = url.match(/video\/(\d+)/);
-    return match ? match[1] : null;
+    
+    // 1. صيغة: /video/1234567890123456789
+    let match = url.match(/video\/(\d{15,25})/);
+    if (match) return match[1];
+    
+    // 2. صيغة: /v/1234567890123456789
+    match = url.match(/\/v\/(\d{15,25})/);
+    if (match) return match[1];
+    
+    // 3. صيغة: @username/video/ID
+    match = url.match(/@[\w.-]+\/video\/(\d{15,25})/);
+    if (match) return match[1];
+    
+    // 4. صيغة قديمة مع أرقام أقل
+    match = url.match(/video\/(\d{10,})/);
+    if (match) return match[1];
+    
+    // 5. إذا كان رابط مختصر - نعيد null للوضع الخارجي
+    if (url.includes('vm.tiktok.com') || url.includes('tiktok.com/t/') || url.includes('vt.tiktok.com')) {
+        return null;
+    }
+    
+    return null;
 }
 
+// === دالة استخراج معرف YouTube ===
 function getYouTubeID(url) {
     if (!url) return null;
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/))([^?&]+)/);
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|embed\/|shorts\/))([^?&"'>]+)/);
     return match ? match[1] : null;
 }
 
+// === دالة عرض الوضع الخارجي ===
+function showExternalMode(videoUrl) {
+    isExternalMode = true;
+    timerDisplay.innerText = "انتظار...";
+    container.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-64 text-center px-4 mt-20">
+            <h2 class="text-xl font-bold text-white mb-4">🎬 فيديو خارجي</h2>
+            <p class="text-gray-300 mb-6">شاهد الفيديو لمدة 15 ثانية على الأقل ثم عد هنا</p>
+            <a id="external-btn" href="${videoUrl}" target="_blank" 
+               class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 rounded-full font-bold text-lg animate-pulse shadow-lg border-2 border-pink-400">
+                🚀 افتح الفيديو
+            </a>
+            <p class="text-gray-500 text-sm mt-4">سيتم احتساب النقاط تلقائياً عند عودتك</p>
+        </div>`;
+    
+    const externalBtn = document.getElementById('external-btn');
+    if (externalBtn) {
+        externalBtn.addEventListener('click', () => {
+            externalStartTime = Date.now();
+            timerDisplay.innerText = "⏳ تحقق...";
+            timerDisplay.classList.add('text-yellow-400');
+        });
+    }
+}
+
+// === تحميل الفيديو التالي ===
 async function loadNextVideo() {
     try {
         clearInterval(timerInterval);
@@ -115,42 +177,74 @@ async function loadNextVideo() {
             const videoUrl = data.video.url;
             
             if (videoUrl.includes('youtu')) {
+                // === YouTube ===
                 const ytId = getYouTubeID(videoUrl);
-                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&controls=0" style="width: 100%; height: 80vh; border: none;" allow="autoplay" referrerpolicy="no-referrer"></iframe>`;
-                startTimer();
-            } else if (videoUrl.includes('tiktok')) {
-                const tkId = getTikTokID(videoUrl);
-                if (tkId) {
-                    container.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${tkId}?lang=en-US" style="width: 100%; height: 80vh; border: none;" allow="encrypted-media;" referrerpolicy="no-referrer"></iframe>`;
+                if (ytId) {
+                    container.innerHTML = `
+                        <div class="flex justify-center items-center" style="height: 80vh;">
+                            <iframe 
+                                src="https://www.youtube.com/embed/${ytId}?autoplay=1&controls=0" 
+                                style="width: 100%; max-width: 800px; height: 450px; border: none;" 
+                                allow="autoplay; encrypted-media" 
+                                referrerpolicy="no-referrer"
+                                allowfullscreen>
+                            </iframe>
+                        </div>`;
                     startTimer();
                 } else {
-                    // الوضع الخارجي
-                    isExternalMode = true;
-                    timerDisplay.innerText = "انتظار...";
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-64 text-center px-4 mt-20">
-                            <h2 class="text-xl font-bold text-white mb-4">فيديو خارجي</h2>
-                            <p class="text-gray-300 mb-6">شاهد لمدة 15 ثانية في التطبيق ثم عد</p>
-                            <a id="external-btn" href="${videoUrl}" target="_blank" 
-                               class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 rounded-full font-bold text-lg animate-pulse shadow-lg border-2 border-pink-400">
-                                🚀 اضغط للمشاهدة
-                            </a>
-                        </div>`;
-                    
-                    document.getElementById('external-btn').addEventListener('click', () => {
-                        externalStartTime = Date.now();
-                        timerDisplay.innerText = "تحقق...";
-                        timerDisplay.classList.add('text-yellow-400');
-                    });
+                    showExternalMode(videoUrl);
                 }
+            } else if (videoUrl.includes('tiktok')) {
+                // === TikTok ===
+                const tkId = getTikTokID(videoUrl);
+                
+                if (tkId) {
+                    // الوضع المدمج (Embed)
+                    container.innerHTML = `
+                        <div class="flex justify-center items-center" style="height: 80vh;">
+                            <iframe 
+                                src="https://www.tiktok.com/embed/v2/${tkId}" 
+                                style="width: 325px; height: 745px; max-height: 80vh; border: none;" 
+                                allow="encrypted-media;" 
+                                referrerpolicy="no-referrer">
+                            </iframe>
+                        </div>`;
+                    startTimer();
+                } else {
+                    // الوضع الخارجي (للروابط المختصرة)
+                    showExternalMode(videoUrl);
+                }
+            } else {
+                // === روابط أخرى ===
+                showExternalMode(videoUrl);
             }
         } else {
-            container.innerHTML = `<h2 class="text-white text-center mt-20">${data.message}</h2>`;
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center mt-20 text-center">
+                    <div class="text-6xl mb-4">📭</div>
+                    <h2 class="text-white text-xl font-bold">${data.message}</h2>
+                    <p class="text-gray-400 mt-2">جرب مرة أخرى لاحقاً</p>
+                    <button onclick="loadNextVideo()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold">
+                        🔄 إعادة المحاولة
+                    </button>
+                </div>`;
             timerDisplay.innerText = "--";
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e);
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center mt-20 text-center">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h2 class="text-red-500 text-xl font-bold">حدث خطأ في الاتصال</h2>
+                <p class="text-gray-400 mt-2">تحقق من اتصالك بالإنترنت</p>
+                <button onclick="loadNextVideo()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold">
+                    🔄 إعادة المحاولة
+                </button>
+            </div>`;
+    }
 }
 
+// === بدء العد التنازلي ===
 function startTimer() {
     timeLeft = 15;
     isPaused = false;
@@ -168,9 +262,9 @@ function startTimer() {
     }, 1000);
 }
 
-// 3. استلام المكافأة
+// === استلام المكافأة ===
 async function claimReward() {
-    timerDisplay.innerText = "💰..."; // أو أي نص كنت تضعه هنا
+    timerDisplay.innerText = "💰...";
     try {
         const res = await fetch('/api/reward', {
             method: 'POST',
@@ -180,48 +274,26 @@ async function claimReward() {
         const data = await res.json();
         
         if (data.success) {
-            // 👇👇👇 أضف السطر هنا بالضبط 👇👇👇
             showToast(`أحسنت! رصيدك الجديد: ${data.newPoints} نقطة`, 'success');
-            // 👆👆👆
-
-            timerDisplay.innerText = "✅"; // تغيير النص لعلامة صح
+            timerDisplay.innerText = "✅";
             
             // الانتظار قليلاً قبل تحميل الفيديو التالي
             setTimeout(loadNextVideo, 2000); 
+        } else {
+            showToast("حدث خطأ، حاول مجدداً", "error");
+            setTimeout(loadNextVideo, 2000);
         }
     } catch (e) { 
         console.error(e);
-        // يمكنك أيضاً إضافة إشعار خطأ هنا إذا أردت
         showToast("حدث خطأ في الاتصال", "error");
+        setTimeout(loadNextVideo, 3000);
     }
 }
 
-// === الإبلاغ عن الغش (الرابط مع السيرفر) ===
-async function reportFraud() {
-    try {
-        const res = await fetch('/api/report-fraud', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                reason: 'Time Trap (Returning too fast)',
-                fingerprint: getFingerprint()
-            })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            if (data.action === 'banned') {
-                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
-            } else {
-                showThunderWarning("⚠️ تحذير أمني", data.message, false);
-            }
-        }
-    } catch (e) { console.error(e); }
-}
-
-// مراقبة النشاط
+// === مراقبة النشاط (Visibility API) ===
 document.addEventListener("visibilitychange", function() {
     if (!isExternalMode) {
+        // الوضع العادي (Embed)
         if (document.hidden) {
             isPaused = true;
             document.title = "⚠️ عد فوراً!";
@@ -238,74 +310,17 @@ document.addEventListener("visibilitychange", function() {
             const timeSpent = (timeNow - externalStartTime) / 1000;
 
             if (timeSpent >= 15) {
+                // المستخدم قضى وقتاً كافياً
                 externalStartTime = 0;
                 claimReward();
             } else {
+                // عاد بسرعة - محاولة غش محتملة
                 externalStartTime = 0;
-                // هنا نبلغ السيرفر فوراً عن الغش!
                 reportFraud();
             }
         }
     }
 });
 
-
-
-
-
-// === دوال نظام الرعد (Thunder System) ===
-function getFingerprint() {
-    return navigator.userAgent + "|" + screen.width + "x" + screen.height;
-}
-
-function showThunderWarning(title, msg, isBan = false) {
-    if(!thunderModal) return;
-    thunderModal.classList.remove('hidden');
-    thunderTitle.innerText = title;
-    thunderMsg.innerText = msg;
-    
-    playSound('error'); // صوت رعب
-
-    if (isBan) {
-        thunderBtn.innerText = "تسجيل الخروج (أنت محظور)";
-        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-[0_0_20px_rgba(220,38,38,0.5)]";
-        thunderBtn.onclick = () => location.href = '/logout';
-    } else {
-        thunderBtn.innerText = "فهمت، سألتزم بالقواعد";
-        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-yellow-600 hover:bg-yellow-700";
-        thunderBtn.onclick = () => {
-            thunderModal.classList.add('hidden');
-            location.reload();
-        };
-    }
-}
-
-async function reportFraud() {
-    try {
-        const res = await fetch('/api/report-fraud', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                reason: 'Time Trap (Fast Return)',
-                fingerprint: getFingerprint()
-            })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            // إظهار النافذة السوداء بناءً على رد السيرفر
-            if (data.action === 'banned') {
-                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
-            } else {
-                showThunderWarning("⚠️ تحذير أمني", data.message, false);
-            }
-        }
-    } catch (e) { console.error(e); }
-}
-
-
-
-
-
-
+// === بدء التشغيل ===
 loadNextVideo();
