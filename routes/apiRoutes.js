@@ -28,26 +28,41 @@ router.get('/next-video', isAuth, async (req, res) => {
     }
 });
 
-// استلام المكافأة
+// استلام المكافأة (نظام الضريبة والدفع مقابل المشاهدة)
 router.post('/reward', isAuth, async (req, res) => {
     try {
         const { videoId } = req.body;
-        const userId = req.session.userId;
+        const viewerId = req.session.userId; // المعرف الخاص بالمشاهد (أنت)
         
         if (!videoId) return res.json({ success: false });
 
-        await Video.findByIdAndUpdate(videoId, { $inc: { completedViews: 1 } });
-        const user = await User.findByIdAndUpdate(userId, { $inc: { points: 1 } }, { new: true });
+        // 1. يجب جلب الفيديو أولاً لنعرف من هو صاحبه وكم تكلفته
+        const video = await Video.findById(videoId);
+        if (!video || !video.active) return res.json({ success: false });
+
+        // 2. === خصم النقاط من صاحب الفيديو (The Tax) ===
+        // نأخذ التكلفة المسجلة في الفيديو (أو 2 افتراضياً)
+        const cost = video.costPerView || 2; 
+        
+        // نخصم من صاحب الفيديو (video.userId)
+        await User.findByIdAndUpdate(video.userId, { $inc: { points: -cost } });
+
+        // 3. === مكافأة المشاهد (أنت) ===
+        // المشاهد يحصل دائماً على 1 نقطة (صافي الربح)
+        const viewer = await User.findByIdAndUpdate(viewerId, { $inc: { points: 1 } }, { new: true });
+
+        // 4. تحديث إحصائيات الفيديو
+        video.completedViews += 1;
 
         // فحص الاكتمال
-        const video = await Video.findById(videoId);
-        if (video && video.completedViews >= video.targetViews) {
-            video.active = false;
-            await video.save();
+        if (video.completedViews >= video.targetViews) {
+            video.active = false; // إيقاف الفيديو عند انتهاء العدد
         }
+        await video.save();
 
-        res.json({ success: true, newPoints: user.points });
+        res.json({ success: true, newPoints: viewer.points });
     } catch (e) {
+        console.error(e);
         res.json({ success: false });
     }
 });
