@@ -6,6 +6,55 @@ let isExternalMode = false;
 let externalStartTime = 0;
 
 const timerDisplay = document.getElementById('timer');
+
+
+
+// === 1. تعريف عناصر الإشعارات ونظام الرعد ===
+const toastContainer = document.getElementById('toast-container');
+const thunderModal = document.getElementById('thunder-modal');
+const thunderTitle = document.getElementById('thunder-title');
+const thunderMsg = document.getElementById('thunder-msg');
+const thunderBtn = document.getElementById('thunder-btn');
+
+// === 2. نظام الأصوات ===
+const sounds = {
+    success: document.getElementById('sound-success'),
+    error: document.getElementById('sound-error'),
+    click: document.getElementById('sound-click')
+};
+
+function playSound(type) {
+    if (sounds[type]) {
+        sounds[type].currentTime = 0;
+        sounds[type].volume = 0.5;
+        sounds[type].play().catch(e => console.log("Audio blocked"));
+    }
+}
+
+// === 3. دالة إظهار الإشعار (Toast) ===
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    let colors = type === 'success' ? 'border-green-500 bg-gray-900 text-green-400' : 
+                 type === 'error' ? 'border-red-500 bg-gray-900 text-red-400' : 
+                 'border-blue-500 bg-gray-900 text-blue-400';
+    let icon = type === 'success' ? '💰' : type === 'error' ? '⛔' : 'ℹ️';
+
+    toast.className = `${colors} border-l-4 p-4 rounded-r shadow-2xl flex items-center gap-3 transform translate-y-[-20px] opacity-0 transition-all duration-300 pointer-events-auto min-w-[300px] z-[100]`;
+    toast.innerHTML = `<span class="text-xl">${icon}</span><div class="font-bold text-sm">${message}</div>`;
+
+    if(toastContainer) toastContainer.appendChild(toast);
+    playSound(type);
+
+    requestAnimationFrame(() => toast.classList.remove('translate-y-[-20px]', 'opacity-0'));
+    setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-[100px]');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+
+
+
 const container = document.getElementById('video-container');
 
 // === دوال نظام الرعد (UI) ===
@@ -123,8 +172,9 @@ function startTimer() {
     }, 1000);
 }
 
+// 3. استلام المكافأة
 async function claimReward() {
-    timerDisplay.innerText = "💰...";
+    timerDisplay.innerText = "💰..."; // أو أي نص كنت تضعه هنا
     try {
         const res = await fetch('/api/reward', {
             method: 'POST',
@@ -132,11 +182,22 @@ async function claimReward() {
             body: JSON.stringify({ videoId: currentVideoId })
         });
         const data = await res.json();
+        
         if (data.success) {
-            timerDisplay.innerText = "✅";
-            setTimeout(loadNextVideo, 1500);
+            // 👇👇👇 أضف السطر هنا بالضبط 👇👇👇
+            showToast(`أحسنت! رصيدك الجديد: ${data.newPoints} نقطة`, 'success');
+            // 👆👆👆
+
+            timerDisplay.innerText = "✅"; // تغيير النص لعلامة صح
+            
+            // الانتظار قليلاً قبل تحميل الفيديو التالي
+            setTimeout(loadNextVideo, 2000); 
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e);
+        // يمكنك أيضاً إضافة إشعار خطأ هنا إذا أردت
+        showToast("حدث خطأ في الاتصال", "error");
+    }
 }
 
 // === الإبلاغ عن الغش (الرابط مع السيرفر) ===
@@ -191,5 +252,64 @@ document.addEventListener("visibilitychange", function() {
         }
     }
 });
+
+
+
+
+
+// === دوال نظام الرعد (Thunder System) ===
+function getFingerprint() {
+    return navigator.userAgent + "|" + screen.width + "x" + screen.height;
+}
+
+function showThunderWarning(title, msg, isBan = false) {
+    if(!thunderModal) return;
+    thunderModal.classList.remove('hidden');
+    thunderTitle.innerText = title;
+    thunderMsg.innerText = msg;
+    
+    playSound('error'); // صوت رعب
+
+    if (isBan) {
+        thunderBtn.innerText = "تسجيل الخروج (أنت محظور)";
+        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-[0_0_20px_rgba(220,38,38,0.5)]";
+        thunderBtn.onclick = () => location.href = '/logout';
+    } else {
+        thunderBtn.innerText = "فهمت، سألتزم بالقواعد";
+        thunderBtn.className = "w-full py-3 px-6 rounded-xl font-bold text-white bg-yellow-600 hover:bg-yellow-700";
+        thunderBtn.onclick = () => {
+            thunderModal.classList.add('hidden');
+            location.reload();
+        };
+    }
+}
+
+async function reportFraud() {
+    try {
+        const res = await fetch('/api/report-fraud', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                reason: 'Time Trap (Fast Return)',
+                fingerprint: getFingerprint()
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            // إظهار النافذة السوداء بناءً على رد السيرفر
+            if (data.action === 'banned') {
+                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
+            } else {
+                showThunderWarning("⚠️ تحذير أمني", data.message, false);
+            }
+        }
+    } catch (e) { console.error(e); }
+}
+
+
+
+
+
 
 loadNextVideo();
