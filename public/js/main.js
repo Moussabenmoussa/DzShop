@@ -9,6 +9,7 @@ let timerInterval;
 let isPaused = false;
 let isExternalMode = false;
 
+
 // عناصر الواجهة
 const timerDisplay = document.getElementById('timer');
 const container = document.getElementById('video-container');
