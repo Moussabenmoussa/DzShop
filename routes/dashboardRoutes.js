@@ -41,4 +41,20 @@ router.get('/view', isAuth, (req, res) => {
     res.render('viewer', { user: req.session.userId });
 });
 
+// === صفحة السجن (للمحظورين فقط) ===
+router.get('/banned', isAuth, (req, res) => {
+    // إذا لم يكن محظوراً ودخل هنا بالخطأ، نرجعه للوحة التحكم
+    if (!req.user.isBanned) {
+        return res.redirect('/dashboard');
+    }
+    
+    // عرض صفحة السجن (بدون الـ Layout العادي)
+    res.render('banned', { layout: false }); 
+});
+
+
+
+
+
+
 module.exports = router;
