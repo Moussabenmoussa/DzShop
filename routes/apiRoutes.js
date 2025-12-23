@@ -1,30 +1,26 @@
-
 const express = require('express');
-const mongoose = require('mongoose'); // استدعاء mongoose ضروري
-const Video = require('../models/Video'); // تأكد أن اسم الملف مطابق (كبير/صغير)
+const mongoose = require('mongoose');
+const Video = require('../models/Video');
 const User = require('../models/User');
 const { isAuth } = require('../utils/middleware');
+// 👇 الإضافة 1: استدعاء درع الحماية (Rate Limiter)
+const { rewardLimiter } = require('../utils/limiter'); 
+
 const router = express.Router();
 
-// جلب الفيديو التالي
-// جلب الفيديو التالي
+
+// 1. جلب الفيديو التالي (نفس الكود القديم تماماً)
 router.get('/next-video', isAuth, async (req, res) => {
     try {
         const userId = req.session.userId;
 
         const video = await Video.aggregate([
             { $match: { 
-                // 🛑 هام: شرط عدم مشاهدة فيديوهاتي (مُعطل حالياً للتجربة)
-                // لتفعيله: قم بحذف علامتي // من بداية السطر التالي 👇
-                // userId: { $ne: new mongoose.Types.ObjectId(userId) },
-
-                // 1. يجب أن يكون الفيديو نشطاً
+                // userId: { $ne: new mongoose.Types.ObjectId(userId) }, // معطل للتجربة
                 active: true,
-                
-                // 2. مقارنة: المشاهدات الحالية أقل من الهدف
                 $expr: { $lt: ["$completedViews", "$targetViews"] }
             }},
-            { $sample: { size: 1 } } // اختيار عشوائي
+            { $sample: { size: 1 } }
         ]);
 
         if (video.length > 0) {
@@ -43,35 +39,32 @@ router.get('/next-video', isAuth, async (req, res) => {
     }
 });
 
-// استلام المكافأة (نظام الضريبة والدفع مقابل المشاهدة)
-router.post('/reward', isAuth, async (req, res) => {
+
+// 2. استلام المكافأة (تمت إضافة الحماية + نفس نظام الضريبة القديم)
+// 👇 الإضافة 2: وضعنا rewardLimiter هنا لحماية النقاط من السكربتات
+router.post('/reward', isAuth, rewardLimiter, async (req, res) => {
     try {
         const { videoId } = req.body;
-        const viewerId = req.session.userId; // المعرف الخاص بالمشاهد (أنت)
+        const viewerId = req.session.userId;
         
         if (!videoId) return res.json({ success: false });
 
-        // 1. يجب جلب الفيديو أولاً لنعرف من هو صاحبه وكم تكلفته
         const video = await Video.findById(videoId);
         if (!video || !video.active) return res.json({ success: false });
 
-        // 2. === خصم النقاط من صاحب الفيديو (The Tax) ===
-        // نأخذ التكلفة المسجلة في الفيديو (أو 2 افتراضياً)
+        // === منطق الضريبة (كما هو) ===
         const cost = video.costPerView || 2; 
         
-        // نخصم من صاحب الفيديو (video.userId)
+        // الخصم من المعلن
         await User.findByIdAndUpdate(video.userId, { $inc: { points: -cost } });
 
-        // 3. === مكافأة المشاهد (أنت) ===
-        // المشاهد يحصل دائماً على 1 نقطة (صافي الربح)
+        // === مكافأة المشاهد (كما هي) ===
         const viewer = await User.findByIdAndUpdate(viewerId, { $inc: { points: 1 } }, { new: true });
 
-        // 4. تحديث إحصائيات الفيديو
+        // تحديث الفيديو
         video.completedViews += 1;
-
-        // فحص الاكتمال
         if (video.completedViews >= video.targetViews) {
-            video.active = false; // إيقاف الفيديو عند انتهاء العدد
+            video.active = false;
         }
         await video.save();
 
@@ -83,37 +76,33 @@ router.post('/reward', isAuth, async (req, res) => {
 });
 
 
-// 3. 🛡️ نظام الرعد: استقبال تقارير الغش
+// 3. نظام الرعد: تقارير الغش (نفس الكود القديم تماماً)
 router.post('/report-fraud', isAuth, async (req, res) => {
     try {
         const userId = req.session.userId;
-        const { reason, fingerprint } = req.body; // نستلم السبب وبصمة الجهاز
+        const { reason, fingerprint } = req.body;
 
         const user = await User.findById(userId);
         if (!user) return res.json({ success: false });
 
-        // زيادة عداد المخالفات
         user.fraudStrikes += 1;
-        user.deviceFingerprint = fingerprint || "Unknown"; // حفظ البصمة
+        user.deviceFingerprint = fingerprint || "Unknown";
 
         let action = "warning";
         let message = "";
 
-        // فحص العتبة (3 مخالفات = حظر)
         if (user.fraudStrikes >= 3) {
             user.isBanned = true;
             user.banReason = "تكرار الغش في المشاهدات (نظام الرعد)";
             action = "banned";
             message = "تم حظر حسابك وجهازك نهائياً بسبب تكرار انتهاك السياسات.";
         } else {
-            // رسالة تحذير حسب عدد الإنذارات المتبقية
             const left = 3 - user.fraudStrikes;
             message = `لقد قمت بمحاولة تجاوز النظام. بقي لديك ${left} محاولات قبل الحظر النهائي للجهاز.`;
         }
 
         await user.save();
 
-        // إذا تم الحظر، ندمر الجلسة
         if (user.isBanned) {
             req.session.destroy();
         }
@@ -125,7 +114,5 @@ router.post('/report-fraud', isAuth, async (req, res) => {
         res.json({ success: false });
     }
 });
-
-
 
 module.exports = router;
