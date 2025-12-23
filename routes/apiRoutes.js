@@ -52,4 +52,50 @@ router.post('/reward', isAuth, async (req, res) => {
     }
 });
 
+
+// 3. 🛡️ نظام الرعد: استقبال تقارير الغش
+router.post('/report-fraud', isAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { reason, fingerprint } = req.body; // نستلم السبب وبصمة الجهاز
+
+        const user = await User.findById(userId);
+        if (!user) return res.json({ success: false });
+
+        // زيادة عداد المخالفات
+        user.fraudStrikes += 1;
+        user.deviceFingerprint = fingerprint || "Unknown"; // حفظ البصمة
+
+        let action = "warning";
+        let message = "";
+
+        // فحص العتبة (3 مخالفات = حظر)
+        if (user.fraudStrikes >= 3) {
+            user.isBanned = true;
+            user.banReason = "تكرار الغش في المشاهدات (نظام الرعد)";
+            action = "banned";
+            message = "تم حظر حسابك وجهازك نهائياً بسبب تكرار انتهاك السياسات.";
+        } else {
+            // رسالة تحذير حسب عدد الإنذارات المتبقية
+            const left = 3 - user.fraudStrikes;
+            message = `لقد قمت بمحاولة تجاوز النظام. بقي لديك ${left} محاولات قبل الحظر النهائي للجهاز.`;
+        }
+
+        await user.save();
+
+        // إذا تم الحظر، ندمر الجلسة
+        if (user.isBanned) {
+            req.session.destroy();
+        }
+
+        res.json({ success: true, action, message, strikes: user.fraudStrikes });
+
+    } catch (e) {
+        console.error(e);
+        res.json({ success: false });
+    }
+});
+
+
+
 module.exports = router;
