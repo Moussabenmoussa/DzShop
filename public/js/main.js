@@ -304,22 +304,26 @@ document.addEventListener("visibilitychange", function() {
             timerDisplay.classList.remove('text-red-500');
         }
     } else {
-        // الوضع الخارجي
-        if (!document.hidden && externalStartTime > 0) {
-            const timeNow = Date.now();
-            const timeSpent = (timeNow - externalStartTime) / 1000;
+    // الوضع الخارجي
+    if (!document.hidden && externalStartTime > 0) {
+        const timeNow = Date.now();
+        const timeSpent = (timeNow - externalStartTime) / 1000;
 
-            if (timeSpent >= 15) {
-                // المستخدم قضى وقتاً كافياً
-                externalStartTime = 0;
-                claimReward();
-            } else {
-                // عاد بسرعة - محاولة غش محتملة
-                externalStartTime = 0;
-                reportFraud();
-            }
+        // إعادة تعيين قبل أي إجراء لمنع التكرار
+        const startTime = externalStartTime;
+        externalStartTime = 0;
+
+        // إذا قضى 15 ثانية أو أكثر = نجاح
+        if (timeSpent >= 15) {
+            claimReward();
+        } else if (timeSpent >= 3) {
+            // إذا عاد بعد 3-15 ثانية = تحذير بدون إبلاغ
+            showToast("يجب المشاهدة لمدة 15 ثانية على الأقل!", "error");
         }
+        // إذا أقل من 3 ثواني = تجاهل (قد يكون انتقال سريع بين التبويبات)
     }
+}
+
 });
 
 // === بدء التشغيل ===
