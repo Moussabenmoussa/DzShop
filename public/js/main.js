@@ -278,41 +278,50 @@ async function claimReward(videoId) {
     } catch (e) { showToast("خطأ في الاتصال", "error"); }
 }
 
-
-// === 6. فحص المهام الخارجية (النسخة المتسامحة) ===
+// === 6. فحص المهام الخارجية (النسخة المصححة والديناميكية) ===
 function checkExternalMission() {
     const savedTime = localStorage.getItem('hive_mission_start');
     const savedVideo = localStorage.getItem('hive_mission_video');
-const requiredTime = parseInt(localStorage.getItem('hive_mission_duration')) || 30;
+    
+    // 1. جلب الوقت المطلوب من الذاكرة (أو افتراض 30 ثانية إذا لم يوجد)
+    let requiredTime = parseInt(localStorage.getItem('hive_mission_duration'));
+    if (!requiredTime || isNaN(requiredTime)) { 
+        requiredTime = 30; 
+    }
+
     if (savedTime && savedVideo) {
         const timeNow = Date.now();
         const timeSpent = (timeNow - parseInt(savedTime)) / 1000;
 
-        console.log(`⏱️ مرت ${timeSpent} ثانية`);
+        console.log(`⏱️ مرت ${timeSpent.toFixed(1)} ثانية | المطلوب: ${requiredTime}`);
 
-        if (timeSpent >= 15) {
+        // 2. المقارنة مع الوقت المطلوب (وليس 15 ثابتة)
+        if (timeSpent >= requiredTime) {
             // ✅ نجاح - مر الوقت الكافي
             timerDisplay.innerText = "✅ جاري المعالجة...";
-            timerDisplay.classList.remove('text-yellow-400');
+            timerDisplay.classList.remove('text-yellow-400', 'text-red-500');
             timerDisplay.classList.add('text-green-400');
             
-            // مسح الذاكرة
+            // مسح جميع بيانات المهمة من الذاكرة
             localStorage.removeItem('hive_mission_start');
+            localStorage.removeItem('hive_mission_video');
+            localStorage.removeItem('hive_mission_duration');
             
             // طلب المكافأة
             claimReward(savedVideo);
             return true;
         } else {
-            // ⚠️ تنبيه فقط (بدون حظر وبدون إلغاء المهمة)
-            // نعطي المستخدم فرصة للعودة للتطبيق لإكمال الوقت
-            const remaining = Math.ceil(15 - timeSpent);
+            // ⚠️ تنبيه فقط - الوقت غير كافي
+            // حساب الوقت المتبقي بناءً على requiredTime
+            const remaining = Math.ceil(requiredTime - timeSpent);
             
-            showToast(`عدت بسرعة! بقي ${remaining} ثانية. ارجع للتطبيق!`, "error");
+            showToast(`عدت بسرعة! المطلوب ${requiredTime} ثانية. بقي ${remaining} ثانية.`, "error");
+            
             timerDisplay.innerText = `بقي ${remaining} ثانية`;
+            timerDisplay.classList.remove('text-green-400'); // إزالة اللون الأخضر إن وجد
             timerDisplay.classList.add('text-red-500');
             
-            // 🛑 لا نحذف LocalStorage (نترك المهمة معلقة)
-            // 🛑 لا نرسل reportFraud (لا نعاقب)
+            // 🛑 لا نحذف LocalStorage (نترك المهمة معلقة ليعود ويكملها)
             
             return true; // نعتبرها معالجة لكي لا يحمل فيديو جديد
         }
