@@ -131,6 +131,10 @@ async function loadNextVideo() {
         if (data.success) {
             currentVideoId = data.video._id;
             const videoUrl = data.video.url;
+
+timeLeft = data.video.duration || 30;
+
+            
             playSound('click');
 
             if (videoUrl.includes('youtu')) {
@@ -161,7 +165,7 @@ async function loadNextVideo() {
                         // 💾 هنا السر: الحفظ في LocalStorage
                         localStorage.setItem('hive_mission_start', Date.now());
                         localStorage.setItem('hive_mission_video', currentVideoId);
-                        
+                        localStorage.setItem('hive_mission_duration', timeLeft);
                         playSound('click');
                         timerDisplay.innerText = "تحقق...";
                         timerDisplay.classList.add('text-yellow-400');
@@ -221,7 +225,7 @@ async function claimReward(videoId) {
 function checkExternalMission() {
     const savedTime = localStorage.getItem('hive_mission_start');
     const savedVideo = localStorage.getItem('hive_mission_video');
-
+const requiredTime = parseInt(localStorage.getItem('hive_mission_duration')) || 30;
     if (savedTime && savedVideo) {
         const timeNow = Date.now();
         const timeSpent = (timeNow - parseInt(savedTime)) / 1000;
