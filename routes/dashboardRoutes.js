@@ -79,7 +79,11 @@ router.get('/banned', isAuth, (req, res) => {
 });
 
 
-
+// === صفحة المشاهد الآلي (Viewer) ===
+router.get('/viewer', isAuth, (req, res) => {
+    // نستخدم layout: false لأن صفحة المشاهد لها تصميم خاص كامل ولا تحتاج القائمة العلوية
+    res.render('viewer', { layout: false, user: req.user });
+});
 
 
 
