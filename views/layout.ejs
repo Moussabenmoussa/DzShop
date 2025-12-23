@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Hive 🐝</title>
+    <!-- استدعاء Tailwind للتصميم الجاهز -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-black text-white p-4 shadow-lg mb-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-pink-500">TikTok<span class="text-white">Hive</span></a>
+            <% if (typeof user !== 'undefined') { %>
+                <div class="flex gap-4">
+                    <span class="bg-gray-800 px-3 py-1 rounded-full text-yellow-400 font-bold">💰 <%= user.points %> نقطة</span>
+                    <a href="/dashboard" class="hover:text-pink-400">لوحة التحكم</a>
+                    <a href="/logout" class="text-red-400">خروج</a>
+                </div>
+            <% } %>
+        </div>
+    </nav>
+    
+    <div class="container mx-auto px-4">
+        <%- body %>
+    </div>
+    
+    <script src="/js/main.js"></script>
+</body>
+</html>
