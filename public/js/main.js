@@ -11,10 +11,6 @@ const timerDisplay = document.getElementById('timer');
 
 // === 1. تعريف عناصر الإشعارات ونظام الرعد ===
 const toastContainer = document.getElementById('toast-container');
-const thunderModal = document.getElementById('thunder-modal');
-const thunderTitle = document.getElementById('thunder-title');
-const thunderMsg = document.getElementById('thunder-msg');
-const thunderBtn = document.getElementById('thunder-btn');
 
 // === 2. نظام الأصوات ===
 const sounds = {
