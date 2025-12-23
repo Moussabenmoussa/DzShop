@@ -7,24 +7,39 @@ const { isAuth } = require('../utils/middleware');
 const router = express.Router();
 
 // جلب الفيديو التالي
+// جلب الفيديو التالي
 router.get('/next-video', isAuth, async (req, res) => {
     try {
-        // البحث عن أي فيديو نشط ولم يكتمل العدد
-        const video = await Video.findOne({
-            active: true,
-            $expr: { $lt: ["$completedViews", "$targetViews"] }
-        });
+        const userId = req.session.userId;
 
-        if (video) {
-            console.log("Found Video:", video._id); // سيظهر في السجلات
-            res.json({ success: true, video: video });
+        const video = await Video.aggregate([
+            { $match: { 
+                // 🛑 هام: شرط عدم مشاهدة فيديوهاتي (مُعطل حالياً للتجربة)
+                // لتفعيله: قم بحذف علامتي // من بداية السطر التالي 👇
+                // userId: { $ne: new mongoose.Types.ObjectId(userId) },
+
+                // 1. يجب أن يكون الفيديو نشطاً
+                active: true,
+                
+                // 2. مقارنة: المشاهدات الحالية أقل من الهدف
+                $expr: { $lt: ["$completedViews", "$targetViews"] }
+            }},
+            { $sample: { size: 1 } } // اختيار عشوائي
+        ]);
+
+        if (video.length > 0) {
+            console.log("✅ Video Found:", video[0]._id);
+            res.json({ success: true, video: video[0] });
         } else {
-            console.log("No videos found");
-            res.json({ success: false, message: 'لا توجد فيديوهات متاحة حالياً' });
+            const count = await Video.countDocuments();
+            res.json({ 
+                success: false, 
+                message: count === 0 ? 'لا توجد فيديوهات في قاعدة البيانات' : 'جميع الفيديوهات مكتملة أو متوقفة' 
+            });
         }
     } catch (e) {
         console.error("API Error:", e);
-        res.json({ success: false, message: 'Server Error' });
+        res.json({ success: false, message: 'خطأ في السيرفر' });
     }
 });
 
