@@ -28,7 +28,7 @@ router.get('/next-video', isAuth, async (req, res) => {
         const video = await Video.aggregate([
             { $match: { 
                 // الشرط: صاحب الفيديو ليس أنا
-                userId: { $ne: new mongoose.Types.ObjectId(userId) },
+               // userId: { $ne: new mongoose.Types.ObjectId(userId) },
                 // الشرط: الفيديو نشط
                 active: true,
                 // الشرط: لم يكتمل العدد
