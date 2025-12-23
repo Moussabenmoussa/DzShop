@@ -1,5 +1,4 @@
 
-// === المتغيرات الأساسية ===
 let currentVideoId = null;
 let timeLeft = 15;
 let timerInterval;
@@ -7,7 +6,6 @@ let isPaused = false;
 let isExternalMode = false;
 let externalStartTime = 0;
 
-// === عناصر الصفحة ===
 const timerDisplay = document.getElementById('timer');
 const container = document.getElementById('video-container');
 const toastContainer = document.getElementById('toast-container');
@@ -52,12 +50,12 @@ function showToast(message, type = 'success') {
     }, 4000);
 }
 
-// === توليد بصمة الجهاز ===
+// === توليد بصمة بسيطة للجهاز ===
 function getFingerprint() {
     return navigator.userAgent + "|" + screen.width + "x" + screen.height;
 }
 
-// === دوال نظام الرعد (Thunder System) ===
+// === نظام الرعد (Thunder System) ===
 function showThunderWarning(title, msg, isBan = false) {
     if(!thunderModal) return;
     thunderModal.classList.remove('hidden');
@@ -80,87 +78,17 @@ function showThunderWarning(title, msg, isBan = false) {
     }
 }
 
-// === الإبلاغ عن الغش ===
-async function reportFraud() {
-    try {
-        const res = await fetch('/api/report-fraud', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                reason: 'Time Trap (Fast Return)',
-                fingerprint: getFingerprint()
-            })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            if (data.action === 'banned') {
-                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
-            } else {
-                showThunderWarning("⚠️ تحذير أمني", data.message, false);
-            }
-        }
-    } catch (e) { console.error(e); }
-}
-
-// === دالة استخراج معرف TikTok المحسّنة ===
+// === استخراج معرفات الفيديو ===
 function getTikTokID(url) {
     if (!url) return null;
-    
-    // 1. صيغة: /video/1234567890123456789
-    let match = url.match(/video\/(\d{15,25})/);
-    if (match) return match[1];
-    
-    // 2. صيغة: /v/1234567890123456789
-    match = url.match(/\/v\/(\d{15,25})/);
-    if (match) return match[1];
-    
-    // 3. صيغة: @username/video/ID
-    match = url.match(/@[\w.-]+\/video\/(\d{15,25})/);
-    if (match) return match[1];
-    
-    // 4. صيغة قديمة مع أرقام أقل
-    match = url.match(/video\/(\d{10,})/);
-    if (match) return match[1];
-    
-    // 5. إذا كان رابط مختصر - نعيد null للوضع الخارجي
-    if (url.includes('vm.tiktok.com') || url.includes('tiktok.com/t/') || url.includes('vt.tiktok.com')) {
-        return null;
-    }
-    
-    return null;
-}
-
-// === دالة استخراج معرف YouTube ===
-function getYouTubeID(url) {
-    if (!url) return null;
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|embed\/|shorts\/))([^?&"'>]+)/);
+    const match = url.match(/video\/(\d+)/);
     return match ? match[1] : null;
 }
 
-// === دالة عرض الوضع الخارجي ===
-function showExternalMode(videoUrl) {
-    isExternalMode = true;
-    timerDisplay.innerText = "انتظار...";
-    container.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-64 text-center px-4 mt-20">
-            <h2 class="text-xl font-bold text-white mb-4">🎬 فيديو خارجي</h2>
-            <p class="text-gray-300 mb-6">شاهد الفيديو لمدة 15 ثانية على الأقل ثم عد هنا</p>
-            <a id="external-btn" href="${videoUrl}" target="_blank" 
-               class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 rounded-full font-bold text-lg animate-pulse shadow-lg border-2 border-pink-400">
-                🚀 افتح الفيديو
-            </a>
-            <p class="text-gray-500 text-sm mt-4">سيتم احتساب النقاط تلقائياً عند عودتك</p>
-        </div>`;
-    
-    const externalBtn = document.getElementById('external-btn');
-    if (externalBtn) {
-        externalBtn.addEventListener('click', () => {
-            externalStartTime = Date.now();
-            timerDisplay.innerText = "⏳ تحقق...";
-            timerDisplay.classList.add('text-yellow-400');
-        });
-    }
+function getYouTubeID(url) {
+    if (!url) return null;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/))([^?&]+)/);
+    return match ? match[1] : null;
 }
 
 // === تحميل الفيديو التالي ===
@@ -168,6 +96,7 @@ async function loadNextVideo() {
     try {
         clearInterval(timerInterval);
         isExternalMode = false;
+        externalStartTime = 0; // إعادة تعيين
         
         const res = await fetch('/api/next-video');
         const data = await res.json();
@@ -177,74 +106,46 @@ async function loadNextVideo() {
             const videoUrl = data.video.url;
             
             if (videoUrl.includes('youtu')) {
-                // === YouTube ===
                 const ytId = getYouTubeID(videoUrl);
-                if (ytId) {
-                    container.innerHTML = `
-                        <div class="flex justify-center items-center" style="height: 80vh;">
-                            <iframe 
-                                src="https://www.youtube.com/embed/${ytId}?autoplay=1&controls=0" 
-                                style="width: 100%; max-width: 800px; height: 450px; border: none;" 
-                                allow="autoplay; encrypted-media" 
-                                referrerpolicy="no-referrer"
-                                allowfullscreen>
-                            </iframe>
-                        </div>`;
-                    startTimer();
-                } else {
-                    showExternalMode(videoUrl);
-                }
+                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&controls=0" style="width: 100%; height: 80vh; border: none;" allow="autoplay" referrerpolicy="no-referrer"></iframe>`;
+                startTimer();
             } else if (videoUrl.includes('tiktok')) {
-                // === TikTok ===
                 const tkId = getTikTokID(videoUrl);
-                
                 if (tkId) {
-                    // الوضع المدمج (Embed)
-                    container.innerHTML = `
-                        <div class="flex justify-center items-center" style="height: 80vh;">
-                            <iframe 
-                                src="https://www.tiktok.com/embed/v2/${tkId}" 
-                                style="width: 325px; height: 745px; max-height: 80vh; border: none;" 
-                                allow="encrypted-media;" 
-                                referrerpolicy="no-referrer">
-                            </iframe>
-                        </div>`;
+                    container.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${tkId}?lang=en-US" style="width: 100%; height: 80vh; border: none;" allow="encrypted-media;" referrerpolicy="no-referrer"></iframe>`;
                     startTimer();
                 } else {
-                    // الوضع الخارجي (للروابط المختصرة)
-                    showExternalMode(videoUrl);
+                    // الوضع الخارجي
+                    isExternalMode = true;
+                    timerDisplay.innerText = "انتظار...";
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-64 text-center px-4 mt-20">
+                            <h2 class="text-xl font-bold text-white mb-4">فيديو خارجي</h2>
+                            <p class="text-gray-300 mb-6">شاهد لمدة 15 ثانية في التطبيق ثم عد</p>
+                            <a id="external-btn" href="${videoUrl}" target="_blank" 
+                               class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 rounded-full font-bold text-lg animate-pulse shadow-lg border-2 border-pink-400">
+                                🚀 اضغط للمشاهدة
+                            </a>
+                            <p id="external-status" class="text-gray-500 mt-4 text-sm"></p>
+                        </div>`;
+                    
+                    document.getElementById('external-btn').addEventListener('click', () => {
+                        externalStartTime = Date.now();
+                        timerDisplay.innerText = "⏳ جاري التحقق...";
+                        timerDisplay.classList.remove('text-green-400');
+                        timerDisplay.classList.add('text-yellow-400');
+                        document.getElementById('external-status').innerText = "شاهد الفيديو لمدة 15 ثانية ثم عد هنا...";
+                    });
                 }
-            } else {
-                // === روابط أخرى ===
-                showExternalMode(videoUrl);
             }
         } else {
-            container.innerHTML = `
-                <div class="flex flex-col items-center justify-center mt-20 text-center">
-                    <div class="text-6xl mb-4">📭</div>
-                    <h2 class="text-white text-xl font-bold">${data.message}</h2>
-                    <p class="text-gray-400 mt-2">جرب مرة أخرى لاحقاً</p>
-                    <button onclick="loadNextVideo()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold">
-                        🔄 إعادة المحاولة
-                    </button>
-                </div>`;
+            container.innerHTML = `<h2 class="text-white text-center mt-20">${data.message}</h2>`;
             timerDisplay.innerText = "--";
         }
-    } catch (e) { 
-        console.error(e);
-        container.innerHTML = `
-            <div class="flex flex-col items-center justify-center mt-20 text-center">
-                <div class="text-6xl mb-4">⚠️</div>
-                <h2 class="text-red-500 text-xl font-bold">حدث خطأ في الاتصال</h2>
-                <p class="text-gray-400 mt-2">تحقق من اتصالك بالإنترنت</p>
-                <button onclick="loadNextVideo()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold">
-                    🔄 إعادة المحاولة
-                </button>
-            </div>`;
-    }
+    } catch (e) { console.error(e); }
 }
 
-// === بدء العد التنازلي ===
+// === بدء العداد ===
 function startTimer() {
     timeLeft = 15;
     isPaused = false;
@@ -276,24 +177,43 @@ async function claimReward() {
         if (data.success) {
             showToast(`أحسنت! رصيدك الجديد: ${data.newPoints} نقطة`, 'success');
             timerDisplay.innerText = "✅";
-            
-            // الانتظار قليلاً قبل تحميل الفيديو التالي
             setTimeout(loadNextVideo, 2000); 
         } else {
-            showToast("حدث خطأ، حاول مجدداً", "error");
-            setTimeout(loadNextVideo, 2000);
+            showToast("حدث خطأ في استلام المكافأة", "error");
         }
     } catch (e) { 
         console.error(e);
         showToast("حدث خطأ في الاتصال", "error");
-        setTimeout(loadNextVideo, 3000);
     }
 }
 
-// === مراقبة النشاط (Visibility API) ===
+// === الإبلاغ عن الغش ===
+async function reportFraud(reason) {
+    try {
+        const res = await fetch('/api/report-fraud', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                reason: reason || 'Time Trap (Fast Return)',
+                fingerprint: getFingerprint()
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            if (data.action === 'banned') {
+                showThunderWarning("⛔ تم حظر الحساب", data.message, true);
+            } else {
+                showThunderWarning("⚠️ تحذير أمني", data.message, false);
+            }
+        }
+    } catch (e) { console.error(e); }
+}
+
+// === مراقبة النشاط (visibility change) ===
 document.addEventListener("visibilitychange", function() {
     if (!isExternalMode) {
-        // الوضع العادي (Embed)
+        // الوضع العادي (يوتيوب / تيك توك مضمن)
         if (document.hidden) {
             isPaused = true;
             document.title = "⚠️ عد فوراً!";
@@ -304,26 +224,31 @@ document.addEventListener("visibilitychange", function() {
             timerDisplay.classList.remove('text-red-500');
         }
     } else {
-    // الوضع الخارجي
-    if (!document.hidden && externalStartTime > 0) {
-        const timeNow = Date.now();
-        const timeSpent = (timeNow - externalStartTime) / 1000;
-
-        // إعادة تعيين قبل أي إجراء لمنع التكرار
-        const startTime = externalStartTime;
-        externalStartTime = 0;
-
-        // إذا قضى 15 ثانية أو أكثر = نجاح
-        if (timeSpent >= 15) {
-            claimReward();
-        } else if (timeSpent >= 3) {
-            // إذا عاد بعد 3-15 ثانية = تحذير بدون إبلاغ
-            showToast("يجب المشاهدة لمدة 15 ثانية على الأقل!", "error");
+        // الوضع الخارجي - فقط عند العودة للصفحة
+        if (!document.hidden && externalStartTime > 0) {
+            const timeSpent = (Date.now() - externalStartTime) / 1000;
+            
+            console.log("Time spent outside:", timeSpent, "seconds"); // للتصحيح
+            
+            // إعادة تعيين فوراً لمنع التكرار
+            externalStartTime = 0;
+            
+            if (timeSpent >= 15) {
+                // ✅ نجاح - شاهد لمدة كافية
+                timerDisplay.innerText = "✅ تم التحقق!";
+                timerDisplay.classList.remove('text-yellow-400');
+                timerDisplay.classList.add('text-green-400');
+                claimReward();
+            } else if (timeSpent >= 3) {
+                // ⚠️ عاد مبكراً - تحذير بدون حظر
+                showToast(`يجب المشاهدة لمدة 15 ثانية! (شاهدت ${Math.floor(timeSpent)} ثواني فقط)`, "error");
+                timerDisplay.innerText = "❌ أعد المحاولة";
+                // إعادة تحميل بعد 3 ثواني
+                setTimeout(loadNextVideo, 3000);
+            }
+            // إذا أقل من 3 ثواني = تجاهل (قد يكون تبديل سريع للتبويبات)
         }
-        // إذا أقل من 3 ثواني = تجاهل (قد يكون انتقال سريع بين التبويبات)
     }
-}
-
 });
 
 // === بدء التشغيل ===
