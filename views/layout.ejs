@@ -10,6 +10,19 @@
     <style>body { font-family: 'Cairo', sans-serif; }</style>
 </head>
 <body class="bg-gray-100 min-h-screen">
+
+
+<!-- 🔔 حاوية الإشعارات (Toasts Container) -->
+    <div id="toast-container" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none">
+        <!-- الإشعارات ستظهر هنا تلقائياً بواسطة الجافاسكريبت -->
+    </div>
+    
+    <!-- 🔊 تحميل الأصوات مسبقاً (روابط سريعة) -->
+    <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+    <audio id="sound-error" src="https://assets.mixkit.co/active_storage/sfx/944/944-preview.mp3" preload="auto"></audio>
+    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+
+
     <nav class="bg-black text-white p-4 shadow-lg mb-6">
         <div class="container mx-auto flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-pink-500">TikTok<span class="text-white">Hive</span></a>
