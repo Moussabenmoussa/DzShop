@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path');
+const expressLayouts = require('express-ejs-layouts'); // <--- 1. إضافة المكتبة هنا
 
 const app = express();
 
@@ -15,8 +16,12 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tiktokhive'
 // 2. إعدادات السيرفر
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.set('view engine', 'ejs');
 app.use(express.static('public'));
+
+// --- إعداد الـ Layout (مهم جداً للتصميم) ---
+app.use(expressLayouts);          // <--- 2. تفعيل المكتبة
+app.set('layout', './layout');    // <--- 3. تحديد ملف الـ layout الافتراضي
+app.set('view engine', 'ejs');
 
 // 3. إعداد الجلسات (Sessions)
 app.use(session({
@@ -27,10 +32,10 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 } // يوم واحد
 }));
 
-// 4. استدعاء المسارات (سنقوم بإنشائها في الدفعات القادمة)
- app.use('/', require('./routes/authRoutes'));
- app.use('/', require('./routes/dashboardRoutes'));
- app.use('/api', require('./routes/apiRoutes'));
+// 4. استدعاء المسارات
+app.use('/', require('./routes/authRoutes'));
+app.use('/', require('./routes/dashboardRoutes'));
+app.use('/api', require('./routes/apiRoutes'));
 
 // 5. التشغيل
 const PORT = process.env.PORT || 3000;
