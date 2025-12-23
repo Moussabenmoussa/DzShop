@@ -28,5 +28,37 @@
     </div>
     
     <script src="/js/main.js"></script>
+
+
+
+<!-- 🛡️ نافذة نظام الرعد (مخفية افتراضياً) -->
+    <div id="thunder-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[9999] hidden flex items-center justify-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-gray-900 border border-red-600 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center relative transform scale-95 transition-transform duration-300" id="thunder-box">
+            
+            <!-- أيقونة التحذير -->
+            <div class="mx-auto w-20 h-20 bg-red-900/50 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+
+            <!-- العنوان -->
+            <h2 id="thunder-title" class="text-2xl font-bold text-white mb-2">كشف محاولة تحايل</h2>
+            
+            <!-- النص -->
+            <p id="thunder-msg" class="text-gray-300 mb-6 leading-relaxed text-sm">
+                لقد اكتشفت خوارزمياتنا أنك عدت للموقع دون إكمال المشاهدة.
+            </p>
+
+            <!-- زر الإجراء -->
+            <button id="thunder-btn" onclick="closeThunderModal()" class="w-full py-3 px-6 rounded-xl font-bold text-white transition-all duration-200 transform hover:scale-105 shadow-lg">
+                فهمت، لن أكررها
+            </button>
+        </div>
+    </div>
+
+
+
+
 </body>
 </html>
