@@ -217,8 +217,7 @@ async function claimReward(videoId) {
 }
 
 
-// === 6. فحص المهام الخارجية (Check Logic) ===
-// هذه الدالة تعمل عند العودة أو تحديث الصفحة
+// === 6. فحص المهام الخارجية (النسخة المتسامحة) ===
 function checkExternalMission() {
     const savedTime = localStorage.getItem('hive_mission_start');
     const savedVideo = localStorage.getItem('hive_mission_video');
@@ -227,34 +226,36 @@ function checkExternalMission() {
         const timeNow = Date.now();
         const timeSpent = (timeNow - parseInt(savedTime)) / 1000;
 
-        console.log(`⏱️ وجدنا مهمة محفوظة: مرت ${timeSpent} ثانية`);
+        console.log(`⏱️ مرت ${timeSpent} ثانية`);
 
         if (timeSpent >= 15) {
             // ✅ نجاح - مر الوقت الكافي
             timerDisplay.innerText = "✅ جاري المعالجة...";
+            timerDisplay.classList.remove('text-yellow-400');
             timerDisplay.classList.add('text-green-400');
             
-            // مسح الذاكرة فوراً لمنع التكرار
+            // مسح الذاكرة
             localStorage.removeItem('hive_mission_start');
             
-            // طلب المكافأة للفيديو المحفوظ
+            // طلب المكافأة
             claimReward(savedVideo);
-            return true; // تمت المعالجة
+            return true;
         } else {
-            // ❌ فشل - عاد بسرعة
-            localStorage.removeItem('hive_mission_start'); // مسح المهمة (عقاب)
+            // ⚠️ تنبيه فقط (بدون حظر وبدون إلغاء المهمة)
+            // نعطي المستخدم فرصة للعودة للتطبيق لإكمال الوقت
+            const remaining = Math.ceil(15 - timeSpent);
             
-            showToast("عدت بسرعة كبيرة! يجب الانتظار 15 ثانية", "error");
-            timerDisplay.innerText = "فشل";
+            showToast(`عدت بسرعة! بقي ${remaining} ثانية. ارجع للتطبيق!`, "error");
+            timerDisplay.innerText = `بقي ${remaining} ثانية`;
             timerDisplay.classList.add('text-red-500');
-            reportFraud(); // تسجيل مخالفة
             
-            // تحميل فيديو جديد بعد قليل
-            setTimeout(loadNextVideo, 3000);
-            return true; // تمت المعالجة
+            // 🛑 لا نحذف LocalStorage (نترك المهمة معلقة)
+            // 🛑 لا نرسل reportFraud (لا نعاقب)
+            
+            return true; // نعتبرها معالجة لكي لا يحمل فيديو جديد
         }
     }
-    return false; // لا توجد مهام محفوظة
+    return false;
 }
 
 
