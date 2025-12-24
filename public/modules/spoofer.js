@@ -1,32 +1,88 @@
-// 🛡️ Spoofer Module: Anti-Fingerprinting
-(function() {
-    console.log('👻 Spoofer Active: Masking Device Identity...');
 
-    // 1. Canvas Noise Injection (تزوير كرت الشاشة)
-    const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
-    HTMLCanvasElement.prototype.toDataURL = function(type) {
-        const context = this.getContext('2d');
-        if (context) {
-            const shift = Math.floor(Math.random() * 10) - 5;
-            const imageData = context.getImageData(0, 0, 1, 1); // نأخذ بكسل واحد
-            imageData.data[0] = imageData.data[0] + shift; // نغير لونه قليلاً
-            context.putImageData(imageData, 0, 0);
+// 🎭 Identity Injector: Real Device Emulation
+// يقوم باستبدال خصائص المتصفح ببيانات جهاز حقيقي تم جلبه من السيرفر
+
+(async function() {
+    console.log('💉 Injector: Requesting a clean identity...');
+
+    try {
+        // 1. طلب هوية حقيقية من السيرفر
+        const response = await fetch('/api/get-identity');
+        const result = await response.json();
+
+        if (!result.success) {
+            console.warn('⚠️ No identities found in vault. Running in passive mode.');
+            return;
         }
-        return originalToDataURL.apply(this, arguments);
-    };
 
-    // 2. AudioContext Noise (تزوير كرت الصوت)
-    const origGetChannelData = AudioBuffer.prototype.getChannelData;
-    AudioBuffer.prototype.getChannelData = function() {
-        const results = origGetChannelData.apply(this, arguments);
-        for (let i = 0; i < results.length; i+=100) {
-            results[i] += Math.random() * 0.0000001; // تشويش مجهري
-        }
-        return results;
-    };
+        const fake = result.data;
+        console.log(`🦸 Masking as: ${fake.renderer} | ${fake.userAgent.substring(0, 30)}...`);
 
-    // 3. Timezone Mocking (تثبيت التوقيت)
-    // نجبر المتصفح أن يبلغ عن توقيت ثابت لمنع كشف الـ IP المختلف
-    const originalDate = Date;
-    // (يمكن تطوير هذا الجزء ليتناسب مع الـ IP القادم من السيرفر)
+        // ====================================================
+        // 2. تزوير مواصفات كرت الشاشة (WebGL Spoofing) - الأهم!
+        // ====================================================
+        const getParameter = WebGLRenderingContext.prototype.getParameter;
+        WebGLRenderingContext.prototype.getParameter = function(parameter) {
+            // تزوير الشركة المصنعة (Vendor)
+            if (parameter === 37445) {
+                return fake.vendor; 
+            }
+            // تزوير اسم الكرت (Renderer) - هذا ما تبحث عنه Cloudflare
+            if (parameter === 37446) {
+                return fake.renderer; 
+            }
+            return getParameter.apply(this, arguments);
+        };
+
+        // ====================================================
+        // 3. تزوير خصائص الشاشة (Screen Properties)
+        // ====================================================
+        // نستخدم Object.defineProperty لمنع المتصفح من كشف التزوير
+        Object.defineProperties(screen, {
+            width: { get: () => fake.screen.width },
+            height: { get: () => fake.screen.height },
+            colorDepth: { get: () => fake.screen.colorDepth },
+            pixelRatio: { get: () => fake.screen.pixelRatio }
+        });
+
+        // ====================================================
+        // 4. تزوير معلومات المتصفح (User Agent & Hardware)
+        // ====================================================
+        
+        // تزوير User Agent (للنصوص البرمجية فقط)
+        Object.defineProperty(navigator, 'userAgent', {
+            get: () => fake.userAgent
+        });
+
+        // تزوير عدد الأنوية والرامات
+        Object.defineProperty(navigator, 'hardwareConcurrency', {
+            get: () => fake.hardware.concurrency
+        });
+        Object.defineProperty(navigator, 'deviceMemory', {
+            get: () => fake.hardware.memory
+        });
+
+        // ====================================================
+        // 5. تزوير الكانفس (Canvas Noise) - لإعطاء بصمة فريدة
+        // ====================================================
+        // نضيف تشويشاً طفيفاً جداً ليتوافق مع كرت الشاشة الجديد
+        const toDataURL = HTMLCanvasElement.prototype.toDataURL;
+        HTMLCanvasElement.prototype.toDataURL = function(type) {
+            const context = this.getContext('2d');
+            if (context) {
+                // إضافة توقيع خفي (Shift)
+                const shift = (fake.screen.width % 10) - 5; 
+                const imageData = context.getImageData(0, 0, 1, 1);
+                // تغيير غير مرئي للعين لكنه يغير الـ Hash
+                imageData.data[0] = imageData.data[0] + shift; 
+                context.putImageData(imageData, 0, 0);
+            }
+            return toDataURL.apply(this, arguments);
+        };
+
+        console.log('✅ Identity Injection Complete. You are now invisible.');
+
+    } catch (e) {
+        console.error('❌ Injection Failed:', e);
+    }
 })();
