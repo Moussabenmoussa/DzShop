@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios'); // تأكد من وجود مكتبة axios
 const User = require('../models/User');
 const Video = require('../models/Video');
 const Fingerprint = require('../models/Fingerprint'); // 👈 ضروري جداً للجوكر
@@ -61,7 +60,7 @@ router.post('/add-video', isAuth, async (req, res) => {
         }
 
         // ============================================================
-        // 🛑 المرحلة 2: الفحص التقني الذكي (يسمح بالمواقع المحمية)
+        // 🛑 المرحلة 2: الفحص التقني (باستخدام fetch المدمج - لا يحتاج تثبيت)
         // ============================================================
         
         // التحقق من صحة شكل الرابط (Regex)
@@ -70,26 +69,27 @@ router.post('/add-video', isAuth, async (req, res) => {
             return res.send(`<script>alert("⚠️ الرابط غير صحيح شكلياً."); window.location.href="/dashboard";</script>`);
         }
 
-        // التحقق الحقيقي (Ping) مع التنكر كمتصفح 🕵️‍♂️
+        // التحقق الحقيقي (Ping) باستخدام fetch
         try {
-            await axios.get(url, {
-                timeout: 5000, 
+            const response = await fetch(url, {
+                method: 'GET',
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Connection': 'keep-alive'
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                 }
             });
-        } catch (error) {
-            // إذا كان الخطأ 403 (Forbidden) أو 401، فهذا يعني الموقع يعمل لكنه محمي، لذا نقبله!
-            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+
+            // إذا كان الرد 403 (Forbidden) أو 401، فهذا يعني الموقع موجود لكنه محمي
+            if (response.status === 403 || response.status === 401) {
                 console.log(`⚠️ الموقع ${url} يعمل لكنه يحظر البوتات، تم قبوله.`);
-            } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-                // إذا لم يتم العثور على الموقع فعلياً
+            } 
+            
+        } catch (error) {
+            // في حالة fetch، الأخطاء تكون مثل فشل الشبكة (DNS Error)
+            if (error.cause && (error.cause.code === 'ECONNREFUSED' || error.cause.code === 'ENOTFOUND')) {
                 console.error("❌ الرابط لا يعمل:", error.message);
                 return res.send(`<script>alert("⚠️ الرابط لا يعمل! تأكد أنه متاح للعامة."); window.location.href="/dashboard";</script>`);
             }
-            // أي أخطاء أخرى (مثل Timeout) نتجاهلها ونقبل الرابط
         }
         
         // ============================================================
