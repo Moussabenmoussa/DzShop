@@ -268,3 +268,55 @@
     </div>
 
 
+
+
+
+
+
+<div id="proTipModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" style="font-family: sans-serif;">
+    <div class="bg-slate-800 border border-slate-600 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-bl-full -mr-10 -mt-10"></div>
+        
+        <div class="text-center">
+            <div class="text-5xl mb-4">🚀</div>
+            <h2 class="text-2xl font-bold text-yellow-400 mb-2">Maximize Your Earnings!</h2>
+            <p class="text-slate-300 text-sm mb-6 leading-relaxed text-left bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                Want to earn points faster without stopping? Use the <strong>Ultimate Method</strong>:
+                <br><br>
+                🕵️‍♂️ <strong>1. Go Incognito:</strong> Open this site in a Private/Incognito tab.
+                <br><br>
+                ✈️ <strong>2. Refresh ID:</strong> Toggle <strong>Airplane Mode</strong> ON & OFF every 10 minutes to get a fresh IP.
+                <br><br>
+                <span class="text-green-400 text-xs">✅ This guarantees 100% High-Quality Views!</span>
+            </p>
+            
+            <button onclick="closeProTip()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/30">
+                Got it! Let's Earn 💰
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Logic: Show only once per day (Smart Popup)
+    document.addEventListener("DOMContentLoaded", function() {
+        const lastSeen = localStorage.getItem('seenProTip_v1');
+        const today = new Date().toDateString();
+        
+        // إذا لم يرى الرسالة اليوم، أظهرها له
+        if (lastSeen !== today) {
+            const modal = document.getElementById('proTipModal');
+            if (modal) {
+                modal.classList.remove('hidden'); // إظهار النافذة
+                modal.style.display = 'flex'; // ضمان التنسيق
+            }
+        }
+    });
+
+    function closeProTip() {
+        const modal = document.getElementById('proTipModal');
+        modal.style.display = 'none';
+        // حفظ التاريخ لكي لا تظهر له مرة أخرى اليوم
+        localStorage.setItem('seenProTip_v1', new Date().toDateString());
+    }
+</script>
