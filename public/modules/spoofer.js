@@ -16,8 +16,8 @@
         }
 
         const fake = result.data;
-        console.log(`🦸 Masking as: ${fake.renderer} | ${fake.userAgent.substring(0, 30)}...`);
-
+        // 👇 هذا سيظهر رسالة على شاشة هاتفك
+alert(`🕵️ TIKHIVE INJECTOR:\n\nتم تقمص الشخصية بنجاح!\n\nالجهاز: ${fake.renderer}\nالمتصفح: ${fake.userAgent.substring(0, 20)}...`);
         // ====================================================
         // 2. تزوير مواصفات كرت الشاشة (WebGL Spoofing) - الأهم!
         // ====================================================
