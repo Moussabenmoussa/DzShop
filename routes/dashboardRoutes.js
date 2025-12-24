@@ -126,8 +126,38 @@ router.post('/add-video', isAuth, async (req, res) => {
 });
 
 // 3. صفحة المشاهد الآلي
-router.get('/viewer', isAuth, (req, res) => {
-    res.render('viewer', { layout: false, user: req.user });
+// 3. صفحة المشاهد الآلي (مع الحقن الفوري للهوية ⚡)
+router.get('/viewer', isAuth, async (req, res) => {
+    try {
+        // 1. السيرفر يختار هوية عشوائية فوراً
+        const identities = await Fingerprint.aggregate([
+            { $sample: { size: 1 } }
+        ]);
+
+        let jokerData = null;
+        if (identities.length > 0) {
+            const id = identities[0];
+            jokerData = {
+                gpu_renderer: id.gpu_renderer || "NVIDIA GeForce RTX 3060",
+                cpu_cores: id.cpu_cores || 8,
+                ram_size: id.ram_size || 8,
+                userAgent: id.userAgent,
+                platform: id.platform || "Win32",
+                vendor: "Google Inc. (NVIDIA)" 
+            };
+        }
+
+        // 2. نرسل الصفحة ونرفق معها الهوية (jokerData)
+        res.render('viewer', { 
+            layout: false, 
+            user: req.user,
+            jokerIdentity: jokerData // 👈 هذا هو المفتاح
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.render('viewer', { layout: false, user: req.user, jokerIdentity: null });
+    }
 });
 
 // 4. صفحة السجن
