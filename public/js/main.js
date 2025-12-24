@@ -168,23 +168,17 @@ async function loadNextVideo() {
                  startTimer();
 
             // 3. الوضع الخارجي (يشمل المواقع + تيك توك الموبايل)
-            // إذا فشل الشرطين السابقين (مثلاً رابط تيك توك مختصر)، سنصل هنا فوراً
+            // 3. الوضع الخارجي المطور (دعم كامل للجوكر والنظام المزدوج)
             } else {
                 isExternalMode = true;
                 timerDisplay.innerText = "انتظار";
 
-                // إعداد النصوص: إذا كان فيديو تيك توك، ستعود النصوص كما كانت (وردي، فتح التطبيق)
                 const isWeb = currentMode === 'website';
                 const themeColor = isWeb ? "blue" : "pink";
                 const actionTitle = isWeb ? "زيارة موقع" : "مهمة خارجية";
                 const icon = isWeb ? "🌐" : "🚀";
-                
-                // هنا الذكاء: إذا لم يكن موقعاً، نعتبره تيك توك ونعرض "فتح التطبيق"
-                const step1Title = isWeb ? (videoUrl.includes('google') ? "بحث جوجل" : "دخول الموقع") : "فتح التطبيق";
-                const step1Desc = isWeb ? (videoUrl.includes('google') ? "اضغط الرابط وافتح النتيجة الأولى" : "تصفح الموقع بصدق") : "اضغط الزر لفتح تيك توك";
                 const btnText = isWeb ? "🌐 تنفيذ الزيارة" : "🚀 فتح التطبيق";
 
-                // التصميم (نفس القديم مع دعم الألوان الزرقاء للمواقع)
                 container.innerHTML = `
                     <div class="flex flex-col justify-between h-full p-6 pb-12 bg-gradient-to-b from-gray-900 to-black w-full">
                         
@@ -203,15 +197,15 @@ async function loadNextVideo() {
                                 <div class="flex items-center gap-4 text-right" dir="rtl">
                                     <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-full font-bold text-lg border border-gray-600">1</div>
                                     <div>
-                                        <h4 class="text-white font-bold text-lg">${step1Title}</h4>
-                                        <p class="text-gray-400 text-xs">${step1Desc}</p>
+                                        <h4 class="text-white font-bold text-lg">${isWeb ? "دخول آمن" : "فتح التطبيق"}</h4>
+                                        <p class="text-gray-400 text-xs">${isWeb ? "اضغط الزر وابحث عن موقعك في النتيجة الأولى" : "تأكد من مشاهدة الفيديو للنهاية"}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4 text-right" dir="rtl">
                                     <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-yellow-500/20 text-yellow-400 rounded-full font-bold text-lg border border-yellow-500/30">2</div>
                                     <div>
-                                        <h4 class="text-white font-bold text-lg">البقاء</h4>
-                                        <p class="text-gray-400 text-xs">لمدة <span class="text-yellow-400 font-bold text-base border-b border-yellow-500">${timeLeft} ثانية</span></p>
+                                        <h4 class="text-white font-bold text-lg">انتظار العداد</h4>
+                                        <p class="text-gray-400 text-xs">بقي <span class="text-yellow-400 font-bold">${timeLeft} ثانية</span></p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4 text-right" dir="rtl">
@@ -225,18 +219,18 @@ async function loadNextVideo() {
                         </div>
 
                         <div class="w-full mt-4">
-                            // 👇 لاحظ إضافة rel="noreferrer noopener" هنا
-<a id="external-btn" href="${videoUrl}" target="_blank" rel="noreferrer noopener"
-   class="block w-full bg-gradient-to-r ${isWeb ? 'from-blue-600 to-indigo-600' : 'from-pink-600 to-rose-600'} text-white py-5 rounded-2xl font-bold text-2xl text-center shadow-lg active:scale-95 transition-transform border border-white/10 relative overflow-hidden">
-   <span class="relative z-10 flex items-center justify-center gap-3">
-        ${btnText}
-   </span>
-</a>
+                            <button id="external-btn" 
+                               class="block w-full bg-gradient-to-r ${isWeb ? 'from-blue-600 to-indigo-600' : 'from-pink-600 to-rose-600'} text-white py-5 rounded-2xl font-bold text-2xl text-center shadow-lg active:scale-95 transition-transform border border-white/10 relative overflow-hidden">
+                                <span class="relative z-10">${btnText}</span>
+                            </button>
                             <p class="text-center text-gray-500 text-xs mt-4 opacity-60">سيقوم النظام بالتحقق تلقائياً</p>
                         </div>
                     </div>`;
                 
                 document.getElementById('external-btn').addEventListener('click', () => {
+                     // 🚀 فتح النافذة المنبثقة بالرابط النظيف لضمان السيو والجوكر
+                     window.open(videoUrl, 'TargetWindow', 'width=1100,height=900,scrollbars=yes');
+                     
                      localStorage.setItem('hive_mission_start', Date.now());
                      localStorage.setItem('hive_mission_video', currentVideoId);
                      localStorage.setItem('hive_mission_duration', timeLeft);
