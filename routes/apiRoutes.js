@@ -5,8 +5,45 @@ const User = require('../models/User');
 const { isAuth } = require('../utils/middleware');
 // 👇 الإضافة 1: استدعاء درع الحماية (Rate Limiter)
 const { rewardLimiter } = require('../utils/limiter'); 
-
 const router = express.Router();
+const Fingerprint = require('../models/Fingerprint'); // 👈 تأكد من وجود هذا السطر في الأعلى
+
+
+
+// ⚡ مسار جديد: سحب هوية حقيقية (للحقن)
+router.get('/get-identity', isAuth, async (req, res) => {
+    try {
+        // نختار بصمة عشوائية من قاعدة البيانات
+        const identity = await Fingerprint.aggregate([
+            { $sample: { size: 1 } }
+        ]);
+
+        if (identity.length > 0) {
+            // نرسل البيانات المهمة فقط (بدون Hash الكانفس لأنه للقراءة فقط)
+            // نرسل العتاد لنقوم بمحاكاته
+            res.json({ 
+                success: true, 
+                data: {
+                    userAgent: identity[0].userAgent,
+                    screen: identity[0].screen,
+                    hardware: identity[0].hardware,
+                    // نرسل الـ GPU لكي نخدع النظام
+                    renderer: identity[0].hardware.renderer,
+                    vendor: identity[0].hardware.vendor
+                }
+            });
+        } else {
+            // إذا كانت القاعدة فارغة، نعيد بيانات افتراضية (Fallback)
+            res.json({ success: false }); 
+        }
+    } catch (e) {
+        console.error(e);
+        res.json({ success: false });
+    }
+});
+
+
+
 
 
 // 1. جلب الفيديو التالي (نفس الكود القديم تماماً)
