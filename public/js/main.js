@@ -146,11 +146,8 @@ async function loadNextVideo() {
             currentVideoId = data.video._id;
             let videoUrl = data.video.url;
             
-            // معالجة روابط بحث جوجل (للمواقع فقط)
-            if (data.video.type === 'website' && data.video.visitType === 'search' && data.video.keyword) {
-                 const query = encodeURIComponent(data.video.keyword + " site:" + videoUrl.replace(/^https?:\/\//, ''));
-                 videoUrl = `https://www.google.com/search?q=${query}`;
-            }
+            
+            
 
             timeLeft = data.video.duration || 30;
             playSound('click');
