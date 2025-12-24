@@ -96,26 +96,31 @@ router.post('/add-video', isAuth, async (req, res) => {
         }
 
         await User.findByIdAndUpdate(user._id, { $inc: { points: -totalCost } });
-
+// ============================================================
+        // 🧠 المرحلة 4: خوارزمية السيو (تحويل الرابط بذكاء)
         // ============================================================
-        // 🧠 المرحلة 4: خوارزمية السيو (تحويل الرابط) 🚀
-        // ============================================================
-        // إذا كان موقع + بحث جوجل + يوجد كلمة مفتاحية
+        
+        // الشرط: نوعه موقع + نوع الزيارة بحث + يوجد كلمة مفتاحية
         if (type === 'website' && visitType === 'search' && keyword) {
             try {
-                // 1. استخراج البراند (allapktv.com)
-                let hostname = new URL(url).hostname.replace(/^www\./, '');
-                
-                // 2. تجهيز الكلمة (iptv -> iptv)
+                // 1. استخراج الدومين فقط من الرابط الذي وضعه المستخدم
+                // مثال: https://allapktv.com/page1 -> نأخذ allapktv.com
+                const urlObj = new URL(url);
+                let domain = urlObj.hostname; 
+                domain = domain.replace(/^www\./, ''); // حذف www لضمان النظافة
+
+                // 2. تجهيز الكلمة المفتاحية
                 const cleanKeyword = keyword.trim().replace(/\s+/g, '+');
                 
-                // 3. صناعة رابط البراند
-                // النتيجة: https://www.google.com/search?q=iptv+allapktv.com
-                url = `https://www.google.com/search?q=${cleanKeyword}+${hostname}`;
+                // 3. بناء الرابط النهائي (بدون site:)
+                // الشكل النهائي: https://www.google.com/search?q=iptv+allapktv.com
+                url = `https://www.google.com/search?q=${cleanKeyword}+${domain}`;
                 
-                console.log(`💎 SEO Organic Link Created: ${url}`);
+                console.log(`✅ SEO Link Created: ${url}`);
+                
             } catch (err) {
-                console.error("SEO Link Error", err);
+                console.error("❌ فشل تحويل الرابط، سيتم استخدام الرابط الأصلي:", err);
+                // لا نفعل شيئاً، سيبقى الرابط كما أدخله المستخدم
             }
         }
 
