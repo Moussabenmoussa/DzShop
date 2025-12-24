@@ -1,24 +1,20 @@
-// 🎭 TIKHIVE INJECTOR v2.0 – Hybrid Spoof Engine
-// يدعم التزوير الفوري + الجلب الاحتياطي + إخفاء البصمة
+
+// 🎭 TIKHIVE INJECTOR v2.1 – Hybrid Spoof Engine (No Cache Edition)
 
 (async function() {
     const DEBUG = false;
     let fake = null;
 
-    // 🚀 Load identity (Zero-latency or fallback)
+    // 🚀 Load identity (no localStorage)
     if (window.JOKER_IDENTITY) {
         fake = window.JOKER_IDENTITY;
         DEBUG && console.log('⚡ Identity loaded from window');
-    } else if (localStorage.getItem('JOKER_IDENTITY')) {
-        fake = JSON.parse(localStorage.getItem('JOKER_IDENTITY'));
-        DEBUG && console.log('⚡ Identity loaded from cache');
     } else {
         try {
             const res = await fetch('/api/get-identity');
             const json = await res.json();
             if (json.success) {
                 fake = json.data;
-                localStorage.setItem('JOKER_IDENTITY', JSON.stringify(fake));
                 DEBUG && console.log('📡 Identity fetched from server');
             }
         } catch (e) {
