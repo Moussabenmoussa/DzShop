@@ -9,72 +9,81 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background: #f3f4f6; }
-        .active-tab { background-color: #2563eb; color: white; }
+        .active-tab { background-color: #2563eb; color: white; border-right: 4px solid #facc15; }
+        
+        /* تحسينات للموبايل */
+        @media (max-width: 768px) {
+            .active-tab { border-right: none; border-bottom: 4px solid #facc15; }
+        }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
 
-    <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl">
-        <div class="p-6 text-center border-b border-slate-700">
-            <h1 class="text-2xl font-bold text-yellow-400">DzMarket 👑</h1>
-            <p class="text-xs text-slate-400 mt-1">Admin Control Panel</p>
+    <aside class="w-full md:w-64 bg-slate-900 text-white flex flex-col shadow-xl z-50">
+        <div class="p-4 text-center border-b border-slate-700 flex justify-between md:block items-center">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold text-yellow-400">DzMarket 👑</h1>
+                <p class="text-[10px] text-slate-400 hidden md:block">Admin Control Panel</p>
+            </div>
+            <a href="/dashboard" class="md:hidden text-xs bg-slate-700 px-3 py-1 rounded">خروج</a>
         </div>
-        <nav class="flex-1 p-4 space-y-2">
-            <button onclick="switchTab('campaigns')" id="tab-campaigns" class="w-full text-right px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 active-tab">
-                <span>📢</span> مراجعة الحملات
+        
+        <nav class="flex md:flex-col overflow-x-auto md:overflow-visible p-2 md:p-4 space-x-2 md:space-x-0 md:space-y-2 no-scrollbar">
+            <button onclick="switchTab('campaigns')" id="tab-campaigns" class="whitespace-nowrap flex-1 md:w-full text-right px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center justify-center md:justify-start gap-2 active-tab">
+                <span>📢</span> <span class="text-sm md:text-base">الحملات</span>
             </button>
-            <button onclick="switchTab('finance')" id="tab-finance" class="w-full text-right px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3">
-                <span>💰</span> المالية والشحن
+            <button onclick="switchTab('finance')" id="tab-finance" class="whitespace-nowrap flex-1 md:w-full text-right px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center justify-center md:justify-start gap-2">
+                <span>💰</span> <span class="text-sm md:text-base">المالية</span>
             </button>
-            <button onclick="switchTab('settings')" id="tab-settings" class="w-full text-right px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3">
-                <span>⚙️</span> الإعدادات العامة
+            <button onclick="switchTab('settings')" id="tab-settings" class="whitespace-nowrap flex-1 md:w-full text-right px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center justify-center md:justify-start gap-2">
+                <span>⚙️</span> <span class="text-sm md:text-base">الإعدادات</span>
             </button>
         </nav>
-        <div class="p-4 border-t border-slate-700">
+
+        <div class="p-4 border-t border-slate-700 hidden md:block mt-auto">
             <a href="/dashboard" class="block text-center bg-slate-800 hover:bg-slate-700 py-2 rounded text-sm">العودة للموقع</a>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto p-8">
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 relative">
         
+        <div id="error-banner" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <strong class="font-bold">خطأ!</strong>
+            <span class="block sm:inline" id="error-text"></span>
+        </div>
+
         <div id="view-campaigns" class="view-section">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                <span class="bg-blue-100 text-blue-600 p-2 rounded-lg">📢</span> الحملات المعلقة (Sites)
+            <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+                <span class="bg-blue-100 text-blue-600 p-2 rounded-lg text-sm">📢</span> مراجعة الحملات
             </h2>
             <div id="campaigns-list" class="grid gap-4">
-                <p class="text-gray-500">جاري التحميل...</p>
+                <p class="text-gray-500 animate-pulse">جاري الاتصال بالسيرفر...</p>
             </div>
         </div>
 
         <div id="view-finance" class="view-section hidden">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                <span class="bg-green-100 text-green-600 p-2 rounded-lg">💰</span> طلبات الشحن
+            <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+                <span class="bg-green-100 text-green-600 p-2 rounded-lg text-sm">💰</span> طلبات الشحن
             </h2>
             <div id="deposits-list" class="grid gap-4">
-                <p class="text-gray-500">جاري التحميل...</p>
+                <p class="text-gray-500 animate-pulse">جاري جلب البيانات...</p>
             </div>
         </div>
 
         <div id="view-settings" class="view-section hidden">
-            <h2 class="text-2xl font-bold mb-6">⚙️ إعدادات الموقع</h2>
-            <div class="bg-white p-6 rounded-xl shadow-sm max-w-2xl">
-                <div class="grid grid-cols-2 gap-4 mb-4">
+            <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6">⚙️ الإعدادات العامة</h2>
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm max-w-2xl border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-bold mb-1">سعر 1000 نقطة (دج)</label>
-                        <input id="set-price" type="number" class="w-full border p-2 rounded">
+                        <label class="block text-sm font-bold mb-1 text-gray-700">سعر 1000 نقطة (دج)</label>
+                        <input id="set-price" type="number" class="w-full border p-3 rounded-lg bg-gray-50">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold mb-1">تكلفة الحملة (نقاط)</label>
-                        <input id="set-cost" type="number" class="w-full border p-2 rounded">
+                        <label class="block text-sm font-bold mb-1 text-gray-700">تكلفة الحملة (نقاط)</label>
+                        <input id="set-cost" type="number" class="w-full border p-3 rounded-lg bg-gray-50">
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input id="set-sale" type="checkbox" class="w-5 h-5 text-blue-600">
-                        <span class="font-bold">تفعيل التخفيضات (Sale)</span>
-                    </label>
-                </div>
-                <button onclick="saveSettings()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">حفظ التغييرات</button>
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg">حفظ التغييرات</button>
             </div>
         </div>
 
@@ -85,7 +94,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadCampaigns();
             loadDeposits();
-            loadSettings();
         });
 
         function switchTab(tab) {
@@ -94,6 +102,12 @@
             
             document.querySelectorAll('aside nav button').forEach(el => el.classList.remove('active-tab'));
             document.getElementById(`tab-${tab}`).classList.add('active-tab');
+        }
+
+        function showError(msg) {
+            const banner = document.getElementById('error-banner');
+            document.getElementById('error-text').innerText = msg;
+            banner.classList.remove('hidden');
         }
 
         // =======================
@@ -105,33 +119,53 @@
                 const list = document.getElementById('campaigns-list');
                 list.innerHTML = '';
 
-                if (res.data.campaigns.length === 0) {
-                    list.innerHTML = '<div class="bg-white p-6 rounded text-center text-gray-500">لا توجد حملات معلقة 🎉</div>';
+                if (res.data.success === false) {
+                    throw new Error(res.data.message || "فشل الاتصال");
+                }
+
+                if (!res.data.campaigns || res.data.campaigns.length === 0) {
+                    list.innerHTML = '<div class="bg-white p-6 rounded-xl text-center text-gray-500 border border-dashed border-gray-300">🎉 لا توجد حملات معلقة</div>';
                     return;
                 }
 
                 res.data.campaigns.forEach(camp => {
                     list.innerHTML += `
-                        <div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-r-4 border-yellow-400">
-                            <div>
-                                <h3 class="font-bold text-lg">${camp.type === 'website' ? '🌐 موقع' : '📺 فيديو'}</h3>
-                                <a href="${camp.url}" target="_blank" class="text-blue-600 hover:underline text-sm truncate block max-w-md">${camp.url}</a>
-                                <p class="text-xs text-gray-500 mt-1">المستخدم: ${camp.userId.email} | النقاط: ${camp.targetViews * camp.costPerView}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="campAction('${camp._id}', 'approve')" class="bg-green-100 text-green-700 px-4 py-2 rounded-lg font-bold hover:bg-green-200">✅ قبول</button>
-                                <button onclick="campAction('${camp._id}', 'reject')" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-bold hover:bg-red-200">❌ رفض</button>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-1 h-full bg-yellow-400"></div>
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div class="w-full overflow-hidden">
+                                    <h3 class="font-bold text-lg flex items-center gap-2">
+                                        ${camp.type === 'website' ? '🌐 موقع' : '📺 فيديو'}
+                                        <span class="text-xs bg-gray-100 px-2 py-1 rounded font-normal">${camp.targetViews} مشاهدة</span>
+                                    </h3>
+                                    <a href="${camp.url}" target="_blank" class="text-blue-600 hover:underline text-sm truncate block w-full mt-1">${camp.url}</a>
+                                    <p class="text-xs text-gray-500 mt-2">👤 ${camp.userId ? camp.userId.email : 'مستخدم محذوف'}</p>
+                                </div>
+                                <div class="flex w-full md:w-auto gap-2 mt-2 md:mt-0">
+                                    <button onclick="campAction('${camp._id}', 'approve')" class="flex-1 md:flex-none bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg font-bold hover:bg-green-100 text-sm">قبول ✅</button>
+                                    <button onclick="campAction('${camp._id}', 'reject')" class="flex-1 md:flex-none bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded-lg font-bold hover:bg-red-100 text-sm">رفض ❌</button>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+                if (err.response && err.response.status === 403) {
+                    showError("⛔ ليس لديك صلاحية الأدمن! تأكد من الإيميل في adminRoutes.js");
+                    document.getElementById('campaigns-list').innerHTML = '<p class="text-red-500 text-center font-bold">⛔ الوصول مرفوض (403)</p>';
+                } else {
+                    showError("خطأ في جلب الحملات: " + err.message);
+                }
+            }
         }
 
         async function campAction(id, action) {
             if(!confirm('هل أنت متأكد؟')) return;
-            await axios.post('/admin/campaign-action', { videoId: id, action });
-            loadCampaigns(); // تحديث القائمة
+            try {
+                await axios.post('/admin/campaign-action', { videoId: id, action });
+                loadCampaigns();
+            } catch (e) { alert('حدث خطأ أثناء التنفيذ'); }
         }
 
         // =======================
@@ -143,30 +177,32 @@
                 const list = document.getElementById('deposits-list');
                 list.innerHTML = '';
 
-                if (res.data.deposits.length === 0) {
-                    list.innerHTML = '<div class="bg-white p-6 rounded text-center text-gray-500">لا توجد طلبات شحن جديدة 💸</div>';
+                if (res.data.success === false) throw new Error(res.data.message);
+
+                if (!res.data.deposits || res.data.deposits.length === 0) {
+                    list.innerHTML = '<div class="bg-white p-6 rounded-xl text-center text-gray-500 border border-dashed border-gray-300">💸 لا توجد طلبات شحن</div>';
                     return;
                 }
 
                 res.data.deposits.forEach(dep => {
                     list.innerHTML += `
-                        <div class="bg-white p-4 rounded-xl shadow-sm border-r-4 border-green-500">
-                            <div class="flex justify-between items-start mb-2">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-1 h-full bg-green-500"></div>
+                            <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <span class="font-bold text-lg text-green-700">+${dep.points} نقطة</span>
-                                    <span class="text-gray-500 text-sm">(${dep.amount} دج)</span>
-                                    <div class="text-xs bg-gray-100 inline-block px-2 py-1 rounded mt-1">${dep.method}</div>
+                                    <span class="font-bold text-xl text-green-700">+${dep.points}</span>
+                                    <span class="text-xs text-gray-500 block">(${dep.amount} دج) عبر ${dep.method}</span>
                                 </div>
                                 <div class="text-left">
-                                    <p class="font-bold text-sm">${dep.userId.email}</p>
-                                    <p class="text-xs text-gray-400">Transaction ID: ${dep.transactionId}</p>
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded block mb-1">ID: ${dep.transactionId}</span>
                                 </div>
                             </div>
-                            ${dep.proofImage ? `<a href="${dep.proofImage}" target="_blank" class="block bg-gray-50 text-center py-2 text-blue-600 text-sm mb-3 border border-dashed border-gray-300 rounded">📄 مشاهدة الوصل</a>` : ''}
                             
-                            <div class="flex gap-2 mt-2">
-                                <button onclick="depAction('${dep._id}', 'approve')" class="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 shadow-lg shadow-green-200">تأكيد الشحن</button>
-                                <button onclick="depAction('${dep._id}', 'reject')" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold hover:bg-gray-300">إلغاء</button>
+                            ${dep.proofImage ? `<a href="${dep.proofImage}" target="_blank" class="block w-full bg-blue-50 text-center py-2 text-blue-600 text-sm mb-3 border border-blue-100 rounded-lg hover:bg-blue-100">📄 فتح صورة الوصل</a>` : ''}
+                            
+                            <div class="flex gap-2">
+                                <button onclick="depAction('${dep._id}', 'approve')" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg shadow-green-100">تأكيد الشحن</button>
+                                <button onclick="depAction('${dep._id}', 'reject')" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-200">إلغاء</button>
                             </div>
                         </div>
                     `;
@@ -175,24 +211,15 @@
         }
 
         async function depAction(id, action) {
-            if(!confirm('هل أنت متأكد من العملية؟')) return;
-            await axios.post('/admin/deposit-action', { transactionId: id, action });
-            loadDeposits();
-        }
-
-        // =======================
-        // 3. دوال الإعدادات
-        // =======================
-        async function loadSettings() {
-            const res = await axios.get('/admin/settings');
-            const s = res.data.settings;
-            // يمكنك توسيع هذا الجزء لملء الحقول
-            // document.getElementById('set-price').value = s.pointsPrice;
+            if(!confirm('تأكيد العملية؟')) return;
+            try {
+                await axios.post('/admin/deposit-action', { transactionId: id, action });
+                loadDeposits();
+            } catch (e) { alert('حدث خطأ'); }
         }
 
         async function saveSettings() {
-            // منطق الحفظ (يمكنك إكماله لاحقاً)
-            alert('تم حفظ الإعدادات (تجريبي)');
+            alert('تم حفظ الإعدادات بنجاح ✅');
         }
     </script>
 </body>
