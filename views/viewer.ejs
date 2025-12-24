@@ -87,7 +87,11 @@
 
     <script src="/modules/humanizer.js"></script>
 
-    <script src="/modules/spoofer.js"></script>
+    <script>
+    window.JOKER_IDENTITY = <%- JSON.stringify(jokerIdentity || null) %>;
+</script>
+
+<script type="module" src="/modules/spoofer.js"></script>
 
     <script src="/js/main.js"></script>
 
