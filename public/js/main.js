@@ -228,12 +228,13 @@ async function loadNextVideo() {
                         </div>
 
                         <div class="w-full mt-4">
-                            <a id="external-btn" href="${videoUrl}" target="_blank" 
-                               class="block w-full bg-gradient-to-r ${isWeb ? 'from-blue-600 to-indigo-600' : 'from-pink-600 to-rose-600'} text-white py-5 rounded-2xl font-bold text-2xl text-center shadow-lg active:scale-95 transition-transform border border-white/10 relative overflow-hidden">
-                               <span class="relative z-10 flex items-center justify-center gap-3">
-                                    ${btnText}
-                               </span>
-                            </a>
+                            // 👇 لاحظ إضافة rel="noreferrer noopener" هنا
+<a id="external-btn" href="${videoUrl}" target="_blank" rel="noreferrer noopener"
+   class="block w-full bg-gradient-to-r ${isWeb ? 'from-blue-600 to-indigo-600' : 'from-pink-600 to-rose-600'} text-white py-5 rounded-2xl font-bold text-2xl text-center shadow-lg active:scale-95 transition-transform border border-white/10 relative overflow-hidden">
+   <span class="relative z-10 flex items-center justify-center gap-3">
+        ${btnText}
+   </span>
+</a>
                             <p class="text-center text-gray-500 text-xs mt-4 opacity-60">سيقوم النظام بالتحقق تلقائياً</p>
                         </div>
                     </div>`;
