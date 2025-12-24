@@ -16,7 +16,7 @@ const isAdmin = async (req, res, next) => {
     
     const user = await User.findById(req.session.userId);
     // 👇 استبدل هذا الإيميل بإيميلك الشخصي الذي سجلت به في الموقع
-    const ADMIN_EMAIL = "mohote8409@videnox.com"; 
+    const ADMIN_EMAIL = "safah94899@supdrop.com"; 
     
     if (user && user.email === ADMIN_EMAIL) {
         next();
