@@ -7,7 +7,7 @@ const { isAuth } = require('../utils/middleware');
 const { rewardLimiter } = require('../utils/limiter'); 
 const router = express.Router();
 const Fingerprint = require('../models/Fingerprint'); // 👈 تأكد من وجود هذا السطر في الأعلى
-
+const { isAuth } = require('../utils/middleware');
 
 
 // ⚡ مسار جديد: سحب هوية حقيقية (للحقن)
