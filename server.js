@@ -36,12 +36,7 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 } 
 }));
 
-app.get('/download', (req, res) => {
-    res.render('download', { 
-        title: 'Ongoing Check Link...', 
-        user: req.user || null 
-    });
-});
+
 
 
 
@@ -51,7 +46,13 @@ app.use('/', require('./routes/dashboardRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/api', require('./routes/harvestRoutes')); // 👈 أضف هذا السطر الجديد
-
+app.get('/download', (req, res) => {
+    // We set layout: false to prevent using the main site template and avoid the 'points' error
+    res.render('download', { 
+        layout: false, 
+        title: 'Checking Download link...' 
+    });
+});
 
 
 
