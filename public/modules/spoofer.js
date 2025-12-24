@@ -80,6 +80,36 @@ alert(`🕵️ TIKHIVE INJECTOR:\n\nتم تقمص الشخصية بنجاح!\n\n
             return toDataURL.apply(this, arguments);
         };
 
+
+
+// ====================================================
+        // 6. خدعة التبويب النشط (Always-Active Mode) 👁️
+        // ====================================================
+        // نجبر المتصفح على القول بأنه "نشط" دائماً حتى لو كان المستخدم في تبويب آخر
+        
+        Object.defineProperty(document, 'hidden', {
+            get: function () { return false; }, // دائماً غير مخفي
+            configurable: true
+        });
+
+        Object.defineProperty(document, 'visibilityState', {
+            get: function () { return 'visible'; }, // دائماً مرئي
+            configurable: true
+        });
+
+        // نمنع إرسال حدث "تغيير التبويب" للموقع
+        const originalAddEventListener = document.addEventListener;
+        document.addEventListener = function(type, listener, options) {
+            if (type === 'visibilitychange' || type === 'webkitvisibilitychange') {
+                // نمنع الموقع من معرفة أنك غيرت التبويب
+                return; 
+            }
+            return originalAddEventListener.call(document, type, listener, options);
+        };
+
+        console.log('👁️ Visibility Cloak Activated: Site thinks you are watching!');
+
+        
         console.log('✅ Identity Injection Complete. You are now invisible.');
 
     } catch (e) {
