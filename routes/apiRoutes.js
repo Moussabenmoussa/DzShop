@@ -10,27 +10,43 @@ const router = express.Router();
 
 
 // 1. جلب الفيديو التالي (نفس الكود القديم تماماً)
+// 1. جلب المهمة التالية (فيديو أو موقع حسب الطلب)
 router.get('/next-video', isAuth, async (req, res) => {
     try {
         const userId = req.session.userId;
+        const mode = req.query.mode; // نستلم الوضع: 'video' أو 'website'
 
-        const video = await Video.aggregate([
-            { $match: { 
-                // userId: { $ne: new mongoose.Types.ObjectId(userId) }, // معطل للتجربة
-                active: true,
-                $expr: { $lt: ["$completedViews", "$targetViews"] }
-            }},
+        // إعداد فلتر البحث الأساسي
+        let matchQuery = { 
+            active: true,
+            // userId: { $ne: new mongoose.Types.ObjectId(userId) }, // يمكنك تفعيل هذا السطر لاحقاً لمنع المستخدم من رؤية حملاته الخاصة
+            $expr: { $lt: ["$completedViews", "$targetViews"] }
+        };
+
+        // تخصيص البحث حسب الوضع المختار من الواجهة
+        if (mode === 'website') {
+            // إذا طلب مواقع: نجلب فقط النوع 'website'
+            matchQuery.type = 'website';
+        } else {
+            // إذا طلب فيديوهات (أو لم يحدد): نجلب النوع 'video' وأيضاً الفيديوهات القديمة التي ليس لها نوع
+            matchQuery.$or = [ { type: 'video' }, { type: { $exists: false } } ];
+        }
+
+        // جلب مهمة عشوائية واحدة تنطبق عليها الشروط
+        const task = await Video.aggregate([
+            { $match: matchQuery },
             { $sample: { size: 1 } }
         ]);
 
-        if (video.length > 0) {
-            console.log("✅ Video Found:", video[0]._id);
-            res.json({ success: true, video: video[0] });
+        if (task.length > 0) {
+            console.log(`✅ Task Found [${mode || 'video'}]:`, task[0]._id);
+            res.json({ success: true, video: task[0] });
         } else {
-            const count = await Video.countDocuments();
+            // رسالة مخصصة حسب الوضع ليعرف المستخدم السبب
+            const msg = mode === 'website' ? 'لا توجد مواقع متاحة لزيارتها حالياً' : 'لا توجد فيديوهات متاحة للمشاهدة حالياً';
             res.json({ 
                 success: false, 
-                message: count === 0 ? 'لا توجد فيديوهات في قاعدة البيانات' : 'جميع الفيديوهات مكتملة أو متوقفة' 
+                message: msg 
             });
         }
     } catch (e) {
@@ -42,6 +58,7 @@ router.get('/next-video', isAuth, async (req, res) => {
 
 // 2. استلام المكافأة (تمت إضافة الحماية + نفس نظام الضريبة القديم)
 // 👇 الإضافة 2: وضعنا rewardLimiter هنا لحماية النقاط من السكربتات
+// 2. استلام المكافأة (مع توزيع عادل للنقاط)
 router.post('/reward', isAuth, rewardLimiter, async (req, res) => {
     try {
         const { videoId } = req.body;
@@ -50,27 +67,38 @@ router.post('/reward', isAuth, rewardLimiter, async (req, res) => {
         if (!videoId) return res.json({ success: false });
 
         const video = await Video.findById(videoId);
+        // التحقق من أن الحملة موجودة ونشطة
         if (!video || !video.active) return res.json({ success: false });
 
-        // === منطق الضريبة (كما هو) ===
-        const cost = video.costPerView || 2; 
+        // === 1. حساب التكلفة والمكافأة ===
+        const cost = video.costPerView || 2; // التكلفة على صاحب الحملة
         
-        // الخصم من المعلن
+        // المعادلة العادلة: المشاهد يحصل على نصف التكلفة
+        // مثال: حملة 30ث (2 نقطة) -> المشاهد يأخذ 1
+        // مثال: حملة 60ث (4 نقاط) -> المشاهد يأخذ 2
+        // مثال: حملة 90ث (6 نقاط) -> المشاهد يأخذ 3
+        const reward = Math.floor(cost / 2); 
+
+        // === 2. تنفيذ الخصم والإضافة ===
+        
+        // الخصم من صاحب الحملة (المعلن)
         await User.findByIdAndUpdate(video.userId, { $inc: { points: -cost } });
 
-        // === مكافأة المشاهد (كما هي) ===
-        const viewer = await User.findByIdAndUpdate(viewerId, { $inc: { points: 1 } }, { new: true });
+        // مكافأة المشاهد (المنفذ)
+        const viewer = await User.findByIdAndUpdate(viewerId, { $inc: { points: reward } }, { new: true });
 
-        // تحديث الفيديو
+        // === 3. تحديث حالة الحملة ===
         video.completedViews += 1;
         if (video.completedViews >= video.targetViews) {
-            video.active = false;
+            video.active = false; // إيقاف الحملة عند اكتمال العدد
         }
         await video.save();
 
-        res.json({ success: true, newPoints: viewer.points });
+        // إرجاع الرصيد الجديد للمشاهد لتحديث الواجهة
+        res.json({ success: true, newPoints: viewer.points, earned: reward });
+        
     } catch (e) {
-        console.error(e);
+        console.error("Reward Error:", e);
         res.json({ success: false });
     }
 });
