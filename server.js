@@ -6,8 +6,10 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path'); // مكتبة المسارات
 const expressLayouts = require('express-ejs-layouts'); // مكتبة التصميم
-
 const app = express();
+const app = express();
+// 👇 أضف هذا السطر فوراً لإصلاح خطأ Render والحماية
+app.set('trust proxy', 1); 
 
 // 1. الاتصال بقاعدة البيانات
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tiktokhive')
