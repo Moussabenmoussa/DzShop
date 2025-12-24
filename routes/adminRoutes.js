@@ -6,6 +6,9 @@ const Transaction = require('../models/Transaction');
 const Settings = require('../models/Settings');
 const { isAuth } = require('../utils/middleware');
 
+router.get('/', async (req, res) => {
+    res.render('admin', { layout: false }); // لا نستخدم القالب العادي
+});
 // 🔒 ميدل وير بسيط لحماية لوحة التحكم
 // (تنبيه: يجب أن تضع الايميل الخاص بك هنا لكي لا يدخل أحد غيرك)
 const isAdmin = async (req, res, next) => {
