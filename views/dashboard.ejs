@@ -1,4 +1,29 @@
 
+
+
+
+<div class="max-w-md mx-auto pb-20">
+
+    <!-- 1. بطاقة الرصيد (بتصميم مضغوط للهاتف) -->
+    <div class="bg-gray-900 rounded-2xl p-5 text-white shadow-lg mb-6 relative overflow-hidden border border-gray-800">
+        <div class="flex justify-between items-start z-10 relative">
+            <div>
+                <p class="text-gray-400 text-xs mb-1">رصيدك الحالي</p>
+                <h2 class="text-4xl font-bold text-yellow-400"><%= user.points %></h2>
+            </div>
+            <div class="bg-gray-800 px-3 py-1 rounded-full text-xs border border-gray-600">
+                ⭐ جودة: <%= user.qualityScore %>/3
+            </div>
+        </div>
+        <!-- زر المشاهدة (مدمج) -->
+        <a href="/viewer" class="mt-4 block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center font-bold py-3 rounded-xl shadow-md active:scale-95 transition">
+            ▶️ فتح المشاهد الآلي
+        </a>
+    </div>
+
+
+
+
 <div class="bg-white rounded-3xl shadow-xl p-6 mb-8 border border-gray-100 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"></div>
 
