@@ -216,5 +216,78 @@ router.get('/test-joker', isAuth, (req, res) => {
 
 
 
+// 👁️ صفحة اختبار التخفي (Visibility Cloak Test)
+router.get('/test-visibility', isAuth, (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html dir="ltr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Cloak Test</title>
+            <style>
+                body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+                .status-box { padding: 20px 40px; border-radius: 20px; font-size: 24px; font-weight: bold; margin-bottom: 20px; transition: all 0.3s; border: 4px solid #333; }
+                .active { background: #064e3b; color: #34d399; border-color: #34d399; box-shadow: 0 0 20px #34d399; }
+                .inactive { background: #450a0a; color: #f87171; border-color: #f87171; box-shadow: 0 0 20px #f87171; }
+                .log { font-family: monospace; color: #888; font-size: 12px; margin-top: 10px; max-width: 300px; text-align: left; }
+            </style>
+        </head>
+        <body>
+            <h1>👁️ كاشف التبويب</h1>
+            
+            <div id="box" class="status-box active">🟢 أنت تشاهدني الآن</div>
+            
+            <p>عداد الثواني: <span id="counter" style="color: yellow; font-size: 20px;">0</span></p>
+            <div id="logs" class="log"></div>
+
+            <script type="module" src="/modules/spoofer.js"></script>
+
+            <script>
+                let count = 0;
+                const box = document.getElementById('box');
+                const logs = document.getElementById('logs');
+                
+                // عداد مستمر
+                setInterval(() => {
+                    count++;
+                    document.getElementById('counter').innerText = count;
+                }, 1000);
+
+                // دالة كشف الخروج
+                function handleVisibilityChange() {
+                    if (document.hidden) {
+                        box.className = "status-box inactive";
+                        box.innerHTML = "🔴 تم كشفك! (غير نشط)";
+                        logs.innerHTML += "⚠️ Tab Hidden detected!<br>";
+                        document.title = "🔴 Inactive";
+                    } else {
+                        // box.className = "status-box active";
+                        // box.innerHTML = "🟢 عدت للمشاهدة";
+                        // logs.innerHTML += "✅ Tab Visible again<br>";
+                        // document.title = "🟢 Active";
+                    }
+                }
+
+                // محاولة زرع الجواسيس
+                document.addEventListener("visibilitychange", handleVisibilityChange);
+                window.addEventListener("blur", () => {
+                     // ملاحظة: الجوكر القوي يمنع حتى هذا الحدث
+                     logs.innerHTML += "⚠️ Blur detected (Window lost focus)<br>";
+                     if(!document.hidden) box.innerHTML += "<br><small>(Blur detected but hidden is false)</small>";
+                });
+            </script>
+        </body>
+        </html>
+    `);
+});
+
+
+
+
+
+
+
+
 
 module.exports = router;
