@@ -1,12 +1,18 @@
+
 const mongoose = require('mongoose');
 
 const FingerprintSchema = new mongoose.Schema({
-    // 1. التصنيف الأساسي (للسرعة في البحث)
-    os: { type: String, required: true },       // Windows, Android, iOS...
-    browser: { type: String, required: true },  // Chrome, Safari...
+    // هذه الحقول التي أضفناها لتكون في متناول اليد وبشكل مباشر
+    cpu_cores: Number,    
+    ram_size: Number,     
+    gpu_renderer: String,
+    
+    // 1. التصنيف الأساسي
+    os: { type: String, required: true },       
+    browser: { type: String, required: true },  
     deviceType: { type: String, enum: ['mobile', 'desktop', 'tablet'], required: true },
 
-    // 2. البصمات الرسومية (الأهم لـ Cloudflare)
+    // 2. البصمات الرسومية
     screen: {
         width: Number,
         height: Number,
@@ -14,31 +20,29 @@ const FingerprintSchema = new mongoose.Schema({
         pixelRatio: Number
     },
     
-    // 3. بصمات العتاد (Hardware IDs)
+    // 3. بصمات العتاد (Hardware)
+    // أبقِ هذا القسم كما هو لضمان توافق الأكواد القديمة
     hardware: {
-        concurrency: Number, // عدد الأنوية
-        memory: Number,      // الرامات
-        vendor: String,      // WebGL Vendor (Intel, Google, etc)
-        renderer: String     // WebGL Renderer (اسم كرت الشاشة)
+        concurrency: Number, 
+        memory: Number,      
+        vendor: String,      
+        renderer: String     
     },
 
     // 4. الهويات المشفرة (Hashes)
-    // سنقوم بتوليد هذه القيم من الجهاز الحقيقي
     canvasHash: { type: String, required: true }, 
     audioHash: { type: String },
     
-    // 5. البيانات الخام (للحقن المتقدم لاحقاً)
+    // 5. البيانات الخام
     userAgent: { type: String, required: true },
+    platform: { type: String }, // أضف هذا السطر أيضاً لأنه مهم للجوكر
+    timezone: { type: String }, // وهذا السطر أيضاً
     
     // 6. بيانات إدارية
-    harvestedFrom: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // من هو المستخدم "النظيف" الذي أخذنا منه البصمة؟
-    qualityScore: { type: Number, default: 100 }, // درجة الموثوقية
-    lastUsed: { type: Date, default: null }, // متى استخدمناها آخر مرة؟
+    harvestedFrom: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
+    qualityScore: { type: Number, default: 100 }, 
+    lastUsed: { type: Date, default: null }, 
     createdAt: { type: Date, default: Date.now }
 });
-
-// فهرسة للبحث السريع (حتى لا يعلق السيرفر عند البحث في الملايين)
-FingerprintSchema.index({ os: 1, deviceType: 1 });
-FingerprintSchema.index({ canvasHash: 1 }, { unique: true }); // منع التكرار (لا نريد 1000 نسخة من نفس الجهاز)
 
 module.exports = mongoose.model('Fingerprint', FingerprintSchema);
