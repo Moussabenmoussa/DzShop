@@ -13,7 +13,7 @@ const isAdmin = async (req, res, next) => {
     
     const user = await User.findById(req.session.userId);
     // 👇 استبدل هذا الإيميل بإيميلك الشخصي الذي سجلت به في الموقع
-    const ADMIN_EMAIL = "admin@dzmarket.com"; 
+    const ADMIN_EMAIL = "ninomino7001@gmail.com"; 
     
     if (user && user.email === ADMIN_EMAIL) {
         next();
