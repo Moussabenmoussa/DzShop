@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios'); // تأكد من وجود مكتبة axios
 const User = require('../models/User');
 const Video = require('../models/Video');
+const Fingerprint = require('../models/Fingerprint'); // 👈 ضروري جداً للجوكر
 const { isAuth } = require('../utils/middleware');
 // 👇 استدعاء أداة الفحص التقني (TLS Fingerprint)
 const { checkVideoLink } = require('../utils/browserMock');
@@ -59,11 +61,35 @@ router.post('/add-video', isAuth, async (req, res) => {
         }
 
         // ============================================================
-        // 🛑 المرحلة 2: الفحص التقني (هل الرابط يعمل؟)
+        // 🛑 المرحلة 2: الفحص التقني الذكي (يسمح بالمواقع المحمية)
         // ============================================================
-        const isValid = await checkVideoLink(url);
-        if (!isValid) {
-             return res.send(`<script>alert("⚠️ الرابط لا يعمل! تأكد أنه متاح للعامة."); window.location.href="/dashboard";</script>`);
+        
+        // التحقق من صحة شكل الرابط (Regex)
+        const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+        if (!urlPattern.test(url)) {
+            return res.send(`<script>alert("⚠️ الرابط غير صحيح شكلياً."); window.location.href="/dashboard";</script>`);
+        }
+
+        // التحقق الحقيقي (Ping) مع التنكر كمتصفح 🕵️‍♂️
+        try {
+            await axios.get(url, {
+                timeout: 5000, 
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Connection': 'keep-alive'
+                }
+            });
+        } catch (error) {
+            // إذا كان الخطأ 403 (Forbidden) أو 401، فهذا يعني الموقع يعمل لكنه محمي، لذا نقبله!
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                console.log(`⚠️ الموقع ${url} يعمل لكنه يحظر البوتات، تم قبوله.`);
+            } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+                // إذا لم يتم العثور على الموقع فعلياً
+                console.error("❌ الرابط لا يعمل:", error.message);
+                return res.send(`<script>alert("⚠️ الرابط لا يعمل! تأكد أنه متاح للعامة."); window.location.href="/dashboard";</script>`);
+            }
+            // أي أخطاء أخرى (مثل Timeout) نتجاهلها ونقبل الرابط
         }
         
         // ============================================================
@@ -125,7 +151,6 @@ router.post('/add-video', isAuth, async (req, res) => {
     }
 });
 
-// 3. صفحة المشاهد الآلي
 // 3. صفحة المشاهد الآلي (مع الحقن الفوري للهوية ⚡)
 router.get('/viewer', isAuth, async (req, res) => {
     try {
@@ -169,6 +194,8 @@ router.get('/banned', isAuth, (req, res) => {
 });
 
 
+    
+
 // 🤡 صفحة اختبار الجوكر (للموبايل)
 router.get('/test-joker', isAuth, (req, res) => {
     res.send(`
@@ -181,7 +208,7 @@ router.get('/test-joker', isAuth, (req, res) => {
             <style>
                 body { background: #0f172a; color: #fff; font-family: monospace; padding: 20px; }
                 .box { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
-                h1 { color: #facc15; text-align: center; }
+             h1 { color: #facc15; text-align: center; }
                 .label { color: #94a3b8; font-size: 12px; display: block; margin-bottom: 5px; }
                 .val { color: #4ade80; font-weight: bold; font-size: 16px; word-break: break-all; }
                 #status { text-align: center; color: cyan; margin-bottom: 20px; }
