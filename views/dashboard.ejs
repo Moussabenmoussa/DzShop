@@ -16,9 +16,29 @@
             </div>
         </div>
         <!-- زر المشاهدة (مدمج) -->
-        <a href="/viewer" class="mt-4 block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center font-bold py-3 rounded-xl shadow-md active:scale-95 transition">
-            ▶️ فتح المشاهد الآلي
-        </a>
+        <div class="grid grid-cols-2 gap-4 mt-6">
+            
+            <a href="/viewer?mode=video" class="group relative overflow-hidden rounded-2xl bg-gray-900 p-4 transition-all hover:shadow-2xl border border-gray-800 hover:border-pink-500 block text-center">
+                <div class="absolute right-0 top-0 h-16 w-16 translate-x-4 translate-y--4 transform rounded-full bg-pink-600 opacity-20 blur-xl group-hover:opacity-40"></div>
+                <div class="relative z-10 flex flex-col items-center justify-center gap-2">
+                    <div class="text-3xl mb-1 group-hover:scale-110 transition duration-300">📹</div>
+                    <h3 class="font-bold text-white text-sm">مشاهدة فيديوهات</h3>
+                    <p class="text-[10px] text-gray-400">TikTok & YouTube</p>
+                    <span class="mt-2 text-xs bg-pink-600 text-white px-3 py-1 rounded-full shadow-lg">دخول</span>
+                </div>
+            </a>
+
+            <a href="/viewer?mode=website" class="group relative overflow-hidden rounded-2xl bg-gray-900 p-4 transition-all hover:shadow-2xl border border-gray-800 hover:border-blue-500 block text-center">
+                <div class="absolute left-0 top-0 h-16 w-16 translate-x--4 translate-y--4 transform rounded-full bg-blue-600 opacity-20 blur-xl group-hover:opacity-40"></div>
+                <div class="relative z-10 flex flex-col items-center justify-center gap-2">
+                    <div class="text-3xl mb-1 group-hover:scale-110 transition duration-300">🌐</div>
+                    <h3 class="font-bold text-white text-sm">زيارة مواقع</h3>
+                    <p class="text-[10px] text-gray-400">Google SEO & Web</p>
+                    <span class="mt-2 text-xs bg-blue-600 text-white px-3 py-1 rounded-full shadow-lg">دخول</span>
+                </div>
+            </a>
+
+        </div>
     </div>
 
 
