@@ -227,19 +227,42 @@ async function loadNextVideo() {
                         </div>
                     </div>`;
                 
-                document.getElementById('external-btn').addEventListener('click', () => {
-                     // 🚀 فتح النافذة المنبثقة بالرابط النظيف لضمان السيو والجوكر
-                     window.open(videoUrl, 'TargetWindow', 'width=1100,height=900,scrollbars=yes');
-                     
-                     localStorage.setItem('hive_mission_start', Date.now());
-                     localStorage.setItem('hive_mission_video', currentVideoId);
-                     localStorage.setItem('hive_mission_duration', timeLeft);
-                     
-                     playSound('click');
-                     timerDisplay.innerText = "تحقق...";
-                     timerDisplay.classList.add('text-yellow-400');
-                     showToast(`العداد بدأ.. عد بعد ${timeLeft} ثانية!`, "info");
-                });
+                // داخل حدث click لـ external-btn
+document.getElementById('external-btn').addEventListener('click', () => {
+    // 1. فتح النافذة المنبثقة
+    window.open(videoUrl, 'TargetWindow', 'width=1100,height=900');
+
+    // 2. تفعيل العداد في عنوان الصفحة (document.title)
+    let tempTime = timeLeft;
+    const titleTimer = setInterval(() => {
+        tempTime--;
+        
+        // تحديث العنوان ليراه المستخدم في قائمة التبويبات
+        document.title = `⏳ [${tempTime}s] جاري التحقق...`;
+        
+        if (tempTime <= 0) {
+            clearInterval(titleTimer);
+            document.title = "✅ اكتملت المهمة!";
+            
+            // 3. تفعيل الاهتزاز (Vibration)
+            // هزتان قصيرتان لتنبيه المستخدم مادياً
+            if ("vibrate" in navigator) {
+                navigator.vibrate([300, 100, 300]);
+            }
+
+            // 4. تشغيل صوت النجاح (ليعمل فور عودته أو مع الصوت الحالي)
+            playSound('success');
+            
+            // إظهار تنبيه بصري إضافي (Toast)
+            showToast("اكتملت المهمة! يمكنك العودة الآن.", "success");
+        }
+    }, 1000);
+
+    // المنطق السابق لحفظ البيانات
+    localStorage.setItem('hive_mission_start', Date.now());
+    localStorage.setItem('hive_mission_video', currentVideoId);
+    localStorage.setItem('hive_mission_duration', timeLeft);
+});
             }
         } else {
             container.innerHTML = `<h2 class="text-white text-center mt-20 opacity-75">${data.message}</h2>`;
