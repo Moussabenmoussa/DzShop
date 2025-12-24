@@ -2,17 +2,17 @@
 const mongoose = require('mongoose');
 
 const FingerprintSchema = new mongoose.Schema({
-    // هذه الحقول التي أضفناها لتكون في متناول اليد وبشكل مباشر
-    cpu_cores: Number,    
-    ram_size: Number,     
-    gpu_renderer: String,
+    // 1. البيانات العميقة المباشرة (Deep Hardware)
+    cpu_cores: { type: Number, default: 8 },    
+    ram_size: { type: Number, default: 8 },     
+    gpu_renderer: { type: String, default: "NVIDIA GeForce RTX 3060" },
     
-    // 1. التصنيف الأساسي
-    os: { type: String, required: true },       
-    browser: { type: String, required: true },  
-    deviceType: { type: String, enum: ['mobile', 'desktop', 'tablet'], required: true },
+    // 2. التصنيف الأساسي 
+    os: { type: String, default: "Unknown" },       
+    browser: { type: String, default: "Unknown" },  
+    deviceType: { type: String, enum: ['mobile', 'desktop', 'tablet', 'Unknown'], default: 'Unknown' },
 
-    // 2. البصمات الرسومية
+    // 3. البصمات الرسومية
     screen: {
         width: Number,
         height: Number,
@@ -20,8 +20,7 @@ const FingerprintSchema = new mongoose.Schema({
         pixelRatio: Number
     },
     
-    // 3. بصمات العتاد (Hardware)
-    // أبقِ هذا القسم كما هو لضمان توافق الأكواد القديمة
+    // 4. بصمات العتاد (Hardware Object) للتوافق القديم
     hardware: {
         concurrency: Number, 
         memory: Number,      
@@ -29,14 +28,12 @@ const FingerprintSchema = new mongoose.Schema({
         renderer: String     
     },
 
-    // 4. الهويات المشفرة (Hashes)
-    canvasHash: { type: String, required: true }, 
+    // 5. الهويات المشفرة والبيانات الخام
+    canvasHash: { type: String }, 
     audioHash: { type: String },
-    
-    // 5. البيانات الخام
     userAgent: { type: String, required: true },
-    platform: { type: String }, // أضف هذا السطر أيضاً لأنه مهم للجوكر
-    timezone: { type: String }, // وهذا السطر أيضاً
+    platform: { type: String, default: "Win32" },
+    timezone: { type: String },
     
     // 6. بيانات إدارية
     harvestedFrom: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
