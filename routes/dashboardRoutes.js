@@ -2,16 +2,14 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Video = require('../models/Video');
-const Fingerprint = require('../models/Fingerprint'); // 👈 ضروري جداً للجوكر
+const Fingerprint = require('../models/Fingerprint'); // 👈 ضروري للجوكر
 const { isAuth } = require('../utils/middleware');
-// 👇 استدعاء أداة الفحص التقني (TLS Fingerprint)
 const { checkVideoLink } = require('../utils/browserMock');
 
 // 1. عرض لوحة التحكم
 router.get('/dashboard', isAuth, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        // نعرض للمستخدم حملاته سواء كانت مقبولة أو قيد المراجعة
         const myVideos = await Video.find({ userId: user._id }).sort({ createdAt: -1 });
         res.render('dashboard', { user, videos: myVideos });
     } catch (e) {
@@ -19,57 +17,47 @@ router.get('/dashboard', isAuth, async (req, res) => {
     }
 });
 
-// 2. إضافة حملة جديدة (بوابة التفتيش الذكية 🛡️)
+// 2. إضافة حملة جديدة (المحرك الذكي ⚙️)
 router.post('/add-video', isAuth, async (req, res) => {
     try {
-        const { url, targetViews, duration, type, visitType, keyword } = req.body;
+        let { url, targetViews, duration, type, visitType, keyword } = req.body; // نستخدم let لنتمكن من تعديل الرابط
 
         // ============================================================
-        // 🛑 المرحلة 1: الفلترة الأمنية (The Gatekeeper)
+        // 🛑 المرحلة 1: الفلترة الأمنية
         // ============================================================
-        
         let platform = 'other';
         let status = 'Approved';
-        let active = true; // هل تظهر للناس؟
+        let active = true;
 
-        // قائمة الروابط المختصرة الممنوعة
         const forbiddenShorteners = ['bit.ly', 'tinyurl.com', 'cut.us', 'short.gy', 'goo.gl'];
         if (forbiddenShorteners.some(short => url.includes(short))) {
-            return res.send(`<script>alert("🚫 الروابط المختصرة ممنوعة! يرجى وضع الرابط المباشر."); window.location.href="/dashboard";</script>`);
+            return res.send(`<script>alert("🚫 الروابط المختصرة ممنوعة!"); window.location.href="/dashboard";</script>`);
         }
 
         if (type === 'video') {
-            // ✅ سماحية صارمة: يوتيوب وتيك توك فقط
             if (url.includes('youtube.com') || url.includes('youtu.be')) {
                 platform = 'youtube';
             } else if (url.includes('tiktok.com')) {
                 platform = 'tiktok';
             } else {
-                // ❌ رفض أي رابط آخر (CPA، إباحي، الخ)
-                return res.send(`<script>alert("❌ عذراً! يسمح فقط بروابط YouTube و TikTok في قسم الفيديوهات."); window.location.href="/dashboard";</script>`);
+                return res.send(`<script>alert("❌ عذراً! يسمح فقط بروابط YouTube و TikTok."); window.location.href="/dashboard";</script>`);
             }
-            // الفيديوهات مقبولة فوراً
             status = 'Approved';
             active = true;
-
         } else if (type === 'website') {
-            // ⏳ المواقع تذهب للمراجعة دائماً
             platform = 'website';
             status = 'Pending';
-            active = false; // لا تظهر للناس حتى يوافق الأدمن
+            active = false;
         }
 
         // ============================================================
-        // 🛑 المرحلة 2: الفحص التقني (باستخدام fetch المدمج - لا يحتاج تثبيت)
+        // 🛑 المرحلة 2: الفحص التقني (باستخدام fetch المدمج)
         // ============================================================
-        
-        // التحقق من صحة شكل الرابط (Regex)
         const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
         if (!urlPattern.test(url)) {
             return res.send(`<script>alert("⚠️ الرابط غير صحيح شكلياً."); window.location.href="/dashboard";</script>`);
         }
 
-        // التحقق الحقيقي (Ping) باستخدام fetch
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -78,69 +66,78 @@ router.post('/add-video', isAuth, async (req, res) => {
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                 }
             });
-
-            // إذا كان الرد 403 (Forbidden) أو 401، فهذا يعني الموقع موجود لكنه محمي
+            // 403/401 تعني الموقع يعمل لكنه محمي -> نقبله
             if (response.status === 403 || response.status === 401) {
-                console.log(`⚠️ الموقع ${url} يعمل لكنه يحظر البوتات، تم قبوله.`);
-            } 
-            
+                console.log(`⚠️ الموقع ${url} يعمل لكنه محمي، تم القبول.`);
+            }
         } catch (error) {
-            // في حالة fetch، الأخطاء تكون مثل فشل الشبكة (DNS Error)
             if (error.cause && (error.cause.code === 'ECONNREFUSED' || error.cause.code === 'ENOTFOUND')) {
-                console.error("❌ الرابط لا يعمل:", error.message);
                 return res.send(`<script>alert("⚠️ الرابط لا يعمل! تأكد أنه متاح للعامة."); window.location.href="/dashboard";</script>`);
             }
         }
-        
+
         // ============================================================
         // 💰 المرحلة 3: الحسابات والخصم
         // ============================================================
         let cost = 2; 
         let finalDuration = 30;
         
-        // تسعير المدة
         const dur = parseInt(duration);
         if (dur === 60) { cost += 2; finalDuration = 60; }
         else if (dur === 90) { cost += 4; finalDuration = 90; }
 
-        // تسعير النوع (بحث جوجل أغلى)
-        if (type === 'website' && visitType === 'search') {
-            cost += 2;
-        }
+        if (type === 'website' && visitType === 'search') cost += 2;
 
-        // التحقق من الرصيد
         const user = await User.findById(req.session.userId);
         const totalCost = cost * targetViews;
 
         if (user.points < totalCost) {
-            return res.send(`<script>alert("🚫 رصيدك غير كافي!\\nتحتاج ${totalCost} نقطة."); window.location.href="/dashboard";</script>`);
+            return res.send(`<script>alert("🚫 رصيدك غير كافي!"); window.location.href="/dashboard";</script>`);
         }
 
-        // خصم النقاط فوراً (حتى للمواقع المعلقة)
         await User.findByIdAndUpdate(user._id, { $inc: { points: -totalCost } });
 
         // ============================================================
-        // 💾 المرحلة 4: الحفظ في قاعدة البيانات
+        // 🧠 المرحلة 4: خوارزمية السيو (تحويل الرابط) 🚀
+        // ============================================================
+        // إذا كان موقع + بحث جوجل + يوجد كلمة مفتاحية
+        if (type === 'website' && visitType === 'search' && keyword) {
+            try {
+                // 1. استخراج البراند (allapktv.com)
+                let hostname = new URL(url).hostname.replace(/^www\./, '');
+                
+                // 2. تجهيز الكلمة (iptv -> iptv)
+                const cleanKeyword = keyword.trim().replace(/\s+/g, '+');
+                
+                // 3. صناعة رابط البراند
+                // النتيجة: https://www.google.com/search?q=iptv+allapktv.com
+                url = `https://www.google.com/search?q=${cleanKeyword}+${hostname}`;
+                
+                console.log(`💎 SEO Organic Link Created: ${url}`);
+            } catch (err) {
+                console.error("SEO Link Error", err);
+            }
+        }
+
+        // ============================================================
+        // 💾 المرحلة 5: الحفظ
         // ============================================================
         await Video.create({
             userId: req.session.userId,
             type: type || 'video',
             visitType: (type === 'website') ? visitType : undefined,
             keyword: (type === 'website' && visitType === 'search') ? keyword : undefined,
-            url: url,
+            url: url, // 👈 هنا يتم حفظ الرابط المطور (جوجل)
             targetViews: targetViews,
             duration: finalDuration,
             costPerView: cost,
-            
-            // البيانات الجديدة التي أضفناها
             platform: platform,
             status: status,
-            active: active // false للمواقع، true للفيديوهات
+            active: active
         });
 
-        // رسالة النجاح تختلف حسب النوع
         if (type === 'website') {
-            return res.send(`<script>alert("✅ تم استلام موقعك!\\nحالة الطلب: قيد المراجعة (Pending).\\nسيتم نشره بعد مراجعة الإدارة."); window.location.href="/dashboard";</script>`);
+            return res.send(`<script>alert("✅ تم استلام موقعك!\\nسيتم تحويل الزيارات عبر بحث جوجل لرفع السيو.\\nحالة الطلب: قيد المراجعة."); window.location.href="/dashboard";</script>`);
         } else {
             return res.redirect('/dashboard');
         }
@@ -151,47 +148,40 @@ router.post('/add-video', isAuth, async (req, res) => {
     }
 });
 
-// 3. صفحة المشاهد الآلي (مع الحقن الفوري للهوية ⚡)
+// 3. صفحة المشاهد الآلي (الجوكر)
 router.get('/viewer', isAuth, async (req, res) => {
     try {
-        // 1. السيرفر يختار هوية عشوائية فوراً
-        const identities = await Fingerprint.aggregate([
-            { $sample: { size: 1 } }
-        ]);
-
+        const identities = await Fingerprint.aggregate([{ $sample: { size: 1 } }]);
         let jokerData = null;
         if (identities.length > 0) {
             const id = identities[0];
             jokerData = {
-                gpu_renderer: id.gpu_renderer || "NVIDIA GeForce RTX 3060",
-                cpu_cores: id.cpu_cores || 8,
-                ram_size: id.ram_size || 8,
+                gpu_renderer: id.gpu_renderer,
+                cpu_cores: id.cpu_cores,
+                ram_size: id.ram_size,
                 userAgent: id.userAgent,
-                platform: id.platform || "Win32",
+                platform: id.platform,
                 vendor: "Google Inc. (NVIDIA)" 
             };
         }
-
-        // 2. نرسل الصفحة ونرفق معها الهوية (jokerData)
         res.render('viewer', { 
             layout: false, 
-            user: req.user,
-            jokerIdentity: jokerData // 👈 هذا هو المفتاح
+            user: req.user, 
+            jokerIdentity: jokerData 
         });
-
     } catch (e) {
-        console.error(e);
         res.render('viewer', { layout: false, user: req.user, jokerIdentity: null });
     }
 });
 
 // 4. صفحة السجن
 router.get('/banned', isAuth, (req, res) => {
-    if (!req.user.isBanned) {
-        return res.redirect('/dashboard');
-    }
+    if (!req.user.isBanned) return res.redirect('/dashboard');
     res.render('banned', { layout: false }); 
 });
+
+
+
 
 
     
