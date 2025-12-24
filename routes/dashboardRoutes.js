@@ -96,43 +96,39 @@ router.post('/add-video', isAuth, async (req, res) => {
         }
 
         await User.findByIdAndUpdate(user._id, { $inc: { points: -totalCost } });
-// ============================================================
-        // 🧠 المرحلة 4: خوارزمية السيو (تحويل الرابط بذكاء)
+// // ============================================================
+        // 🧠 المرحلة 4: خوارزمية السيو العضوية (نسخة منضبطة 100%)
         // ============================================================
-        
-        // الشرط: نوعه موقع + نوع الزيارة بحث + يوجد كلمة مفتاحية
+        let finalUrl = url; // نستخدم متغير جديد لضمان عدم تداخل البيانات
+
         if (type === 'website' && visitType === 'search' && keyword) {
             try {
-                // 1. استخراج الدومين فقط من الرابط الذي وضعه المستخدم
-                // مثال: https://allapktv.com/page1 -> نأخذ allapktv.com
+                // 1. استخراج الدومين فقط (تأكد أننا نأخذ الدومين من الرابط الأصلي)
                 const urlObj = new URL(url);
-                let domain = urlObj.hostname; 
-                domain = domain.replace(/^www\./, ''); // حذف www لضمان النظافة
+                let domain = urlObj.hostname.replace(/^www\./, '');
 
-                // 2. تجهيز الكلمة المفتاحية
+                // 2. تنظيف الكلمة المفتاحية
                 const cleanKeyword = keyword.trim().replace(/\s+/g, '+');
+
+                // 3. صناعة رابط بحث جوجل (بدون site:)
+                // النتيجة المتوقعة: https://www.google.com/search?q=iptv+allapktv.com
+                finalUrl = `https://www.google.com/search?q=${cleanKeyword}+${domain}`;
                 
-                // 3. بناء الرابط النهائي (بدون site:)
-                // الشكل النهائي: https://www.google.com/search?q=iptv+allapktv.com
-                url = `https://www.google.com/search?q=${cleanKeyword}+${domain}`;
-                
-                console.log(`✅ SEO Link Created: ${url}`);
-                
+                console.log(`🚀 SEO Link Generated: ${finalUrl}`);
             } catch (err) {
-                console.error("❌ فشل تحويل الرابط، سيتم استخدام الرابط الأصلي:", err);
-                // لا نفعل شيئاً، سيبقى الرابط كما أدخله المستخدم
+                console.error("SEO Error:", err);
             }
         }
 
         // ============================================================
-        // 💾 المرحلة 5: الحفظ
+        // 💾 المرحلة 5: الحفظ (تأكد من استخدام finalUrl)
         // ============================================================
         await Video.create({
             userId: req.session.userId,
             type: type || 'video',
             visitType: (type === 'website') ? visitType : undefined,
             keyword: (type === 'website' && visitType === 'search') ? keyword : undefined,
-            url: url, // 👈 هنا يتم حفظ الرابط المطور (جوجل)
+            url: finalUrl, // 👈 استخدمنا المتغير النهائي هنا
             targetViews: targetViews,
             duration: finalDuration,
             costPerView: cost,
