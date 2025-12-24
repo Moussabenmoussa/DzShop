@@ -1,34 +1,34 @@
-
-// 🎭 TIKHIVE INJECTOR v2.1 – Hybrid Spoof Engine (No Cache Edition)
+// 🎭 TIKHIVE INJECTOR: Hybrid Mode (Identity + Nuclear Cloak + WebRTC + Battery + MediaDevices)
 
 (async function() {
-    const DEBUG = false;
     let fake = null;
 
-    // 🚀 Load identity (no localStorage)
+    // ⚡ 1. جلب الهوية (الحقن الفوري أو عبر الشبكة)
     if (window.JOKER_IDENTITY) {
+        console.log('%c⚡ JOKER: Zero-Latency Injection Active!', 'color: #facc15; font-weight: bold;');
         fake = window.JOKER_IDENTITY;
-        DEBUG && console.log('⚡ Identity loaded from window');
     } else {
         try {
-            const res = await fetch('/api/get-identity');
-            const json = await res.json();
-            if (json.success) {
-                fake = json.data;
-                DEBUG && console.log('📡 Identity fetched from server');
-            }
-        } catch (e) {
-            console.warn('❌ Identity fetch failed', e);
-        }
+            const response = await fetch('/api/get-identity');
+            const result = await response.json();
+            if (result.success) fake = result.data;
+        } catch (e) {}
     }
 
-    if (!fake) return console.warn('⚠️ No identity available.');
+    if (!fake) {
+        console.warn('⚠️ No identity to inject.');
+        return;
+    }
 
     try {
-        // 🧠 WebGL Spoof
+        // ==========================================
+        // 🎭 A. تزوير الهوية (Identity Spoofing)
+        // ==========================================
+
+        // تزوير WebGL (كرت الشاشة)
         const getParameterProxy = new Proxy(WebGLRenderingContext.prototype.getParameter, {
             apply: function(target, thisArg, args) {
-                if (args[0] === 37445) return fake.vendor || "Google Inc.";
+                if (args[0] === 37445) return fake.vendor || "Google Inc. (NVIDIA)";
                 if (args[0] === 37446) return fake.gpu_renderer || "NVIDIA GeForce RTX 3060";
                 return Reflect.apply(target, thisArg, args);
             }
@@ -38,79 +38,129 @@
             WebGL2RenderingContext.prototype.getParameter = getParameterProxy;
         }
 
-        // 🧬 Navigator Spoof
-        const spoof = (obj, prop, val) => {
-            Object.defineProperty(obj, prop, { get: () => val, configurable: true });
-        };
+        // تزوير CPU & RAM & UA & Platform
+        if (fake.cpu_cores) Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => parseInt(fake.cpu_cores), configurable: true });
+        if (fake.ram_size) Object.defineProperty(navigator, 'deviceMemory', { get: () => parseInt(fake.ram_size), configurable: true });
+        if (fake.userAgent) Object.defineProperty(navigator, 'userAgent', { get: () => fake.userAgent, configurable: true });
+        if (fake.platform) Object.defineProperty(navigator, 'platform', { get: () => fake.platform, configurable: true });
 
-        if (fake.cpu_cores) spoof(navigator, 'hardwareConcurrency', parseInt(fake.cpu_cores));
-        if (fake.ram_size) spoof(navigator, 'deviceMemory', parseInt(fake.ram_size));
-        if (fake.userAgent) spoof(navigator, 'userAgent', fake.userAgent);
-        if (fake.platform) spoof(navigator, 'platform', fake.platform);
-        if (fake.language) spoof(navigator, 'language', fake.language);
-        if (fake.language) spoof(navigator, 'languages', [fake.language]);
-
-        // 🌐 Timezone Spoof
-        if (fake.timezone) {
-            const original = Intl.DateTimeFormat;
-            Intl.DateTimeFormat = function(...args) {
-                const dtf = new original(...args);
-                dtf.resolvedOptions = () => ({ timeZone: fake.timezone });
-                return dtf;
-            };
+        // تزوير اللغة
+        if (fake.language) {
+            Object.defineProperty(navigator, 'language', { get: () => fake.language, configurable: true });
+            Object.defineProperty(navigator, 'languages', { get: () => [fake.language], configurable: true });
         }
 
-        // 🖼️ Canvas Spoof
-        if (fake.canvas_fp) {
-            HTMLCanvasElement.prototype.toDataURL = function() {
-                return fake.canvas_fp;
-            };
-        }
+        // ==========================================
+        // 🛡️ B. عباءة التخفي النووية (Nuclear Visibility Cloak)
+        // ==========================================
 
-        // 🔊 AudioContext Spoof
-        if (fake.audio_fp_noise) {
-            const original = AudioBuffer.prototype.getChannelData;
-            AudioBuffer.prototype.getChannelData = function() {
-                const data = original.apply(this, arguments);
-                for (let i = 0; i < data.length; i++) {
-                    data[i] += fake.audio_fp_noise;
-                }
-                return data;
-            };
-        }
-
-        // 🧪 userAgentData Spoof
-        if (navigator.userAgentData && fake.ua_data) {
-            spoof(navigator, 'userAgentData', {
-                brands: fake.ua_data.brands,
-                mobile: fake.ua_data.mobile,
-                platform: fake.ua_data.platform
-            });
-        }
-
-        // 🕶️ Visibility Cloak
-        spoof(document, 'hidden', false);
-        spoof(document, 'visibilityState', 'visible');
+        Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
+        Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+        document.hasFocus = () => true;
 
         const originalAddEventListener = document.addEventListener;
         document.addEventListener = function(type, listener, options) {
-            if (['visibilitychange', 'webkitvisibilitychange', 'blur'].includes(type)) return;
-            return originalAddEventListener.call(document, type, listener, options);
+            const blockedEvents = [
+                'visibilitychange', 'webkitvisibilitychange', 'blur', 'focusout',
+                'pagehide', 'beforeunload', 'unload', 'mouseleave', 'mouseout'
+            ];
+            if (blockedEvents.includes(type)) return;
+            return originalAddEventListener.call(this, type, listener, options);
         };
 
-        // 🧼 Anti-Detection: Hide Proxy traces
-        const nativeToString = Function.prototype.toString;
-        Function.prototype.toString = new Proxy(nativeToString, {
-            apply: function(target, thisArg, args) {
-                if (thisArg === getParameterProxy) return "function getParameter() { [native code] }";
-                return target.apply(thisArg, args);
+        window.addEventListener = new Proxy(window.addEventListener, {
+            apply(target, thisArg, args) {
+                const [type] = args;
+                if (['blur', 'focus', 'visibilitychange'].includes(type)) return;
+                return Reflect.apply(target, thisArg, args);
             }
         });
 
-        DEBUG && console.table(fake);
-        console.log(`%c🎭 Identity Applied: ${fake.gpu_renderer} [${fake.platform}]`, 'color: #4ade80;');
+        Object.defineProperty(document, 'activeElement', {
+            get: () => document.body,
+            configurable: true
+        });
+
+        if ('connection' in navigator) {
+            try {
+                Object.defineProperty(navigator.connection, 'saveData', { get: () => false });
+                Object.defineProperty(navigator.connection, 'effectiveType', { get: () => '4g' });
+                Object.defineProperty(navigator.connection, 'rtt', { get: () => 50 });
+                Object.defineProperty(navigator.connection, 'downlink', { get: () => 10 });
+            } catch (e) {}
+        }
+
+        let lastRAF = Date.now();
+        const originalRAF = window.requestAnimationFrame;
+        window.requestAnimationFrame = function(callback) {
+            return originalRAF.call(window, function(timestamp) {
+                lastRAF = Date.now();
+                callback(timestamp);
+            });
+        };
+        setInterval(() => {
+            if (Date.now() - lastRAF > 2000) {
+                window.dispatchEvent(new Event('mousemove'));
+            }
+        }, 2000);
+
+        // ==========================================
+        // 🧪 C. طبقات التمويه الإضافية (WebRTC + Battery + MediaDevices)
+        // ==========================================
+
+        // Battery API
+        if ('getBattery' in navigator) {
+            navigator.getBattery = async () => ({
+                charging: true,
+                chargingTime: 0,
+                dischargingTime: Infinity,
+                level: 0.99,
+                onchargingchange: null,
+                onchargingtimechange: null,
+                ondischargingtimechange: null,
+                onlevelchange: null
+            });
+        }
+
+        // WebRTC
+        const originalRTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
+        if (originalRTCPeerConnection) {
+            const newRTCPeerConnection = function(...args) {
+                const pc = new originalRTCPeerConnection(...args);
+                const originalAddIceCandidate = pc.addIceCandidate;
+                pc.addIceCandidate = function(candidate) {
+                    if (candidate && candidate.candidate && candidate.candidate.includes("typ srflx")) {
+                        return Promise.resolve();
+                    }
+                    return originalAddIceCandidate.call(this, candidate);
+                };
+                return pc;
+            };
+            window.RTCPeerConnection = newRTCPeerConnection;
+            window.webkitRTCPeerConnection = newRTCPeerConnection;
+        }
+
+        // MediaDevices
+        if (navigator.mediaDevices) {
+            navigator.mediaDevices.enumerateDevices = async () => ([
+                {
+                    kind: "videoinput",
+                    label: "Integrated Camera",
+                    deviceId: "default",
+                    groupId: "camera-group"
+                },
+                {
+                    kind: "audioinput",
+                    label: "Built-in Microphone",
+                    deviceId: "default",
+                    groupId: "mic-group"
+                }
+            ]);
+        }
+
+        console.log(`%c🎭 JOKER ACTIVE: ${fake.gpu_renderer} | 🛡️ CLOAK: Nuclear + WebRTC + Battery + Media`, 'color: #4ade80; font-weight: bold;');
 
     } catch (e) {
-        console.error("❌ Spoofing Error:", e);
+        console.error("Spoofer Error:", e);
     }
 })();
