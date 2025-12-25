@@ -18,23 +18,29 @@ router.post('/harvest', isAuth, async (req, res) => {
             return res.status(400).json({ success: false, message: "Incomplete Data" });
         }
 
-        // 2. التحقق من التكرار (Duplicate Check)
-        // إذا كان لدينا هذا الجهاز مسبقاً، لا داعي لتخزينه مرة أخرى لتوفير المساحة
+        // 2. التحقق من التكرار
         const exists = await Fingerprint.findOne({ canvasHash: canvasHash });
         if (exists) {
-            // يمكننا تحديث حقل "آخر ظهور" فقط
             return res.json({ success: true, status: "exists" });
         }
 
-        // 3. تخزين البصمة الجديدة
+        // 3. تخزين البصمة الجديدة (مع تصحيح الأماكن 🛠️)
         await Fingerprint.create({
+            // البيانات الخام كما وصلت
             os, browser, deviceType,
             screen, hardware,
             canvasHash, audioHash, userAgent,
-            harvestedFrom: req.session.userId // نسجل المصدر للرجوع إليه
+            
+            // 👇 الإصلاح الجوهري: استخراج البيانات ليراها الجوكر
+            gpu_renderer: hardware.renderer || "Generic GPU", // نضع كرت الشاشة في الواجهة
+            cpu_cores: hardware.concurrency || 4,            // نضع الأنوية في الواجهة
+            ram_size: hardware.memory || 8,                  // نضع الرامات في الواجهة
+            platform: os,                                    // نوحد اسم النظام
+
+            harvestedFrom: req.session.userId
         });
 
-        console.log(`✅ [Harvester] New Identity Added: ${os} | ${hardware.renderer}`);
+        console.log(`✅ [Harvester] New Identity Saved: ${os} | ${hardware.renderer}`);
         res.json({ success: true, status: "saved" });
 
     } catch (e) {
