@@ -16,6 +16,7 @@
     "mongoose": "^8.0.0",
     "ua-parser-js": "^1.0.37",
     "got-scraping": "^3.2.15",
-    "express-rate-limit": "^7.1.5"
+    "express-rate-limit": "^7.1.5",
+    "@paypal/checkout-server-sdk": "^1.0.5"
   }
 }
