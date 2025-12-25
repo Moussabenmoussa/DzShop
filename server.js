@@ -6,8 +6,6 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path'); // مكتبة المسارات
 const expressLayouts = require('express-ejs-layouts'); // مكتبة التصميم
-// استدعاء ملف الدفع الجديد
-const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 
 
