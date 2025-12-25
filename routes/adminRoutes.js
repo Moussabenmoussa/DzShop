@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -5,16 +6,20 @@ const Video = require('../models/Video');
 const Settings = require('../models/Settings');
 const { isAuth } = require('../utils/middleware');
 
-// ميدل وير لحماية لوحة التحكم (تأكد من وضع بريدك هنا)
+// ميدل وير لحماية لوحة التحكم
 const isAdmin = async (req, res, next) => {
     if (!req.session.userId) return res.status(401).json({ error: 'غير مصرح لك' });
-    const user = await User.findById(req.session.userId);
-    const ADMIN_EMAIL = "safah94899@supdrop.com"; // بريدك الخاص
-    
-    if (user && user.email === ADMIN_EMAIL) {
-        next();
-    } else {
-        res.status(403).json({ error: 'دخول ممنوع: للمسؤولين فقط' });
+    try {
+        const user = await User.findById(req.session.userId);
+        const ADMIN_EMAIL = "safah94899@supdrop.com"; 
+        
+        if (user && user.email === ADMIN_EMAIL) {
+            next();
+        } else {
+            res.status(403).json({ error: 'دخول ممنوع: للمسؤولين فقط' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'خطأ في الخادم' });
     }
 };
 
@@ -25,15 +30,19 @@ router.get('/', async (req, res) => {
     res.render('admin', { layout: false });
 });
 
-// 1. جلب الحملات التي تنتظر المراجعة (Pending)
+// 1. جلب الحملات (تم التعديل هنا لضمان ظهور كل ما هو جديد)
 router.get('/pending-campaigns', async (req, res) => {
     try {
-        const campaigns = await Video.find({ status: 'Pending' })
-            .populate('userId', 'email username')
-            .sort({ createdAt: -1 });
+        // يجلب الحملات التي حالتها Pending أو التي لا تملك حالة بعد (لضمان ظهور ما أنشأته مؤخراً)
+        const campaigns = await Video.find({ 
+            status: { $nin: ['Approved', 'Rejected'] } 
+        })
+        .populate('userId', 'email username')
+        .sort({ createdAt: -1 });
+
         res.json({ success: true, campaigns });
     } catch (e) {
-        res.json({ success: false, message: e.message });
+        res.json({ success: false, message: e.message, campaigns: [] });
     }
 });
 
