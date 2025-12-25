@@ -3,31 +3,40 @@ const router = express.Router();
 const User = require('../models/User');
 const Video = require('../models/Video');
 const Fingerprint = require('../models/Fingerprint'); 
+// 🆕 1. استدعاء موديل سجل الزيارات (سننشئه في الخطوة التالية)
+const VisitLog = require('../models/VisitLog'); 
 const { isAuth } = require('../utils/middleware');
 const { checkVideoLink } = require('../utils/browserMock');
 
-// 1. عرض لوحة التحكم
+// 1. عرض لوحة التحكم (مع سجل الزيارات الحقيقي)
 router.get('/dashboard', isAuth, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
         const myVideos = await Video.find({ userId: user._id }).sort({ createdAt: -1 });
-        res.render('dashboard', { user, videos: myVideos });
+
+        // 🆕 2. جلب آخر 5 زيارات حقيقية لعرضها في الجدول
+        // (نجلب الزيارات العامة للنظام ليرى المستخدم النشاط العام، أو زياراته الخاصة فقط حسب رغبتك)
+        // هنا سأجلب آخر 5 زيارات عامة في الموقع لكي يرى المستخدم أن الموقع "حي" ونشيط
+        const recentVisits = await VisitLog.find().sort({ timestamp: -1 }).limit(5);
+
+        res.render('dashboard', { user, videos: myVideos, recentVisits });
     } catch (e) {
+        console.error(e);
         res.redirect('/');
     }
 });
 
-// 2. إضافة حملة جديدة (المحرك الذكي ⚙️)
+// 2. إضافة حملة جديدة (كما هي بدون تغيير)
 router.post('/add-video', isAuth, async (req, res) => {
     try {
         let { url, targetViews, duration, type, visitType, keyword } = req.body; 
 
-        // ============================================================
-        // 🛑 المرحلة 1: الفلترة الأمنية
-        // ============================================================
-        let platform = 'other';
+        // ... (نفس كود الفلترة والحسابات السابق تماماً) ...
         
-        // ⚠️ التعديل الجوهري هنا: الحالة الافتراضية أصبحت معلقة للجميع
+        // (اختصاراً للمساحة، الكود هنا هو نفسه الذي اتفقنا عليه سابقاً بجعل الحالة Pending)
+        // ...
+        
+        let platform = 'other';
         let status = 'Pending'; 
         let active = false;     
 
@@ -44,36 +53,22 @@ router.post('/add-video', isAuth, async (req, res) => {
             } else {
                 return res.send(`<script>alert("❌ عذراً! يسمح فقط بروابط YouTube و TikTok."); window.location.href="/dashboard";</script>`);
             }
-            // تمت إزالة التفعيل التلقائي
         } else if (type === 'website') {
             platform = 'website';
         }
 
-        // ============================================================
-        // 🛑 المرحلة 2: الفحص التقني
-        // ============================================================
         const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
         if (!urlPattern.test(url)) {
             return res.send(`<script>alert("⚠️ الرابط غير صحيح شكلياً."); window.location.href="/dashboard";</script>`);
         }
 
-        // التحقق البسيط من الرابط
-        try {
-            const response = await fetch(url, { method: 'HEAD' }); // HEAD أخف وأسرع من GET
-        } catch (error) {
-            // نتجاوز الخطأ لأن بعض المواقع ترفض الروبوتات، وسنقوم بمراجعتها يدوياً في الأدمن
-        }
+        try { const response = await fetch(url, { method: 'HEAD' }); } catch (error) {}
 
-        // ============================================================
-        // 💰 المرحلة 3: الحسابات والخصم
-        // ============================================================
         let cost = 2; 
         let finalDuration = 30;
-        
         const dur = parseInt(duration);
         if (dur === 60) { cost += 2; finalDuration = 60; }
         else if (dur === 90) { cost += 4; finalDuration = 90; }
-
         if (type === 'website' && visitType === 'search') cost += 2;
 
         const user = await User.findById(req.session.userId);
@@ -85,25 +80,16 @@ router.post('/add-video', isAuth, async (req, res) => {
 
         await User.findByIdAndUpdate(user._id, { $inc: { points: -totalCost } });
 
-        // ============================================================
-        // 🧠 المرحلة 4: خوارزمية السيو
-        // ============================================================
         let finalUrl = url; 
-
         if (type === 'website' && visitType === 'search' && keyword) {
             try {
                 const urlObj = new URL(url);
                 let domain = urlObj.hostname.replace(/^www\./, '');
                 const cleanKeyword = keyword.trim().replace(/\s+/g, '+');
                 finalUrl = `https://www.google.com/search?q=${cleanKeyword}+${domain}`;
-            } catch (err) {
-                console.error("SEO Error:", err);
-            }
+            } catch (err) { console.error("SEO Error:", err); }
         }
 
-        // ============================================================
-        // 💾 المرحلة 5: الحفظ
-        // ============================================================
         await Video.create({
             userId: req.session.userId,
             type: type || 'video',
@@ -114,8 +100,8 @@ router.post('/add-video', isAuth, async (req, res) => {
             duration: finalDuration,
             costPerView: cost,
             platform: platform,
-            status: 'Pending', // 👈 تأكيد الحالة معلقة
-            active: false      // 👈 تأكيد غير نشط
+            status: 'Pending',
+            active: false
         });
 
         return res.send(`<script>alert("✅ تم استلام حملتك بنجاح!\\nسيتم مراجعتها من قبل الإدارة قبل النشر."); window.location.href="/dashboard";</script>`);
@@ -126,11 +112,12 @@ router.post('/add-video', isAuth, async (req, res) => {
     }
 });
 
-// 3. صفحة المشاهد الآلي (الجوكر)
+// 3. صفحة المشاهد الآلي (الجوكر) - مع تسجيل الزيارة الحقيقية
 router.get('/viewer', isAuth, async (req, res) => {
     try {
         const identities = await Fingerprint.aggregate([{ $sample: { size: 1 } }]);
         let jokerData = null;
+        
         if (identities.length > 0) {
             const id = identities[0];
             jokerData = {
@@ -141,7 +128,28 @@ router.get('/viewer', isAuth, async (req, res) => {
                 platform: id.platform,
                 vendor: "Google Inc. (NVIDIA)" 
             };
+
+            // 🆕 3. تسجيل هذه "الهوية" في سجل الزيارات الحية (VisitLog)
+            // هذا ما سيجعل الجدول يمتلئ ببيانات حقيقية تتغير مع كل زيارة
+            try {
+                // تحديد نوع المتصفح من UserAgent لتبسيط العرض
+                let browserName = "Chrome";
+                if(id.userAgent.includes("Firefox")) browserName = "Firefox";
+                if(id.userAgent.includes("Safari") && !id.userAgent.includes("Chrome")) browserName = "Safari";
+                if(id.userAgent.includes("Edge")) browserName = "Edge";
+
+                await VisitLog.create({
+                    device: id.platform,      // مثال: Win32, Linux armv8l
+                    browser: browserName,     // مثال: Chrome
+                    source: "Google Search",  // المصدر الثابت (الأورجانيك)
+                    status: "Active",
+                    timestamp: new Date()
+                });
+            } catch(logError) {
+                console.error("فشل تسجيل الزيارة في السجل:", logError);
+            }
         }
+
         res.render('viewer', { 
             layout: false, 
             user: req.user, 
@@ -158,6 +166,6 @@ router.get('/banned', isAuth, (req, res) => {
     res.render('banned', { layout: false }); 
 });
 
-// ... (بقية المسارات التجريبية تبقى كما هي)
+// ... (بقية المسارات التجريبية)
 
 module.exports = router;
