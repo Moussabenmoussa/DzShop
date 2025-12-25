@@ -36,7 +36,27 @@ app.use(session({
 
 
 
-
+// 🕵️ مراقب الترافيك (ضعه في server.js قبل app.use routes)
+app.use((req, res, next) => {
+    // نراقب فقط طلبات زيارة الفيديوهات أو الروابط
+    if (req.path.includes('/watch') || req.path.includes('/visit')) {
+        const referer = req.get('Referer') || 'Direct (مباشر)';
+        const ip = req.ip;
+        
+        console.log(`============================================`);
+        console.log(`🔍 فحص الزيارة الجديدة:`);
+        console.log(`🌍 المصدر (Referer): ${referer}`);
+        console.log(`🆔 العنوان (IP): ${ip}`);
+        
+        if (referer.includes('google.com')) {
+            console.log(`✅ النتيجة: زيارة أورجانيك حقيقية (SEO)`);
+        } else {
+            console.log(`⚠️ النتيجة: زيارة مباشرة (Direct) - قد لا تحسب في السيو`);
+        }
+        console.log(`============================================`);
+    }
+    next();
+});
 
 // 5. المسارات
 
