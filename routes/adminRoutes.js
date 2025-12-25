@@ -1,109 +1,86 @@
-
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Video = require('../models/Video');
-const Settings = require('../models/Settings');
 const { isAuth } = require('../utils/middleware');
 
-// ميدل وير لحماية لوحة التحكم
+// حماية الأدمن
 const isAdmin = async (req, res, next) => {
     if (!req.session.userId) return res.status(401).json({ error: 'غير مصرح لك' });
     try {
         const user = await User.findById(req.session.userId);
-        const ADMIN_EMAIL = "safah94899@supdrop.com"; 
+        const ADMIN_EMAIL = "safah94899@supdrop.com"; // إيميلك
         
         if (user && user.email === ADMIN_EMAIL) {
             next();
         } else {
-            res.status(403).json({ error: 'دخول ممنوع: للمسؤولين فقط' });
+            res.status(403).json({ error: 'دخول ممنوع' });
         }
     } catch (err) {
-        res.status(500).json({ error: 'خطأ في الخادم' });
+        res.status(500).json({ error: 'Server Error' });
     }
 };
 
 router.use(isAuth, isAdmin);
 
-// عرض صفحة الإدارة الرئيسية
+// عرض الصفحة
 router.get('/', async (req, res) => {
     res.render('admin', { layout: false });
 });
 
-// 1. جلب الحملات (تم التعديل هنا لضمان ظهور كل ما هو جديد)
+// 1. جلب الحملات (الإصلاح الشامل)
 router.get('/pending-campaigns', async (req, res) => {
     try {
-        // يجلب الحملات التي حالتها Pending أو التي لا تملك حالة بعد (لضمان ظهور ما أنشأته مؤخراً)
+        // يجلب أي فيديو حالته ليست "Approved" (سواء كان Pending أو Rejected أو فارغ)
         const campaigns = await Video.find({ 
-            status: { $nin: ['Approved', 'Rejected'] } 
+            status: { $ne: 'Approved' } 
         })
-        .populate('userId', 'email username')
+        .populate('userId', 'email')
         .sort({ createdAt: -1 });
 
+        console.log(`🔍 Admin: وجدنا ${campaigns.length} حملة للمراجعة`);
         res.json({ success: true, campaigns });
     } catch (e) {
-        res.json({ success: false, message: e.message, campaigns: [] });
+        console.error("Admin Error:", e);
+        res.json({ success: false, campaigns: [] });
     }
 });
 
-// 2. اتخاذ قرار بشأن حملة (قبول أو رفض)
+// 2. اتخاذ القرار (قبول / رفض)
 router.post('/campaign-action', async (req, res) => {
     try {
-        const { videoId, action, reason } = req.body;
+        const { videoId, action } = req.body;
         const video = await Video.findById(videoId);
-        if (!video) return res.json({ success: false, message: 'الحملة غير موجودة' });
+        if (!video) return res.json({ success: false, message: 'غير موجود' });
 
         if (action === 'approve') {
             video.status = 'Approved';
             video.active = true;
             await video.save();
-            res.json({ success: true, message: '✅ تم قبول ونشر الحملة' });
+            res.json({ success: true, message: '✅ تم النشر' });
         } else {
             video.status = 'Rejected';
             video.active = false;
-            video.rejectionReason = reason || "مخالفة الشروط";
             await video.save();
-            res.json({ success: true, message: '❌ تم رفض الحملة' });
+            res.json({ success: true, message: '❌ تم الرفض' });
         }
     } catch (e) {
         res.json({ success: false, message: e.message });
     }
 });
 
-// 3. تحديث إعدادات بايبال من اللوحة
-router.post('/update-paypal', async (req, res) => {
-    try {
-        const { clientId, secret, mode, exchangeRate } = req.body;
-        let settings = await Settings.findOne();
-        if (!settings) settings = new Settings();
-
-        settings.paypal = {
-            active: true,
-            clientId,
-            clientSecret: secret,
-            mode,
-            exchangeRate
-        };
-
-        await settings.save();
-        res.json({ success: true, message: '✅ تم تحديث إعدادات بايبال بنجاح' });
-    } catch (e) {
-        res.json({ success: false, message: e.message });
-    }
-});
-
-// 4. تعديل رصيد مستخدم يدوياً
+// 3. تعديل الرصيد يدوياً
 router.post('/modify-user-points', async (req, res) => {
     try {
         const { email, amount, action } = req.body;
         const user = await User.findOne({ email });
         if (!user) return res.json({ success: false, message: 'المستخدم غير موجود' });
-
+        
         const change = action === 'add' ? parseInt(amount) : -parseInt(amount);
         user.points += change;
         await user.save();
-
-        res.json({ success: true, message: `✅ تم تحديث رصيد ${user.email} بنجاح` });
+        
+        res.json({ success: true, message: `✅ الرصيد الجديد: ${user.points}` });
     } catch (e) {
         res.json({ success: false, message: e.message });
     }
