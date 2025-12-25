@@ -13,7 +13,6 @@
         .tab-btn.active { border-bottom: 3px solid #eab308; color: #eab308; }
     </style>
 </head>
-
 <body class="bg-slate-950 pb-20">
 
     <nav class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50">
@@ -114,52 +113,6 @@
             const data = await res.json();
             alert(data.message);
         }
-
-
-
-async function loadCampaigns() {
-    const res = await fetch('/admin/pending-campaigns');
-    const data = await res.json();
-    const list = document.getElementById('campaigns-list');
-    
-    if (data.campaigns.length === 0) {
-        list.innerHTML = "لا توجد حملات بانتظار المراجعة حالياً.";
-        return;
-    }
-
-    list.innerHTML = data.campaigns.map(v => `
-        <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
-            <div>
-                <p class="text-xs text-yellow-500 font-bold">${v.type === 'video' ? '📹 فيديو' : '🌐 موقع'}</p>
-                <a href="${v.url}" target="_blank" class="text-sm underline block mb-1">${v.title || 'رابط الحملة'}</a>
-                <p class="text-[10px] text-slate-400">بواسطة: ${v.userId.email}</p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="campaignAction('${v._id}', 'approve')" class="bg-green-600 px-3 py-1 rounded text-xs">قبول</button>
-                <button onclick="campaignAction('${v._id}', 'reject')" class="bg-red-600 px-3 py-1 rounded text-xs">رفض</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-async function campaignAction(videoId, action) {
-    const res = await fetch('/admin/campaign-action', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ videoId, action })
-    });
-    const data = await res.json();
-    alert(data.message);
-    loadCampaigns();
-}
-
-// تشغيل جلب الحملات تلقائياً عند فتح الصفحة
-window.onload = loadCampaigns;
-
-
-
-
-
     </script>
 </body>
 </html>
