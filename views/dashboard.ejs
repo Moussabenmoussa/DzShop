@@ -1,10 +1,5 @@
-
-
-
-
 <div class="max-w-md mx-auto pb-20">
 
-    <!-- 1. بطاقة الرصيد (بتصميم مضغوط للهاتف) -->
     <div class="bg-gray-900 rounded-2xl p-5 text-white shadow-lg mb-6 relative overflow-hidden border border-gray-800">
         <div class="flex justify-between items-start z-10 relative">
             <div>
@@ -15,7 +10,6 @@
                 ⭐ جودة: <%= user.qualityScore %>/3
             </div>
         </div>
-        <!-- زر المشاهدة (مدمج) -->
         <div class="grid grid-cols-2 gap-4 mt-6">
             
             <a href="/viewer?mode=video" class="group relative overflow-hidden rounded-2xl bg-gray-900 p-4 transition-all hover:shadow-2xl border border-gray-800 hover:border-pink-500 block text-center">
@@ -41,10 +35,74 @@
         </div>
     </div>
 
+    <div class="bg-gray-900 rounded-2xl border border-gray-800 shadow-xl overflow-hidden mb-8">
+        <div class="bg-gray-950 px-5 py-4 border-b border-gray-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Live Traffic Stream (نشاط الشبكة)
+            </h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs text-gray-400">
+                <thead class="bg-gray-950 text-[10px] uppercase font-medium text-gray-500">
+                    <tr>
+                        <th class="px-4 py-3">الهوية (الجهاز)</th>
+                        <th class="px-4 py-3">المصدر</th>
+                        <th class="px-4 py-3">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800">
+                    <% if (typeof recentVisits !== 'undefined' && recentVisits.length > 0) { %>
+                        <% recentVisits.forEach(visit => { %>
+                        <tr class="hover:bg-gray-800/30 transition">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg">
+                                        <% if(visit.device.includes('Win')) { %> 💻 <% } 
+                                           else if(visit.device.includes('iPhone') || visit.device.includes('iPad')) { %> 📱 <% } 
+                                           else if(visit.device.includes('Android')) { %> 🤖 <% } 
+                                           else { %> 🖥️ <% } %>
+                                    </span>
+                                    <div>
+                                        <div class="text-white font-bold text-[10px]"><%= visit.device %></div>
+                                        <div class="text-[9px] text-gray-500"><%= visit.browser %></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-blue-500 font-bold">G</span>
+                                    <span class="text-green-500 font-bold text-[10px]">Organic</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-green-400 text-[10px] bg-green-900/20 px-2 py-0.5 rounded border border-green-900/50">
+                                    ✅ مكتملة
+                                </span>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="3" class="px-4 py-6 text-center text-gray-600 text-xs">
+                                جاري انتظار أول زيارة...
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="bg-gray-950 px-4 py-2 text-center text-[9px] text-gray-600 border-t border-gray-800">
+            بيانات حقيقية من السيرفر - يتم تغيير الهوية مع كل زيارة 🛡️
+        </div>
+    </div>
 
 
-
-<div class="bg-white rounded-3xl shadow-xl p-6 mb-8 border border-gray-100 relative overflow-hidden">
+    <div class="bg-white rounded-3xl shadow-xl p-6 mb-8 border border-gray-100 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"></div>
 
         <h3 class="font-bold text-gray-800 mb-6 flex items-center gap-3 text-xl">
@@ -206,7 +264,12 @@
                                     </td>
 
                                     <td class="px-6 py-4">
-                                        <% if (video.active) { %>
+                                        <% if (video.status === 'Pending') { %>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-600 border border-yellow-100">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                                                قيد المراجعة
+                                            </span>
+                                        <% } else if (video.status === 'Approved' && video.active) { %>
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600 border border-green-100">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                                                 نشطة
@@ -214,7 +277,7 @@
                                         <% } else { %>
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                                مكتملة
+                                                <%= video.status || 'مكتملة' %>
                                             </span>
                                         <% } %>
                                     </td>
@@ -266,57 +329,3 @@
             </div>
         <% } %>
     </div>
-
-
-
-
-
-
-
-<div id="proTipModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" style="font-family: sans-serif;">
-    <div class="bg-slate-800 border border-slate-600 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-bl-full -mr-10 -mt-10"></div>
-        
-        <div class="text-center">
-            <div class="text-5xl mb-4">🚀</div>
-            <h2 class="text-2xl font-bold text-yellow-400 mb-2">Maximize Your Earnings!</h2>
-            <p class="text-slate-300 text-sm mb-6 leading-relaxed text-left bg-slate-900/50 p-4 rounded-lg border border-slate-700">
-                Want to earn points faster without stopping? Use the <strong>Ultimate Method</strong>:
-                <br><br>
-                🕵️‍♂️ <strong>1. Go Incognito:</strong> Open this site in a Private/Incognito tab.
-                <br><br>
-                ✈️ <strong>2. Refresh ID:</strong> Toggle <strong>Airplane Mode</strong> ON & OFF every 10 minutes to get a fresh IP.
-                <br><br>
-                <span class="text-green-400 text-xs">✅ This guarantees 100% High-Quality Views!</span>
-            </p>
-            
-            <button onclick="closeProTip()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/30">
-                Got it! Let's Earn 💰
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Logic: Show only once per day (Smart Popup)
-    document.addEventListener("DOMContentLoaded", function() {
-        const lastSeen = localStorage.getItem('seenProTip_v1');
-        const today = new Date().toDateString();
-        
-        // إذا لم يرى الرسالة اليوم، أظهرها له
-        if (lastSeen !== today) {
-            const modal = document.getElementById('proTipModal');
-            if (modal) {
-                modal.classList.remove('hidden'); // إظهار النافذة
-                modal.style.display = 'flex'; // ضمان التنسيق
-            }
-        }
-    });
-
-    function closeProTip() {
-        const modal = document.getElementById('proTipModal');
-        modal.style.display = 'none';
-        // حفظ التاريخ لكي لا تظهر له مرة أخرى اليوم
-        localStorage.setItem('seenProTip_v1', new Date().toDateString());
-    }
-</script>
