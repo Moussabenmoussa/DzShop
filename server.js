@@ -40,9 +40,6 @@ app.use(session({
 
 // 5. المسارات
 
-// تفعيل مسار الدفع في النظام
-app.use('/api/payments', paymentRoutes);
-
 // 👇 أضف هذا السطر فوراً لإصلاح خطأ Render والحماية
 app.set('trust proxy', 1); 
 app.use('/', require('./routes/authRoutes'));
