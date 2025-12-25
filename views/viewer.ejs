@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -25,42 +26,48 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* وميض المؤشر */
+        /* وميض المؤشر للكتابة */
         .cursor-blink { animation: blink 1s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
         /* تأثير الظهور التدريجي */
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
 
+    <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+    <audio id="sound-error" src="https://assets.mixkit.co/active_storage/sfx/944/944-preview.mp3" preload="auto"></audio>
+    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+
+    <div id="toast-container" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
+
     <% if (jokerIdentity) { %>
-    <div id="identity-card" class="fixed top-20 left-4 z-40 bg-black/90 border border-slate-800 p-4 rounded-lg shadow-2xl max-w-[240px] pointer-events-none opacity-0 transition-opacity duration-1000" dir="ltr">
+    <div id="identity-card" class="fixed top-20 left-4 z-40 bg-black/90 border border-slate-800 p-4 rounded-lg shadow-2xl max-w-[260px] pointer-events-none opacity-0 transition-opacity duration-1000" dir="ltr">
         
         <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
             <div class="flex items-center gap-2">
                 <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SESSION ACTIVE</span>
             </div>
-            <span class="text-[9px] text-slate-600 font-mono">ID: <%= Math.floor(Math.random()*10000) %>-X</span>
+            <span class="text-[9px] text-slate-600 font-mono">SID: <%= Math.floor(Math.random()*9000)+1000 %>-SECure</span>
         </div>
 
         <div class="space-y-2 font-mono text-[10px]">
             <div>
-                <span class="text-slate-500 block">PLATFORM:</span>
+                <span class="text-slate-500 block">PLATFORM (OS):</span>
                 <span id="type-os" class="text-green-400 font-bold"></span><span class="cursor-blink text-green-400">_</span>
             </div>
             <div>
-                <span class="text-slate-500 block">RENDERER:</span>
+                <span class="text-slate-500 block">GPU RENDERER:</span>
                 <span id="type-gpu" class="text-blue-300 block leading-tight"></span>
             </div>
             
             <div id="integrity-badge" class="mt-3 pt-2 border-t border-slate-800 hidden fade-in">
-                <div class="flex items-center gap-1.5 bg-green-500/10 px-2 py-1 rounded border border-green-500/20 w-fit">
-                    <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span class="text-[9px] font-bold text-green-400">INTEGRITY: VERIFIED</span>
+                <div class="flex items-center gap-1.5 bg-green-500/10 px-2 py-1.5 rounded border border-green-500/20 w-full justify-center">
+                    <svg class="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-[9px] font-bold text-green-400 tracking-wider">INTEGRITY: VERIFIED</span>
                 </div>
             </div>
         </div>
@@ -81,14 +88,11 @@
         </div>
 
         <div class="flex items-center gap-3">
-             <button id="next-btn" onclick="handleNextMission()" class="hidden bg-white text-black hover:bg-slate-200 px-5 py-1.5 rounded text-xs font-bold transition shadow-lg flex items-center gap-2">
-                <span>NEW SESSION</span>
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </button>
-
-            <div id="timer-box" class="bg-black px-4 py-1.5 rounded border border-slate-800">
+            <div id="timer-box" class="bg-black px-4 py-1.5 rounded border border-slate-800 flex items-center gap-2">
+                <span class="text-[10px] text-slate-500 uppercase">Time Left</span>
                 <span id="timer" class="font-mono text-lg font-bold text-yellow-500 tracking-wider">--:--</span>
             </div>
+            <button id="next-btn" class="hidden"></button>
         </div>
 
         <a href="/dashboard" class="text-slate-500 hover:text-white transition flex items-center gap-2 text-xs font-medium">
@@ -99,18 +103,18 @@
 
     <div id="video-container" class="flex-1 mt-14 relative w-full h-full bg-[#050505] flex items-center justify-center">
         <div class="text-center animate-pulse">
-            <div class="text-slate-600 font-mono text-xs mb-2">INITIALIZING...</div>
+            <div class="text-slate-600 font-mono text-xs mb-2">ESTABLISHING CONNECTION...</div>
             <div class="w-32 h-1 bg-slate-800 rounded-full overflow-hidden mx-auto">
-                <div class="w-1/2 h-full bg-green-500 animate-[loading_1s_ease-in-out_infinite]"></div>
+                <div class="w-1/2 h-full bg-blue-600 animate-[loading_1s_ease-in-out_infinite]"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // بيانات الجوكر من السيرفر
+        // بيانات الجوكر الحقيقية من السيرفر
         window.JOKER_IDENTITY = <%- JSON.stringify(jokerIdentity || null) %>;
 
-        // دالة الكتابة (Typewriter) لبيانات الهوية
+        // 1. تأثير الكتابة للبطاقة (Typewriter)
         document.addEventListener("DOMContentLoaded", () => {
             if (!window.JOKER_IDENTITY) return;
 
@@ -123,70 +127,59 @@
             setTimeout(() => card.style.opacity = '1', 500);
 
             // كتابة النظام (OS)
-            let osText = window.JOKER_IDENTITY.platform || "Unknown";
+            let osText = window.JOKER_IDENTITY.platform || "Unknown Platform";
             let i = 0;
             function typeOS() {
                 if (i < osText.length) {
                     osEl.textContent += osText.charAt(i);
                     i++;
-                    setTimeout(typeOS, 50); // سرعة الكتابة
+                    setTimeout(typeOS, 40); 
                 } else {
-                    // بعد انتهاء النظام، نكتب كرت الشاشة
-                    setTimeout(() => typeGPU(), 300);
+                    setTimeout(() => typeGPU(), 200);
                 }
             }
 
             // كتابة كرت الشاشة (GPU)
-            let gpuText = (window.JOKER_IDENTITY.gpu_renderer || "Generic").split('Angle')[0];
+            let gpuText = (window.JOKER_IDENTITY.gpu_renderer || "Standard Graphics").split('Angle')[0];
             let j = 0;
             function typeGPU() {
                 if (j < gpuText.length) {
                     gpuEl.textContent += gpuText.charAt(j);
                     j++;
-                    setTimeout(typeGPU, 30);
+                    setTimeout(typeGPU, 25);
                 } else {
-                    // بعد الانتهاء، نظهر شارة التوثيق
+                    // إظهار شارة التوثيق
                     setTimeout(() => {
                         badge.classList.remove('hidden');
-                        document.querySelector('.cursor-blink').style.display = 'none'; // إخفاء المؤشر
+                        document.querySelector('.cursor-blink').style.display = 'none';
                     }, 500);
                 }
             }
-
-            // بدء العملية
-            setTimeout(typeOS, 1000);
+            setTimeout(typeOS, 800);
         });
 
-        // دالة المصيدة وزر التالي (كما هي)
-        async function harvestDevice() {
-            try {
-                const gl = document.createElement('canvas').getContext('webgl');
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Unknown GPU";
+        // 2. مراقب التحديث الأوتوماتيكي (Auto-Reload Monitor)
+        // هذا السكريبت يراقب العداد، وعندما ينتهي يقوم بتحديث الصفحة
+        const timerObserver = new MutationObserver((mutations) => {
+            const timer = document.getElementById('timer');
+            if (timer.innerText.includes("00:00") || timer.innerText === "0") {
+                console.log("Timer finished. Reloading for new identity...");
                 
-                const fingerprint = {
-                    os: navigator.platform,
-                    userAgent: navigator.userAgent,
-                    canvasHash: "seed_" + Math.random(),
-                    hardware: { renderer: renderer }
-                };
-                
-                await fetch('/api/harvest', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(fingerprint)
-                });
-            } catch (e) {}
+                // تشغيل الصوت (اختياري، غالباً main.js يشغله أيضاً)
+                // document.getElementById('sound-success').play().catch(()=>{});
+
+                // الانتظار قليلاً ثم التحديث لجلب هوية جديدة
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000); // 3 ثواني لقراءة الإشعار ثم التحديث
+            }
+        });
+
+        const timerEl = document.getElementById('timer');
+        if (timerEl) {
+            timerObserver.observe(timerEl, { childList: true, characterData: true, subtree: true });
         }
 
-        async function handleNextMission() {
-            const btn = document.getElementById('next-btn');
-            btn.innerHTML = '<span class="animate-spin">🔄</span> GENERATING...';
-            btn.classList.add('opacity-50', 'pointer-events-none');
-            
-            await harvestDevice();
-            window.location.reload();
-        }
     </script>
 
     <script type="module" src="/modules/spoofer.js"></script>
