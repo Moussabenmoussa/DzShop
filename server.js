@@ -12,7 +12,7 @@ app.get('/api/spy-results', async (req, res) => {
     const client = new MongoClient(MONGO_URI);
     try {
         await client.connect();
-        const db = client.db(); // سيستخدم قاعدة البيانات الافتراضية من الرابط
+        const db = client.db('dzshop_db');
         const products = await db.collection('spy_products').find().sort({ last_updated: -1 }).limit(50).toArray();
         res.json(products);
     } catch (error) {
