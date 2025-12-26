@@ -1,0 +1,20 @@
+services:
+  # خدمة الموقع (الواجهة والـ API)
+  - type: web
+    name: dzshop-web-service
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+        fromConfigVar: MONGO_URI
+
+  # خدمة المحرك (الجوكر لجمع البيانات)
+  - type: worker
+    name: dzshop-spy-worker
+    env: python
+    buildCommand: pip install requests pymongo dnspython
+    startCommand: python scraper_worker.py
+    envVars:
+      - key: MONGO_URI
+        fromConfigVar: MONGO_URI
