@@ -5,7 +5,7 @@ from datetime import datetime
 
 MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
-db = client.get_default_database()
+db = client['dzshop_db']
 products_col = db['spy_products']
 
 def spy_on_shopify(store_url):
