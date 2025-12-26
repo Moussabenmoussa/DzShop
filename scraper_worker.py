@@ -27,5 +27,12 @@ def spy_on_shopify(store_url):
 
 if __name__ == "__main__":
     # أضف روابط المتاجر هنا
-    STORES = ["https://kyliecosmetics.com"]
+   
+STORES = [
+    "https://kyliecosmetics.com",
+    "https://jeffreestarcosmetics.com",
+    "https://rowanbeauty.com"
+]
+
+    
     for s in STORES: spy_on_shopify(s)
