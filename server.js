@@ -1,116 +1,31 @@
 
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const path = require('path'); // مكتبة المسارات
-const expressLayouts = require('express-ejs-layouts'); // مكتبة التصميم
+const path = require('path');
+const { MongoClient } = require('mongodb');
+
 const app = express();
-
-
-// 1. الاتصال بقاعدة البيانات
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tiktokhive')
-  .then(() => console.log('✅ DB Connected'))
-  .catch(err => console.log('❌ DB Error:', err));
-
-// 2. إعدادات السيرفر
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // مسار ملفات JS/CSS
-
-// 3. إصلاح التصميم (الحل الجذري)
-app.use(expressLayouts);
-app.set('views', path.join(__dirname, 'views')); // تحديد مجلد القوالب بدقة
-app.set('layout', 'layout'); // اسم الملف layout.ejs داخل مجلد views
-app.set('view engine', 'ejs');
-
-// 4. إعداد الجلسات
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'super_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tiktokhive' }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } 
-}));
-
-
-
-// 🕵️ مراقب الترافيك (ضعه في server.js قبل app.use routes)
-app.use((req, res, next) => {
-    // نراقب فقط طلبات زيارة الفيديوهات أو الروابط
-    if (req.path.includes('/watch') || req.path.includes('/visit')) {
-        const referer = req.get('Referer') || 'Direct (مباشر)';
-        const ip = req.ip;
-        
-        console.log(`============================================`);
-        console.log(`🔍 فحص الزيارة الجديدة:`);
-        console.log(`🌍 المصدر (Referer): ${referer}`);
-        console.log(`🆔 العنوان (IP): ${ip}`);
-        
-        if (referer.includes('google.com')) {
-            console.log(`✅ النتيجة: زيارة أورجانيك حقيقية (SEO)`);
-        } else {
-            console.log(`⚠️ النتيجة: زيارة مباشرة (Direct) - قد لا تحسب في السيو`);
-        }
-        console.log(`============================================`);
-    }
-    next();
-});
-
-// 5. المسارات
-
-// 👇 أضف هذا السطر فوراً لإصلاح خطأ Render والحماية
-app.set('trust proxy', 1); 
-app.use('/', require('./routes/authRoutes'));
-app.use('/', require('./routes/dashboardRoutes'));
-app.use('/api', require('./routes/apiRoutes'));
-app.use('/api', require('./routes/apiRoutes'));
-app.use('/admin', require('./routes/adminRoutes')); 
-app.use('/api', require('./routes/harvestRoutes')); 
-app.get('/download', (req, res) => {
-    // We set layout: false to prevent using the main site template and avoid the 'points' error
-    res.render('download', { 
-        layout: false, 
-        title: 'Checking Download link...' 
-    });
-});
-
-
-
-
-
-// === 🚑 كود الطوارئ لفك الحظر ===
-app.get('/rescue-me', async (req, res) => {
-    try {
-        const User = require('./models/User'); // استدعاء الموديل
-        
-        // ⚠️ استبدل هذا الإيميل بإيميلك الذي سجلت به
-        const myEmail = "mouniir1982@gmail.com"; 
-
-        const user = await User.findOneAndUpdate(
-            { email: myEmail },
-            { 
-                isBanned: false, 
-                fraudStrikes: 0, 
-                deviceFingerprint: null, // مسح البصمة
-                banReason: null 
-            },
-            { new: true }
-        );
-
-        if (user) {
-            res.send(`<h1>✅ تم فك الحظر عن: ${user.name}</h1><p>رصيد المخالفات عاد للصفر. يمكنك الدخول الآن.</p> <a href="/login">تسجيل الدخول</a>`);
-        } else {
-            res.send(`<h1>❌ لم يتم العثور على المستخدم: ${myEmail}</h1>`);
-        }
-    } catch (e) {
-        res.send("Error: " + e.message);
-    }
-});
-// =================================
-
-
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Hive Engine Running on Port ${PORT}`));
+const MONGO_URI = process.env.MONGO_URI;
+
+// إعداد الوصول للمجلد العام
+app.use(express.static(path.join(__dirname, 'public')));
+
+// مسار API لجلب نتائج التجسس من MongoDB
+app.get('/api/spy-results', async (req, res) => {
+    const client = new MongoClient(MONGO_URI);
+    try {
+        await client.connect();
+        const db = client.db('dzshop_db'); // نفس الاسم المستخدم في سكربت بايثون
+        const products = await db.collection('spy_products').find().sort({ last_updated: -1 }).limit(50).toArray();
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: "خطأ في الاتصال بقاعدة البيانات" });
+    } finally {
+        await client.close();
+    }
+});
+
+// تشغيل السيرفر
+app.listen(PORT, () => {
+    console.log(`🚀 المنصة تعمل على المنفذ ${PORT}`);
+});
