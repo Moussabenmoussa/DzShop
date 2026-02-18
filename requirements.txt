@@ -2,5 +2,6 @@ fastapi
 uvicorn
 selenium
 webdriver-manager
-selenium-stealth
 requests
+beautifulsoup4
+selenium-stealth
