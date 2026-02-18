@@ -1,19 +1,17 @@
-import requests
+from fastapi import FastAPI
+import requests, random, time, os, json
 from bs4 import BeautifulSoup
-import random
-import time
-import os
-import json
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 
+app = FastAPI()
+
 CHROME_PATH = "/usr/bin/google-chrome"
 CHROMEDRIVER_PATH = "/usr/bin/chromedriver"
 CACHE_FILE = "valid_proxies.json"
 
-# --- قائمة User-Agents ---
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
@@ -130,7 +128,8 @@ def human_behavior(driver):
         time.sleep(random.uniform(2, 4))
 
 # --- زيارة الهدف ---
-def visit_target(url: str, attempts=5):
+@app.get("/visit")
+def visit_target(url: str, attempts: int = 5):
     valid_proxies = load_cache()
 
     if not valid_proxies:
@@ -164,3 +163,8 @@ def visit_target(url: str, attempts=5):
                 driver.quit()
 
     return {"status": "Error", "message": "All proxies failed after retries."}
+
+# --- مسار تجريبي للتأكد أن السيرفر يعمل ---
+@app.get("/")
+def root():
+    return {"message": "Server is running!"}
