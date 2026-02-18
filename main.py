@@ -12,16 +12,25 @@ CHROME_PATH = "/opt/render/project/src/chrome"
 CHROMEDRIVER_PATH = "/opt/render/project/src/chromedriver"
 
 def get_driver():
-    """تجهيز المتصفح الخفي"""
+    """تجهيز المتصفح الخفي مع إعدادات تخطي قيود السيرفر"""
     options = Options()
     options.binary_location = CHROME_PATH
-    options.add_argument("--headless")  # هام جداً: العمل بدون شاشة
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    # تزييف الهوية لكي لا يتم كشفنا كـ Headless
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
+    # الإعدادات الأساسية للعمل على السيرفر
+    options.add_argument("--headless=new") # الوضع الخفي المطور
+    options.add_argument("--no-sandbox") # ضروري جداً لبيئات Linux/Render
+    options.add_argument("--disable-dev-shm-usage") # حل مشكلة الذاكرة المحدودة (مهم جداً)
+    options.add_argument("--disable-gpu")
+    options.add_argument("--remote-debugging-port=9222")
+    
+    # تزييف الهوية لمنع كشف البوت
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+    
+    # منع تحميل الصور لتوفير الرام وسرعة التنفيذ
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
+
     service = Service(executable_path=CHROMEDRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=options)
     return driver
