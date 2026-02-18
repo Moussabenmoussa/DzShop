@@ -1,64 +1,71 @@
-from fastapi import FastAPI
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-import time
-import os
+import requests
+from bs4 import BeautifulSoup
+import random
 
-app = FastAPI()
+# --- دالة اصطياد البروكسيات المجانية ---
+def fetch_free_proxies():
+    print("🕵️ Scrapping for fresh proxies...")
+    url = "https://www.sslproxies.org/"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        proxies = []
+        # استخراج أول 20 بروكسي سريع من الجدول
+        for row in soup.find_all('tr')[1:21]:
+            tds = row.find_all('td')
+            try:
+                ip = tds[0].text
+                port = tds[1].text
+                proxies.append(f"{ip}:{port}")
+            except: continue
+        return proxies
+    except Exception as e:
+        print(f"❌ Scrape failed: {e}")
+        return []
 
-# مسارات كروم التي ثبتناها في ملف build.sh
-CHROME_PATH = "/opt/render/project/src/chrome"
-CHROMEDRIVER_PATH = "/opt/render/project/src/chromedriver"
-
-def get_driver():
-    """تجهيز المتصفح الخفي مع إعدادات تخطي قيود السيرفر"""
+# --- تعديل دالة تشغيل المتصفح ---
+def get_driver(proxy):
     options = Options()
     options.binary_location = CHROME_PATH
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     
-    # الإعدادات الأساسية للعمل على السيرفر
-    options.add_argument("--headless=new") # الوضع الخفي المطور
-    options.add_argument("--no-sandbox") # ضروري جداً لبيئات Linux/Render
-    options.add_argument("--disable-dev-shm-usage") # حل مشكلة الذاكرة المحدودة (مهم جداً)
-    options.add_argument("--disable-gpu")
-    options.add_argument("--remote-debugging-port=9222")
+    # حقن البروكسي المصطاد في المتصفح
+    if proxy:
+        print(f"🎭 Using Proxy Mask: {proxy}")
+        options.add_argument(f'--proxy-server=http://{proxy}')
     
-    # تزييف الهوية لمنع كشف البوت
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     
-    # منع تحميل الصور لتوفير الرام وسرعة التنفيذ
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    options.add_experimental_option("prefs", prefs)
-
     service = Service(executable_path=CHROMEDRIVER_PATH)
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
-
-@app.get("/")
-def home():
-    return {"status": "Bot is Ready", "engine": "Selenium Headless"}
+    return webdriver.Chrome(service=service, options=options)
 
 @app.get("/visit")
 def visit_target(url: str):
-    """نقطة النهاية التي تأمر البوت بزيارة موقع"""
-    print(f"🚀 Starting mission to: {url}")
+    # 1. جلب قائمة بروكسيات طازجة
+    proxy_list = fetch_free_proxies()
     
-    try:
-        driver = get_driver()
-        driver.get(url)
-        
-        # الانتظار لتحميل الإعلانات والجافاسكريبت
-        time.sleep(5) 
-        
-        title = driver.title
-        driver.quit() # إغلاق المتصفح لتوفير الرام
-        
-        return {"status": "Success", "title": title, "url": url}
-    
-    except Exception as e:
-        return {"status": "Error", "message": str(e)}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # 2. محاولة التنفيذ (سنحاول حتى نجد بروكسي يعمل)
+    attempts = 3
+    for i in range(attempts):
+        proxy = random.choice(proxy_list) if proxy_list else None
+        driver = None
+        try:
+            driver = get_driver(proxy)
+            driver.set_page_load_timeout(30) # لا نريد الانتظار للأبد
+            driver.get(url)
+            
+            # حركات بشرية
+            human_scroll(driver)
+            
+            title = driver.title
+            driver.quit()
+            return {"status": "Success", "proxy": proxy, "title": title}
+        except Exception as e:
+            if driver: driver.quit()
+            print(f"⚠️ Proxy {proxy} failed, retrying... ({i+1}/{attempts})")
+            continue
+            
+    return {"status": "Error", "message": "All proxies failed. Try again."}
